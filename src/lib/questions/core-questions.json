@@ -1,0 +1,543 @@
+{
+	"version": 1,
+	"quickReference": {
+		"workingStyle": {
+			"buyer": ["B.5", "B.8", "B.11"],
+			"seller": ["S.5", "S.6"],
+			"agent": ["A.4", "A.8", "A.12"]
+		},
+		"fit": {
+			"buyer": ["B.1", "B.2", "B.3", "B.4", "B.9", "B.10"],
+			"seller": ["S.1", "S.2", "S.3", "S.4", "S.9"],
+			"agent": ["A.1", "A.2", "A.3", "A.12"]
+		},
+		"communication": {
+			"buyer": ["B.6", "B.7", "B.13"],
+			"seller": ["S.7", "S.8", "S.11", "S.13"],
+			"agent": ["A.5", "A.6", "A.7", "A.9"]
+		},
+		"transparency": {
+			"buyer": ["B.12", "B.14"],
+			"seller": ["S.10", "S.12", "S.14"],
+			"agent": ["A.10", "A.11"]
+		}
+	},
+	"flows": {
+		"buyer": {
+			"label": "Buyer Flow",
+			"questionCount": 14,
+			"questions": [
+				{
+					"id": "B.1",
+					"number": 1,
+					"category": "Fit",
+					"prompt": "In what price range are you looking to buy?",
+					"options": [
+						"Under $400k",
+						"$400k to $750k",
+						"$750k to $1.5M",
+						"$1.5M and above"
+					]
+				},
+				{
+					"id": "B.2",
+					"number": 2,
+					"category": "Fit",
+					"prompt": "How soon would you like to be settled in your new home?",
+					"options": [
+						"Within 3 months - I have a deadline or I am ready now",
+						"3 to 6 months - I am actively preparing",
+						"6 to 12 months - I am planning ahead so I am not rushed",
+						"No fixed timeline - I will know the right situation when I see it"
+					]
+				},
+				{
+					"id": "B.3",
+					"number": 3,
+					"category": "Fit",
+					"prompt": "What type of home are you looking for?",
+					"options": [
+						"Single-family home",
+						"Condo or townhome",
+						"Luxury or high-end property",
+						"Land",
+						"Multi-family property",
+						"I am open or not sure yet"
+					]
+				},
+				{
+					"id": "B.4",
+					"number": 4,
+					"category": "Fit",
+					"prompt": "How would you describe your level of experience with buying a home?",
+					"options": [
+						"This is my first time - I want someone who explains everything and never assumes I already know",
+						"I have done this before - I understand the basics but want a strong guide for this specific market",
+						"I am very experienced - I need sharp execution and market access, not education"
+					]
+				},
+				{
+					"id": "B.5",
+					"number": 5,
+					"category": "Working Style",
+					"prompt": "When you picture working with your ideal agent, what does that relationship look like?",
+					"options": [
+						"A trusted advisor who stays ahead of me and brings me what I need before I ask",
+						"A thinking partner - someone I reason through decisions with as equals",
+						"A skilled executor - I set the direction; I need someone who delivers precisely and quickly"
+					]
+				},
+				{
+					"id": "B.6",
+					"number": 6,
+					"category": "Communication",
+					"prompt": "How do you prefer to handle quick back-and-forth communications during your transaction?",
+					"options": [
+						"Text - fast, easy, I can respond whenever",
+						"Phone - I'd rather just talk it through quickly",
+						"Either is fine - whatever works best in the moment"
+					]
+				},
+				{
+					"id": "B.7",
+					"number": 7,
+					"category": "Communication",
+					"prompt": "How do you prefer to receive updates, timelines, and documents?",
+					"options": [
+						"Email - I like having everything in writing I can refer back to",
+						"Text with attachments - quick delivery, I'll open it right away",
+						"Phone call first, then email recap - I want to talk through it and have a record"
+					]
+				},
+				{
+					"id": "B.8",
+					"number": 8,
+					"category": "Working Style",
+					"prompt": "When you are close to making a big decision, what do you need most to move forward?",
+					"options": [
+						"The numbers - show me the comps, the trends, the math, and I will make my call",
+						"Time and space - I do not make big decisions quickly and I do not want to be rushed",
+						"A trusted perspective - I want someone experienced to tell me what they would do in my shoes",
+						"A gut feeling - the data matters, but ultimately, I need to feel right about it"
+					]
+				},
+				{
+					"id": "B.9",
+					"number": 9,
+					"category": "Fit",
+					"prompt": "You just lost a bidding war on a home you loved. What do you need from your agent at that moment?",
+					"options": [
+						"Give me the facts and options immediately - I process by analyzing what happened and planning the next move",
+						"Help me step back - I need space to process the disappointment before making another decision",
+						"Reassure me - remind me that this was not the only home, and we will find the right one",
+						"Stay calm and steady - do not over-explain, do not panic, just be a grounding presence"
+					]
+				},
+				{
+					"id": "B.10",
+					"number": 10,
+					"category": "Fit",
+					"prompt": "What is non-negotiable in your agent?",
+					"selection": {
+						"type": "multiple",
+						"maxSelections": 2
+					},
+					"options": [
+						"Market expert - know this market cold",
+						"Fierce negotiator - fights for every dollar",
+						"Responds fast - I won't wonder where they are",
+						"Calm & low-drama - keeps it smooth start to finish",
+						"My interests first - always puts me ahead of the agent's interests",
+						"Honest & straightforward - tells me hard truths"
+					]
+				},
+				{
+					"id": "B.11",
+					"number": 11,
+					"category": "Working Style",
+					"prompt": "How involved do you want to be in the details of buying your home?",
+					"options": [
+						"Very involved - I want to weigh in on every decision",
+						"Keep me informed on what matters, but I trust my agent to handle the details",
+						"Hands off - tell me what you need from me and take care of the rest"
+					]
+				},
+				{
+					"id": "B.12",
+					"number": 12,
+					"category": "Transparency",
+					"prompt": "When it comes to choosing an agent, which matters more to you?",
+					"options": [
+						"An agent whose broad market connections give you access others cannot - even if those connections sometimes come with competing loyalties",
+						"An agent whose only job is representing you, with no other relationships that could compromise your deal"
+					]
+				},
+				{
+					"id": "B.13",
+					"number": 13,
+					"category": "Communication",
+					"prompt": "When you reach out to your agent, how quickly do you expect a response?",
+					"options": [
+						"Within 10 minutes - I need fast turnaround, especially in competitive situations",
+						"Within 30 minutes - reasonably quick, I do not like waiting long",
+						"Within a few hours - same day is fine as long as it is prompt",
+						"Within 24 hours - I am patient and understand agents are busy"
+					]
+				},
+				{
+					"id": "B.14",
+					"number": 14,
+					"category": "Transparency",
+					"prompt": "How do you plan to handle commissions to your buyer's agent?",
+					"options": [
+						"I plan to negotiate - I have done my research and I know what I want to pay",
+						"I am open to it but want to understand my options first",
+						"I would rather find the right agent first and work out commissions later",
+						"I do not fully understand how buyer agent commissions work yet - I want to learn"
+					]
+				}
+			]
+		},
+		"seller": {
+			"label": "Seller Flow",
+			"questionCount": 14,
+			"questions": [
+				{
+					"id": "S.1",
+					"number": 1,
+					"category": "Fit",
+					"prompt": "What do you estimate your home is worth?",
+					"options": [
+						"Under $400k",
+						"$400k to $750k",
+						"$750k to $1.5M",
+						"$1.5M and above"
+					]
+				},
+				{
+					"id": "S.2",
+					"number": 2,
+					"category": "Fit",
+					"prompt": "How soon do you need your home on the market?",
+					"options": [
+						"Within 4 weeks - I need to move fast",
+						"1 to 3 months - I want to prepare properly and do this right",
+						"3 to 6 months - I am planning ahead",
+						"No rush - I will list when the situation is right"
+					]
+				},
+				{
+					"id": "S.3",
+					"number": 3,
+					"category": "Fit",
+					"prompt": "What type of property are you selling?",
+					"options": [
+						"Single-family home",
+						"Condo or townhome",
+						"Luxury or high-end property",
+						"Land",
+						"Multi-family property",
+						"Other"
+					]
+				},
+				{
+					"id": "S.4",
+					"number": 4,
+					"category": "Fit",
+					"prompt": "What is driving this sale?",
+					"options": [
+						"Moving up or downsizing - it is a planned lifestyle change",
+						"Relocating for work or a major life change",
+						"Financial pressure or estate settlement",
+						"It feels like the right time - no major urgency",
+						"A major personal transition - divorce, separation, loss, or a difficult chapter",
+						"Other"
+					]
+				},
+				{
+					"id": "S.5",
+					"number": 5,
+					"category": "Working Style",
+					"prompt": "Every seller wants a strong price. But when you imagine this sale going well, what does that actually look like?",
+					"options": [
+						"Maximum price, even if it means patience and time on the market",
+						"A strong price AND a smooth, low-stress process from start to finish",
+						"Speed and certainty - I want this resolved on clear terms",
+						"I need to close by a specific date - the deadline is more important than maximizing price"
+					]
+				},
+				{
+					"id": "S.6",
+					"number": 6,
+					"category": "Working Style",
+					"prompt": "How involved do you want to be in the details of selling your home?",
+					"options": [
+						"Very involved - I want to weigh in on pricing strategy, marketing, staging, and negotiation decisions",
+						"Keep me informed on what matters, but I trust my agent to handle the details",
+						"Hands off - tell me what you need from me and take care of the rest"
+					]
+				},
+				{
+					"id": "S.7",
+					"number": 7,
+					"category": "Communication",
+					"prompt": "How do you prefer to handle quick back-and-forth communications during your transaction?",
+					"options": [
+						"Text - fast, easy, I can respond whenever",
+						"Phone - I'd rather just talk it through quickly",
+						"Either is fine - whatever works best in the moment"
+					]
+				},
+				{
+					"id": "S.8",
+					"number": 8,
+					"category": "Communication",
+					"prompt": "How do you prefer to receive updates, timelines, and documents?",
+					"options": [
+						"Email - I like having everything in writing I can refer back to",
+						"Text with attachments - quick delivery, I'll open it right away",
+						"Phone call first, then email recap - I want to talk through it and have a record"
+					]
+				},
+				{
+					"id": "S.9",
+					"number": 9,
+					"category": "Fit",
+					"prompt": "Imagine your agent truly delivered. When you look back on the experience, what made you feel that way?",
+					"selection": {
+						"type": "multiple",
+						"maxSelections": 2
+					},
+					"options": [
+						"Priced it right - attracted strong offers",
+						"Great marketing - made my home look exceptional",
+						"Great negotiated outcomes - better deal than I could get",
+						"Reachable & responsive - always there when I needed",
+						"Kept the process calm - no drama, no surprises",
+						"Honest & straightforward - told me hard truths"
+					]
+				},
+				{
+					"id": "S.10",
+					"number": 10,
+					"category": "Fit",
+					"prompt": "How would you describe your connection to this home?",
+					"options": [
+						"It is an asset - I want the best financial outcome and a clean process",
+						"I have good memories here but I am ready to move on",
+						"This home is part of my identity - selling it is a real loss, even if it is the right decision",
+						"It is complicated - this sale is tied to something emotionally difficult"
+					]
+				},
+				{
+					"id": "S.11",
+					"number": 11,
+					"category": "Communication",
+					"prompt": "When you're not hearing from your agent, what do you prefer?",
+					"options": [
+						"Regular scheduled check-ins - I like knowing when to expect updates",
+						"Updates at key milestones - only when something meaningful happens",
+						"I'll reach out when I need something - I do not want to be over-communicated to"
+					]
+				},
+				{
+					"id": "S.12",
+					"number": 12,
+					"category": "Transparency",
+					"prompt": "When it comes to choosing an agent, which matters more to you?",
+					"options": [
+						"An agent whose broad market connections give you access others cannot - even if those connections sometimes come with competing loyalties",
+						"An agent whose only job is representing you, with no other relationships that could compromise your deal"
+					]
+				},
+				{
+					"id": "S.13",
+					"number": 13,
+					"category": "Communication",
+					"prompt": "When you reach out to your agent, how quickly do you expect a response?",
+					"options": [
+						"Within 10 minutes - I need fast turnaround, especially in time-sensitive situations",
+						"Within 30 minutes - reasonably quick, I do not like waiting long",
+						"Within a few hours - same day is fine as long as it is prompt",
+						"Within 24 hours - I am patient and understand agents are busy"
+					]
+				},
+				{
+					"id": "S.14",
+					"number": 14,
+					"category": "Transparency",
+					"prompt": "How do you plan to handle commissions to your listing agent?",
+					"options": [
+						"I plan to negotiate - I have done my research and I know what I want to pay",
+						"I am open to the conversation but I want to understand my options first",
+						"I will pay a fair rate for the right agent - commissions are not my primary concern",
+						"I do not fully understand how seller-side commissions work yet - I want to learn"
+					]
+				}
+			]
+		},
+		"agent": {
+			"label": "Agent Flow",
+			"questionCount": 12,
+			"questions": [
+				{
+					"id": "A.1",
+					"number": 1,
+					"category": "Fit",
+					"prompt": "Which side of the transaction do you primarily represent?",
+					"options": ["Buyer representation", "Seller representation"]
+				},
+				{
+					"id": "A.2",
+					"number": 2,
+					"category": "Fit",
+					"prompt": "What is your typical price range?",
+					"options": [
+						"Under $400k",
+						"$400k to $750k",
+						"$750k to $1.5M",
+						"$1.5M and above"
+					]
+				},
+				{
+					"id": "A.3",
+					"number": 3,
+					"category": "Fit",
+					"prompt": "Where do you do your best work?",
+					"selection": {
+						"type": "multiple",
+						"maxSelections": 2
+					},
+					"options": [
+						"First-time buyers who need guidance through the entire process",
+						"Move-up or downsizing buyers navigating a transition",
+						"Relocation clients on tight timelines",
+						"Luxury transactions with high-touch expectations",
+						"Investors focused on numbers and execution",
+						"Land or multi-family transactions",
+						"Sellers and listings",
+						"Condos and townhomes",
+						"Other"
+					]
+				},
+				{
+					"id": "A.4",
+					"number": 4,
+					"category": "Working Style",
+					"prompt": "How would most of your clients describe working with you?",
+					"options": [
+						"Strategic and data-driven - I bring the analysis, the market context, and a clear plan",
+						"Calm and steady - I keep things grounded and drama-free, especially when it gets stressful",
+						"Warm and relational - my clients feel genuinely cared for as people, not just as transactions",
+						"Efficient and decisive - I move fast, communicate clearly, and do not waste their time"
+					]
+				},
+				{
+					"id": "A.5",
+					"number": 5,
+					"category": "Communication",
+					"prompt": "How often do you communicate with clients during a transaction?",
+					"options": [
+						"I check in regularly on a set schedule, whether or not there is news to share",
+						"I update clients at every key milestone and decision point",
+						"I let clients set the pace - I am responsive when they reach out but I do not initiate unless something requires their attention"
+					]
+				},
+				{
+					"id": "A.6",
+					"number": 6,
+					"category": "Communication",
+					"prompt": "How do you prefer to handle quick back-and-forth with clients during a transaction?",
+					"options": [
+						"Text - fast and easy, clients can reach me anytime",
+						"Phone - I'd rather just talk it through quickly",
+						"Either is fine - I adapt to what works for the client"
+					]
+				},
+				{
+					"id": "A.7",
+					"number": 7,
+					"category": "Communication",
+					"prompt": "How do you typically deliver updates, timelines, and documents to clients?",
+					"options": [
+						"Email - everything documented, easy to reference later",
+						"Text with attachments - quick delivery, clients get it right away",
+						"Phone call first, then email recap - I talk through it and follow up in writing"
+					]
+				},
+				{
+					"id": "A.8",
+					"number": 8,
+					"category": "Working Style",
+					"prompt": "When a deal gets difficult - bad inspection, appraisal gap, unreasonable counterparty - what is your instinct?",
+					"options": [
+						"Get the client the facts immediately and lay out every option so they can decide",
+						"Slow it down - make sure the client fully understands the situation before anyone reacts",
+						"I take the lead - I work the problem, protect my client from unnecessary noise, and bring them in when there is a real decision to make",
+						"De-escalate first - bring the temperature down, then problem-solve together"
+					]
+				},
+				{
+					"id": "A.9",
+					"number": 9,
+					"category": "Communication",
+					"prompt": "When a client reaches out, how quickly do you typically respond?",
+					"options": [
+						"Within 10 minutes",
+						"Within 30 minutes",
+						"Within a few hours - same day always",
+						"Within 24 hours"
+					]
+				},
+				{
+					"id": "A.10",
+					"number": 10,
+					"category": "Transparency",
+					"prompt": "How do you approach commission conversations with clients?",
+					"options": [
+						"I bring it up proactively and my rate is set - I explain my value and it speaks for itself",
+						"I bring it up proactively and I am open to discussing it based on the client and transaction",
+						"I wait for the client to raise it and my rate is set - if they ask I explain my value",
+						"I wait for the client to raise it and I am happy to have that conversation openly"
+					]
+				},
+				{
+					"id": "A.11",
+					"number": 11,
+					"category": "Transparency",
+					"prompt": "You are the listing agent and an unrepresented buyer walks in interested in your listing. What do you do?",
+					"options": [
+						"I refer the buyer to an agent at a completely separate brokerage - they deserve independent representation",
+						"I represent the seller only and the buyer proceeds unrepresented - with full written disclosure to all parties",
+						"Another agent at my brokerage steps in to represent the buyer - with full written disclosure to both parties"
+					]
+				},
+				{
+					"id": "A.12",
+					"number": 12,
+					"categories": ["Working Style", "Fit"],
+					"categoryNote": "Fit assignment not finalized",
+					"prompt": "Who are you NOT the right fit for?",
+					"inputType": "open-text"
+				}
+			]
+		}
+	},
+	"proposedScoringLogic": {
+		"status": "To be determined with development team",
+		"inputs": [
+			{
+				"name": "Category ranking",
+				"description": "Consumer and agent each rank the four categories 1 through 4 in order of importance. This ranking becomes a weight applied to that category's questions in the match score. First-ranked category matters most. Fourth-ranked matters least."
+			},
+			{
+				"name": "Core question answers",
+				"description": "Each answer choice is pre-tagged on the back end to a position within its category. Consumer answer and agent answer are compared per question. Questions within a category are aggregated into a category fit score. All four category scores are weighted by the ranking and combined into an overall bilateral fit score."
+			},
+			{
+				"name": "Pax AI Deep Dive",
+				"description": "Pax knows which categories the consumer ranked highest and asks behavioral follow-up questions targeting those categories. The Pax responses refine the category scores for the top-ranked categories, producing a more precise profile than the core questions alone."
+			}
+		]
+	}
+}
