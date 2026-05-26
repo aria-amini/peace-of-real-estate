@@ -4,42 +4,19 @@ import { test } from '@config/test/browser'
 import { expectRouteScreenshot } from './utils/file-routes'
 
 const pages = [
-	{
-		path: '/',
-	},
-	{
-		path: '/buyer/results',
-	},
-	{
-		path: '/agent/priorities',
-	},
-	{
-		path: '/agent/quiz',
-	},
-	{
-		path: '/agent/profile',
-	},
-	{
-		name: 'match-activity',
-	},
-	{
-		path: '/login',
-	},
-	{
-		path: '/signup',
-	},
-	{
-		path: '/beta',
-	},
+	'/',
+	'/buyer/results',
+	'/agent/priorities',
+	'/agent/quiz',
+	'/agent/profile',
+	'/match-activity',
+	'/login',
+	'/signup',
+	'/beta',
 ] as const
 
-function getPageLabel(options: (typeof pages)[number]) {
-	return 'name' in options ? options.name : options.path
-}
-
-test.each(pages.map((options) => [getPageLabel(options), options] as const))(
-	'%s page matches desktop screenshot',
-	async (_label, options) => {
-		await expectRouteScreenshot(options)
-	},
-)
+test.each(
+	pages.map((path) => [path === '/' ? 'home' : path.slice(1), path] as const),
+)('%s page matches desktop screenshot', async (_label, path) => {
+	await expectRouteScreenshot({ path })
+})
