@@ -11,9 +11,10 @@ export const Route = createFileRoute('/_app/signup')({
 
 function SignupRoute() {
 	const search = Route.useSearch()
-	return <Signup redirect={search.redirect} />
-}
-
-export function Signup({ redirect }: { redirect?: string }) {
-	return <AuthCard mode="sign-up" {...(redirect ? { redirect } : {})} />
+	return (
+		<AuthCard
+			mode="sign-up"
+			{...(search.redirect ? { redirect: search.redirect } : {})}
+		/>
+	)
 }

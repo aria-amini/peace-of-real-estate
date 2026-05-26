@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_app/login')({
 
 function LoginRoute() {
 	const search = Route.useSearch()
-	return <Login redirect={search.redirect} />
+	return <Login {...(search.redirect ? { redirect: search.redirect } : {})} />
 }
 
 export function Login({ redirect }: { redirect?: string }) {

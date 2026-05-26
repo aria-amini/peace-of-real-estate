@@ -26,4 +26,16 @@ const appConfig = createAppConfig({
 		},
 	},
 })
-export default mergeConfig(appConfig, { plugins: [validateServerEnvPlugin()] })
+export default mergeConfig(appConfig, {
+	lint: {
+		overrides: [
+			{
+				files: ['scripts/**'],
+				rules: {
+					'no-console': 'off',
+				},
+			},
+		],
+	},
+	plugins: [validateServerEnvPlugin()],
+})

@@ -64,9 +64,13 @@ function AgentPeacePact() {
 				</span>
 			</label>
 
-			<label className="mt-6 block space-y-2 text-sm font-medium">
+			<label
+				htmlFor="agent-signature"
+				className="mt-6 block space-y-2 text-sm font-medium"
+			>
 				Agent Signature (type full name)
 				<Input
+					id="agent-signature"
 					value={signature}
 					onChange={(event) => setSignature(event.target.value)}
 				/>
