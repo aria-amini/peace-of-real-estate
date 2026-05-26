@@ -1,1 +1,1 @@
-export { default } from '../tests/mocks/handlers'
+export { default } from '../tests/mocks/http'
