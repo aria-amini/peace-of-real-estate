@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { GetMatchedDialog } from "@/components/get-matched-dialog";
+import { Button } from '@/components/ui/button'
+import { GetMatchedDialog } from '@/components/get-matched-dialog'
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
 	Table,
 	TableBody,
@@ -14,14 +14,14 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table'
 import {
 	TypographyH1,
 	TypographyH2,
 	TypographyP,
-} from "@/components/typography";
-import { ArrowRight, DollarSign, LockKeyhole, Scale } from "lucide-react";
-import { type ReactNode } from "react";
+} from '@/components/typography'
+import { ArrowRight, DollarSign, LockKeyhole, Scale } from 'lucide-react'
+import { type ReactNode } from 'react'
 
 export function LandingPage() {
 	return (
@@ -29,7 +29,7 @@ export function LandingPage() {
 			<HeroSection />
 			<ComparisonSection />
 		</>
-	);
+	)
 }
 
 /* ─── Hero Section ─── */
@@ -79,7 +79,7 @@ function HeroSection() {
 				</CardContent>
 			</Card>
 		</section>
-	);
+	)
 }
 
 /* ─── Comparison Section ─── */
@@ -101,7 +101,7 @@ function ComparisonSection() {
 
 			<ComparisonTable />
 		</section>
-	);
+	)
 }
 
 /* ─── Shared Components ─── */
@@ -110,24 +110,24 @@ function CtaTrustItem({
 	icon,
 	children,
 }: {
-	icon: ReactNode;
-	children: ReactNode;
+	icon: ReactNode
+	children: ReactNode
 }) {
 	return (
 		<div className="flex items-start gap-2">
 			<span className="mt-0.5 shrink-0">{icon}</span>
 			<span>{children}</span>
 		</div>
-	);
+	)
 }
 
 function ComparisonTable() {
 	const rows = [
-		["Who pays?", "Consumer", "Agent"],
-		["What is optimized?", "Fit and transparency", "Lead volume"],
-		["Agent incentives", "Serve aligned clients", "Win auctioned attention"],
-		["Consumer experience", "Calm guided match", "Calls, texts, and follow-up"],
-	];
+		['Who pays?', 'Consumer', 'Agent'],
+		['What is optimized?', 'Fit and transparency', 'Lead volume'],
+		['Agent incentives', 'Serve aligned clients', 'Win auctioned attention'],
+		['Consumer experience', 'Calm guided match', 'Calls, texts, and follow-up'],
+	]
 
 	return (
 		<Card className="border-primary/15 max-w-full rounded-xl border shadow-xl">
@@ -154,5 +154,5 @@ function ComparisonTable() {
 				</Table>
 			</CardContent>
 		</Card>
-	);
+	)
 }
