@@ -4,10 +4,10 @@ import {
 	createRouter,
 	RouterContextProvider,
 } from '@tanstack/react-router'
-import { expect, test } from 'vite-plus/test'
 import { render } from 'vitest-browser-react'
 import { page, userEvent } from 'vite-plus/test/browser'
 
+import { expect, test } from '@tests/utils/browser'
 import { QuestionFlow } from './question-flow'
 
 function createMockRouter() {
@@ -33,8 +33,6 @@ function MockRouter({ children }: { children: React.ReactNode }) {
 test('question flow auto-advances and completes on final answer', async () => {
 	const screen = await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
 			stepLabel="Step 2 of 4"
 			accentClassName="bg-primary"
 			accentTextClassName="text-primary"
@@ -85,8 +83,6 @@ test('question flow auto-advances and completes on final answer', async () => {
 test('question flow supports multi-select before completion', async () => {
 	const screen = await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
 			stepLabel="Step 2 of 4"
 			accentClassName="bg-primary"
 			accentTextClassName="text-primary"
@@ -141,8 +137,6 @@ test('question flow supports multi-select before completion', async () => {
 test('question flow shows continue when user goes back to answered question', async () => {
 	const screen = await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
 			stepLabel="Step 2 of 4"
 			accentClassName="bg-primary"
 			accentTextClassName="text-primary"
@@ -197,8 +191,6 @@ test('question flow shows continue when user goes back to answered question', as
 test('clicking selected multi-select option deselects it', async () => {
 	const screen = await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
 			stepLabel="Step 2 of 4"
 			accentClassName="bg-primary"
 			accentTextClassName="text-primary"

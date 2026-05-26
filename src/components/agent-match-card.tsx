@@ -1,5 +1,8 @@
 import { Award, MapPin, MessageCircle, Shield, Star } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+
 export type AgentMatch = {
 	id: number
 	name: string
@@ -13,26 +16,18 @@ export type AgentMatch = {
 	topMatch: boolean
 }
 
-const categoryColors: Record<string, string> = {
-	'Working Style': 'bg-blue-cyan',
-	Communication: 'bg-terracotta',
-	Transparency: 'bg-olive',
-	Fit: 'bg-ochre',
-}
-
 function ScoreBar({ label, score }: { label: string; score: number }) {
 	const percentage = (score / 5) * 100
-	const barClass = categoryColors[label] ?? 'bg-foreground'
 
 	return (
 		<div className="space-y-2">
 			<div className="flex items-center justify-between text-xs">
 				<span className="text-muted-foreground">{label}</span>
-				<span className="data-number font-medium">{score.toFixed(1)}</span>
+				<span>{score.toFixed(1)}</span>
 			</div>
 			<div className="bg-border h-1 overflow-hidden">
 				<div
-					className={`${barClass} h-full transition-all duration-700`}
+					className="bg-primary h-full"
 					style={{ width: `${percentage}%` }}
 				/>
 			</div>
@@ -42,26 +37,22 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 
 export function AgentMatchCard({
 	match,
-	index,
 }: {
 	match: AgentMatch
-	index: number
+	index?: number
 }) {
 	return (
-		<div
-			className="bg-card card-institutional hover:border-foreground/30 overflow-hidden transition-all"
-			style={{ animationDelay: `${(index + 1) * 150}ms` }}
-		>
+		<Card>
 			{match.topMatch ? (
-				<div className="bg-blue-cyan text-blue-cyan-foreground flex items-center gap-2 px-6 py-2 text-xs font-semibold">
+				<div className="flex items-center gap-2 px-6 py-2 text-xs">
 					<Star className="h-3 w-3 fill-current" />
 					Top Match
 				</div>
 			) : null}
 
-			<div className="p-8">
+			<CardContent>
 				<div className="mb-8 flex flex-col gap-6 md:flex-row md:items-start">
-					<div className="border-blue-cyan bg-blue-cyan-tint text-blue-cyan flex h-16 w-16 shrink-0 items-center justify-center border text-2xl font-bold">
+					<div className="flex h-16 w-16 shrink-0 items-center justify-center text-2xl">
 						{match.name
 							.split(' ')
 							.map((n) => n[0])
@@ -70,7 +61,7 @@ export function AgentMatchCard({
 
 					<div className="flex-1">
 						<div className="mb-1 flex items-center gap-3">
-							<h3 className="font-serif text-xl">{match.name}</h3>
+							<h3 className="text-xl">{match.name}</h3>
 							<span className="text-muted-foreground text-sm">
 								{match.agency}
 							</span>
@@ -104,7 +95,7 @@ export function AgentMatchCard({
 					</div>
 
 					<div className="flex flex-col items-center gap-1 md:items-end">
-						<div className="border-ochre bg-ochre-tint text-ochre flex h-16 w-16 items-center justify-center border text-2xl font-bold">
+						<div className="flex h-16 w-16 items-center justify-center text-2xl">
 							{match.overall.toFixed(1)}
 						</div>
 						<span className="text-muted-foreground text-xs">Overall Fit</span>
@@ -112,7 +103,9 @@ export function AgentMatchCard({
 				</div>
 
 				<div className="border-border border-t pt-6">
-					<div className="data-label mb-4">Fit Breakdown</div>
+					<div className="text-muted-foreground mb-4 text-sm">
+						Fit Breakdown
+					</div>
 					<div className="grid gap-4 sm:grid-cols-2">
 						{Object.entries(match.scores).map(([label, score]) => (
 							<ScoreBar key={label} label={label} score={score} />
@@ -125,12 +118,12 @@ export function AgentMatchCard({
 						<Shield className="h-3.5 w-3.5" />
 						Peace Pact signed
 					</div>
-					<button className="btn-primary flex items-center gap-2">
+					<Button>
 						<MessageCircle className="h-4 w-4" />
 						Select Agent
-					</button>
+					</Button>
 				</div>
-			</div>
-		</div>
+			</CardContent>
+		</Card>
 	)
 }

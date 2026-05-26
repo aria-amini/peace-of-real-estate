@@ -1,4 +1,4 @@
-import { http, HttpResponse } from '@aamini/config/msw'
+import { http, HttpResponse } from 'msw'
 
 export default [
 	http.get('/api/agent-matches', () =>

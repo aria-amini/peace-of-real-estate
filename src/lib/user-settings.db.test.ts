@@ -12,9 +12,9 @@ import {
 	updateAnswersDb,
 	updateWeightsDb,
 } from '@/lib/user-settings.db'
-import { initDb, test } from '@aamini/config/test/db'
+import { initDb, test } from '@tests/utils/db'
 import { eq } from 'drizzle-orm'
-import { describe, expect } from 'vite-plus/test'
+import { describe, expect } from '@tests/utils/db'
 
 const consumerUserId = 'consumer-user'
 const agentUserId = 'agent-user'

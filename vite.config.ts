@@ -1,28 +1,29 @@
-import { createAppConfig } from '@aamini/config'
-import { dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { playwright } from 'vite-plus/test/browser-playwright'
+import { createAppConfig } from "@aamini/config/vite";
+import { playwright } from "vite-plus/test/browser-playwright";
+import type { Plugin } from "vite";
+import { validateServerEnv } from "./src/env.server.ts";
+import { mergeConfig } from "vite-plus";
 
-const root = dirname(fileURLToPath(import.meta.url))
-
-export default createAppConfig(root, {
-	browser: {
-		test: {
-			browser: {
-				ui: false,
-				viewport: {
-					width: 1280,
-					height: 720,
+function validateServerEnvPlugin(): Plugin {
+	return {
+		name: "validate-server-env",
+		apply: "build",
+		buildStart() {
+			validateServerEnv();
+		},
+	};
+}
+const appConfig = createAppConfig({
+	root: import.meta.dirname,
+	projectOverrides: {
+		browser: {
+			test: {
+				setupFiles: ["./tests/setup/styles.ts"],
+				browser: {
+					provider: playwright(),
 				},
-				provider: playwright({
-					contextOptions: {
-						viewport: {
-							width: 1280,
-							height: 1600,
-						},
-					},
-				}),
 			},
 		},
 	},
-})
+});
+export default mergeConfig(appConfig, { plugins: [validateServerEnvPlugin()] });

@@ -1,19 +1,11 @@
 [build]
-builder = "DOCKERFILE"
-dockerfilePath = "apps/peace-of-real-estate/Dockerfile"
-buildCommand = "pnpm --filter peace-of-real-estate build"
-watchPatterns = [
-	"/apps/peace-of-real-estate/**",
-	"/packages/**",
-	"package.json",
-	"pnpm-lock.yaml",
-]
+builder = "RAILPACK"
+buildCommand = "vp build"
 
 [deploy]
-multiRegionConfig = { "us-west2" = { numReplicas = 1 } }
 runtime = "V2"
 numReplicas = 1
-startCommand = "node .output/server/index.mjs"
+startCommand = "vp run start"
 healthcheckPath = "/"
 sleepApplication = true
 useLegacyStacker = false

@@ -1,6 +1,7 @@
 import type {
 	AgentProfileData,
 	CategoryWeights,
+	ConsumerFlowKind,
 	QuestionnaireAnswers,
 	UserRole,
 	UserSettings,
@@ -11,6 +12,10 @@ const STORAGE_KEY = 'peace-of-real-estate.intake-draft'
 
 export type IntakeDraft = UserSettings & {
 	hasCompletedWeights?: boolean
+	zipCode?: string
+	intent?: string
+	matchDetails?: string
+	agentRepresentation?: string
 }
 
 export function getStoredIntakeDraft(): IntakeDraft | null {
@@ -48,9 +53,13 @@ export function saveStoredIntakeDraft(draft: IntakeDraft) {
 	window.localStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
 }
 
-export function getDefaultDraft(role: UserRole): IntakeDraft {
+export function getDefaultDraft(
+	role: UserRole,
+	flowKind?: ConsumerFlowKind,
+): IntakeDraft {
 	return {
 		role,
+		...(flowKind ? { flowKind } : {}),
 		weights: {
 			'working-style': 3,
 			communication: 3,
@@ -81,6 +90,21 @@ export function getStoredIntakeDraftForRole(role: UserRole): IntakeDraft {
 	return getDefaultDraft(role)
 }
 
+export function getStoredConsumerDraftForFlow(
+	flowKind: ConsumerFlowKind,
+): IntakeDraft {
+	const existingDraft = getStoredIntakeDraft()
+
+	if (
+		existingDraft?.role === 'consumer' &&
+		existingDraft.flowKind === flowKind
+	) {
+		return existingDraft
+	}
+
+	return getDefaultDraft('consumer', flowKind)
+}
+
 export function saveStoredIntakeDraftForRole(
 	role: UserRole,
 	updates: {
@@ -88,11 +112,31 @@ export function saveStoredIntakeDraftForRole(
 		answers?: QuestionnaireAnswers
 		agentProfile?: AgentProfileData
 		hasCompletedWeights?: boolean
+		flowKind?: ConsumerFlowKind
+		zipCode?: string
+		intent?: string
+		matchDetails?: string
+		agentRepresentation?: string
 	},
 ) {
 	const nextDraft = {
 		...getStoredIntakeDraftForRole(role),
 		...updates,
+		updatedAt: new Date().toISOString(),
+	} satisfies IntakeDraft
+
+	saveStoredIntakeDraft(nextDraft)
+}
+
+export function saveStoredConsumerDraftForFlow(
+	flowKind: ConsumerFlowKind,
+	updates: Parameters<typeof saveStoredIntakeDraftForRole>[1],
+) {
+	const nextDraft = {
+		...getStoredConsumerDraftForFlow(flowKind),
+		...updates,
+		role: 'consumer' as const,
+		flowKind,
 		updatedAt: new Date().toISOString(),
 	} satisfies IntakeDraft
 

@@ -1,49 +1,4 @@
-x-app-env: &app-env
-  RAILWAY_ENVIRONMENT_NAME: docker
-  DATABASE_URL: postgres://peace_user:peace_test@postgres:5432/peace_of_real_estate_test
-  BETTER_AUTH_URL: http://localhost:3000
-  BETTER_AUTH_SECRET: local-dev-secret
-  AWS_REGION: us-east-1
-  AVATAR_BUCKET: pre-avatars
-  AWS_ACCESS_KEY_ID: minioadmin
-  AWS_SECRET_ACCESS_KEY: minioadmin
-
 services:
-  app:
-    image: node:24-bookworm
-    user: '${UID:-501}:${GID:-1000}'
-    working_dir: /workspace
-    command: >
-      sh -lc "corepack enable && pnpm --filter peace-of-real-estate dev --host
-      0.0.0.0"
-    environment:
-      <<: *app-env
-      AWS_ENDPOINT_URL: http://localhost:9000
-    ports:
-      - 3000:3000
-    volumes:
-      - ../..:/workspace
-    depends_on:
-      seed:
-        condition: service_completed_successfully
-
-  seed:
-    image: node:24-bookworm
-    user: '${UID:-501}:${GID:-1000}'
-    working_dir: /workspace
-    command: >
-      sh -lc "corepack enable && pnpm --filter peace-of-real-estate db:seed"
-    environment:
-      <<: *app-env
-      AWS_ENDPOINT_URL: http://minio:9000
-    volumes:
-      - ../..:/workspace
-    depends_on:
-      postgres:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-
   postgres:
     image: postgres:17-alpine
     environment:
@@ -51,9 +6,7 @@ services:
       POSTGRES_USER: peace_user
       POSTGRES_PASSWORD: peace_test
     ports:
-      - 5433:5432
-    volumes:
-      - ./src/db/migrations:/docker-entrypoint-initdb.d:ro
+      - '${POSTGRES_PORT:-5433}:5432'
     healthcheck:
       test:
         ['CMD-SHELL', 'pg_isready -U peace_user -d peace_of_real_estate_test']
@@ -68,8 +21,8 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - 9000:9000
-      - 9001:9001
+      - '${MINIO_PORT:-9000}:9000'
+      - '${MINIO_CONSOLE_PORT:-9001}:9001'
     healthcheck:
       test: ['CMD', 'mc', 'ready', 'local']
       interval: 5s

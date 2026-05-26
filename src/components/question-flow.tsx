@@ -1,26 +1,20 @@
-import { Link } from '@tanstack/react-router'
-import {
-	ArrowLeft,
-	ArrowRight,
-	Check,
-	ListChecks,
-	Sparkles,
-} from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { ArrowLeft, ArrowRight, Check, ListChecks } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import type { CoreQuestion } from '@/lib/questions'
 
 type AnswerValue = number | number[] | string
 
 type QuestionFlowProps = {
-	backTo: string
-	backLabel: string
-	stepLabel: string
-	accentClassName: string
-	accentTextClassName: string
-	accentTintClassName: string
-	accentHoverBorderClassName: string
+	roleLabel?: string
+	accentClassName?: string
+	accentTextClassName?: string
+	accentTintClassName?: string
+	accentHoverBorderClassName?: string
 	questions: CoreQuestion[]
 	completeTo: string
 	completeLabel: string
@@ -30,13 +24,7 @@ type QuestionFlowProps = {
 }
 
 export function QuestionFlow({
-	backTo,
-	backLabel,
-	stepLabel,
-	accentClassName,
-	accentTextClassName,
-	accentTintClassName,
-	accentHoverBorderClassName,
+	roleLabel,
 	questions,
 	completeTo,
 	completeLabel,
@@ -49,11 +37,14 @@ export function QuestionFlow({
 	)
 	const [answers, setAnswers] =
 		useState<Record<string, AnswerValue>>(initialAnswers)
-	const [justSelected, setJustSelected] = useState<number | null>(null)
 	const [isTransitioning, setIsTransitioning] = useState(false)
 	const [wasContinueVisible, setWasContinueVisible] = useState(false)
+	const [poppedOption, setPoppedOption] = useState<number | null>(null)
 	const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const completeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const popTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const navigate = useNavigate()
 
 	const question = questions[currentQuestion]!
 	const progress = ((currentQuestion + 1) / questions.length) * 100
@@ -99,15 +90,23 @@ export function QuestionFlow({
 		}
 	}
 
+	const handleComplete = () => {
+		if (completeTimer.current) {
+			clearTimeout(completeTimer.current)
+		}
+
+		setIsTransitioning(true)
+
+		completeTimer.current = setTimeout(() => {
+			void navigate({ to: completeTo })
+		}, 220)
+	}
+
 	const handleBack = () => {
 		if (currentQuestion > 0) {
 			setCurrentQuestion((prev) => prev - 1)
 		}
 	}
-
-	useEffect(() => {
-		setJustSelected(null)
-	}, [currentQuestion])
 
 	useEffect(() => {
 		return () => {
@@ -116,6 +115,12 @@ export function QuestionFlow({
 			}
 			if (transitionTimer.current) {
 				clearTimeout(transitionTimer.current)
+			}
+			if (completeTimer.current) {
+				clearTimeout(completeTimer.current)
+			}
+			if (popTimer.current) {
+				clearTimeout(popTimer.current)
 			}
 		}
 	}, [])
@@ -140,12 +145,21 @@ export function QuestionFlow({
 					delete next[question.id]
 					return next
 				})
-				setJustSelected(null)
 				return
 			}
 
 			updateAnswers((prev) => ({ ...prev, [question.id]: optionIndex }))
-			setJustSelected(optionIndex)
+			setPoppedOption(optionIndex)
+			if (popTimer.current) {
+				clearTimeout(popTimer.current)
+			}
+			popTimer.current = setTimeout(() => setPoppedOption(null), 220)
+
+			if (currentQuestion === questions.length - 1) {
+				handleComplete()
+				return
+			}
+
 			if (currentQuestion < questions.length - 1) {
 				if (autoAdvanceTimer.current) {
 					clearTimeout(autoAdvanceTimer.current)
@@ -173,7 +187,6 @@ export function QuestionFlow({
 				}
 				return updated
 			})
-			setJustSelected(null)
 			return
 		}
 
@@ -182,7 +195,11 @@ export function QuestionFlow({
 		)
 
 		updateAnswers((prev) => ({ ...prev, [question.id]: next }))
-		setJustSelected(optionIndex)
+		setPoppedOption(optionIndex)
+		if (popTimer.current) {
+			clearTimeout(popTimer.current)
+		}
+		popTimer.current = setTimeout(() => setPoppedOption(null), 220)
 
 		if (
 			currentQuestion < questions.length - 1 &&
@@ -196,6 +213,13 @@ export function QuestionFlow({
 			autoAdvanceTimer.current = setTimeout(() => {
 				handleNext()
 			}, 250)
+		}
+
+		if (
+			currentQuestion === questions.length - 1 &&
+			next.length === (question.selection?.maxSelections ?? 1)
+		) {
+			handleComplete()
 		}
 		return
 	}
@@ -211,17 +235,15 @@ export function QuestionFlow({
 
 	return (
 		<FlowPageShell
-			backTo={backTo}
-			backLabel={backLabel}
-			title="Core Questions"
-			subtitle={stepLabel}
+			title="Quiz"
+			subtitle="Step 2"
 			icon={ListChecks}
-			iconClassName={`${accentTintClassName} ${accentTextClassName}`}
+			roleLabel={roleLabel}
 		>
 			<div className="mb-6 w-full">
 				<div className="mb-3 flex items-center justify-between text-xs">
 					<div className="flex items-center gap-3">
-						<span className={`${accentTextClassName} data-label`}>
+						<span>
 							Question {currentQuestion + 1} of {questions.length}
 						</span>
 						{isMultipleChoice ? (
@@ -230,13 +252,11 @@ export function QuestionFlow({
 							</span>
 						) : null}
 					</div>
-					<span className="data-number text-muted-foreground">
-						{Math.round(progress)}%
-					</span>
+					<span className="text-muted-foreground">{Math.round(progress)}%</span>
 				</div>
 				<div className="bg-border h-1 overflow-hidden">
 					<div
-						className={`${accentClassName} h-full transition-all duration-500`}
+						className="bg-primary h-full"
 						style={{ width: `${progress}%` }}
 					/>
 				</div>
@@ -244,53 +264,41 @@ export function QuestionFlow({
 					className={`mt-3 flex items-center ${currentQuestion > 0 ? 'justify-between' : 'justify-end'}`}
 				>
 					{currentQuestion > 0 && (
-						<button
-							type="button"
-							onClick={handleBack}
-							className="text-muted-foreground hover:text-foreground hover:bg-secondary -ml-3 inline-flex items-center gap-2 px-3 py-2 text-sm transition-colors disabled:opacity-50"
-						>
+						<Button type="button" onClick={handleBack} variant="ghost">
 							<ArrowLeft className="h-4 w-4" />
 							Previous Question
-						</button>
+						</Button>
 					)}
 
 					{isLastQuestion ? (
 						isComplete ? (
-							<Link
-								to={completeTo}
-								className={`${accentClassName} text-primary-foreground inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all hover:opacity-90`}
-							>
-								{completeLabel}
-								<ArrowRight className="h-4 w-4" />
-							</Link>
+							<Button asChild>
+								<Link to={completeTo}>
+									{completeLabel}
+									<ArrowRight className="h-4 w-4" />
+								</Link>
+							</Button>
 						) : isMultipleChoice ? (
-							<button
-								type="button"
-								disabled
-								className="bg-muted text-muted-foreground inline-flex items-center gap-2 px-4 py-2 text-sm font-medium opacity-70"
-							>
+							<Button type="button" disabled>
 								{completeLabel}
 								<ArrowRight className="h-4 w-4" />
-							</button>
+							</Button>
 						) : null
 					) : showContinueButton ? (
-						<button
+						<Button
 							type="button"
 							onClick={handleNext}
 							disabled={!canProceed || isTransitioning}
-							className={`${canProceed && !isTransitioning ? `${accentClassName} text-primary-foreground hover:opacity-90` : 'bg-muted text-muted-foreground opacity-70'} inline-flex items-center gap-2 px-4 py-2 text-sm font-medium disabled:cursor-not-allowed`}
 						>
 							Continue
 							<ArrowRight className="h-4 w-4" />
-						</button>
+						</Button>
 					) : null}
 				</div>
 			</div>
 
 			<div>
-				<h2 className="mb-2 font-serif text-xl leading-relaxed font-normal">
-					{question.prompt}
-				</h2>
+				<h2 className="mb-2 text-xl">{question.prompt}</h2>
 				{isMultipleChoice ? (
 					<p className="text-muted-foreground mb-3 text-sm">
 						Select up to {requiredSelections} answers to continue.
@@ -305,7 +313,7 @@ export function QuestionFlow({
 				) : null}
 
 				{isOpenText ? (
-					<textarea
+					<Textarea
 						value={typeof answer === 'string' ? answer : ''}
 						onChange={(e) =>
 							updateAnswers((prev) => ({
@@ -315,7 +323,6 @@ export function QuestionFlow({
 						}
 						placeholder="Share a few details"
 						rows={6}
-						className="border-border bg-background focus:border-primary w-full border px-4 py-3 text-sm leading-relaxed focus:outline-none"
 					/>
 				) : (
 					<div className="space-y-3">
@@ -323,35 +330,19 @@ export function QuestionFlow({
 							const isSelected = Array.isArray(answer)
 								? answer.includes(optionIndex)
 								: answer === optionIndex
-							const isFresh = justSelected === optionIndex && isSelected
-
+							const isPopped = poppedOption === optionIndex
 							return (
 								<button
 									key={option}
 									type="button"
 									onClick={() => toggleOption(optionIndex)}
 									disabled={isTransitioning}
-									className={`flex w-full items-center gap-4 border p-4 text-left transition-all duration-200 disabled:cursor-default disabled:opacity-50 ${
-										isSelected
-											? `border-current ${accentTextClassName} ${accentTintClassName}`
-											: `border-border ${accentHoverBorderClassName} hover:bg-secondary`
-									}`}
+									className="group flex w-full items-center gap-4 border p-4 text-left transition-transform duration-200 ease-out disabled:opacity-50"
 								>
 									<div
-										className={`relative flex h-5 w-5 shrink-0 items-center justify-center border transition-colors ${
-											isSelected
-												? `border-current ${accentClassName}`
-												: 'border-border'
-										}`}
+										className={`flex h-5 w-5 shrink-0 items-center justify-center border transition-all duration-200 ease-out ${isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} ${isPopped ? 'scale-125' : ''}`}
 									>
-										{isSelected ? (
-											<Check className="text-primary-foreground animate-pop-in h-3.5 w-3.5" />
-										) : null}
-										{isFresh ? (
-											<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-												<Sparkles className="text-primary-foreground animate-sparkle h-3 w-3" />
-											</div>
-										) : null}
+										<Check className="h-3.5 w-3.5" />
 									</div>
 									<span className="text-foreground text-sm leading-relaxed">
 										{option}

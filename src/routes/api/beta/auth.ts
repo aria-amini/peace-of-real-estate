@@ -1,4 +1,4 @@
-import { env } from '@/env'
+import { serverEnv } from '@/env.server'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/api/beta/auth')({
@@ -8,7 +8,7 @@ export const Route = createFileRoute('/api/beta/auth')({
 				const body = await request.json()
 				const { password } = body
 
-				const isValid = password === env.BETA_PASSWORD
+				const isValid = password === serverEnv.BETA_PASSWORD
 
 				const headers: Record<string, string> = {
 					'Content-Type': 'application/json',

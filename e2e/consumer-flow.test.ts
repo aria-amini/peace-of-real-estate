@@ -1,12 +1,14 @@
 import { test } from './__fixtures__/app'
 
-test.setTimeout(30_000)
+test.setTimeout(15_000)
 
-test('consumer can complete onboarding flow', async ({ page }) => {
-	await page.goto('/')
-	await page.getByRole('link', { name: 'Find Your Agent' }).click()
-	await page.getByRole('slider').nth(1).fill('5')
-	await page.getByRole('link', { name: 'Continue to Questions' }).click()
+test('consumer can complete onboarding flow', async ({ page, app }) => {
+	await app.gotoHome()
+	await page.getByRole('link', { name: 'Get Matched' }).click()
+	await page.getByRole('link', { name: /buying/i }).click()
+	await page.getByPlaceholder('Zip code').pressSequentially('78701')
+	await page.getByRole('button', { name: 'I am ready to buy a home' }).click()
+	await page.getByRole('link', { name: 'Find My PRE Match' }).click()
 	await page.getByRole('button', { name: '$1.5M and above' }).click()
 	await page.getByRole('button', { name: 'Within 3 months - I have a' }).click()
 	await page.getByRole('button', { name: 'Single-family home' }).click()

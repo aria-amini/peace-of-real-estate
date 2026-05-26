@@ -4,9 +4,10 @@ type AppFixture = {
 	gotoHome: () => Promise<void>
 }
 
-async function gotoHome(page: Page) {
+async function gotoHome(page: Page, baseURL: string | undefined) {
+	const url = new URL('/', baseURL || 'http://localhost:3000')
 	await page.setViewportSize({ width: 1440, height: 2200 })
-	await page.goto('/', { waitUntil: 'domcontentloaded' })
+	await page.goto(url.toString(), { waitUntil: 'domcontentloaded' })
 	await page.getByRole('link', { name: 'Peace of Real Estate' }).waitFor()
 }
 
@@ -23,9 +24,9 @@ export const test = base.extend<{ app: AppFixture }>({
 		])
 		await use(page)
 	},
-	app: async ({ page }, use) => {
+	app: async ({ page, baseURL }, use) => {
 		await use({
-			gotoHome: () => gotoHome(page),
+			gotoHome: () => gotoHome(page, baseURL),
 		})
 	},
 })

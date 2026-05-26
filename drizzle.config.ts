@@ -1,8 +1,8 @@
 import { defineConfig } from 'drizzle-kit'
 import 'dotenv/config'
-import { env } from './src/env'
+import { serverEnv } from './src/env.server'
 
-const databaseUrl = env.DATABASE_URL
+const databaseUrl = serverEnv.DATABASE_URL
 
 if (!databaseUrl) {
 	throw Error('Missing DATABASE_URL')
