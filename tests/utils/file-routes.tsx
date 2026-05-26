@@ -1,6 +1,7 @@
 import '../mocks/browser'
 
 import { queryClient as appQueryClient } from '@/lib/react-query'
+import { expect } from '@config/test/browser'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
 	createMemoryHistory,
@@ -11,7 +12,6 @@ import { page } from 'vite-plus/test/browser'
 import { render, type RenderResult } from 'vitest-browser-react'
 
 import { setMockSession } from '../mocks/browser'
-import { expect } from './browser'
 
 type RouteTarget =
 	| { path: string; name?: string }

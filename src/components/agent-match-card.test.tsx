@@ -1,7 +1,7 @@
 import { render } from 'vitest-browser-react'
 import { page } from 'vite-plus/test/browser'
 
-import { expect, test } from '@tests/utils/browser'
+import { expect, test } from '@config/test/browser'
 import { AgentMatchCard, type AgentMatch } from './agent-match-card'
 
 const match: AgentMatch = {

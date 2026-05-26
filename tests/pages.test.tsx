@@ -1,6 +1,6 @@
 import './mocks/browser'
 
-import { test } from './utils/browser'
+import { test } from '@config/test/browser'
 import { expectRouteScreenshot } from './utils/file-routes'
 
 const pages = [

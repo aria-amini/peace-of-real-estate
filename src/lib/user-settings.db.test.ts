@@ -12,9 +12,9 @@ import {
 	updateAnswersDb,
 	updateWeightsDb,
 } from '@/lib/user-settings.db'
-import { initDb, test } from '@tests/utils/db'
+import { initDb, test } from '@config/test/db'
 import { eq } from 'drizzle-orm'
-import { describe, expect } from '@tests/utils/db'
+import { describe, expect } from '@config/test/db'
 
 const consumerUserId = 'consumer-user'
 const agentUserId = 'agent-user'
