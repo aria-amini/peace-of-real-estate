@@ -24,10 +24,8 @@
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"paths": {
-			"@aamini/config/test/visual-page": ["./tests/__mocks__/visual-page.tsx"],
 			"@config/*": ["./node_modules/@aamini/config/dist/*.d.mts"],
-			"@/*": ["./src/*"],
-			"@tests/*": ["./tests/*"]
+			"@/*": ["./src/*"]
 		}
 	}
 }
