@@ -26,6 +26,7 @@
 		"paths": {
 			"@config": ["./config/index.ts"],
 			"@config/*": ["./config/*"],
+			"@test/*": ["./__mocks__/*"],
 			"@/*": ["./src/*"]
 		}
 	}
