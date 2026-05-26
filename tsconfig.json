@@ -24,7 +24,8 @@
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"paths": {
-			"@config/*": ["./node_modules/@aamini/config/dist/*.d.mts"],
+			"@config": ["./config/index.ts"],
+			"@config/*": ["./config/*"],
 			"@/*": ["./src/*"]
 		}
 	}

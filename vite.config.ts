@@ -29,12 +29,6 @@ const appConfig = createAppConfig({
 export default mergeConfig(appConfig, {
 	resolve: {
 		tsconfigPaths: true,
-		alias: [
-			{
-				find: /^@config\/(.*)$/,
-				replacement: '@aamini/config/$1',
-			},
-		],
 	},
 	lint: {
 		overrides: [
