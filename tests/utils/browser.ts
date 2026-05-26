@@ -1,4 +1,4 @@
-import { expect as baseExpect, test as baseTest, vi } from 'vite-plus/test'
+import { expect as baseExpect, test as baseTest } from 'vite-plus/test'
 import type { ExpectPollOptions, TestAPI } from 'vite-plus/test'
 import type { Locator } from 'vite-plus/test/browser'
 

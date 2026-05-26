@@ -26,7 +26,6 @@
 		"paths": {
 			"@aamini/config/test/visual-page": ["./tests/__mocks__/visual-page.tsx"],
 			"@/*": ["./src/*"],
-			"@/mocks/*": ["./__mocks__/*"],
 			"@tests/*": ["./tests/*"]
 		}
 	}

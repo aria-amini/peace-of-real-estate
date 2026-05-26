@@ -1,4 +1,4 @@
-import './__mocks__/browser-mocks'
+import './mocks/browser'
 
 import { test } from './utils/browser'
 import { expectRouteScreenshot } from './utils/file-routes'

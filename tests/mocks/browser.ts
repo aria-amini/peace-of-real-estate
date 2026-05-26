@@ -30,6 +30,11 @@ vi.mock('@/lib/auth-guards', () => ({
 	redirectUnauthenticatedUsers: () => ({ session: authState.session }),
 }))
 
+vi.mock('@/lib/beta-auth', () => ({
+	checkBetaAuthClient: () => true,
+	checkBetaAuthServer: async () => true,
+}))
+
 vi.mock('@/routes/__root', async () => {
 	const React = await import('react')
 	const { Outlet, createRootRouteWithContext } =
