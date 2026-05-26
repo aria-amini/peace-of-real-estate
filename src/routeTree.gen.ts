@@ -14,7 +14,6 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
-import { Route as AppTheme5RouteImport } from './routes/_app/theme5'
 import { Route as AppSignupRouteImport } from './routes/_app/signup'
 import { Route as AppMatchActivityRouteImport } from './routes/_app/match-activity'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
@@ -76,11 +75,6 @@ const ApiAgentMatchesRoute = ApiAgentMatchesRouteImport.update({
   id: '/api/agent-matches',
   path: '/api/agent-matches',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AppTheme5Route = AppTheme5RouteImport.update({
-  id: '/theme5',
-  path: '/theme5',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppSignupRoute = AppSignupRouteImport.update({
   id: '/signup',
@@ -275,7 +269,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof AppLoginRoute
   '/match-activity': typeof AppMatchActivityRoute
   '/signup': typeof AppSignupRoute
-  '/theme5': typeof AppTheme5Route
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/agent/chat': typeof AppAgentChatRoute
@@ -318,7 +311,6 @@ export interface FileRoutesByTo {
   '/login': typeof AppLoginRoute
   '/match-activity': typeof AppMatchActivityRoute
   '/signup': typeof AppSignupRoute
-  '/theme5': typeof AppTheme5Route
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/': typeof AppIndexRoute
@@ -364,7 +356,6 @@ export interface FileRoutesById {
   '/_app/login': typeof AppLoginRoute
   '/_app/match-activity': typeof AppMatchActivityRoute
   '/_app/signup': typeof AppSignupRoute
-  '/_app/theme5': typeof AppTheme5Route
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/_app/': typeof AppIndexRoute
@@ -411,7 +402,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/match-activity'
     | '/signup'
-    | '/theme5'
     | '/api/agent-matches'
     | '/api/health'
     | '/agent/chat'
@@ -454,7 +444,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/match-activity'
     | '/signup'
-    | '/theme5'
     | '/api/agent-matches'
     | '/api/health'
     | '/'
@@ -499,7 +488,6 @@ export interface FileRouteTypes {
     | '/_app/login'
     | '/_app/match-activity'
     | '/_app/signup'
-    | '/_app/theme5'
     | '/api/agent-matches'
     | '/api/health'
     | '/_app/'
@@ -585,13 +573,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/agent-matches'
       preLoaderRoute: typeof ApiAgentMatchesRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_app/theme5': {
-      id: '/_app/theme5'
-      path: '/theme5'
-      fullPath: '/theme5'
-      preLoaderRoute: typeof AppTheme5RouteImport
-      parentRoute: typeof AppRoute
     }
     '/_app/signup': {
       id: '/_app/signup'
@@ -860,7 +841,6 @@ interface AppRouteChildren {
   AppLoginRoute: typeof AppLoginRoute
   AppMatchActivityRoute: typeof AppMatchActivityRoute
   AppSignupRoute: typeof AppSignupRoute
-  AppTheme5Route: typeof AppTheme5Route
   AppIndexRoute: typeof AppIndexRoute
   AppAgentChatRoute: typeof AppAgentChatRoute
   AppAgentComplianceRoute: typeof AppAgentComplianceRoute
@@ -898,7 +878,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppLoginRoute: AppLoginRoute,
   AppMatchActivityRoute: AppMatchActivityRoute,
   AppSignupRoute: AppSignupRoute,
-  AppTheme5Route: AppTheme5Route,
   AppIndexRoute: AppIndexRoute,
   AppAgentChatRoute: AppAgentChatRoute,
   AppAgentComplianceRoute: AppAgentComplianceRoute,
