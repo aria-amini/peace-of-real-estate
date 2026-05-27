@@ -40,6 +40,17 @@ export function QuestionFlow({
 	const [isTransitioning, setIsTransitioning] = useState(false)
 	const [wasContinueVisible, setWasContinueVisible] = useState(false)
 	const [poppedOption, setPoppedOption] = useState<number | null>(null)
+	const [sparks, setSparks] = useState<
+		{
+			id: number
+			x: number
+			y: number
+			color: string
+			angle: number
+			distance: number
+		}[]
+	>([])
+	const sparkIdRef = useRef(0)
 	const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const completeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -135,8 +146,38 @@ export function QuestionFlow({
 		})
 	}
 
-	const toggleOption = (optionIndex: number) => {
+	const createSparks = (clientX: number, clientY: number) => {
+		const colors = ['#74D4FF', '#FFB86A', '#024A70', '#CAD5E2', '#4ADE80']
+		const count = 10
+		const newSparks = Array.from({ length: count }, (_, i) => {
+			const angle = (i / count) * Math.PI * 2
+			const distance = 30 + Math.random() * 30
+			return {
+				id: ++sparkIdRef.current,
+				x: clientX,
+				y: clientY,
+				color: colors[i % colors.length]!,
+				angle,
+				distance,
+			}
+		})
+		setSparks((prev) => [...prev, ...newSparks])
+		setTimeout(() => {
+			setSparks((prev) =>
+				prev.filter((s) => !newSparks.find((ns) => ns.id === s.id)),
+			)
+		}, 600)
+	}
+
+	const toggleOption = (
+		optionIndex: number,
+		clientX?: number,
+		clientY?: number,
+	) => {
 		if (isTransitioning) return
+		if (clientX !== undefined && clientY !== undefined) {
+			createSparks(clientX, clientY)
+		}
 
 		if (!isMultipleChoice) {
 			if (answer === optionIndex) {
@@ -335,14 +376,18 @@ export function QuestionFlow({
 								<button
 									key={option}
 									type="button"
-									onClick={() => toggleOption(optionIndex)}
+									onClick={(e) =>
+										toggleOption(optionIndex, e.clientX, e.clientY)
+									}
 									disabled={isTransitioning}
-									className="group flex w-full items-center gap-4 border p-4 text-left transition-transform duration-200 ease-out disabled:opacity-50"
+									className="group flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-transform duration-200 ease-out disabled:opacity-50"
 								>
 									<div
-										className={`flex h-5 w-5 shrink-0 items-center justify-center border transition-all duration-200 ease-out ${isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} ${isPopped ? 'scale-125' : ''}`}
+										className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-all duration-200 ease-out ${isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30'} ${isPopped ? 'scale-125' : ''}`}
 									>
-										<Check className="h-3.5 w-3.5" />
+										<Check
+											className={`h-3.5 w-3.5 transition-all duration-200 ${isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+										/>
 									</div>
 									<span className="text-foreground text-sm leading-relaxed">
 										{option}
@@ -353,6 +398,22 @@ export function QuestionFlow({
 					</div>
 				)}
 			</div>
+			{sparks.map((spark) => (
+				<div
+					key={spark.id}
+					className="pointer-events-none fixed z-50 h-1.5 w-1.5 rounded-full"
+					style={
+						{
+							left: spark.x,
+							top: spark.y,
+							backgroundColor: spark.color,
+							'--spark-x': `${Math.cos(spark.angle) * spark.distance}px`,
+							'--spark-y': `${Math.sin(spark.angle) * spark.distance}px`,
+							animation: 'spark-burst 0.5s ease-out forwards',
+						} as React.CSSProperties
+					}
+				/>
+			))}
 		</FlowPageShell>
 	)
 }
