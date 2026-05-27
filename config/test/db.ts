@@ -1,8 +1,14 @@
-import { setupServer, type SetupServer } from 'msw/node'
+import { PostgreSqlContainer } from '@testcontainers/postgresql'
 import { resolve } from 'node:path'
 import { test as baseTest } from 'vite-plus/test'
+import { migrate } from 'drizzle-orm/node-postgres/migrator'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { reset } from 'drizzle-seed'
+import { Wait } from 'testcontainers'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
-import type { Pool } from 'pg'
+import { Pool } from 'pg'
+
+import { startMswServer } from './msw-server'
 
 const DEFAULT_SCHEMA_PATH = 'src/db/tables.ts'
 const DEFAULT_MIGRATIONS_PATH = 'src/db/migrations'
@@ -19,78 +25,57 @@ export type Database = NodePgDatabase & {
 	$client: Pool
 }
 
-export interface DbFixture {
-	server: SetupServer
-	_cleanup: void
-	db: Database
-	seedFunction: (db: Database) => Promise<void> | void
-}
-
 let dbConfig: DbConfig = {}
-let mswServer: SetupServer | undefined
 let seedFunction: (db: Database) => Promise<void> | void = async () => {}
 
-async function ensureMswServer(): Promise<SetupServer> {
-	if (!mswServer) {
-		const { default: handlers } = await import('@test/handlers')
-		mswServer = setupServer(...handlers)
-	}
-	return mswServer
-}
-
-export const test = baseTest.extend<DbFixture>({
-	server: [
-		async ({}, use) => {
-			const server = await ensureMswServer()
-			server.listen({ onUnhandledRequest: 'bypass' })
-			await use(server)
-			server.close()
-		},
+export const test = baseTest
+	.extend(
+		'server',
 		{ auto: true, scope: 'worker' },
-	],
-	_cleanup: [
-		async ({ server }, use) => {
-			await use()
-			server.resetHandlers()
+		async ({}, { onCleanup }) => {
+			return startMswServer(onCleanup)
 		},
-		{ auto: true },
-	],
-	seedFunction: [async ({}, use) => use(seedFunction), { scope: 'file' }],
-	db: [
-		async ({ seedFunction }, use) => {
-			const { PostgreSqlContainer } = await import('@testcontainers/postgresql')
-			const { drizzle } = await import('drizzle-orm/node-postgres')
-			const { Wait } = await import('testcontainers')
-			const { Pool } = await import('pg')
-			const schemaPath = resolve(
-				process.cwd(),
-				dbConfig.schemaPath ?? DEFAULT_SCHEMA_PATH,
-			)
-			const migrationsFolder = resolve(
-				process.cwd(),
-				dbConfig.migrationsPath ?? DEFAULT_MIGRATIONS_PATH,
-			)
-			const container = await new PostgreSqlContainer(
-				dbConfig.postgresImage ?? DEFAULT_IMAGE,
-			)
-				.withWaitStrategy(Wait.forHealthCheck())
-				.start()
-			const client = new Pool({
-				connectionString: container.getConnectionUri(),
-			})
-			const db = Object.assign(drizzle({ client }), { $client: client })
+	)
+	.extend('_cleanup', { auto: true }, ({ server }, { onCleanup }) => {
+		onCleanup(() => server.resetHandlers())
+	})
+	.extend('seedFunction', { scope: 'file' }, () => seedFunction)
+	.extend('db', { scope: 'file' }, async ({ seedFunction }, { onCleanup }) => {
+		const schemaPath = resolve(
+			process.cwd(),
+			dbConfig.schemaPath ?? DEFAULT_SCHEMA_PATH,
+		)
+		const migrationsFolder = resolve(
+			process.cwd(),
+			dbConfig.migrationsPath ?? DEFAULT_MIGRATIONS_PATH,
+		)
+		const container = await new PostgreSqlContainer(
+			dbConfig.postgresImage ?? DEFAULT_IMAGE,
+		)
+			.withWaitStrategy(Wait.forHealthCheck())
+			.start()
+		const client = new Pool({
+			connectionString: container.getConnectionUri(),
+		})
+		const db = Object.assign(drizzle({ client }), { $client: client })
+		let cleanedUp = false
+		const cleanup = async () => {
+			if (cleanedUp) return
+			cleanedUp = true
+			await db.$client.end()
+			await container.stop()
+		}
+		onCleanup(cleanup)
 
-			try {
-				await seedDatabase(db, { schemaPath, migrationsFolder, seedFunction })
-				await use(db)
-			} finally {
-				await db.$client.end()
-				await container.stop()
-			}
-		},
-		{ scope: 'file' },
-	],
-})
+		try {
+			await seedDatabase(db, { schemaPath, migrationsFolder, seedFunction })
+		} catch (error) {
+			await cleanup()
+			throw error
+		}
+
+		return db
+	})
 
 export { afterEach, beforeEach, describe, expect, vi } from 'vite-plus/test'
 
@@ -118,8 +103,6 @@ export async function seedDatabase(
 		extensions = DEFAULT_EXTENSIONS,
 	}: SeedDatabaseOptions,
 ) {
-	const { migrate } = await import('drizzle-orm/node-postgres/migrator')
-	const { reset } = await import('drizzle-seed')
 	const schema = await import(/* @vite-ignore */ schemaPath)
 
 	for (const ext of extensions) {

@@ -1,12 +1,9 @@
 import { setupWorker, type SetupWorker } from 'msw/browser'
 import { expect as baseExpect, test as baseTest } from 'vite-plus/test'
-import type { ExpectPollOptions, TestAPI } from 'vite-plus/test'
+import type { ExpectPollOptions } from 'vite-plus/test'
 import type { Locator } from 'vite-plus/test/browser'
 
-export interface MswBrowserFixture {
-	worker: SetupWorker
-	_cleanup: void
-}
+import handlers from '@test/handlers'
 
 type BrowserElementExpectation = {
 	element: <T extends HTMLElement | SVGElement | null | Locator>(
@@ -19,32 +16,28 @@ let workerSingleton: SetupWorker | undefined
 
 async function ensureWorker(): Promise<SetupWorker> {
 	if (!workerSingleton) {
-		const { default: handlers } = await import('@test/handlers')
 		workerSingleton = setupWorker(...handlers)
 	}
 	return workerSingleton
 }
 
-const extended = baseTest.extend<MswBrowserFixture>({
-	worker: [
-		async ({}, use) => {
+const extended = baseTest
+	.extend(
+		'worker',
+		{ auto: true, scope: 'worker' },
+		async ({}, { onCleanup }) => {
 			const worker = await ensureWorker()
 			await worker.start({ quiet: true, onUnhandledRequest: 'bypass' })
-			await use(worker)
-			worker.stop()
+			onCleanup(() => worker.stop())
+
+			return worker
 		},
-		{ auto: true, scope: 'worker' },
-	],
-	_cleanup: [
-		async ({ worker }, use) => {
-			await use()
-			worker.resetHandlers()
-		},
-		{ auto: true },
-	],
-})
+	)
+	.extend('_cleanup', { auto: true }, ({ worker }, { onCleanup }) => {
+		onCleanup(() => worker.resetHandlers())
+	})
 
 export { afterEach, beforeEach, describe, vi } from 'vite-plus/test'
 export const expect = baseExpect as typeof baseExpect &
 	BrowserElementExpectation
-export const test = extended as TestAPI<MswBrowserFixture>
+export const test = extended

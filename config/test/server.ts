@@ -1,39 +1,18 @@
-import { setupServer, type SetupServer } from 'msw/node'
 import { test as baseTest } from 'vite-plus/test'
 
-export interface MswServerFixture {
-	server: SetupServer
-	_cleanup: void
-}
+import { startMswServer } from './msw-server'
 
-let mswServer: SetupServer | undefined
-
-async function ensureMswServer(): Promise<SetupServer> {
-	if (!mswServer) {
-		const { default: handlers } = await import('@test/handlers')
-		mswServer = setupServer(...handlers)
-	}
-	return mswServer
-}
-
-const extended = baseTest.extend<MswServerFixture>({
-	server: [
-		async ({}, use) => {
-			const server = await ensureMswServer()
-			server.listen({ onUnhandledRequest: 'bypass' })
-			await use(server)
-			server.close()
-		},
+const extended = baseTest
+	.extend(
+		'server',
 		{ auto: true, scope: 'worker' },
-	],
-	_cleanup: [
-		async ({ server }, use) => {
-			await use()
-			server.resetHandlers()
+		async ({}, { onCleanup }) => {
+			return startMswServer(onCleanup)
 		},
-		{ auto: true },
-	],
-})
+	)
+	.extend('_cleanup', { auto: true }, ({ server }, { onCleanup }) => {
+		onCleanup(() => server.resetHandlers())
+	})
 
 export { afterEach, beforeEach, describe, expect, vi } from 'vite-plus/test'
 export const test = extended
