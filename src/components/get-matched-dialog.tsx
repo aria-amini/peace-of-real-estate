@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
@@ -12,7 +13,7 @@ import {
 	saveStoredConsumerDraftForFlow,
 } from '@/lib/intake-draft'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Home, Tag, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Home, Tag, X, type LucideIcon } from 'lucide-react'
 
 type FlowOption = {
 	to: string
@@ -51,10 +52,11 @@ function FlowCard({
 		<Button
 			asChild
 			variant="outline"
-			className="hover:border-primary/40 hover:bg-accent/30 h-auto min-h-[8rem] flex-col items-start justify-between gap-4 rounded-xl p-6 text-left transition-colors"
+			className="hover:border-primary/40 hover:bg-accent/30 h-auto min-h-[8rem] flex-col items-start justify-between gap-4 rounded-md p-6 text-left whitespace-normal transition-colors"
 		>
 			<Link
 				to={option.to}
+				className="relative"
 				onClick={() =>
 					saveStoredConsumerDraftForFlow(option.flow, {
 						...zipCodeUpdate,
@@ -62,12 +64,12 @@ function FlowCard({
 					})
 				}
 			>
-				<span>
+				<span className="pr-6">
 					<Icon className="text-primary mb-3 h-5 w-5" />
 					<span className="block text-lg tracking-[-0.03em]">
 						{option.label}
 					</span>
-					<span className="text-muted-foreground mt-1 block text-sm">
+					<span className="text-muted-foreground mt-1 block text-sm leading-5 text-wrap">
 						{option.description}
 					</span>
 				</span>
@@ -84,7 +86,17 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>{children}</DialogTrigger>
-			<DialogContent className="sm:max-w-lg">
+			<DialogContent className="rounded-lg sm:max-w-lg" showCloseButton={false}>
+				<DialogClose asChild>
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						className="text-muted-foreground hover:bg-muted hover:text-foreground absolute top-4 right-4 rounded-md"
+					>
+						<X className="size-4" />
+						<span className="sr-only">Close</span>
+					</Button>
+				</DialogClose>
 				<DialogHeader>
 					<DialogTitle>What are you looking to do?</DialogTitle>
 					<DialogDescription>

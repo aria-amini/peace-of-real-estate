@@ -20,6 +20,8 @@ type RouteTarget =
 type RouteTestOptions = RouteTarget & {
 	viewport?: Viewport
 	waitFor?: (screen: RenderResult) => HTMLElement | SVGElement | null
+	prepare?: (screen: RenderResult) => Promise<void> | void
+	screenshotTarget?: (screen: RenderResult) => HTMLElement | SVGElement
 }
 
 type RenderedFileRoute = {
@@ -207,10 +209,14 @@ export async function expectRouteScreenshot(options: RouteTestOptions) {
 	screen.container.style.width = `${viewport.width}px`
 	screen.container.style.height = 'auto'
 	screen.container.style.overflow = 'visible'
+	await options.prepare?.(screen)
 
 	await document.fonts.ready
 	await waitForImages()
 	await waitForLayout()
+
+	const screenshotTarget =
+		options.screenshotTarget?.(screen) ?? screen.container
 
 	let screenshotHeight = getRouteScreenshotHeight(
 		screen.container,
@@ -231,7 +237,7 @@ export async function expectRouteScreenshot(options: RouteTestOptions) {
 	screen.container.style.overflow = 'hidden'
 
 	await expect
-		.element(screen.container)
+		.element(screenshotTarget)
 		.toMatchScreenshot(`${getScreenshotName(options)}.png`, {
 			screenshotOptions: { animations: 'disabled', scale: 'css' },
 		})
