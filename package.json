@@ -62,8 +62,8 @@
 		"vite-plugin-svgr": "^5.2.0"
 	},
 	"devDependencies": {
-		"@aamini/config": "0.0.16",
-		"@aamini/lib": "0.0.16",
+		"@aamini/config": "0.0.17",
+		"@aamini/lib": "0.0.17",
 		"@playwright/test": "^1.59.1",
 		"@tailwindcss/vite": "^4.2.1",
 		"@tanstack/devtools-vite": "^0.6.0",
