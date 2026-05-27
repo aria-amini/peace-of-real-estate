@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/auth-client'
 import {
 	getNextUnansweredQuestionIndex,
@@ -117,29 +118,59 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 			icon={MapPin}
 			roleLabel={config.label}
 		>
-			<label htmlFor={`${config.kind}-zip`} className="text-sm font-medium">
-				{config.areaPrompt}
-			</label>
-			<Input
-				id={`${config.kind}-zip`}
-				value={zipCode}
-				onChange={(event) => setZipCode(event.target.value)}
-				placeholder="Zip code"
-				className="mt-3"
-			/>
+			<div className="space-y-8">
+				<div>
+					<h2 className="font-heading text-xl leading-relaxed font-normal">
+						{config.areaPrompt}
+					</h2>
+					<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+						This helps us find agents who specialize in your target area.
+					</p>
+					<div className="mt-4">
+						<label
+							htmlFor={`${config.kind}-zip`}
+							className="text-sm font-medium"
+						>
+							Zip code
+						</label>
+						<Input
+							id={`${config.kind}-zip`}
+							value={zipCode}
+							onChange={(event) => setZipCode(event.target.value)}
+							placeholder="e.g. 78701"
+							className="mt-1.5"
+						/>
+					</div>
+				</div>
 
-			<div className="mt-8 space-y-3">
-				{config.intentOptions.map((option) => (
-					<Button
-						key={option}
-						type="button"
-						onClick={() => setIntent(option)}
-						variant={intent === option ? 'default' : 'outline'}
-						className="h-auto w-full justify-start whitespace-normal"
-					>
-						{option}
-					</Button>
-				))}
+				<div className="border-t pt-8">
+					<h2 className="font-heading text-xl leading-relaxed font-normal">
+						What best describes your situation?
+					</h2>
+					<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+						Select the option that matches where you are in the process.
+					</p>
+					<div className="mt-4 space-y-3">
+						{config.intentOptions.map((option) => (
+							<button
+								key={option}
+								type="button"
+								onClick={() => setIntent(option)}
+								className={cn(
+									'flex w-full items-center justify-between rounded-lg border p-4 text-left text-sm font-medium transition-colors',
+									intent === option
+										? 'border-primary bg-primary/5 text-primary'
+										: 'border-border hover:bg-accent hover:text-accent-foreground',
+								)}
+							>
+								<span className="pr-4">{option}</span>
+								{intent === option && (
+									<CheckCircle2 className="h-5 w-5 shrink-0" />
+								)}
+							</button>
+						))}
+					</div>
+				</div>
 			</div>
 
 			<div className="mt-10 flex justify-end">
