@@ -73,7 +73,7 @@
 	/* Harbor Calm: derived from favicon.svg
 	   sky #74D4FF, navy #024A70, peach #FFB86A, slate #CAD5E2 */
 	--radius: 1rem;
-	--background: oklch(0.985 0.008 230);
+	--background: oklch(0.985 0.003 250);
 	--foreground: oklch(0.245 0.055 240);
 	--card: oklch(1 0 0);
 	--card-foreground: oklch(0.245 0.055 240);

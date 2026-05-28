@@ -4,9 +4,10 @@ import { ArrowRight } from 'lucide-react'
 
 import { MatchCardModern } from '@/components/match-card-variants'
 import type { MatchDetails } from '@/components/match-card-variants'
+import { mockMatch2 } from '@/components/match-card-variants'
 import { GetMatchedDialog } from '@/components/get-matched-dialog'
+import { FeatureShowcase } from '@/components/feature-showcase'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import {
 	Table,
 	TableBody,
@@ -33,7 +34,7 @@ function LandingPage() {
 				<HeroSection />
 				<MarqueeBanner />
 			</div>
-			<MatchPreviewSection />
+			<FeatureShowcase />
 			<ComparisonSection />
 		</>
 	)
@@ -41,18 +42,12 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="relative flex w-full flex-1 flex-col items-center justify-start gap-6 overflow-hidden pt-10 pb-16 text-center md:pt-14 md:pb-24">
-			<img
-				src="https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80"
-				alt="A row of houses with a city in the background"
-				className="absolute inset-0 h-full w-full object-cover object-top"
-			/>
-			<div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-transparent" />
+		<section className="from-background via-background to-muted/30 relative flex w-full flex-1 flex-col items-center justify-start gap-8 overflow-hidden bg-gradient-to-b pt-10 pb-8 text-center md:pt-14 md:pb-12">
 			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
-				<TypographyH1 className="text-4xl text-white drop-shadow-md md:text-5xl lg:text-6xl">
+				<TypographyH1 className="text-4xl md:text-5xl lg:text-6xl">
 					Find your perfect agent
 				</TypographyH1>
-				<TypographyP className="max-w-2xl text-lg leading-relaxed text-white/90 drop-shadow-sm">
+				<TypographyP className="text-muted-foreground max-w-2xl text-lg leading-relaxed">
 					Take a simple quiz to find your perfect agent. Free services make
 					money by letting agents bid for your attention. We guarantee an equal
 					playing field, for the most expensive decision of your life.
@@ -67,7 +62,26 @@ function HeroSection() {
 					</Button>
 				</GetMatchedDialog>
 			</div>
+
+			<div className="relative z-10 mt-4 w-full max-w-lg px-6 md:mt-6">
+				<FloatingMatchPreview />
+			</div>
 		</section>
+	)
+}
+
+function FloatingMatchPreview() {
+	return (
+		<div className="relative mx-auto w-full max-w-md">
+			{/* Back card for depth */}
+			<div className="absolute top-4 left-1/2 w-[92%] -translate-x-1/2 scale-[0.92] opacity-40 blur-[1px]">
+				<MatchCardModern match={mockMatch2} />
+			</div>
+			{/* Main card */}
+			<div className="relative shadow-2xl">
+				<MatchCardModern match={demoMatch} />
+			</div>
+		</div>
 	)
 }
 
@@ -117,26 +131,6 @@ const demoMatch: MatchDetails = {
 		satisfaction: 4.9,
 	},
 	isTopMatch: true,
-}
-
-function MatchPreviewSection() {
-	return (
-		<section className="relative flex flex-col items-center gap-6 px-6 py-12">
-			<div className="text-center">
-				<TypographyH2 className="text-2xl md:text-3xl">
-					See your matches in minutes
-				</TypographyH2>
-				<TypographyP className="text-muted-foreground mt-2 max-w-xl">
-					Answer a few questions about your preferences and get matched with
-					agents who fit your style.
-				</TypographyP>
-			</div>
-			<div className="pointer-events-none relative w-full max-w-md opacity-90 select-none">
-				<MatchCardModern match={demoMatch} />
-				<div className="from-background absolute inset-0 rounded-xl bg-gradient-to-t via-transparent to-transparent" />
-			</div>
-		</section>
-	)
 }
 
 function MarqueeBanner() {
@@ -213,29 +207,23 @@ function ComparisonTable() {
 	]
 
 	return (
-		<Card className="border-primary/15 max-w-full rounded-xl border shadow-xl">
-			<CardContent>
-				<Table className="text-[11px] sm:text-sm md:text-base">
-					<TableHeader>
-						<TableRow className="bg-primary/10">
-							<TableHead></TableHead>
-							<TableHead>Peace of Real Estate</TableHead>
-							<TableHead>Lead marketplaces</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{rows.map(([label, pre, marketplace]) => (
-							<TableRow key={label}>
-								<TableCell className="p-2 font-medium md:p-4">
-									{label}
-								</TableCell>
-								<TableCell className="p-2 md:p-4">{pre}</TableCell>
-								<TableCell className="p-2 md:p-4">{marketplace}</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</CardContent>
-		</Card>
+		<Table className="border-border rounded-xl border text-[11px] sm:text-sm md:text-base">
+			<TableHeader>
+				<TableRow className="bg-primary/10">
+					<TableHead></TableHead>
+					<TableHead>Peace of Real Estate</TableHead>
+					<TableHead>Lead marketplaces</TableHead>
+				</TableRow>
+			</TableHeader>
+			<TableBody>
+				{rows.map(([label, pre, marketplace]) => (
+					<TableRow key={label}>
+						<TableCell className="p-2 font-medium md:p-4">{label}</TableCell>
+						<TableCell className="p-2 md:p-4">{pre}</TableCell>
+						<TableCell className="p-2 md:p-4">{marketplace}</TableCell>
+					</TableRow>
+				))}
+			</TableBody>
+		</Table>
 	)
 }
