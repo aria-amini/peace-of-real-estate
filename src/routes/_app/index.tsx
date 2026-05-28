@@ -1,17 +1,12 @@
 import { redirectAuthenticatedUsers } from '@/lib/auth-guards'
 import { createFileRoute } from '@tanstack/react-router'
-import { ArrowRight, DollarSign, LockKeyhole, Scale } from 'lucide-react'
-import { type ReactNode } from 'react'
+import { ArrowRight } from 'lucide-react'
 
+import { AgentMatchCard } from '@/components/agent-match-card'
+import type { AgentMatch } from '@/components/agent-match-card'
 import { GetMatchedDialog } from '@/components/get-matched-dialog'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
 	Table,
 	TableBody,
@@ -35,6 +30,8 @@ function LandingPage() {
 	return (
 		<>
 			<HeroSection />
+			<MarqueeBanner />
+			<MatchPreviewSection />
 			<ComparisonSection />
 		</>
 	)
@@ -42,48 +39,32 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="min-h-main-content relative flex flex-col items-center gap-5 p-6 md:flex-row md:items-center">
-			<div>
-				<TypographyH1 className="text-foreground max-w-2xl lg:text-6xl">
+		<section className="relative flex flex-col items-center justify-center gap-6 overflow-hidden px-6 py-16 text-center md:py-24">
+			<img
+				src="https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80"
+				alt="A row of houses with a city in the background"
+				className="absolute inset-0 h-full w-full object-cover"
+			/>
+			<div className="absolute inset-0 bg-black/60" />
+			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5">
+				<TypographyH1 className="text-4xl text-white drop-shadow-md md:text-5xl lg:text-6xl">
 					Find your perfect agent
 				</TypographyH1>
-				<TypographyP className="text-muted-foreground max-w-3xl text-lg">
-					Take a simple quiz to find your perfect agent. Free services (Zillow,
-					Realtor.com, Homes.com) make money by letting agents bid for your
-					attention. We guarantee an equal playing field, for the most expensive
-					decision of your life.
+				<TypographyP className="max-w-2xl text-lg leading-relaxed text-white/90 drop-shadow-sm">
+					Take a simple quiz to find your perfect agent. Free services make
+					money by letting agents bid for your attention. We guarantee an equal
+					playing field, for the most expensive decision of your life.
 				</TypographyP>
+				<GetMatchedDialog>
+					<Button
+						size="lg"
+						className="shadow-primary/20 mt-2 h-12 rounded-lg px-8 text-base font-semibold shadow-lg"
+					>
+						Get Matched
+						<ArrowRight className="h-4 w-4" />
+					</Button>
+				</GetMatchedDialog>
 			</div>
-
-			<Card className="border-primary/20 mx-12 mt-8 w-full max-w-sm border px-4 py-10 shadow-2xl">
-				<CardHeader>
-					<CardTitle className="text-2xl">Try it for free</CardTitle>
-					<CardDescription>
-						<div className="text-muted-foreground mt-3 space-y-2 text-sm leading-5">
-							<CtaTrustItem icon={<DollarSign className="h-4 w-4" />}>
-								See your fit profile before paying
-							</CtaTrustItem>
-							<CtaTrustItem icon={<Scale className="h-4 w-4" />}>
-								No paid ranking
-							</CtaTrustItem>
-							<CtaTrustItem icon={<LockKeyhole className="h-4 w-4" />}>
-								No lead resale
-							</CtaTrustItem>
-						</div>
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<GetMatchedDialog>
-						<Button
-							size="lg"
-							className="shadow-primary/20 h-12 w-full rounded-lg text-base font-semibold shadow-lg"
-						>
-							Get Matched
-							<ArrowRight className="h-4 w-4" />
-						</Button>
-					</GetMatchedDialog>
-				</CardContent>
-			</Card>
 		</section>
 	)
 }
@@ -108,18 +89,99 @@ function ComparisonSection() {
 	)
 }
 
-function CtaTrustItem({
-	icon,
-	children,
-}: {
-	icon: ReactNode
-	children: ReactNode
-}) {
+const demoMatch: AgentMatch = {
+	id: 1,
+	name: 'Sarah Chen',
+	agency: 'Horizon Realty Group',
+	location: 'Baltimore, MD',
+	overall: 4.8,
+	scores: {
+		Communication: 4.9,
+		Transparency: 4.7,
+		'Local Knowledge': 4.8,
+		Negotiation: 4.6,
+	},
+	experience: '12 years',
+	specialties: ['First-time buyers', 'Waterfront', 'Investors'],
+	about:
+		'Sarah specializes in helping first-time buyers navigate the Baltimore market with calm, clear guidance. Known for transparent pricing and patient communication.',
+	topMatch: true,
+}
+
+function MatchPreviewSection() {
 	return (
-		<div className="flex items-start gap-2">
-			<span className="mt-0.5 shrink-0">{icon}</span>
-			<span>{children}</span>
-		</div>
+		<section className="relative flex flex-col items-center gap-6 px-6 py-12">
+			<div className="text-center">
+				<TypographyH2 className="text-2xl md:text-3xl">
+					See your matches in minutes
+				</TypographyH2>
+				<TypographyP className="text-muted-foreground mt-2 max-w-xl">
+					Answer a few questions about your preferences and get matched with
+					agents who fit your style.
+				</TypographyP>
+			</div>
+			<div className="pointer-events-none relative w-full max-w-3xl opacity-90 select-none">
+				<AgentMatchCard match={demoMatch} />
+				<div className="from-background absolute inset-0 rounded-xl bg-gradient-to-t via-transparent to-transparent" />
+			</div>
+		</section>
+	)
+}
+
+function MarqueeBanner() {
+	const companies = [
+		{
+			name: 'Keller Williams',
+			logo: '/brand-logos/keller-williams.svg',
+		},
+		{
+			name: 'Coldwell Banker',
+			logo: '/brand-logos/coldwell-banker.svg',
+		},
+		{
+			name: 'RE/MAX',
+			logo: '/brand-logos/remax.svg',
+		},
+		{
+			name: 'Century 21',
+			logo: '/brand-logos/century-21.svg',
+		},
+		{
+			name: 'Berkshire Hathaway',
+			logo: '/brand-logos/berkshire-hathaway.svg',
+		},
+		{
+			name: 'Zillow',
+			logo: '/brand-logos/zillow.svg',
+		},
+		{
+			name: 'Opendoor',
+			logo: '/brand-logos/opendoor.svg',
+		},
+	]
+
+	return (
+		<section className="bg-muted/50 flex flex-col items-center gap-6 overflow-hidden px-6 py-12">
+			<p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
+				Trusted by leading real estate brands
+			</p>
+			<div className="relative w-full max-w-6xl overflow-hidden py-2">
+				<div className="animate-marquee flex w-max items-center gap-14">
+					{[...companies, ...companies].map((company, i) => (
+						<span
+							key={i}
+							className="flex h-12 min-w-36 items-center justify-center opacity-45 grayscale transition-opacity hover:opacity-70"
+						>
+							<img
+								src={company.logo}
+								alt={company.name}
+								className="max-h-8 max-w-32 object-contain brightness-0"
+							/>
+						</span>
+					))}
+				</div>
+			</div>
+		</section>
 	)
 }
 
