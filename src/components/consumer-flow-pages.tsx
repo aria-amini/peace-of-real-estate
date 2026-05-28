@@ -15,7 +15,7 @@ import { AgentMatchCard, type AgentMatch } from '@/components/agent-match-card'
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
@@ -290,8 +290,6 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 	const isUnlocked = Boolean(session)
 	const unlockTo =
 		config.basePath === '/buyer' ? '/buyer/summary' : '/seller/summary'
-	const paymentTo =
-		config.basePath === '/buyer' ? '/buyer/payment' : '/seller/payment'
 
 	return (
 		<FlowPageShell
@@ -300,20 +298,23 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 			icon={Sparkles}
 			roleLabel={config.label}
 		>
-			<div className="space-y-4">
+			<div className="space-y-3">
 				{[
 					'You prefer clear expectations before big decisions.',
 					'Communication fit matters as much as market knowledge.',
 					'PRE will rank agents by fit, not by ad spend or lead buying.',
 				].map((item) => (
-					<div key={item} className="flex gap-3 border p-4 text-sm">
-						<CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+					<div
+						key={item}
+						className="bg-muted/40 flex gap-3 rounded-xl p-4 text-sm"
+					>
+						<CheckCircle2 className="text-primary mt-0.5 h-4 w-4 shrink-0" />
 						<span>{item}</span>
 					</div>
 				))}
 			</div>
 
-			<div className="mt-10 space-y-6">
+			<div className="mt-8 space-y-5">
 				<div className="space-y-3 text-center">
 					<p className="text-muted-foreground text-sm tracking-[0.25em] uppercase">
 						{isUnlocked ? 'Preview unlocked' : 'Locked preview'}
@@ -334,8 +335,6 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 							match={match}
 							index={index}
 							isUnlocked={isUnlocked}
-							paymentTo={paymentTo}
-							unlockTo={unlockTo}
 						/>
 					))}
 				</div>
@@ -376,27 +375,23 @@ function LockedMatchPreview({
 	index,
 	match,
 	isUnlocked,
-	paymentTo,
-	unlockTo,
 }: {
 	index: number
 	match: AgentMatch
 	isUnlocked: boolean
-	paymentTo: '/buyer/payment' | '/seller/payment'
-	unlockTo: '/buyer/summary' | '/seller/summary'
 }) {
 	return (
-		<Card className="relative">
-			<CardContent className="space-y-5 pt-6">
+		<Card>
+			<CardContent className="pt-6">
 				<div className="flex items-start justify-between gap-4">
 					<div>
 						<div className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
 							Match {index + 1}
 						</div>
 						<h3 className="text-xl">{match.name}</h3>
-						<CardDescription className="mt-1">
+						<p className="text-muted-foreground mt-1 text-sm">
 							{match.agency} · {match.location}
-						</CardDescription>
+						</p>
 					</div>
 					<div className="text-right">
 						<div className="text-3xl font-semibold">
@@ -406,55 +401,32 @@ function LockedMatchPreview({
 					</div>
 				</div>
 
-				<div
-					className={isUnlocked ? 'grid gap-4 sm:grid-cols-2' : 'blur-[2px]'}
-				>
-					<CardDescription>{match.about}</CardDescription>
-					<div className="flex flex-wrap gap-2">
-						{match.specialties.map((specialty) => (
-							<span key={specialty} className="border px-3 py-1 text-xs">
-								{specialty}
-							</span>
-						))}
-					</div>
-				</div>
-			</CardContent>
-
-			{isUnlocked ? (
-				<div className="border-t px-6 py-4">
-					<div className="flex flex-wrap items-center justify-between gap-3">
-						<p className="text-muted-foreground text-sm">
-							You have a preview. Continue to unlock the full matches.
+				{isUnlocked ? (
+					<div className="mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
+						<p className="text-muted-foreground text-sm leading-relaxed">
+							{match.about}
 						</p>
-						<Button asChild>
-							<Link to={paymentTo}>
-								Continue to Payment
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						</Button>
-					</div>
-				</div>
-			) : (
-				<div className="bg-background/80 absolute inset-0 flex items-center justify-center backdrop-blur-sm">
-					<div className="mx-auto flex max-w-sm flex-col items-center gap-4 px-6 text-center">
-						<div className="bg-background flex h-12 w-12 items-center justify-center rounded-full border">
-							<Lock className="h-5 w-5" />
+						<div className="flex flex-wrap gap-2">
+							{match.specialties.map((specialty) => (
+								<span
+									key={specialty}
+									className="bg-secondary text-secondary-foreground rounded-md border px-3 py-1 text-xs font-medium"
+								>
+									{specialty}
+								</span>
+							))}
 						</div>
-						<div>
-							<h4 className="text-lg font-semibold">Unlock this match</h4>
-							<p className="text-muted-foreground mt-1 text-sm">
-								Create a free account to see full details and keep going.
-							</p>
-						</div>
-						<Button asChild>
-							<Link to="/signup" search={{ redirect: unlockTo }}>
-								Create Free Account
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						</Button>
 					</div>
-				</div>
-			)}
+				) : (
+					<div className="text-muted-foreground mt-5 flex items-center gap-3 rounded-lg border border-dashed p-4 text-sm">
+						<Lock className="h-4 w-4 shrink-0" />
+						<span>
+							Full profile, fit breakdown, and contact details unlock after
+							sign-up
+						</span>
+					</div>
+				)}
+			</CardContent>
 		</Card>
 	)
 }
