@@ -71,7 +71,7 @@ function AppShell() {
 						&copy; 2026 Peace of Real Estate. All rights reserved.
 					</p>
 					<div className="flex gap-6">
-						<Link to="/login" className="text-muted-foreground text-xs">
+						<Link to="/agent" className="text-muted-foreground text-xs">
 							Agent Login
 						</Link>
 						<Link to="/" className="text-muted-foreground text-xs">
