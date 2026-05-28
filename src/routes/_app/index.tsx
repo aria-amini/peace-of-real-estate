@@ -47,7 +47,7 @@ function HeroSection() {
 				alt="A row of houses with a city in the background"
 				className="absolute inset-0 h-full w-full object-cover object-top"
 			/>
-			<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
+			<div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-transparent" />
 			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
 				<TypographyH1 className="text-4xl text-white drop-shadow-md md:text-5xl lg:text-6xl">
 					Find your perfect agent
@@ -60,10 +60,10 @@ function HeroSection() {
 				<GetMatchedDialog>
 					<Button
 						size="lg"
-						className="shadow-primary/40 mt-2 h-12 rounded-lg border border-white px-8 text-base font-semibold shadow-xl hover:brightness-110"
+						className="mt-2 h-14 cursor-pointer rounded-full bg-[#FFB86A] px-10 text-lg font-semibold text-neutral-900 shadow-lg shadow-[#FFB86A]/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#FFB86A]/30"
 					>
 						Get Matched
-						<ArrowRight className="h-4 w-4" />
+						<ArrowRight className="h-5 w-5" />
 					</Button>
 				</GetMatchedDialog>
 			</div>
@@ -172,21 +172,29 @@ function MarqueeBanner() {
 	]
 
 	return (
-		<section className="bg-muted/50 flex flex-col items-center gap-3 overflow-hidden px-6 py-4">
-			<p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
+		<section className="border-border flex flex-col items-center gap-3 overflow-hidden border-y px-6 py-6">
+			<p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
 				Trusted by Baltimore's Top Realtors
 			</p>
-			<div className="relative w-full max-w-6xl overflow-hidden py-2">
+			<div
+				className="relative w-full max-w-6xl overflow-hidden py-2"
+				style={{
+					maskImage:
+						'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+					WebkitMaskImage:
+						'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+				}}
+			>
 				<div className="animate-marquee flex w-max items-center gap-14">
 					{[...companies, ...companies].map((company, i) => (
 						<span
 							key={i}
-							className="flex h-12 min-w-36 items-center justify-center opacity-45 grayscale transition-opacity hover:opacity-70"
+							className="flex h-12 min-w-36 items-center justify-center opacity-60 transition-opacity hover:opacity-100"
 						>
 							<img
 								src={company.logo}
 								alt={company.name}
-								className="max-h-8 max-w-32 object-contain brightness-0"
+								className="max-h-8 max-w-32 object-contain"
 							/>
 						</span>
 					))}
