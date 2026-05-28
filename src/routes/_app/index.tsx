@@ -29,8 +29,10 @@ export const Route = createFileRoute('/_app/')({
 function LandingPage() {
 	return (
 		<>
-			<HeroSection />
-			<MarqueeBanner />
+			<div className="flex min-h-[calc(100dvh-var(--app-header-height))] flex-col">
+				<HeroSection />
+				<MarqueeBanner />
+			</div>
 			<MatchPreviewSection />
 			<ComparisonSection />
 		</>
@@ -39,13 +41,13 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="relative flex w-full flex-col items-center justify-center gap-6 overflow-hidden py-16 text-center md:py-24">
+		<section className="relative flex w-full flex-1 flex-col items-center justify-start gap-6 overflow-hidden pt-10 pb-16 text-center md:pt-14 md:pb-24">
 			<img
 				src="https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80"
 				alt="A row of houses with a city in the background"
-				className="absolute inset-0 h-full w-full object-cover"
+				className="absolute inset-0 h-full w-full object-cover object-top"
 			/>
-			<div className="absolute inset-0 bg-black/70" />
+			<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
 				<TypographyH1 className="text-4xl text-white drop-shadow-md md:text-5xl lg:text-6xl">
 					Find your perfect agent
@@ -170,9 +172,9 @@ function MarqueeBanner() {
 	]
 
 	return (
-		<section className="bg-muted/50 flex flex-col items-center gap-6 overflow-hidden px-6 py-12">
+		<section className="bg-muted/50 flex flex-col items-center gap-3 overflow-hidden px-6 py-4">
 			<p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
-				Trusted by leading real estate brands
+				Trusted by Baltimore's Top Realtors
 			</p>
 			<div className="relative w-full max-w-6xl overflow-hidden py-2">
 				<div className="animate-marquee flex w-max items-center gap-14">
