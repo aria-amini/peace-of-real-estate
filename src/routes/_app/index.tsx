@@ -39,14 +39,14 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="relative flex flex-col items-center justify-center gap-6 overflow-hidden px-6 py-16 text-center md:py-24">
+		<section className="relative flex w-full flex-col items-center justify-center gap-6 overflow-hidden py-16 text-center md:py-24">
 			<img
 				src="https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80"
 				alt="A row of houses with a city in the background"
 				className="absolute inset-0 h-full w-full object-cover"
 			/>
-			<div className="absolute inset-0 bg-black/60" />
-			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5">
+			<div className="absolute inset-0 bg-black/70" />
+			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
 				<TypographyH1 className="text-4xl text-white drop-shadow-md md:text-5xl lg:text-6xl">
 					Find your perfect agent
 				</TypographyH1>
@@ -58,7 +58,7 @@ function HeroSection() {
 				<GetMatchedDialog>
 					<Button
 						size="lg"
-						className="shadow-primary/20 mt-2 h-12 rounded-lg px-8 text-base font-semibold shadow-lg"
+						className="shadow-primary/40 mt-2 h-12 rounded-lg border border-white px-8 text-base font-semibold shadow-xl hover:brightness-110"
 					>
 						Get Matched
 						<ArrowRight className="h-4 w-4" />
