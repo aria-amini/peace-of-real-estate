@@ -26,6 +26,8 @@ vi.mock('@/lib/auth-client', () => ({
 
 vi.mock('@/lib/auth-guards', () => ({
 	getCurrentSession: () => authState.session,
+	isUserPremium: () => false,
+	upgradeToPremium: () => ({ success: true }),
 	redirectAuthenticatedUsers: () => undefined,
 	redirectUnauthenticatedUsers: () => ({ session: authState.session }),
 }))

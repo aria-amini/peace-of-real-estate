@@ -1,4 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 
 import {
 	Breadcrumb,
@@ -9,6 +10,11 @@ import {
 	BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { authClient } from '@/lib/auth-client'
+import {
+	getStoredConsumerDraftForFlow,
+	listenForIntakeDraftUpdates,
+} from '@/lib/intake-draft'
+import type { ConsumerFlowKind } from '@/lib/user-settings'
 
 const buyerFlow = [
 	{ label: 'Basic Information', path: 'intro' },
@@ -27,7 +33,7 @@ const sellerFlow = [
 function getFlowProgress(
 	flow: typeof buyerFlow,
 	page: string,
-	storageKey: string,
+	flowKind: ConsumerFlowKind,
 	basePath: string,
 ) {
 	if (typeof window === 'undefined') return []
@@ -35,16 +41,16 @@ function getFlowProgress(
 	const currentIndex = flow.findIndex((step) => step.path === page)
 	if (currentIndex === -1) return []
 
-	const stored = localStorage.getItem(storageKey)
-	const maxReached = stored ? parseInt(stored, 10) : -1
-	const newMax = Math.max(maxReached, currentIndex)
-	localStorage.setItem(storageKey, String(newMax))
+	const draft = getStoredConsumerDraftForFlow(flowKind)
+	const draftStage = draft.currentStage ?? page
+	const draftIndex = flow.findIndex((step) => step.path === draftStage)
+	const showUpTo =
+		draftIndex === -1 ? currentIndex : Math.min(draftIndex, currentIndex)
 
-	const showUpTo = Math.max(newMax, currentIndex)
 	return flow.slice(0, showUpTo + 1).map((step, index) => ({
 		label: step.label,
-		to: index === currentIndex ? undefined : `${basePath}/${step.path}`,
-		isCurrent: index === currentIndex,
+		to: index === showUpTo ? undefined : `${basePath}/${step.path}`,
+		isCurrent: index === showUpTo,
 	}))
 }
 
@@ -57,7 +63,7 @@ function getBreadcrumbItems(pathname: string) {
 		return getFlowProgress(
 			buyerFlow,
 			pathname.replace('/buyer/', ''),
-			'buyerFlowMax',
+			'buyer',
 			'/buyer',
 		)
 	}
@@ -65,7 +71,7 @@ function getBreadcrumbItems(pathname: string) {
 	return getFlowProgress(
 		sellerFlow,
 		pathname.replace('/seller/', ''),
-		'sellerFlowMax',
+		'seller',
 		'/seller',
 	)
 }
@@ -74,12 +80,20 @@ export function FlowBreadcrumb() {
 	const { data: session } = authClient.useSession()
 	const router = useRouterState()
 	const pathname = router.location.pathname
+	const [draftVersion, setDraftVersion] = useState(0)
+
+	useEffect(
+		() =>
+			listenForIntakeDraftUpdates(() => setDraftVersion((value) => value + 1)),
+		[],
+	)
 
 	if (session) return null
 
+	void draftVersion
 	const items = getBreadcrumbItems(pathname)
 
-	if (items.length === 0) return null
+	if (items.length <= 1) return null
 
 	return (
 		<div className="bg-background/95 w-full border-b px-5 py-2">

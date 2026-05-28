@@ -2,7 +2,7 @@ import {
 	clearStoredIntakeDraft,
 	getStoredIntakeDraft,
 } from '@/lib/intake-draft'
-import { redirectUnauthenticatedUsers } from '@/lib/auth-guards'
+import { redirectUnauthenticatedUsers, isUserPremium } from '@/lib/auth-guards'
 import {
 	getUserSettings,
 	getDefaultSettings,
@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { categoryWeightOptions } from '@/lib/category-weight-options'
 
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import {
 	SlidersHorizontal,
 	ListChecks,
@@ -38,7 +38,14 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_app/account')({
-	beforeLoad: () => redirectUnauthenticatedUsers(),
+	beforeLoad: async () => {
+		const { session } = await redirectUnauthenticatedUsers()
+		const premium = await isUserPremium()
+		if (!premium) {
+			throw redirect({ to: '/upgrade' })
+		}
+		return { session }
+	},
 	component: Account,
 })
 

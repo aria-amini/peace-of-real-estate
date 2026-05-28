@@ -21,6 +21,7 @@ type QuestionFlowProps = {
 	initialAnswers?: Record<string, AnswerValue>
 	initialQuestionIndex?: number
 	onAnswersChange?: (answers: Record<string, AnswerValue>) => void
+	onComplete?: () => void
 }
 
 export function QuestionFlow({
@@ -31,6 +32,7 @@ export function QuestionFlow({
 	initialAnswers = {},
 	initialQuestionIndex = 0,
 	onAnswersChange,
+	onComplete,
 }: QuestionFlowProps) {
 	const [currentQuestion, setCurrentQuestion] = useState(
 		Math.min(Math.max(initialQuestionIndex, 0), questions.length - 1),
@@ -113,6 +115,7 @@ export function QuestionFlow({
 		setIsTransitioning(true)
 
 		completeTimer.current = setTimeout(() => {
+			onComplete?.()
 			void navigate({ to: completeTo })
 		}, 220)
 	}

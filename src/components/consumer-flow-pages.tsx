@@ -1,7 +1,8 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
 	ArrowRight,
 	CheckCircle2,
+	Circle,
 	CreditCard,
 	Lock,
 	MapPin,
@@ -9,18 +10,30 @@ import {
 	Sparkles,
 	Trophy,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { AgentMatchCard, type AgentMatch } from '@/components/agent-match-card'
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/auth-client'
+import { upgradeToPremium } from '@/lib/auth-guards'
 import {
+	clearStoredConsumerDraftForFlow,
+	getNextPathForConsumerFlow,
 	getNextUnansweredQuestionIndex,
 	getStoredConsumerDraftForFlow,
 	saveStoredConsumerDraftForFlow,
@@ -105,11 +118,142 @@ const consumerMatches: AgentMatch[] = [
 	},
 ]
 
+export function ConsumerResumeGate({ config }: { config: ConsumerFlowConfig }) {
+	const draft = getStoredConsumerDraftForFlow(config.kind)
+	const [dialogOpen, setDialogOpen] = useState(false)
+	const navigate = useNavigate()
+
+	const hasProgress = Boolean(
+		draft.lastCompletedStage ||
+		draft.zipCode ||
+		draft.intent ||
+		Object.keys(draft.answers ?? {}).length > 0,
+	)
+
+	useEffect(() => {
+		if (!hasProgress) {
+			void navigate({ to: `${config.basePath}/intro` })
+		}
+	}, [hasProgress, config.basePath, navigate])
+
+	const handleStartFresh = () => {
+		clearStoredConsumerDraftForFlow(config.kind)
+		setDialogOpen(false)
+	}
+
+	const resumeTo = getNextPathForConsumerFlow(config.kind, draft)
+	const steps = [
+		{ id: 'intro', label: 'Basic Information' },
+		{ id: 'quiz', label: 'Quiz' },
+		{ id: 'details', label: 'Extra Details' },
+		{ id: 'summary', label: 'Summary' },
+	]
+	const stageOrder = ['intro', 'quiz', 'details', 'summary']
+	const rawCompletedIndex = stageOrder.indexOf(draft.lastCompletedStage ?? '')
+	const completedIndex = Math.min(
+		rawCompletedIndex,
+		stageOrder.indexOf('details'),
+	)
+	const currentStepId = resumeTo.split('/').pop()
+	const currentIndex = stageOrder.indexOf(currentStepId ?? '')
+
+	return (
+		<FlowPageShell
+			title={`${config.label} Profile`}
+			icon={MapPin}
+			roleLabel={config.label}
+		>
+			<div className="space-y-6">
+				<p className="text-muted-foreground text-center text-sm leading-relaxed">
+					You have a saved profile. Pick up where you left off or start fresh.
+				</p>
+
+				<div className="space-y-2">
+					{steps.map((step, index) => {
+						const isCompleted = completedIndex >= index
+						const isCurrent = currentIndex === index
+						return (
+							<div
+								key={step.id}
+								className={cn(
+									'flex items-center gap-3 rounded-lg border p-3 text-sm',
+									isCompleted && 'border-green-200 bg-green-50/50',
+									isCurrent && 'border-foreground',
+								)}
+							>
+								<div className="flex h-6 w-6 shrink-0 items-center justify-center">
+									{isCompleted ? (
+										<CheckCircle2 className="h-5 w-5 text-green-600" />
+									) : (
+										<Circle
+											className={cn(
+												'h-4 w-4',
+												isCurrent ? 'text-primary' : 'text-muted-foreground',
+											)}
+										/>
+									)}
+								</div>
+								<span
+									className={cn(
+										'font-medium',
+										isCurrent && 'text-primary',
+										!isCompleted && !isCurrent && 'text-muted-foreground',
+									)}
+								>
+									{step.label}
+								</span>
+							</div>
+						)
+					})}
+				</div>
+
+				<div className="flex flex-col gap-3 pt-2 sm:flex-row">
+					<Button asChild className="flex-1">
+						<Link to={resumeTo}>
+							Resume where I left off
+							<ArrowRight className="h-4 w-4" />
+						</Link>
+					</Button>
+					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+						<DialogTrigger asChild>
+							<Button variant="destructive" className="flex-1">
+								Start fresh
+							</Button>
+						</DialogTrigger>
+						<DialogContent showCloseButton={false}>
+							<DialogHeader>
+								<DialogTitle>Start fresh?</DialogTitle>
+								<DialogDescription>
+									This will clear your saved {config.label.toLowerCase()}{' '}
+									profile and you will have to begin from step 1. This action
+									cannot be undone.
+								</DialogDescription>
+							</DialogHeader>
+							<DialogFooter>
+								<Button variant="outline" onClick={() => setDialogOpen(false)}>
+									Cancel
+								</Button>
+								<Button variant="destructive" onClick={handleStartFresh}>
+									Start fresh
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+				</div>
+			</div>
+		</FlowPageShell>
+	)
+}
+
 export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 	const draft = getStoredConsumerDraftForFlow(config.kind)
 	const [zipCode, setZipCode] = useState(draft.zipCode ?? '')
 	const [intent, setIntent] = useState(draft.intent ?? '')
 	const canContinue = zipCode.trim().length >= 5 && intent.length > 0
+
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'intro' })
+	}, [config.kind])
 
 	return (
 		<FlowPageShell
@@ -179,7 +323,11 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 						<Link
 							to={`${config.basePath}/quiz`}
 							onClick={() => {
-								saveStoredConsumerDraftForFlow(config.kind, { zipCode, intent })
+								saveStoredConsumerDraftForFlow(config.kind, {
+									zipCode,
+									intent,
+									lastCompletedStage: 'intro',
+								})
 							}}
 						>
 							Find My PRE Match
@@ -199,6 +347,11 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 
 export function ConsumerQuiz({ config }: { config: ConsumerFlowConfig }) {
 	const draft = getStoredConsumerDraftForFlow(config.kind)
+
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'quiz' })
+	}, [config.kind])
+
 	return (
 		<QuestionFlow
 			roleLabel={config.label}
@@ -211,6 +364,11 @@ export function ConsumerQuiz({ config }: { config: ConsumerFlowConfig }) {
 			onAnswersChange={(answers) =>
 				saveStoredConsumerDraftForFlow(config.kind, { answers })
 			}
+			onComplete={() =>
+				saveStoredConsumerDraftForFlow(config.kind, {
+					lastCompletedStage: 'quiz',
+				})
+			}
 			completeTo={`${config.basePath}/details`}
 			completeLabel="Continue"
 		/>
@@ -221,8 +379,15 @@ export function ConsumerDetails({ config }: { config: ConsumerFlowConfig }) {
 	const draft = getStoredConsumerDraftForFlow(config.kind)
 	const [matchDetails, setMatchDetails] = useState(draft.matchDetails ?? '')
 
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'details' })
+	}, [config.kind])
+
 	const save = () =>
-		saveStoredConsumerDraftForFlow(config.kind, { matchDetails })
+		saveStoredConsumerDraftForFlow(config.kind, {
+			matchDetails,
+			lastCompletedStage: 'details',
+		})
 
 	return (
 		<FlowPageShell
@@ -274,6 +439,7 @@ export function ConsumerDetails({ config }: { config: ConsumerFlowConfig }) {
 					onClick={() =>
 						saveStoredConsumerDraftForFlow(config.kind, {
 							matchDetails: '',
+							lastCompletedStage: 'details',
 						})
 					}
 					className="text-muted-foreground hover:text-foreground text-sm transition-colors"
@@ -290,6 +456,10 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 	const isUnlocked = Boolean(session)
 	const unlockTo =
 		config.basePath === '/buyer' ? '/buyer/summary' : '/seller/summary'
+
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'summary' })
+	}, [config.kind])
 
 	return (
 		<FlowPageShell
@@ -354,12 +524,27 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 					</div>
 					<Button asChild>
 						{isUnlocked ? (
-							<Link to={`${config.basePath}/payment`}>
+							<Link
+								to={`${config.basePath}/payment`}
+								onClick={() =>
+									saveStoredConsumerDraftForFlow(config.kind, {
+										lastCompletedStage: 'summary',
+									})
+								}
+							>
 								Continue to Payment
 								<ArrowRight className="h-4 w-4" />
 							</Link>
 						) : (
-							<Link to="/signup" search={{ redirect: unlockTo }}>
+							<Link
+								to="/signup"
+								search={{ redirect: unlockTo }}
+								onClick={() =>
+									saveStoredConsumerDraftForFlow(config.kind, {
+										lastCompletedStage: 'summary',
+									})
+								}
+							>
 								Sign up to Unlock
 								<ArrowRight className="h-4 w-4" />
 							</Link>
@@ -435,11 +620,24 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 	const [isProcessing, setIsProcessing] = useState(false)
 	const [isComplete, setIsComplete] = useState(false)
 
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'payment' })
+	}, [config.kind])
+
+	useEffect(() => {
+		if (isComplete) {
+			saveStoredConsumerDraftForFlow(config.kind, {
+				lastCompletedStage: 'payment',
+			})
+		}
+	}, [isComplete, config.kind])
+
 	const handlePayment = () => {
 		setIsProcessing(true)
 		setTimeout(() => {
 			setIsProcessing(false)
 			setIsComplete(true)
+			void upgradeToPremium()
 		}, 1500)
 	}
 
@@ -556,6 +754,10 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 }
 
 export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'results' })
+	}, [config.kind])
+
 	return (
 		<FlowPageShell title="Results" icon={Trophy} roleLabel={config.label}>
 			<p className="text-muted-foreground mb-6 text-center text-sm leading-relaxed">

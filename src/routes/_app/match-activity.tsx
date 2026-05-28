@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import {
 	ArrowRightLeft,
 	MapPin,
@@ -17,8 +17,16 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getAgentMatches } from '@/lib/agent-matches'
+import { redirectUnauthenticatedUsers, isUserPremium } from '@/lib/auth-guards'
 
 export const Route = createFileRoute('/_app/match-activity')({
+	beforeLoad: async () => {
+		await redirectUnauthenticatedUsers()
+		const premium = await isUserPremium()
+		if (!premium) {
+			throw redirect({ to: '/upgrade' })
+		}
+	},
 	component: MatchActivity,
 })
 

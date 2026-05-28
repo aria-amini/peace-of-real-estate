@@ -1,10 +1,20 @@
 import { FlowBreadcrumb } from '@/components/flow-breadcrumb'
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
 import {
 	createFileRoute,
 	Link,
 	Outlet,
+	useNavigate,
 	useRouterState,
 } from '@tanstack/react-router'
 import { ArrowRightLeft, ChevronDown, LogOut, User } from 'lucide-react'
@@ -14,10 +24,25 @@ export const Route = createFileRoute('/_app')({
 	component: AppShell,
 })
 
+function isConsumerSignupFlowPath(pathname: string) {
+	return (
+		pathname === '/signup' ||
+		pathname === '/buyer' ||
+		pathname.startsWith('/buyer/') ||
+		pathname === '/seller' ||
+		pathname.startsWith('/seller/')
+	)
+}
+
 function AppShell() {
 	const { data: session } = authClient.useSession()
+	const navigate = useNavigate()
 	const router = useRouterState()
 	const currentPath = router.location.pathname
+	const [showLeaveFlowDialog, setShowLeaveFlowDialog] = useState(false)
+	const homeTarget = session ? '/match-activity' : '/'
+	const shouldConfirmHomeNavigation =
+		!session && isConsumerSignupFlowPath(currentPath)
 	const userInitials = session?.user.name
 		? session.user.name
 				.split(/\s+/)
@@ -27,12 +52,25 @@ function AppShell() {
 				.join('')
 		: null
 
+	const handleHomeClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+		if (!shouldConfirmHomeNavigation) return
+
+		event.preventDefault()
+		setShowLeaveFlowDialog(true)
+	}
+
+	const handleLeaveFlow = () => {
+		setShowLeaveFlowDialog(false)
+		void navigate({ to: homeTarget })
+	}
+
 	return (
 		<div className="flex min-h-dvh flex-col">
 			<header className="bg-background sticky top-0 z-50 h-(--app-header-height) border-b">
 				<div className="mx-auto flex h-full w-full items-center justify-between px-5">
 					<Link
-						to={session ? '/match-activity' : '/'}
+						to={homeTarget}
+						onClick={handleHomeClick}
 						className="flex items-center gap-2"
 					>
 						<img
@@ -83,6 +121,30 @@ function AppShell() {
 					</div>
 				</div>
 			</footer>
+			<Dialog open={showLeaveFlowDialog} onOpenChange={setShowLeaveFlowDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Leave signup?</DialogTitle>
+						<DialogDescription>
+							If you go home now, you may lose your place in the signup flow.
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<DialogClose asChild>
+							<Button type="button" variant="outline">
+								Stay here
+							</Button>
+						</DialogClose>
+						<Button
+							type="button"
+							variant="destructive"
+							onClick={handleLeaveFlow}
+						>
+							Leave signup
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }

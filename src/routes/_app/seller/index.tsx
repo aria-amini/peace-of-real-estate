@@ -1,9 +1,10 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 
-import { sellerConfig } from '@/components/consumer-flow-pages'
+import {
+	ConsumerResumeGate,
+	sellerConfig,
+} from '@/components/consumer-flow-pages'
 
 export const Route = createFileRoute('/_app/seller/')({
-	beforeLoad: () => {
-		throw redirect({ to: `${sellerConfig.basePath}/intro` })
-	},
+	component: () => <ConsumerResumeGate config={sellerConfig} />,
 })
