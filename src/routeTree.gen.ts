@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as BetaRouteImport } from './routes/beta'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
@@ -47,6 +48,11 @@ import { Route as AppAgentComplianceRouteImport } from './routes/_app/agent/comp
 import { Route as AppAgentChatRouteImport } from './routes/_app/agent/chat'
 import { Route as ApiIngestStaticSplatRouteImport } from './routes/api/ingest/static/$'
 
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BetaRoute = BetaRouteImport.update({
   id: '/beta',
   path: '/beta',
@@ -235,6 +241,7 @@ const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/beta': typeof BetaRoute
+  '/demo': typeof DemoRoute
   '/account': typeof AppAccountRoute
   '/login': typeof AppLoginRoute
   '/match-activity': typeof AppMatchActivityRoute
@@ -272,6 +279,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/beta': typeof BetaRoute
+  '/demo': typeof DemoRoute
   '/account': typeof AppAccountRoute
   '/login': typeof AppLoginRoute
   '/match-activity': typeof AppMatchActivityRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/beta': typeof BetaRoute
+  '/demo': typeof DemoRoute
   '/_app/account': typeof AppAccountRoute
   '/_app/login': typeof AppLoginRoute
   '/_app/match-activity': typeof AppMatchActivityRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/beta'
+    | '/demo'
     | '/account'
     | '/login'
     | '/match-activity'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/beta'
+    | '/demo'
     | '/account'
     | '/login'
     | '/match-activity'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/beta'
+    | '/demo'
     | '/_app/account'
     | '/_app/login'
     | '/_app/match-activity'
@@ -469,6 +481,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   BetaRoute: typeof BetaRoute
+  DemoRoute: typeof DemoRoute
   ApiAgentMatchesRoute: typeof ApiAgentMatchesRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -479,6 +492,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/beta': {
       id: '/beta'
       path: '/beta'
@@ -810,6 +830,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   BetaRoute: BetaRoute,
+  DemoRoute: DemoRoute,
   ApiAgentMatchesRoute: ApiAgentMatchesRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

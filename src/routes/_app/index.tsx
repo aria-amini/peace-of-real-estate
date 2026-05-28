@@ -2,8 +2,8 @@ import { redirectAuthenticatedUsers } from '@/lib/auth-guards'
 import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 
-import { AgentMatchCard } from '@/components/agent-match-card'
-import type { AgentMatch } from '@/components/agent-match-card'
+import { MatchCardModern } from '@/components/match-card-variants'
+import type { MatchDetails } from '@/components/match-card-variants'
 import { GetMatchedDialog } from '@/components/get-matched-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -89,12 +89,16 @@ function ComparisonSection() {
 	)
 }
 
-const demoMatch: AgentMatch = {
-	id: 1,
+const demoMatch: MatchDetails = {
+	id: 'demo-1',
 	name: 'Sarah Chen',
+	role: 'agent',
 	agency: 'Horizon Realty Group',
 	location: 'Baltimore, MD',
-	overall: 4.8,
+	zipCodes: ['21201', '21202'],
+	fitScore: 94,
+	status: 'new',
+	date: '2026-05-28',
 	scores: {
 		Communication: 4.9,
 		Transparency: 4.7,
@@ -105,7 +109,12 @@ const demoMatch: AgentMatch = {
 	specialties: ['First-time buyers', 'Waterfront', 'Investors'],
 	about:
 		'Sarah specializes in helping first-time buyers navigate the Baltimore market with calm, clear guidance. Known for transparent pricing and patient communication.',
-	topMatch: true,
+	stats: {
+		transactions: 142,
+		avgDays: 18,
+		satisfaction: 4.9,
+	},
+	isTopMatch: true,
 }
 
 function MatchPreviewSection() {
@@ -120,8 +129,8 @@ function MatchPreviewSection() {
 					agents who fit your style.
 				</TypographyP>
 			</div>
-			<div className="pointer-events-none relative w-full max-w-3xl opacity-90 select-none">
-				<AgentMatchCard match={demoMatch} />
+			<div className="pointer-events-none relative w-full max-w-md opacity-90 select-none">
+				<MatchCardModern match={demoMatch} />
 				<div className="from-background absolute inset-0 rounded-xl bg-gradient-to-t via-transparent to-transparent" />
 			</div>
 		</section>

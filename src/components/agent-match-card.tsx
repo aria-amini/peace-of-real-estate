@@ -1,4 +1,4 @@
-import { Award, MapPin, MessageCircle, Shield, Star } from 'lucide-react'
+import { Award, MapPin, MessageCircle, Star } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -114,10 +114,7 @@ export function AgentMatchCard({
 				</div>
 
 				<div className="border-border mt-6 flex items-center justify-between border-t pt-6">
-					<div className="text-muted-foreground flex items-center gap-2 text-xs">
-						<Shield className="h-3.5 w-3.5" />
-						Peace Pact signed
-					</div>
+					<div />
 					<Button>
 						<MessageCircle className="h-4 w-4" />
 						Select Agent

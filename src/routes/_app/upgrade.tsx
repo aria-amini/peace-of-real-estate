@@ -6,7 +6,6 @@ import {
 	CreditCard,
 	User,
 	Zap,
-	Shield,
 	Star,
 	MessageCircle,
 	Users,
@@ -125,10 +124,7 @@ function UpgradePage() {
 								icon: MessageCircle,
 								text: 'Accept introductions and message matched agents',
 							},
-							{
-								icon: Shield,
-								text: 'Peace Pact verified — transparent, no hidden fees',
-							},
+
 							{
 								icon: Zap,
 								text: 'Update your profile and preferences anytime',
