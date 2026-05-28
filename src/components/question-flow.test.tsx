@@ -68,7 +68,7 @@ test('question flow auto-advances and completes on final answer', async () => {
 	)
 	await expect
 		.element(page.getByRole('link', { name: /view matches/i }))
-		.toBeVisible()
+		.not.toBeInTheDocument()
 	await expect
 		.element(page.getByRole('button', { name: /previous/i }))
 		.toBeEnabled()
@@ -103,22 +103,22 @@ test('question flow supports multi-select before completion', async () => {
 		.toBeVisible()
 	await expect
 		.element(page.getByRole('button', { name: /finish/i }))
-		.toBeDisabled()
-
+		.not.toBeInTheDocument()
 	await expect
 		.element(page.getByRole('link', { name: /finish/i }))
 		.not.toBeInTheDocument()
+
 	await userEvent.click(page.getByRole('button', { name: /clarity/i }))
 	await expect.element(page.getByText('1 of 2 selected')).toBeVisible()
 	await expect
 		.element(page.getByRole('link', { name: /finish/i }))
-		.toBeVisible()
+		.not.toBeInTheDocument()
 	await userEvent.click(page.getByRole('button', { name: /speed/i }))
 	await expect.element(page.getByText('100%')).toBeVisible()
 	await expect.element(page.getByText('2 of 2 selected')).toBeVisible()
 	await expect
 		.element(page.getByRole('link', { name: /finish/i }))
-		.toBeVisible()
+		.not.toBeInTheDocument()
 	await expect
 		.element(page.getByRole('button', { name: /finish/i }))
 		.not.toBeInTheDocument()
@@ -201,5 +201,5 @@ test('clicking selected multi-select option deselects it', async () => {
 	await expect.element(page.getByText('0 of 2 selected')).toBeVisible()
 	await expect
 		.element(page.getByRole('button', { name: /finish/i }))
-		.toBeDisabled()
+		.not.toBeInTheDocument()
 })

@@ -55,7 +55,14 @@ export function QuestionFlow({
 	const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const completeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const popTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const arrivalAnswersRef = useRef<Record<string, AnswerValue>>(initialAnswers)
+	const answersRef = useRef(answers)
+	answersRef.current = answers
 	const navigate = useNavigate()
+
+	useEffect(() => {
+		arrivalAnswersRef.current = { ...answersRef.current }
+	}, [currentQuestion])
 
 	const question = questions[currentQuestion]!
 	const progress = ((currentQuestion + 1) / questions.length) * 100
@@ -65,9 +72,6 @@ export function QuestionFlow({
 	const isOpenText = question.inputType === 'open-text'
 	const requiredSelections = question.selection?.maxSelections ?? 1
 	const selectedCount = Array.isArray(answer) ? answer.length : 0
-	const answeredQuestionCount = questions.filter(
-		(candidate) => answers[candidate.id] !== undefined,
-	).length
 
 	const canProceed = (() => {
 		if (isOpenText) {
@@ -267,9 +271,12 @@ export function QuestionFlow({
 
 	const isComplete = currentQuestion === questions.length - 1 && canProceed
 	const isLastQuestion = currentQuestion === questions.length - 1
+	const arrivalAnsweredQuestionCount = questions.filter(
+		(candidate) => arrivalAnswersRef.current[candidate.id] !== undefined,
+	).length
 	const canShowContinue =
 		!isLastQuestion &&
-		(isMultipleChoice || currentQuestion < answeredQuestionCount)
+		(isMultipleChoice || currentQuestion < arrivalAnsweredQuestionCount)
 
 	const showContinueButton =
 		canShowContinue && (!isTransitioning || wasContinueVisible)
@@ -312,18 +319,20 @@ export function QuestionFlow({
 					)}
 
 					{isLastQuestion ? (
-						isComplete ? (
-							<Button asChild>
-								<Link to={completeTo}>
+						arrivalAnswersRef.current[question.id] !== undefined ? (
+							isComplete ? (
+								<Button asChild>
+									<Link to={completeTo}>
+										{completeLabel}
+										<ArrowRight className="h-4 w-4" />
+									</Link>
+								</Button>
+							) : isMultipleChoice ? (
+								<Button type="button" disabled>
 									{completeLabel}
 									<ArrowRight className="h-4 w-4" />
-								</Link>
-							</Button>
-						) : isMultipleChoice ? (
-							<Button type="button" disabled>
-								{completeLabel}
-								<ArrowRight className="h-4 w-4" />
-							</Button>
+								</Button>
+							) : null
 						) : null
 					) : showContinueButton ? (
 						<Button

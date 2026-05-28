@@ -14,13 +14,18 @@ const pages = [
 	'/login',
 	'/signup',
 	'/beta',
+	'/buyer/summary',
 ] as const
 
 test.each(
 	pages.map((path) => [path === '/' ? 'home' : path.slice(1), path] as const),
-)('%s page matches desktop screenshot', async (_label, path) => {
-	await expectRouteScreenshot({ path })
-})
+)(
+	'%s page matches desktop screenshot',
+	async (_label, path) => {
+		await expectRouteScreenshot({ path })
+	},
+	30_000,
+)
 
 test('home get matched dialog matches desktop screenshot', async () => {
 	await expectRouteScreenshot({

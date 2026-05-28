@@ -286,6 +286,13 @@ export function ConsumerDetails({ config }: { config: ConsumerFlowConfig }) {
 }
 
 export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
+	const { data: session } = authClient.useSession()
+	const isUnlocked = Boolean(session)
+	const unlockTo =
+		config.basePath === '/buyer' ? '/buyer/summary' : '/seller/summary'
+	const paymentTo =
+		config.basePath === '/buyer' ? '/buyer/payment' : '/seller/payment'
+
 	return (
 		<FlowPageShell
 			title="Summary"
@@ -306,13 +313,60 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 				))}
 			</div>
 
-			<div className="mt-10 flex justify-end">
-				<Button asChild>
-					<Link to={`${config.basePath}/unlock`}>
-						Preview My Matches
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</Button>
+			<div className="mt-10 space-y-6">
+				<div className="space-y-3 text-center">
+					<p className="text-muted-foreground text-sm tracking-[0.25em] uppercase">
+						{isUnlocked ? 'Preview unlocked' : 'Locked preview'}
+					</p>
+					<h2 className="text-2xl font-semibold">
+						See a sneak peek of your best-fit matches
+					</h2>
+					<p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed">
+						We show you a preview first so you can decide if you want to create
+						an account and unlock the full match details.
+					</p>
+				</div>
+
+				<div className="space-y-4">
+					{consumerMatches.slice(0, 2).map((match, index) => (
+						<LockedMatchPreview
+							key={match.id}
+							match={match}
+							index={index}
+							isUnlocked={isUnlocked}
+							paymentTo={paymentTo}
+							unlockTo={unlockTo}
+						/>
+					))}
+				</div>
+
+				<div className="bg-muted/30 flex flex-col gap-3 rounded-2xl border p-6 sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<p className="font-medium">
+							{isUnlocked
+								? 'Preview unlocked'
+								: 'Create a free account to unlock'}
+						</p>
+						<p className="text-muted-foreground text-sm">
+							{isUnlocked
+								? 'Continue to checkout when you are ready.'
+								: 'No spam. No commitment. Just the next step to reveal the full matches.'}
+						</p>
+					</div>
+					<Button asChild>
+						{isUnlocked ? (
+							<Link to={`${config.basePath}/payment`}>
+								Continue to Payment
+								<ArrowRight className="h-4 w-4" />
+							</Link>
+						) : (
+							<Link to="/signup" search={{ redirect: unlockTo }}>
+								Sign up to Unlock
+								<ArrowRight className="h-4 w-4" />
+							</Link>
+						)}
+					</Button>
+				</div>
 			</div>
 		</FlowPageShell>
 	)
@@ -329,7 +383,7 @@ function LockedMatchPreview({
 	match: AgentMatch
 	isUnlocked: boolean
 	paymentTo: '/buyer/payment' | '/seller/payment'
-	unlockTo: '/buyer/unlock' | '/seller/unlock'
+	unlockTo: '/buyer/summary' | '/seller/summary'
 }) {
 	return (
 		<Card className="relative">
@@ -527,79 +581,6 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 			</div>
 		</FlowPageShell>
 	)
-}
-
-export function ConsumerUnlock({ config }: { config: ConsumerFlowConfig }) {
-	const { data: session } = authClient.useSession()
-	const isUnlocked = Boolean(session)
-	const unlockTo =
-		config.basePath === '/buyer' ? '/buyer/unlock' : '/seller/unlock'
-	const paymentTo =
-		config.basePath === '/buyer' ? '/buyer/payment' : '/seller/payment'
-
-	return (
-		<FlowPageShell title="Match Preview" icon={Lock} roleLabel={config.label}>
-			<div className="space-y-6">
-				<div className="space-y-3 text-center">
-					<p className="text-muted-foreground text-sm tracking-[0.25em] uppercase">
-						Locked preview
-					</p>
-					<h2 className="text-2xl font-semibold">
-						See a sneak peek of your best-fit matches
-					</h2>
-					<p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed">
-						We show you a preview first so you can decide if you want to create
-						an account and unlock the full match details.
-					</p>
-				</div>
-
-				<div className="space-y-4">
-					{consumerMatches.slice(0, 2).map((match, index) => (
-						<LockedMatchPreview
-							key={match.id}
-							match={match}
-							index={index}
-							isUnlocked={isUnlocked}
-							paymentTo={paymentTo}
-							unlockTo={unlockTo}
-						/>
-					))}
-				</div>
-
-				<div className="bg-muted/30 flex flex-col gap-3 rounded-2xl border p-6 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<p className="font-medium">
-							{isUnlocked
-								? 'Preview unlocked'
-								: 'Create a free account to unlock'}
-						</p>
-						<p className="text-muted-foreground text-sm">
-							{isUnlocked
-								? 'Continue to checkout when you are ready.'
-								: 'No spam. No commitment. Just the next step to reveal the full matches.'}
-						</p>
-					</div>
-					<Button asChild>
-						{isUnlocked ? (
-							<Link to={`${config.basePath}/payment`}>
-								Continue to Payment
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						) : (
-							<Link to="/signup" search={{ redirect: unlockTo }}>
-								Sign up to Unlock
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						)}
-					</Button>
-				</div>
-			</div>
-		</FlowPageShell>
-	)
-}
-
-export function ConsumerChat({ config }: { config: ConsumerFlowConfig }) {
-	return <ConsumerResults config={config} />
 }
 
 export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {

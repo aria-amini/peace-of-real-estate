@@ -24,24 +24,18 @@ import { Route as AppAgentIndexRouteImport } from './routes/_app/agent/index'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest/$'
 import { Route as ApiBetaAuthRouteImport } from './routes/api/beta/auth'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as AppSellerUnlockRouteImport } from './routes/_app/seller/unlock'
 import { Route as AppSellerSummaryRouteImport } from './routes/_app/seller/summary'
 import { Route as AppSellerResultsRouteImport } from './routes/_app/seller/results'
 import { Route as AppSellerQuizRouteImport } from './routes/_app/seller/quiz'
 import { Route as AppSellerPaymentRouteImport } from './routes/_app/seller/payment'
 import { Route as AppSellerIntroRouteImport } from './routes/_app/seller/intro'
-import { Route as AppSellerEmailRouteImport } from './routes/_app/seller/email'
 import { Route as AppSellerDetailsRouteImport } from './routes/_app/seller/details'
-import { Route as AppSellerChatRouteImport } from './routes/_app/seller/chat'
-import { Route as AppBuyerUnlockRouteImport } from './routes/_app/buyer/unlock'
 import { Route as AppBuyerSummaryRouteImport } from './routes/_app/buyer/summary'
 import { Route as AppBuyerResultsRouteImport } from './routes/_app/buyer/results'
 import { Route as AppBuyerQuizRouteImport } from './routes/_app/buyer/quiz'
 import { Route as AppBuyerPaymentRouteImport } from './routes/_app/buyer/payment'
 import { Route as AppBuyerIntroRouteImport } from './routes/_app/buyer/intro'
-import { Route as AppBuyerEmailRouteImport } from './routes/_app/buyer/email'
 import { Route as AppBuyerDetailsRouteImport } from './routes/_app/buyer/details'
-import { Route as AppBuyerChatRouteImport } from './routes/_app/buyer/chat'
 import { Route as AppAgentSubscribeRouteImport } from './routes/_app/agent/subscribe'
 import { Route as AppAgentQuizRouteImport } from './routes/_app/agent/quiz'
 import { Route as AppAgentProfileRouteImport } from './routes/_app/agent/profile'
@@ -126,11 +120,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppSellerUnlockRoute = AppSellerUnlockRouteImport.update({
-  id: '/seller/unlock',
-  path: '/seller/unlock',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppSellerSummaryRoute = AppSellerSummaryRouteImport.update({
   id: '/seller/summary',
   path: '/seller/summary',
@@ -156,24 +145,9 @@ const AppSellerIntroRoute = AppSellerIntroRouteImport.update({
   path: '/seller/intro',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSellerEmailRoute = AppSellerEmailRouteImport.update({
-  id: '/seller/email',
-  path: '/seller/email',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppSellerDetailsRoute = AppSellerDetailsRouteImport.update({
   id: '/seller/details',
   path: '/seller/details',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSellerChatRoute = AppSellerChatRouteImport.update({
-  id: '/seller/chat',
-  path: '/seller/chat',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBuyerUnlockRoute = AppBuyerUnlockRouteImport.update({
-  id: '/buyer/unlock',
-  path: '/buyer/unlock',
   getParentRoute: () => AppRoute,
 } as any)
 const AppBuyerSummaryRoute = AppBuyerSummaryRouteImport.update({
@@ -201,19 +175,9 @@ const AppBuyerIntroRoute = AppBuyerIntroRouteImport.update({
   path: '/buyer/intro',
   getParentRoute: () => AppRoute,
 } as any)
-const AppBuyerEmailRoute = AppBuyerEmailRouteImport.update({
-  id: '/buyer/email',
-  path: '/buyer/email',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppBuyerDetailsRoute = AppBuyerDetailsRouteImport.update({
   id: '/buyer/details',
   path: '/buyer/details',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBuyerChatRoute = AppBuyerChatRouteImport.update({
-  id: '/buyer/chat',
-  path: '/buyer/chat',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAgentSubscribeRoute = AppAgentSubscribeRouteImport.update({
@@ -279,24 +243,18 @@ export interface FileRoutesByFullPath {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/buyer/chat': typeof AppBuyerChatRoute
   '/buyer/details': typeof AppBuyerDetailsRoute
-  '/buyer/email': typeof AppBuyerEmailRoute
   '/buyer/intro': typeof AppBuyerIntroRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
   '/buyer/quiz': typeof AppBuyerQuizRoute
   '/buyer/results': typeof AppBuyerResultsRoute
   '/buyer/summary': typeof AppBuyerSummaryRoute
-  '/buyer/unlock': typeof AppBuyerUnlockRoute
-  '/seller/chat': typeof AppSellerChatRoute
   '/seller/details': typeof AppSellerDetailsRoute
-  '/seller/email': typeof AppSellerEmailRoute
   '/seller/intro': typeof AppSellerIntroRoute
   '/seller/payment': typeof AppSellerPaymentRoute
   '/seller/quiz': typeof AppSellerQuizRoute
   '/seller/results': typeof AppSellerResultsRoute
   '/seller/summary': typeof AppSellerSummaryRoute
-  '/seller/unlock': typeof AppSellerUnlockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -322,24 +280,18 @@ export interface FileRoutesByTo {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/buyer/chat': typeof AppBuyerChatRoute
   '/buyer/details': typeof AppBuyerDetailsRoute
-  '/buyer/email': typeof AppBuyerEmailRoute
   '/buyer/intro': typeof AppBuyerIntroRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
   '/buyer/quiz': typeof AppBuyerQuizRoute
   '/buyer/results': typeof AppBuyerResultsRoute
   '/buyer/summary': typeof AppBuyerSummaryRoute
-  '/buyer/unlock': typeof AppBuyerUnlockRoute
-  '/seller/chat': typeof AppSellerChatRoute
   '/seller/details': typeof AppSellerDetailsRoute
-  '/seller/email': typeof AppSellerEmailRoute
   '/seller/intro': typeof AppSellerIntroRoute
   '/seller/payment': typeof AppSellerPaymentRoute
   '/seller/quiz': typeof AppSellerQuizRoute
   '/seller/results': typeof AppSellerResultsRoute
   '/seller/summary': typeof AppSellerSummaryRoute
-  '/seller/unlock': typeof AppSellerUnlockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -367,24 +319,18 @@ export interface FileRoutesById {
   '/_app/agent/profile': typeof AppAgentProfileRoute
   '/_app/agent/quiz': typeof AppAgentQuizRoute
   '/_app/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/_app/buyer/chat': typeof AppBuyerChatRoute
   '/_app/buyer/details': typeof AppBuyerDetailsRoute
-  '/_app/buyer/email': typeof AppBuyerEmailRoute
   '/_app/buyer/intro': typeof AppBuyerIntroRoute
   '/_app/buyer/payment': typeof AppBuyerPaymentRoute
   '/_app/buyer/quiz': typeof AppBuyerQuizRoute
   '/_app/buyer/results': typeof AppBuyerResultsRoute
   '/_app/buyer/summary': typeof AppBuyerSummaryRoute
-  '/_app/buyer/unlock': typeof AppBuyerUnlockRoute
-  '/_app/seller/chat': typeof AppSellerChatRoute
   '/_app/seller/details': typeof AppSellerDetailsRoute
-  '/_app/seller/email': typeof AppSellerEmailRoute
   '/_app/seller/intro': typeof AppSellerIntroRoute
   '/_app/seller/payment': typeof AppSellerPaymentRoute
   '/_app/seller/quiz': typeof AppSellerQuizRoute
   '/_app/seller/results': typeof AppSellerResultsRoute
   '/_app/seller/summary': typeof AppSellerSummaryRoute
-  '/_app/seller/unlock': typeof AppSellerUnlockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -412,24 +358,18 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
-    | '/buyer/chat'
     | '/buyer/details'
-    | '/buyer/email'
     | '/buyer/intro'
     | '/buyer/payment'
     | '/buyer/quiz'
     | '/buyer/results'
     | '/buyer/summary'
-    | '/buyer/unlock'
-    | '/seller/chat'
     | '/seller/details'
-    | '/seller/email'
     | '/seller/intro'
     | '/seller/payment'
     | '/seller/quiz'
     | '/seller/results'
     | '/seller/summary'
-    | '/seller/unlock'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -455,24 +395,18 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
-    | '/buyer/chat'
     | '/buyer/details'
-    | '/buyer/email'
     | '/buyer/intro'
     | '/buyer/payment'
     | '/buyer/quiz'
     | '/buyer/results'
     | '/buyer/summary'
-    | '/buyer/unlock'
-    | '/seller/chat'
     | '/seller/details'
-    | '/seller/email'
     | '/seller/intro'
     | '/seller/payment'
     | '/seller/quiz'
     | '/seller/results'
     | '/seller/summary'
-    | '/seller/unlock'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -499,24 +433,18 @@ export interface FileRouteTypes {
     | '/_app/agent/profile'
     | '/_app/agent/quiz'
     | '/_app/agent/subscribe'
-    | '/_app/buyer/chat'
     | '/_app/buyer/details'
-    | '/_app/buyer/email'
     | '/_app/buyer/intro'
     | '/_app/buyer/payment'
     | '/_app/buyer/quiz'
     | '/_app/buyer/results'
     | '/_app/buyer/summary'
-    | '/_app/buyer/unlock'
-    | '/_app/seller/chat'
     | '/_app/seller/details'
-    | '/_app/seller/email'
     | '/_app/seller/intro'
     | '/_app/seller/payment'
     | '/_app/seller/quiz'
     | '/_app/seller/results'
     | '/_app/seller/summary'
-    | '/_app/seller/unlock'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -644,13 +572,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/seller/unlock': {
-      id: '/_app/seller/unlock'
-      path: '/seller/unlock'
-      fullPath: '/seller/unlock'
-      preLoaderRoute: typeof AppSellerUnlockRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/seller/summary': {
       id: '/_app/seller/summary'
       path: '/seller/summary'
@@ -686,32 +607,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSellerIntroRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/seller/email': {
-      id: '/_app/seller/email'
-      path: '/seller/email'
-      fullPath: '/seller/email'
-      preLoaderRoute: typeof AppSellerEmailRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/seller/details': {
       id: '/_app/seller/details'
       path: '/seller/details'
       fullPath: '/seller/details'
       preLoaderRoute: typeof AppSellerDetailsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/seller/chat': {
-      id: '/_app/seller/chat'
-      path: '/seller/chat'
-      fullPath: '/seller/chat'
-      preLoaderRoute: typeof AppSellerChatRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/buyer/unlock': {
-      id: '/_app/buyer/unlock'
-      path: '/buyer/unlock'
-      fullPath: '/buyer/unlock'
-      preLoaderRoute: typeof AppBuyerUnlockRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/buyer/summary': {
@@ -749,25 +649,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBuyerIntroRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/buyer/email': {
-      id: '/_app/buyer/email'
-      path: '/buyer/email'
-      fullPath: '/buyer/email'
-      preLoaderRoute: typeof AppBuyerEmailRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/buyer/details': {
       id: '/_app/buyer/details'
       path: '/buyer/details'
       fullPath: '/buyer/details'
       preLoaderRoute: typeof AppBuyerDetailsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/buyer/chat': {
-      id: '/_app/buyer/chat'
-      path: '/buyer/chat'
-      fullPath: '/buyer/chat'
-      preLoaderRoute: typeof AppBuyerChatRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/agent/subscribe': {
@@ -850,24 +736,18 @@ interface AppRouteChildren {
   AppAgentProfileRoute: typeof AppAgentProfileRoute
   AppAgentQuizRoute: typeof AppAgentQuizRoute
   AppAgentSubscribeRoute: typeof AppAgentSubscribeRoute
-  AppBuyerChatRoute: typeof AppBuyerChatRoute
   AppBuyerDetailsRoute: typeof AppBuyerDetailsRoute
-  AppBuyerEmailRoute: typeof AppBuyerEmailRoute
   AppBuyerIntroRoute: typeof AppBuyerIntroRoute
   AppBuyerPaymentRoute: typeof AppBuyerPaymentRoute
   AppBuyerQuizRoute: typeof AppBuyerQuizRoute
   AppBuyerResultsRoute: typeof AppBuyerResultsRoute
   AppBuyerSummaryRoute: typeof AppBuyerSummaryRoute
-  AppBuyerUnlockRoute: typeof AppBuyerUnlockRoute
-  AppSellerChatRoute: typeof AppSellerChatRoute
   AppSellerDetailsRoute: typeof AppSellerDetailsRoute
-  AppSellerEmailRoute: typeof AppSellerEmailRoute
   AppSellerIntroRoute: typeof AppSellerIntroRoute
   AppSellerPaymentRoute: typeof AppSellerPaymentRoute
   AppSellerQuizRoute: typeof AppSellerQuizRoute
   AppSellerResultsRoute: typeof AppSellerResultsRoute
   AppSellerSummaryRoute: typeof AppSellerSummaryRoute
-  AppSellerUnlockRoute: typeof AppSellerUnlockRoute
   AppAgentIndexRoute: typeof AppAgentIndexRoute
   AppBuyerIndexRoute: typeof AppBuyerIndexRoute
   AppSellerIndexRoute: typeof AppSellerIndexRoute
@@ -887,24 +767,18 @@ const AppRouteChildren: AppRouteChildren = {
   AppAgentProfileRoute: AppAgentProfileRoute,
   AppAgentQuizRoute: AppAgentQuizRoute,
   AppAgentSubscribeRoute: AppAgentSubscribeRoute,
-  AppBuyerChatRoute: AppBuyerChatRoute,
   AppBuyerDetailsRoute: AppBuyerDetailsRoute,
-  AppBuyerEmailRoute: AppBuyerEmailRoute,
   AppBuyerIntroRoute: AppBuyerIntroRoute,
   AppBuyerPaymentRoute: AppBuyerPaymentRoute,
   AppBuyerQuizRoute: AppBuyerQuizRoute,
   AppBuyerResultsRoute: AppBuyerResultsRoute,
   AppBuyerSummaryRoute: AppBuyerSummaryRoute,
-  AppBuyerUnlockRoute: AppBuyerUnlockRoute,
-  AppSellerChatRoute: AppSellerChatRoute,
   AppSellerDetailsRoute: AppSellerDetailsRoute,
-  AppSellerEmailRoute: AppSellerEmailRoute,
   AppSellerIntroRoute: AppSellerIntroRoute,
   AppSellerPaymentRoute: AppSellerPaymentRoute,
   AppSellerQuizRoute: AppSellerQuizRoute,
   AppSellerResultsRoute: AppSellerResultsRoute,
   AppSellerSummaryRoute: AppSellerSummaryRoute,
-  AppSellerUnlockRoute: AppSellerUnlockRoute,
   AppAgentIndexRoute: AppAgentIndexRoute,
   AppBuyerIndexRoute: AppBuyerIndexRoute,
   AppSellerIndexRoute: AppSellerIndexRoute,
