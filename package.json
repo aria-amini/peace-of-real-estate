@@ -60,7 +60,8 @@
 		"sonner": "^2.0.7",
 		"stripe": "^22.1.0",
 		"tailwind-merge": "^3.6.0",
-		"vite-plugin-svgr": "^5.2.0"
+		"vite-plugin-svgr": "^5.2.0",
+		"zipcodes": "^8.0.0"
 	},
 	"devDependencies": {
 		"@aamini/config": "0.0.17",

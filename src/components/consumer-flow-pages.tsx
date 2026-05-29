@@ -1,7 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router'
+import * as zipcodes from 'zipcodes'
 import {
 	ArrowRight,
+	Check,
 	CheckCircle2,
+	ChevronsUpDown,
 	Circle,
 	CreditCard,
 	Lock,
@@ -18,6 +21,14 @@ import { QuestionFlow } from '@/components/question-flow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
+import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
@@ -26,7 +37,13 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { FieldDescription, FieldLegend, FieldSet } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/auth-client'
@@ -49,6 +66,112 @@ type ConsumerFlowConfig = {
 	intentOptions: string[]
 	questionFlow: typeof buyerQuestionFlow
 	accent: 'navy' | 'amber'
+}
+const zipCodeLocations = Object.values(zipcodes.codes).filter(
+	(location) => location.country === 'US',
+)
+
+const usStateCodes = new Set([
+	'AL',
+	'AK',
+	'AZ',
+	'AR',
+	'CA',
+	'CO',
+	'CT',
+	'DE',
+	'DC',
+	'FL',
+	'GA',
+	'HI',
+	'ID',
+	'IL',
+	'IN',
+	'IA',
+	'KS',
+	'KY',
+	'LA',
+	'ME',
+	'MD',
+	'MA',
+	'MI',
+	'MN',
+	'MS',
+	'MO',
+	'MT',
+	'NE',
+	'NV',
+	'NH',
+	'NJ',
+	'NM',
+	'NY',
+	'NC',
+	'ND',
+	'OH',
+	'OK',
+	'OR',
+	'PA',
+	'RI',
+	'SC',
+	'SD',
+	'TN',
+	'TX',
+	'UT',
+	'VT',
+	'VA',
+	'WA',
+	'WV',
+	'WI',
+	'WY',
+])
+
+const stateLocations = Object.entries(zipcodes.states.full)
+	.filter(([, state]) => usStateCodes.has(state))
+	.map(([name, state]) => ({
+		name: name.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase()),
+		state,
+	}))
+
+function formatZipCodeLocation(location: (typeof zipCodeLocations)[number]) {
+	return `${location.city}, ${location.state} ${location.zip}`
+}
+
+function getLocationSuggestions(query: string) {
+	const normalizedQuery = query.trim().toLowerCase()
+	if (normalizedQuery.length < 2) return []
+
+	const suggestions: string[] = []
+	const seen = new Set<string>()
+	const addSuggestion = (suggestion: string) => {
+		if (seen.has(suggestion)) return
+		seen.add(suggestion)
+		suggestions.push(suggestion)
+	}
+
+	for (const location of stateLocations) {
+		if (
+			location.name.toLowerCase().includes(normalizedQuery) ||
+			location.state.toLowerCase().includes(normalizedQuery)
+		) {
+			addSuggestion(`${location.name}, ${location.state}`)
+		}
+	}
+
+	for (const location of zipCodeLocations) {
+		const label = formatZipCodeLocation(location)
+		if (
+			location.zip.startsWith(normalizedQuery) ||
+			location.city.toLowerCase().includes(normalizedQuery) ||
+			location.state.toLowerCase() === normalizedQuery ||
+			label.toLowerCase().includes(normalizedQuery)
+		) {
+			addSuggestion(label)
+		}
+
+		if (suggestions.length >= 8) break
+	}
+
+	return suggestions
 }
 
 export const buyerConfig = {
@@ -247,9 +370,11 @@ export function ConsumerResumeGate({ config }: { config: ConsumerFlowConfig }) {
 
 export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 	const draft = getStoredConsumerDraftForFlow(config.kind)
-	const [zipCode, setZipCode] = useState(draft.zipCode ?? '')
+	const [location, setLocation] = useState(draft.zipCode ?? '')
+	const [locationOpen, setLocationOpen] = useState(false)
 	const [intent, setIntent] = useState(draft.intent ?? '')
-	const canContinue = zipCode.trim().length >= 5 && intent.length > 0
+	const canContinue = location.trim().length >= 2 && intent.length > 0
+	const locationSuggestions = getLocationSuggestions(location)
 
 	useEffect(() => {
 		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'intro' })
@@ -268,53 +393,113 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 						{config.areaPrompt}
 					</h2>
 					<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-						This helps us find agents who specialize in your target area.
+						Enter a city, state, neighborhood, or ZIP code. This helps us find
+						agents who specialize in your target area.
 					</p>
 					<div className="mt-4">
 						<label
-							htmlFor={`${config.kind}-zip`}
+							htmlFor={`${config.kind}-location`}
 							className="text-sm font-medium"
 						>
-							Zip code
+							City, state, or ZIP code
 						</label>
-						<Input
-							id={`${config.kind}-zip`}
-							value={zipCode}
-							onChange={(event) => setZipCode(event.target.value)}
-							placeholder="e.g. 78701"
-							className="mt-1.5"
-						/>
+						<Popover open={locationOpen} onOpenChange={setLocationOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									id={`${config.kind}-location`}
+									variant="outline"
+									aria-expanded={locationOpen}
+									className="bg-input/30 mt-1.5 h-9 w-full justify-between rounded-4xl px-3 font-normal"
+								>
+									<span className={cn(!location && 'text-muted-foreground')}>
+										{location || 'e.g. Austin, TX or 78704'}
+									</span>
+									<ChevronsUpDown className="opacity-50" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								align="start"
+								className="w-(--radix-popover-trigger-width) p-0"
+							>
+								<Command shouldFilter={false}>
+									<CommandInput
+										value={location}
+										onValueChange={setLocation}
+										placeholder="Search city, state, or ZIP..."
+									/>
+									<CommandList>
+										<CommandEmpty>
+											No suggestions. You can still use what you typed.
+										</CommandEmpty>
+										<CommandGroup>
+											{locationSuggestions.map((suggestion) => (
+												<CommandItem
+													key={suggestion}
+													value={suggestion}
+													onSelect={(value) => {
+														setLocation(value)
+														setLocationOpen(false)
+													}}
+												>
+													<Check
+														className={cn(
+															location === suggestion
+																? 'opacity-100'
+																: 'opacity-0',
+														)}
+													/>
+													{suggestion}
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
 					</div>
 				</div>
 
-				<div className="border-t pt-8">
-					<h2 className="font-heading text-xl leading-relaxed font-normal">
+				<FieldSet className="border-t pt-8">
+					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
 						What best describes your situation?
-					</h2>
-					<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+					</FieldLegend>
+					<FieldDescription className="mt-2">
 						Select the option that matches where you are in the process.
-					</p>
+					</FieldDescription>
 					<div className="mt-4 space-y-3">
-						{config.intentOptions.map((option) => (
-							<button
-								key={option}
-								type="button"
-								onClick={() => setIntent(option)}
-								className={cn(
-									'flex w-full items-center justify-between rounded-lg border p-4 text-left text-sm font-medium transition-colors',
-									intent === option
-										? 'border-primary bg-primary/5 text-primary'
-										: 'border-border hover:bg-accent hover:text-accent-foreground',
-								)}
-							>
-								<span className="pr-4">{option}</span>
-								{intent === option && (
-									<CheckCircle2 className="h-5 w-5 shrink-0" />
-								)}
-							</button>
-						))}
+						{config.intentOptions.map((option) => {
+							const isSelected = intent === option
+
+							return (
+								<button
+									key={option}
+									type="button"
+									aria-pressed={isSelected}
+									onClick={() => setIntent(option)}
+									className={cn(
+										'group flex w-full items-start gap-4 rounded-lg border bg-card/60 p-4 text-left transition-all hover:border-foreground/25 hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none',
+										isSelected &&
+											'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20',
+									)}
+								>
+									<span
+										className={cn(
+											'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors',
+											isSelected
+												? 'border-primary bg-primary text-primary-foreground'
+												: 'border-muted-foreground/30 group-hover:border-muted-foreground/60',
+										)}
+									>
+										{isSelected ? <Check className="h-3.5 w-3.5" /> : null}
+									</span>
+									<span className="text-foreground flex-1 text-sm leading-relaxed font-medium">
+										{option}
+									</span>
+								</button>
+							)
+						})}
 					</div>
-				</div>
+				</FieldSet>
 			</div>
 
 			<div className="mt-10 flex justify-end">
@@ -324,7 +509,7 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 							to={`${config.basePath}/quiz`}
 							onClick={() => {
 								saveStoredConsumerDraftForFlow(config.kind, {
-									zipCode,
+									zipCode: location.trim(),
 									intent,
 									lastCompletedStage: 'intro',
 								})
