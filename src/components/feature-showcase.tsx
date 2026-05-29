@@ -8,7 +8,7 @@ const steps = [
 		id: 1,
 		title: 'Take a 3-minute quiz',
 		description:
-			'Answer a few simple questions about your preferences, communication style, and what matters most to you in an agent. No endless forms — just the details that actually matter for fit.',
+			'Answer a few simple questions about your preferences, communication style, and what matters most to you in an agent.',
 		icon: ClipboardList,
 		imagePosition: 'right' as const,
 	},
