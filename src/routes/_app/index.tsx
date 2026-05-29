@@ -66,7 +66,7 @@ function HeroSection() {
 							size="lg"
 							className="mt-2 h-14 cursor-pointer rounded-full bg-linear-to-r from-slate-800 to-slate-900 px-10 text-lg font-semibold text-white shadow-lg shadow-slate-900/20 transition-all hover:from-slate-700 hover:to-slate-800 hover:shadow-xl hover:shadow-slate-900/30"
 						>
-							Get Matched
+							Try For Free
 							<ArrowRight className="h-5 w-5" />
 						</Button>
 					</GetMatchedDialog>
