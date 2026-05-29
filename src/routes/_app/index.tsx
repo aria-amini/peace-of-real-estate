@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_app/')({
 function LandingPage() {
 	return (
 		<>
-			<div className="min-h-main-content flex flex-col">
+			<div className="flex w-full flex-col">
 				<HeroSection />
 				<MarqueeBanner />
 			</div>
@@ -39,7 +39,7 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="bg-card relative flex w-full flex-1 flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:pt-14 md:pb-12">
+		<section className="bg-card relative flex h-[clamp(620px,calc(100svh-var(--app-header-height)-180px),760px)] w-full flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:h-[clamp(520px,calc(100svh-var(--app-header-height)-180px),760px)] md:pt-14 md:pb-12">
 			{/* Portrait background */}
 			<div
 				className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -78,7 +78,7 @@ function HeroSection() {
 
 function ComparisonSection() {
 	return (
-		<section className="min-h-main-content flex flex-col gap-6 p-6">
+		<section className="min-h-main-content flex w-full flex-col gap-6 p-6">
 			<div className="mx-auto max-w-2xl">
 				<TypographyH2 className="text-center !text-4xl">
 					Free is not neutral.

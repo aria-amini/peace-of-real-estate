@@ -32,7 +32,7 @@ const steps = [
 
 export function FeatureShowcase() {
 	return (
-		<section className="relative overflow-hidden py-16 md:py-24">
+		<section className="relative w-full overflow-hidden py-16 md:py-24">
 			<div className="mx-auto max-w-6xl px-6">
 				<div className="mb-16 text-center">
 					<h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
