@@ -78,12 +78,10 @@ function HeroSection() {
 
 function ComparisonSection() {
 	return (
-		<section className="min-h-main-content flex w-full flex-col gap-6 p-6">
+		<section className="min-h-main-content flex flex-col gap-6 p-6">
 			<div className="mx-auto max-w-2xl">
-				<TypographyH2 className="text-center !text-4xl">
-					Free is not neutral.
-				</TypographyH2>
-				<TypographyP className="text-muted-foreground text-lg">
+				<TypographyH2 className="text-center !text-4xl">Pricing</TypographyH2>
+				<TypographyP className="text-muted-foreground text-base">
 					If you are not paying for the matching service, someone else is. That
 					means agents pay for leads, referral access, or visibility. That
 					creates a platform incentive to maximize lead volume and agent spend,
@@ -163,14 +161,13 @@ function MarqueeBanner() {
 
 function ComparisonTable() {
 	const rows = [
-		['Who pays?', 'Consumer', 'Agent'],
-		['What is optimized?', 'Fit and transparency', 'Lead volume'],
+		['Price', '$20.00', '$0.00'],
+		['Optimized for', 'Fit and transparency', 'Lead volume'],
 		['Agent incentives', 'Serve aligned clients', 'Win auctioned attention'],
-		['Consumer experience', 'Calm guided match', 'Calls, texts, and follow-up'],
 	]
 
 	return (
-		<Table className="border-border round border text-[11px] sm:text-sm md:text-base">
+		<Table className="border-border max-w-2xl border text-[11px] sm:text-sm md:text-base">
 			<TableHeader>
 				<TableRow className="bg-primary/10">
 					<TableHead></TableHead>

@@ -17,14 +17,14 @@ import {
 	saveStoredConsumerDraftForFlow,
 } from '@/lib/intake-draft'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Home, Tag, X, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Home, Tag, X } from 'lucide-react'
 
 type FlowOption = {
 	to: string
 	flow: 'buyer' | 'seller'
 	label: string
 	description: string
-	icon: LucideIcon
+	icon: typeof Home
 }
 
 const options: FlowOption[] = [
@@ -43,44 +43,6 @@ const options: FlowOption[] = [
 		icon: Tag,
 	},
 ]
-
-function FlowCard({
-	option,
-	zipCodeUpdate,
-}: {
-	option: FlowOption
-	zipCodeUpdate: { zipCode?: string }
-}) {
-	const Icon = option.icon
-	return (
-		<Button
-			asChild
-			variant="outline"
-			className="hover:border-primary/40 hover:bg-accent/30 h-auto min-h-[8rem] flex-col items-start justify-between gap-4 rounded-md p-6 text-left whitespace-normal transition-colors"
-		>
-			<Link
-				to={option.to}
-				className="relative"
-				onClick={() =>
-					saveStoredConsumerDraftForFlow(option.flow, {
-						...zipCodeUpdate,
-					})
-				}
-			>
-				<span className="pr-6">
-					<Icon className="text-primary mb-3 h-5 w-5" />
-					<span className="block text-lg tracking-[-0.03em]">
-						{option.label}
-					</span>
-					<span className="text-muted-foreground mt-1 block text-sm leading-5 text-wrap">
-						{option.description}
-					</span>
-				</span>
-				<ArrowRight className="text-muted-foreground group-hover/button:text-foreground absolute top-6 right-6 h-4 w-4" />
-			</Link>
-		</Button>
-	)
-}
 
 export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 	const existingDraft = getStoredIntakeDraft()
@@ -108,7 +70,7 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>{children}</DialogTrigger>
-			<DialogContent className="rounded-lg sm:max-w-lg" showCloseButton={false}>
+			<DialogContent className="rounded-lg" showCloseButton={false}>
 				<DialogClose asChild>
 					<Button
 						variant="ghost"
@@ -153,14 +115,40 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 								Choose the path that fits your next move
 							</DialogDescription>
 						</DialogHeader>
-						<div className="grid w-full gap-4 sm:grid-cols-2">
-							{options.map((option) => (
-								<FlowCard
-									key={option.flow}
-									option={option}
-									zipCodeUpdate={zipCodeUpdate}
-								/>
-							))}
+						<div className="grid grid-cols-2 gap-3">
+							{options.map((option) => {
+								const Icon = option.icon
+								return (
+									<Button
+										key={option.flow}
+										asChild
+										variant="outline"
+										className="group hover:bg-accent h-auto flex-col items-start gap-2 rounded-lg p-4 text-left"
+									>
+										<Link
+											to={option.to}
+											onClick={() =>
+												saveStoredConsumerDraftForFlow(option.flow, {
+													...zipCodeUpdate,
+												})
+											}
+										>
+											<div className="flex w-full items-start justify-between">
+												<Icon className="text-primary h-5 w-5" />
+												<ArrowRight className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+											</div>
+											<div>
+												<span className="block text-sm font-medium">
+													{option.label}
+												</span>
+												<span className="text-muted-foreground mt-0.5 block text-xs leading-relaxed">
+													{option.description}
+												</span>
+											</div>
+										</Link>
+									</Button>
+								)
+							})}
 						</div>
 					</>
 				)}
