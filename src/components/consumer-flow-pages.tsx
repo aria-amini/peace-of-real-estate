@@ -37,13 +37,21 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { FieldDescription, FieldLegend, FieldSet } from '@/components/ui/field'
+import {
+	Field,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+	FieldLegend,
+	FieldSet,
+} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/auth-client'
@@ -178,7 +186,7 @@ export const buyerConfig = {
 	kind: 'buyer',
 	basePath: '/buyer',
 	label: 'Buyer',
-	areaPrompt: 'In what area(s) are you searching?',
+	areaPrompt: 'City, State, or ZIP code',
 	intentOptions: [
 		'I am ready to buy a home',
 		'I am starting to explore what is out there',
@@ -388,117 +396,113 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 			roleLabel={config.label}
 		>
 			<div className="space-y-8">
-				<div>
-					<h2 className="font-heading text-xl leading-relaxed font-normal">
+				<FieldSet className="gap-0">
+					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
 						{config.areaPrompt}
-					</h2>
-					<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-						Enter a city, state, neighborhood, or ZIP code. This helps us find
-						agents who specialize in your target area.
-					</p>
-					<div className="mt-4">
-						<label
-							htmlFor={`${config.kind}-location`}
-							className="text-sm font-medium"
-						>
-							City, state, or ZIP code
-						</label>
-						<Popover open={locationOpen} onOpenChange={setLocationOpen}>
-							<PopoverTrigger asChild>
-								<Button
-									id={`${config.kind}-location`}
-									variant="outline"
-									aria-expanded={locationOpen}
-									className="bg-input/30 mt-1.5 h-9 w-full justify-between rounded-4xl px-3 font-normal"
-								>
-									<span className={cn(!location && 'text-muted-foreground')}>
-										{location || 'e.g. Austin, TX or 78704'}
-									</span>
-									<ChevronsUpDown className="opacity-50" />
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent
-								align="start"
-								className="w-(--radix-popover-trigger-width) p-0"
+					</FieldLegend>
+					<FieldGroup className="mt-2 gap-0">
+						<Field className="gap-0">
+							<FieldLabel
+								htmlFor={`${config.kind}-location`}
+								className="sr-only"
 							>
-								<Command shouldFilter={false}>
-									<CommandInput
-										value={location}
-										onValueChange={setLocation}
-										placeholder="Search city, state, or ZIP..."
-									/>
-									<CommandList>
-										<CommandEmpty>
-											No suggestions. You can still use what you typed.
-										</CommandEmpty>
-										<CommandGroup>
-											{locationSuggestions.map((suggestion) => (
-												<CommandItem
-													key={suggestion}
-													value={suggestion}
-													onSelect={(value) => {
-														setLocation(value)
-														setLocationOpen(false)
-													}}
-												>
-													<Check
-														className={cn(
-															location === suggestion
-																? 'opacity-100'
-																: 'opacity-0',
-														)}
-													/>
-													{suggestion}
-												</CommandItem>
-											))}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
-					</div>
-				</div>
+								Location
+							</FieldLabel>
+							<Popover open={locationOpen} onOpenChange={setLocationOpen}>
+								<PopoverTrigger asChild>
+									<Button
+										id={`${config.kind}-location`}
+										variant="outline"
+										aria-expanded={locationOpen}
+										className="bg-input/30 mt-1.5 h-9 w-full justify-between rounded-4xl px-3 font-normal"
+									>
+										<span className={cn(!location && 'text-muted-foreground')}>
+											{location || 'e.g. Austin, TX or 78704'}
+										</span>
+										<ChevronsUpDown className="opacity-50" />
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent
+									align="start"
+									className="w-(--radix-popover-trigger-width) p-0"
+								>
+									<Command shouldFilter={false}>
+										<CommandInput
+											value={location}
+											onValueChange={setLocation}
+											placeholder="Search city, state, or ZIP..."
+										/>
+										<CommandList>
+											<CommandEmpty>
+												No suggestions. You can still use what you typed.
+											</CommandEmpty>
+											<CommandGroup>
+												{locationSuggestions.map((suggestion) => (
+													<CommandItem
+														key={suggestion}
+														value={suggestion}
+														onSelect={(value) => {
+															setLocation(value)
+															setLocationOpen(false)
+														}}
+													>
+														<Check
+															className={cn(
+																location === suggestion
+																	? 'opacity-100'
+																	: 'opacity-0',
+															)}
+														/>
+														{suggestion}
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
+						</Field>
+					</FieldGroup>
+				</FieldSet>
 
 				<FieldSet className="border-t pt-8">
 					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
 						What best describes your situation?
 					</FieldLegend>
-					<FieldDescription className="mt-2">
+					<FieldDescription>
 						Select the option that matches where you are in the process.
 					</FieldDescription>
-					<div className="mt-4 space-y-3">
-						{config.intentOptions.map((option) => {
-							const isSelected = intent === option
+					<RadioGroup value={intent} onValueChange={setIntent} className="mt-4">
+						<FieldGroup className="gap-3">
+							{config.intentOptions.map((option) => {
+								const isSelected = intent === option
 
-							return (
-								<button
-									key={option}
-									type="button"
-									aria-pressed={isSelected}
-									onClick={() => setIntent(option)}
-									className={cn(
-										'group flex w-full items-start gap-4 rounded-lg border bg-card/60 p-4 text-left transition-all hover:border-foreground/25 hover:bg-muted/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none',
-										isSelected &&
-											'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20',
-									)}
-								>
-									<span
+								return (
+									<FieldLabel
+										key={option}
 										className={cn(
-											'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors',
-											isSelected
-												? 'border-primary bg-primary text-primary-foreground'
-												: 'border-muted-foreground/30 group-hover:border-muted-foreground/60',
+											'group flex w-full cursor-pointer items-start gap-4 rounded-lg border bg-card/60 p-4 text-left transition-all hover:border-foreground/25 hover:bg-muted/30 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50 [&>[data-slot=field]]:p-0',
+											isSelected &&
+												'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20',
 										)}
 									>
-										{isSelected ? <Check className="h-3.5 w-3.5" /> : null}
-									</span>
-									<span className="text-foreground flex-1 text-sm leading-relaxed font-medium">
-										{option}
-									</span>
-								</button>
-							)
-						})}
-					</div>
+										<Field
+											orientation="horizontal"
+											className="items-start gap-4"
+										>
+											<RadioGroupItem
+												value={option}
+												className="mt-0.5 size-5"
+											/>
+											<span className="text-foreground flex-1 text-sm leading-relaxed font-medium">
+												{option}
+											</span>
+										</Field>
+									</FieldLabel>
+								)
+							})}
+						</FieldGroup>
+					</RadioGroup>
 				</FieldSet>
 			</div>
 
