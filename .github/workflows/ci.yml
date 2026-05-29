@@ -23,6 +23,7 @@ jobs:
       - name: setup vite+
         uses: voidzero-dev/setup-vp@v1
         with:
+          version: '0.1.22'
           node-version: '22'
           cache: true
       - run: vp check
@@ -36,6 +37,7 @@ jobs:
       - name: setup vite+
         uses: voidzero-dev/setup-vp@v1
         with:
+          version: '0.1.22'
           node-version: '22'
           cache: true
       - name: Run Tests
@@ -49,6 +51,7 @@ jobs:
       - name: setup vite+
         uses: voidzero-dev/setup-vp@v1
         with:
+          version: '0.1.22'
           node-version: '22'
           cache: true
       - name: Install Playwright Browsers
