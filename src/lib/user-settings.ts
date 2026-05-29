@@ -27,6 +27,8 @@ import type { CoreQuestion } from '@/lib/questions'
 
 export type UserRole = 'consumer' | 'agent'
 
+export type ConsumerFlowKind = 'buyer' | 'seller'
+
 export type CategoryWeights = {
 	'working-style': number
 	communication: number
@@ -39,6 +41,25 @@ export type AnswerValue = number | number[] | string
 export type QuestionnaireAnswers = Record<string, AnswerValue>
 
 export type AgentProfileData = {
+	firstName?: string
+	lastName?: string
+	brokerageName?: string
+	email?: string
+	phone?: string
+	businessAddress?: string
+	billingAddress?: string
+	licenseNumberState?: string
+	serviceArea1?: string
+	serviceArea2?: string
+	serviceArea3?: string
+	yearsLicensed?: string
+	averageTransactions?: string
+	employmentStatus?: string
+	licenseProof?: string
+	clientFirstTerms?: string
+	valueProposition?: string
+	usePaxWriter?: boolean
+	introVideo?: string
 	experience: string
 	zipCodes: string
 	services: string[]
@@ -46,6 +67,7 @@ export type AgentProfileData = {
 
 export type UserSettings = {
 	role: UserRole
+	flowKind?: ConsumerFlowKind
 	weights: CategoryWeights
 	answers: QuestionnaireAnswers
 	agentProfile?: AgentProfileData

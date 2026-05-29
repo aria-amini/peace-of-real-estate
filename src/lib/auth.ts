@@ -1,6 +1,6 @@
 import { getDb } from '@/db/connection'
 import { account, session, user, verification } from '@/db/tables'
-import { env } from '@/env'
+import { serverEnv } from '@/env.server'
 
 import { toAuthBaseURL } from '@/lib/auth-base-url'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
@@ -88,11 +88,11 @@ function forwardedHostOAuthShim() {
 
 export function getAuth() {
 	if (!authInstance) {
-		const betterAuthUrl = env.BETTER_AUTH_URL
-		const betterAuthSecret = env.BETTER_AUTH_SECRET
-		const oAuthProxySecret = env.OAUTH_PROXY_SECRET ?? betterAuthSecret
-		const googleClientId = env.GOOGLE_CLIENT_ID
-		const googleClientSecret = env.GOOGLE_CLIENT_SECRET
+		const betterAuthUrl = serverEnv.BETTER_AUTH_URL
+		const betterAuthSecret = serverEnv.BETTER_AUTH_SECRET
+		const oAuthProxySecret = serverEnv.OAUTH_PROXY_SECRET ?? betterAuthSecret
+		const googleClientId = serverEnv.GOOGLE_CLIENT_ID
+		const googleClientSecret = serverEnv.GOOGLE_CLIENT_SECRET
 
 		const productionAppOrigin = betterAuthUrl
 			? new URL(betterAuthUrl).origin
@@ -149,7 +149,6 @@ export function getAuth() {
 						}
 					: undefined,
 			plugins: [
-				tanstackStartCookies(),
 				forwardedHostOAuthShim(),
 				...(productionAppOrigin
 					? [
@@ -159,6 +158,7 @@ export function getAuth() {
 							}),
 						]
 					: []),
+				tanstackStartCookies(),
 			],
 		}) as unknown as ReturnType<typeof betterAuth>
 	}

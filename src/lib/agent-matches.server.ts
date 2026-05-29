@@ -1,6 +1,6 @@
 import { getDb } from '@/db/connection'
 import { user, agents, agentQuestionnaires } from '@/db/tables'
-import { env } from '@/env'
+import { serverEnv } from '@/env.server'
 import type { AgentMatchData } from '@/lib/agent-matches'
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
@@ -37,13 +37,13 @@ let storageClient: S3Client | undefined
 
 function getStorageClient() {
 	storageClient ??= new S3Client({
-		region: env.AWS_REGION ?? 'auto',
-		endpoint: env.AWS_ENDPOINT_URL ?? '',
+		region: serverEnv.AWS_REGION ?? 'auto',
+		endpoint: serverEnv.AWS_ENDPOINT_URL ?? '',
 		credentials: {
-			accessKeyId: env.AWS_ACCESS_KEY_ID ?? '',
-			secretAccessKey: env.AWS_SECRET_ACCESS_KEY ?? '',
+			accessKeyId: serverEnv.AWS_ACCESS_KEY_ID ?? '',
+			secretAccessKey: serverEnv.AWS_SECRET_ACCESS_KEY ?? '',
 		},
-		forcePathStyle: false,
+		forcePathStyle: true,
 	})
 
 	return storageClient
@@ -58,7 +58,7 @@ async function resolveAvatarUrl(image?: string | null) {
 		return image
 	}
 
-	const avatarBucket = env.AVATAR_BUCKET
+	const avatarBucket = serverEnv.AVATAR_BUCKET
 	if (!avatarBucket) {
 		return undefined
 	}

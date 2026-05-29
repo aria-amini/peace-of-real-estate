@@ -5,7 +5,7 @@ import {
 	PutObjectCommand,
 	S3Client,
 } from '@aws-sdk/client-s3'
-import { env } from '../src/env'
+import { serverEnv } from '../src/env.server'
 import { getDb } from '../src/db/connection'
 import {
 	user,
@@ -501,8 +501,8 @@ const SEED_AGENTS = [
 	},
 ]
 
-function requireEnv(name: keyof typeof env): string {
-	const value = env[name]
+function requireEnv(name: keyof typeof serverEnv): string {
+	const value = serverEnv[name]
 	if (!value) {
 		throw new Error(`Missing ${String(name)}`)
 	}
@@ -511,7 +511,7 @@ function requireEnv(name: keyof typeof env): string {
 
 const avatarBucket = requireEnv('AVATAR_BUCKET')
 const storageClient = new S3Client({
-	region: env.AWS_REGION ?? 'auto',
+	region: serverEnv.AWS_REGION ?? 'auto',
 	endpoint: requireEnv('AWS_ENDPOINT_URL'),
 	credentials: {
 		accessKeyId: requireEnv('AWS_ACCESS_KEY_ID'),

@@ -1,10 +1,11 @@
-import { Card, CardContent } from '@aamini/ui/components/card'
-import { Field, FieldGroup, FieldLabel } from '@aamini/ui/components/field'
-import { Input } from '@aamini/ui/components/input'
 import { Link } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 import { authClient } from '@/lib/auth-client'
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -88,7 +89,7 @@ export function AuthCard({
 			) {
 				setGoogleAvailable(false)
 				toast.error(
-					'Google login not configured on localhost. Use email and password.',
+					'Google login is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env.development.',
 				)
 			} else {
 				toast.error('Google sign-in failed. Try again.')
@@ -154,22 +155,23 @@ export function AuthCard({
 		<div className="flex h-full w-full flex-1 items-center justify-center px-6 py-12">
 			<div className="flex w-full max-w-md flex-col items-center gap-8">
 				<div className="text-center">
-					<div className="data-label text-ochre mb-3">
+					<div className="text-muted-foreground mb-3 text-sm">
 						{isSignUp ? 'New Account' : 'Authentication'}
 					</div>
-					<h1 className="font-serif text-3xl font-normal">{title}</h1>
+					<h1 className="text-3xl">{title}</h1>
 				</div>
 
-				<Card className="border-border w-full">
+				<Card className="w-full">
 					<CardContent className="pt-6">
 						<div className="space-y-6">
 							{googleAvailable ? (
 								<>
-									<button
+									<Button
 										type="button"
 										onClick={handleGoogleSignIn}
 										disabled={isGoogleLoading || isSubmitting}
-										className="border-border bg-background text-foreground hover:bg-secondary inline-flex w-full items-center justify-center gap-3 border px-4 py-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+										variant="outline"
+										className="w-full"
 									>
 										{isGoogleLoading ? (
 											<Loader2 className="h-4 w-4 animate-spin" />
@@ -177,7 +179,7 @@ export function AuthCard({
 											<GoogleIcon className="h-5 w-5" />
 										)}
 										{isSignUp ? 'Sign up with Google' : 'Sign in with Google'}
-									</button>
+									</Button>
 
 									<div className="text-muted-foreground relative py-2 text-center text-xs tracking-[0.2em] uppercase">
 										<span className="bg-background relative z-10 px-3">or</span>
@@ -231,16 +233,16 @@ export function AuthCard({
 											required
 										/>
 									</Field>
-									<button
+									<Button
 										type="submit"
 										disabled={isSubmitting || isGoogleLoading}
-										className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70"
+										className="w-full"
 									>
 										{isSubmitting ? (
 											<Loader2 className="h-4 w-4 animate-spin" />
 										) : null}
 										{primaryLabel}
-									</button>
+									</Button>
 									<p className="text-muted-foreground text-center text-sm">
 										{alternateCopy}{' '}
 										{isSignUp ? (

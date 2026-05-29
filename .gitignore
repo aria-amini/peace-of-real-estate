@@ -23,5 +23,9 @@ playwright-report/
 .vitest-attachments
 html
 
+# Vitest failure screenshots (not baseline snapshots)
+tests/__screenshots__/*-matches-desktop-screenshot-*.png
+tests/__screenshots__/*-page-matches-desktop-screenshot-*.png
+
 .pnpm-store
 .worktrees

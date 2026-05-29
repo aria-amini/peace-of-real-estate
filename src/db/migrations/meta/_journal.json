@@ -22,6 +22,13 @@
 			"when": 1776799135064,
 			"tag": "0002_add_profile_tables",
 			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1779943906489,
+			"tag": "0003_wonderful_komodo",
+			"breakpoints": true
 		}
 	]
 }

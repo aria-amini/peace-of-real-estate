@@ -4,10 +4,10 @@ import {
 	createRouter,
 	RouterContextProvider,
 } from '@tanstack/react-router'
-import { expect, test } from 'vite-plus/test'
 import { render } from 'vitest-browser-react'
 import { page, userEvent } from 'vite-plus/test/browser'
 
+import { expect, test } from '@config/test/browser'
 import { QuestionFlow } from './question-flow'
 
 function createMockRouter() {
@@ -31,15 +31,8 @@ function MockRouter({ children }: { children: React.ReactNode }) {
 }
 
 test('question flow auto-advances and completes on final answer', async () => {
-	const screen = await render(
+	await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
-			stepLabel="Step 2 of 4"
-			accentClassName="bg-primary"
-			accentTextClassName="text-primary"
-			accentTintClassName="bg-primary/10"
-			accentHoverBorderClassName="hover:border-primary/30"
 			completeTo="/done"
 			completeLabel="View Matches"
 			questions={[
@@ -62,36 +55,29 @@ test('question flow auto-advances and completes on final answer', async () => {
 		{ wrapper: MockRouter },
 	)
 
-	await userEvent.click(screen.getByRole('button', { name: /same day/i }))
+	await userEvent.click(page.getByRole('button', { name: /same day/i }))
 
 	await expect.element(page.getByText('Question 2 of 2')).toBeVisible()
 	await expect
-		.element(screen.getByPlaceholder(/share a few details/i))
+		.element(page.getByPlaceholder(/share a few details/i))
 		.toBeVisible()
 
 	await userEvent.fill(
-		screen.getByPlaceholder(/share a few details/i),
+		page.getByPlaceholder(/share a few details/i),
 		'Need calm guidance.',
 	)
 	await expect
-		.element(screen.getByRole('link', { name: /view matches/i }))
-		.toBeVisible()
+		.element(page.getByRole('link', { name: /view matches/i }))
+		.not.toBeInTheDocument()
 	await expect
-		.element(screen.getByRole('button', { name: /previous/i }))
+		.element(page.getByRole('button', { name: /previous/i }))
 		.toBeEnabled()
-	await expect.element(screen.getByText('100%')).toBeVisible()
+	await expect.element(page.getByText('100%')).toBeVisible()
 })
 
 test('question flow supports multi-select before completion', async () => {
-	const screen = await render(
+	await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
-			stepLabel="Step 2 of 4"
-			accentClassName="bg-primary"
-			accentTextClassName="text-primary"
-			accentTintClassName="bg-primary/10"
-			accentHoverBorderClassName="hover:border-primary/30"
 			completeTo="/done"
 			completeLabel="Finish"
 			questions={[
@@ -111,43 +97,36 @@ test('question flow supports multi-select before completion', async () => {
 		{ wrapper: MockRouter },
 	)
 
-	await expect.element(screen.getByText('0 of 2 selected')).toBeVisible()
+	await expect.element(page.getByText('0 of 2 selected')).toBeVisible()
 	await expect
-		.element(screen.getByText('Select up to 2 answers to continue.'))
+		.element(page.getByText('Select up to 2 answers to continue.'))
 		.toBeVisible()
 	await expect
-		.element(screen.getByRole('button', { name: /finish/i }))
-		.toBeDisabled()
-
-	await expect
-		.element(screen.getByRole('link', { name: /finish/i }))
+		.element(page.getByRole('button', { name: /finish/i }))
 		.not.toBeInTheDocument()
-	await userEvent.click(screen.getByRole('button', { name: /clarity/i }))
-	await expect.element(screen.getByText('1 of 2 selected')).toBeVisible()
 	await expect
-		.element(screen.getByRole('link', { name: /finish/i }))
-		.toBeVisible()
-	await userEvent.click(screen.getByRole('button', { name: /speed/i }))
-	await expect.element(screen.getByText('100%')).toBeVisible()
-	await expect.element(screen.getByText('2 of 2 selected')).toBeVisible()
+		.element(page.getByRole('link', { name: /finish/i }))
+		.not.toBeInTheDocument()
+
+	await userEvent.click(page.getByRole('button', { name: /clarity/i }))
+	await expect.element(page.getByText('1 of 2 selected')).toBeVisible()
 	await expect
-		.element(screen.getByRole('link', { name: /finish/i }))
-		.toBeVisible()
+		.element(page.getByRole('link', { name: /finish/i }))
+		.not.toBeInTheDocument()
+	await userEvent.click(page.getByRole('button', { name: /speed/i }))
+	await expect.element(page.getByText('100%')).toBeVisible()
+	await expect.element(page.getByText('2 of 2 selected')).toBeVisible()
 	await expect
-		.element(screen.getByRole('button', { name: /finish/i }))
+		.element(page.getByRole('link', { name: /finish/i }))
+		.not.toBeInTheDocument()
+	await expect
+		.element(page.getByRole('button', { name: /finish/i }))
 		.not.toBeInTheDocument()
 })
 
 test('question flow shows continue when user goes back to answered question', async () => {
-	const screen = await render(
+	await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
-			stepLabel="Step 2 of 4"
-			accentClassName="bg-primary"
-			accentTextClassName="text-primary"
-			accentTintClassName="bg-primary/10"
-			accentHoverBorderClassName="hover:border-primary/30"
 			completeTo="/done"
 			completeLabel="Finish"
 			initialQuestionIndex={2}
@@ -179,31 +158,24 @@ test('question flow shows continue when user goes back to answered question', as
 		{ wrapper: MockRouter },
 	)
 
-	await expect.element(screen.getByText('Question 3 of 3')).toBeVisible()
+	await expect.element(page.getByText('Question 3 of 3')).toBeVisible()
 	await userEvent.click(
-		screen.getByRole('button', { name: /previous question/i }),
+		page.getByRole('button', { name: /previous question/i }),
 	)
-	await expect.element(screen.getByText('Question 2 of 3')).toBeVisible()
+	await expect.element(page.getByText('Question 2 of 3')).toBeVisible()
 	await expect
-		.element(screen.getByRole('button', { name: /continue/i }))
+		.element(page.getByRole('button', { name: /continue/i }))
 		.toBeVisible()
 	await expect
-		.element(screen.getByRole('button', { name: /continue/i }))
+		.element(page.getByRole('button', { name: /continue/i }))
 		.toBeEnabled()
-	await userEvent.click(screen.getByRole('button', { name: /continue/i }))
-	await expect.element(screen.getByText('Question 3 of 3')).toBeVisible()
+	await userEvent.click(page.getByRole('button', { name: /continue/i }))
+	await expect.element(page.getByText('Question 3 of 3')).toBeVisible()
 })
 
 test('clicking selected multi-select option deselects it', async () => {
-	const screen = await render(
+	await render(
 		<QuestionFlow
-			backTo="/"
-			backLabel="Back"
-			stepLabel="Step 2 of 4"
-			accentClassName="bg-primary"
-			accentTextClassName="text-primary"
-			accentTintClassName="bg-primary/10"
-			accentHoverBorderClassName="hover:border-primary/30"
 			completeTo="/done"
 			completeLabel="Finish"
 			questions={[
@@ -223,11 +195,11 @@ test('clicking selected multi-select option deselects it', async () => {
 		{ wrapper: MockRouter },
 	)
 
-	await userEvent.click(screen.getByRole('button', { name: /clarity/i }))
-	await expect.element(screen.getByText('1 of 2 selected')).toBeVisible()
-	await userEvent.click(screen.getByRole('button', { name: /clarity/i }))
-	await expect.element(screen.getByText('0 of 2 selected')).toBeVisible()
+	await userEvent.click(page.getByRole('button', { name: /clarity/i }))
+	await expect.element(page.getByText('1 of 2 selected')).toBeVisible()
+	await userEvent.click(page.getByRole('button', { name: /clarity/i }))
+	await expect.element(page.getByText('0 of 2 selected')).toBeVisible()
 	await expect
-		.element(screen.getByRole('button', { name: /finish/i }))
-		.toBeDisabled()
+		.element(page.getByRole('button', { name: /finish/i }))
+		.not.toBeInTheDocument()
 })
