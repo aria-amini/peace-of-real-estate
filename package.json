@@ -36,6 +36,7 @@
 		"@fontsource-variable/figtree": "^5.2.10",
 		"@fontsource-variable/space-grotesk": "^5.2.10",
 		"@fontsource-variable/work-sans": "^5.2.8",
+		"@phosphor-icons/react": "^2.1.10",
 		"@remixicon/react": "^4.9.0",
 		"@rolldown/plugin-babel": "^0.2.3",
 		"@tanstack/react-devtools": "^0.10.2",

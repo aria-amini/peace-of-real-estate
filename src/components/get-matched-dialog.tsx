@@ -17,30 +17,29 @@ import {
 	saveStoredConsumerDraftForFlow,
 } from '@/lib/intake-draft'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Home, Tag, X } from 'lucide-react'
+import { ArrowRight, X } from 'lucide-react'
+import { HouseLineIcon, TagIcon } from '@phosphor-icons/react'
+import type { Icon } from '@phosphor-icons/react'
 
 type FlowOption = {
 	to: string
 	flow: 'buyer' | 'seller'
-	label: string
 	description: string
-	icon: typeof Home
+	icon: Icon
 }
 
 const options: FlowOption[] = [
 	{
 		to: '/buyer',
 		flow: 'buyer',
-		label: 'Buying',
-		description: 'Find an agent for your home search.',
-		icon: Home,
+		description: 'Buy a House',
+		icon: HouseLineIcon,
 	},
 	{
 		to: '/seller',
 		flow: 'seller',
-		label: 'Selling',
-		description: 'Find an agent for your listing.',
-		icon: Tag,
+		description: 'Sell a House',
+		icon: TagIcon,
 	},
 ]
 
@@ -110,21 +109,15 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 				) : (
 					<>
 						<DialogHeader>
-							<DialogTitle>What are you looking to do?</DialogTitle>
-							<DialogDescription>
-								Choose the path that fits your next move
-							</DialogDescription>
+							<DialogTitle className="text-center">
+								What are you looking to do?
+							</DialogTitle>
 						</DialogHeader>
 						<div className="grid grid-cols-2 gap-3">
 							{options.map((option) => {
-								const Icon = option.icon
+								const OptionIcon = option.icon
 								return (
-									<Button
-										key={option.flow}
-										asChild
-										variant="outline"
-										className="group hover:bg-accent h-auto flex-col items-start gap-2 rounded-lg p-4 text-left"
-									>
+									<Button key={option.flow} asChild className="h-auto py-4">
 										<Link
 											to={option.to}
 											onClick={() =>
@@ -133,18 +126,8 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 												})
 											}
 										>
-											<div className="flex w-full items-start justify-between">
-												<Icon className="text-primary h-5 w-5" />
-												<ArrowRight className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
-											</div>
-											<div>
-												<span className="block text-sm font-medium">
-													{option.label}
-												</span>
-												<span className="text-muted-foreground mt-0.5 block text-xs leading-relaxed">
-													{option.description}
-												</span>
-											</div>
+											<OptionIcon className="size-6" />
+											{option.description}
 										</Link>
 									</Button>
 								)
