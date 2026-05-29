@@ -39,7 +39,7 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="bg-foreground-100 relative flex w-full flex-1 flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:pt-14 md:pb-12">
+		<section className="bg-card relative flex w-full flex-1 flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:pt-14 md:pb-12">
 			{/* Portrait background */}
 			<div
 				className="absolute inset-0 bg-cover bg-center bg-no-repeat"
