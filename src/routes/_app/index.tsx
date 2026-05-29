@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_app/')({
 function LandingPage() {
 	return (
 		<>
-			<div className="flex min-h-[calc(100dvh-var(--app-header-height))] flex-col">
+			<div className="min-h-main-content flex flex-col">
 				<HeroSection />
 				<MarqueeBanner />
 			</div>
@@ -64,7 +64,7 @@ function HeroSection() {
 					<GetMatchedDialog>
 						<Button
 							size="lg"
-							className="mt-2 h-14 cursor-pointer rounded-full bg-linear-to-r from-slate-800 to-slate-900 px-10 text-lg font-semibold text-white shadow-lg shadow-slate-900/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/30"
+							className="mt-2 h-14 cursor-pointer rounded-full bg-linear-to-r from-slate-800 to-slate-900 px-10 text-lg font-semibold text-white shadow-lg shadow-slate-900/20 transition-all hover:from-slate-700 hover:to-slate-800 hover:shadow-xl hover:shadow-slate-900/30"
 						>
 							Get Matched
 							<ArrowRight className="h-5 w-5" />
@@ -170,7 +170,7 @@ function ComparisonTable() {
 	]
 
 	return (
-		<Table className="border-border rounded-xl border text-[11px] sm:text-sm md:text-base">
+		<Table className="border-border round border text-[11px] sm:text-sm md:text-base">
 			<TableHeader>
 				<TableRow className="bg-primary/10">
 					<TableHead></TableHead>

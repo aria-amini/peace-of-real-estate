@@ -108,7 +108,13 @@ export const mockMatch3: MatchDetails = {
 
 // ─── Design 1: Modern Profile (Refined) ──────────────────────────────
 
-export function MatchCardModern({ match }: { match: MatchDetails }) {
+export function MatchCardModern({
+	match,
+	disabled = false,
+}: {
+	match: MatchDetails
+	disabled?: boolean
+}) {
 	const initials = match.name
 		.split(' ')
 		.map((n) => n[0])
@@ -207,7 +213,10 @@ export function MatchCardModern({ match }: { match: MatchDetails }) {
 
 				{/* Actions */}
 				<div className="mt-6 flex justify-center">
-					<Button className="h-12 rounded-2xl px-12 text-base">
+					<Button
+						disabled={disabled}
+						className="h-12 rounded-2xl px-12 text-base"
+					>
 						Accept Match
 					</Button>
 				</div>

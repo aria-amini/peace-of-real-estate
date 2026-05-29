@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { CheckCircle2, ClipboardList, MessageSquare, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { MatchCardModern } from '@/components/match-card-variants'
@@ -124,22 +123,10 @@ function StepMockup({ stepId }: { stepId: number }) {
 }
 
 function QuizMockup() {
-	const [selected, setSelected] = useState<number | null>(1)
+	const selected = 1
 
 	return (
 		<div className="border-border bg-card relative overflow-hidden rounded-2xl border shadow-lg">
-			{/* Browser chrome */}
-			<div className="border-border flex items-center gap-2 border-b px-4 py-3">
-				<div className="flex gap-1.5">
-					<div className="h-3 w-3 rounded-full bg-red-400" />
-					<div className="h-3 w-3 rounded-full bg-amber-400" />
-					<div className="h-3 w-3 rounded-full bg-green-400" />
-				</div>
-				<div className="bg-muted text-muted-foreground mx-auto flex h-6 w-48 items-center justify-center rounded-md text-[10px]">
-					peaceofrealestate.com/quiz
-				</div>
-			</div>
-
 			<div className="space-y-4 p-5">
 				{/* Progress bar */}
 				<div className="space-y-2">
@@ -170,12 +157,12 @@ function QuizMockup() {
 						<button
 							key={option}
 							type="button"
-							onClick={() => setSelected(i)}
+							disabled
 							className={cn(
-								'flex w-full items-center gap-3 rounded-lg border p-3 text-left text-xs transition-colors',
+								'flex w-full items-center gap-3 rounded-lg border p-3 text-left text-xs disabled:pointer-events-none',
 								selected === i
 									? 'border-primary bg-primary/5'
-									: 'border-border hover:bg-accent',
+									: 'border-border',
 							)}
 						>
 							<div
@@ -199,22 +186,8 @@ function QuizMockup() {
 
 function MatchesMockup() {
 	return (
-		<div className="border-border bg-card relative overflow-hidden rounded-2xl border shadow-lg">
-			{/* Browser chrome */}
-			<div className="border-border flex items-center gap-2 border-b px-4 py-3">
-				<div className="flex gap-1.5">
-					<div className="h-3 w-3 rounded-full bg-red-400" />
-					<div className="h-3 w-3 rounded-full bg-amber-400" />
-					<div className="h-3 w-3 rounded-full bg-green-400" />
-				</div>
-				<div className="bg-muted text-muted-foreground mx-auto flex h-6 w-48 items-center justify-center rounded-md text-[10px]">
-					peaceofrealestate.com/matches
-				</div>
-			</div>
-
-			<div className="scale-[0.85] p-2">
-				<MatchCardModern match={mockMatch1} />
-			</div>
+		<div className="pointer-events-none scale-[0.85] select-none">
+			<MatchCardModern match={mockMatch1} disabled />
 		</div>
 	)
 }
@@ -222,18 +195,6 @@ function MatchesMockup() {
 function IntroMockup() {
 	return (
 		<div className="border-border bg-card relative overflow-hidden rounded-2xl border shadow-lg">
-			{/* Browser chrome */}
-			<div className="border-border flex items-center gap-2 border-b px-4 py-3">
-				<div className="flex gap-1.5">
-					<div className="h-3 w-3 rounded-full bg-red-400" />
-					<div className="h-3 w-3 rounded-full bg-amber-400" />
-					<div className="h-3 w-3 rounded-full bg-green-400" />
-				</div>
-				<div className="bg-muted text-muted-foreground mx-auto flex h-6 w-48 items-center justify-center rounded-md text-[10px]">
-					peaceofrealestate.com/intro
-				</div>
-			</div>
-
 			<div className="space-y-4 p-5">
 				<div className="flex items-center gap-3">
 					<div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
@@ -266,13 +227,15 @@ function IntroMockup() {
 				<div className="flex gap-2">
 					<button
 						type="button"
-						className="bg-primary text-primary-foreground flex-1 rounded-lg py-2 text-xs font-medium"
+						disabled
+						className="bg-primary text-primary-foreground flex-1 rounded-lg py-2 text-xs font-medium disabled:pointer-events-none disabled:opacity-50"
 					>
 						Send Introduction
 					</button>
 					<button
 						type="button"
-						className="border-border hover:bg-accent flex-1 rounded-lg border py-2 text-xs font-medium transition-colors"
+						disabled
+						className="border-border flex-1 rounded-lg border py-2 text-xs font-medium disabled:pointer-events-none disabled:opacity-50"
 					>
 						View Full Profile
 					</button>
