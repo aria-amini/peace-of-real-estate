@@ -48,15 +48,15 @@ function HeroSection() {
 						'url(https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80)',
 				}}
 			/>
-			{/* Subtle overlay: light at top for dark text, slightly stronger at bottom for cards */}
-			<div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/50" />
+			{/* Subtle overlay: light at top for dark text, stronger at bottom for depth */}
+			<div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/60" />
 
 			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
-				<div className="bg-card border-border/50 flex flex-col items-center gap-5 rounded-3xl border p-8 shadow-sm md:p-10">
-					<TypographyH1 className="text-foreground text-4xl drop-shadow-sm md:text-5xl lg:text-6xl">
+				<div className="flex flex-col items-center gap-6 rounded-3xl border border-white/30 bg-white/70 p-10 shadow-xl backdrop-blur-md md:p-12">
+					<TypographyH1 className="text-foreground text-4xl tracking-tight md:text-5xl lg:text-6xl">
 						Find your perfect agent
 					</TypographyH1>
-					<TypographyP className="text-foreground/80 max-w-2xl text-lg leading-relaxed">
+					<TypographyP className="text-foreground/70 max-w-xl text-lg leading-relaxed">
 						Take a simple quiz to find your perfect agent. Free services make
 						money by letting agents bid for your attention. We guarantee an
 						equal playing field, for the most expensive decision of your life.
@@ -64,7 +64,7 @@ function HeroSection() {
 					<GetMatchedDialog>
 						<Button
 							size="lg"
-							className="bg-primary mt-2 h-14 cursor-pointer rounded-full px-10 text-lg font-semibold shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
+							className="mt-2 h-14 cursor-pointer rounded-full bg-linear-to-r from-slate-800 to-slate-900 px-10 text-lg font-semibold text-white shadow-lg shadow-slate-900/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/30"
 						>
 							Get Matched
 							<ArrowRight className="h-5 w-5" />
@@ -129,7 +129,7 @@ function MarqueeBanner() {
 	]
 
 	return (
-		<section className="flex flex-col items-center gap-3 overflow-hidden border-2 border-y bg-white px-6 py-6 shadow-md">
+		<section className="flex flex-col items-center gap-3 overflow-hidden border-y-2 bg-white px-6 py-6 backdrop-blur-sm">
 			<p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
 				Trusted by Baltimore's Top Realtors
 			</p>
@@ -146,7 +146,7 @@ function MarqueeBanner() {
 					{[...companies, ...companies].map((company, i) => (
 						<span
 							key={i}
-							className="flex h-12 min-w-36 items-center justify-center opacity-60 transition-opacity hover:opacity-100"
+							className="flex h-12 min-w-36 items-center justify-center opacity-50 transition-opacity hover:opacity-100"
 						>
 							<img
 								src={company.logo}

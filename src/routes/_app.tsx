@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { FlowBreadcrumb } from '@/components/flow-breadcrumb'
 import {
 	Dialog,
@@ -20,6 +21,19 @@ import {
 import { ArrowRightLeft, ChevronDown, LogOut, User } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
+function useScrolled(threshold = 10) {
+	const [scrolled, setScrolled] = useState(false)
+
+	useEffect(() => {
+		const onScroll = () => setScrolled(window.scrollY > threshold)
+		onScroll()
+		window.addEventListener('scroll', onScroll, { passive: true })
+		return () => window.removeEventListener('scroll', onScroll)
+	}, [threshold])
+
+	return scrolled
+}
+
 export const Route = createFileRoute('/_app')({
 	component: AppShell,
 })
@@ -40,6 +54,7 @@ function AppShell() {
 	const router = useRouterState()
 	const currentPath = router.location.pathname
 	const [showLeaveFlowDialog, setShowLeaveFlowDialog] = useState(false)
+	const scrolled = useScrolled()
 	const homeTarget = session ? '/match-activity' : '/'
 	const shouldConfirmHomeNavigation =
 		!session && isConsumerSignupFlowPath(currentPath)
@@ -66,7 +81,14 @@ function AppShell() {
 
 	return (
 		<div className="flex min-h-dvh flex-col">
-			<header className="bg-background sticky top-0 z-50 h-(--app-header-height) border-b">
+			<header
+				className={cn(
+					'sticky top-0 z-50 h-(--app-header-height) transition-all duration-300',
+					scrolled
+						? 'border-b bg-white/80 backdrop-blur-lg'
+						: 'bg-transparent border-b-transparent',
+				)}
+			>
 				<div className="mx-auto flex h-full w-full items-center justify-between px-5">
 					<Link
 						to={homeTarget}
