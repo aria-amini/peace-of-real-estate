@@ -32,8 +32,8 @@ Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and
 `vp build`. Run `vp help` to print a list of commands and `vp <command> --help`
 for information about a specific command.
 
-Docs are local at `node_modules/vite-plus/docs` or online at
-[ https://viteplus.dev/guide/. ]
+Docs are local at `node_modules/vite-plus/docs` or online at [
+https://viteplus.dev/guide/. ]
 
 ## Review Checklist
 
