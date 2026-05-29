@@ -35,14 +35,14 @@ const options: FlowOption[] = [
 		flow: 'buyer',
 		description: 'Buy a House',
 		icon: HouseLineIcon,
-		className: 'border-sky/50 bg-sky/20 text-foreground hover:bg-sky/35',
+		className: 'border-sky/50 bg-sky/90 text-foreground hover:bg-sky',
 	},
 	{
 		to: '/seller',
 		flow: 'seller',
 		description: 'Sell a House',
 		icon: TagIcon,
-		className: 'border-gold/50 bg-gold/20 text-foreground hover:bg-gold/35',
+		className: 'border-gold/50 bg-gold/90 text-foreground hover:bg-gold',
 	},
 ]
 
@@ -121,10 +121,10 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 								const OptionIcon = option.icon
 								return (
 									<Button
+										className={option.className}
 										key={option.flow}
 										asChild
-										variant="outline"
-										className={`h-auto py-4 ${option.className}`}
+										variant="default"
 									>
 										<Link
 											to={option.to}

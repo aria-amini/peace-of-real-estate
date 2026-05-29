@@ -183,9 +183,11 @@ function UserDropdown({ userInitials }: { userInitials: string | null }) {
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
 				variant="ghost"
+				className="h-10 rounded-2xl px-1.5"
 				aria-label="Open account menu"
+				aria-expanded={isOpen}
 			>
-				<span className="flex h-9 w-9 items-center justify-center border text-sm">
+				<span className="bg-muted/40 flex size-8 items-center justify-center rounded-xl border text-sm font-medium">
 					{userInitials ? userInitials : <User className="h-5 w-5" />}
 				</span>
 				<ChevronDown
@@ -194,11 +196,11 @@ function UserDropdown({ userInitials }: { userInitials: string | null }) {
 			</Button>
 
 			{isOpen && (
-				<div className="absolute right-0 z-50 mt-1 w-56 border">
-					<div className="py-1">
+				<div className="bg-popover text-popover-foreground absolute right-0 z-50 mt-2 w-56 rounded-2xl border p-1 shadow-lg">
+					<div className="space-y-1">
 						<Link
 							to="/account"
-							className="flex items-center gap-3 px-4 py-2.5 text-sm"
+							className="hover:bg-muted flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors"
 							onClick={() => setIsOpen(false)}
 						>
 							<User className="h-4 w-4" />
@@ -206,7 +208,7 @@ function UserDropdown({ userInitials }: { userInitials: string | null }) {
 						</Link>
 						<Link
 							to="/match-activity"
-							className="flex items-center gap-3 px-4 py-2.5 text-sm"
+							className="hover:bg-muted flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors"
 							onClick={() => setIsOpen(false)}
 						>
 							<ArrowRightLeft className="h-4 w-4" />
@@ -220,7 +222,7 @@ function UserDropdown({ userInitials }: { userInitials: string | null }) {
 								setIsOpen(false)
 								void handleSignOut()
 							}}
-							className="h-auto w-full justify-start rounded-none px-4 py-2.5 text-sm"
+							className="h-auto w-full justify-start rounded-xl px-3 py-2.5 text-sm"
 						>
 							<LogOut className="h-4 w-4" />
 							Sign out

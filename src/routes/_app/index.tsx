@@ -1,10 +1,12 @@
 import { redirectAuthenticatedUsers } from '@/lib/auth-guards'
+import { CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 
 import { GetMatchedDialog } from '@/components/get-matched-dialog'
 import { FeatureShowcase } from '@/components/feature-showcase'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
 	Table,
 	TableBody,
@@ -164,26 +166,73 @@ function ComparisonTable() {
 		['Price', '$20.00', '$0.00'],
 		['Optimized for', 'Fit and transparency', 'Lead volume'],
 		['Agent incentives', 'Serve aligned clients', 'Win auctioned attention'],
+		['Hidden fees', 'None', 'Referral fees up to 40%'],
+		['Your info sold', 'Never', 'To agents & partners'],
+		['Agent vetting', 'Quality screened', 'Open to all'],
+		['Support', 'Dedicated concierge', 'Self-service only'],
 	]
 
 	return (
-		<Table className="border-border max-w-2xl border text-[11px] sm:text-sm md:text-base">
-			<TableHeader>
-				<TableRow className="bg-primary/10">
-					<TableHead></TableHead>
-					<TableHead>Peace of Real Estate</TableHead>
-					<TableHead>Lead marketplaces</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				{rows.map(([label, pre, marketplace]) => (
-					<TableRow key={label}>
-						<TableCell className="p-2 font-medium md:p-4">{label}</TableCell>
-						<TableCell className="p-2 md:p-4">{pre}</TableCell>
-						<TableCell className="p-2 md:p-4">{marketplace}</TableCell>
-					</TableRow>
-				))}
-			</TableBody>
-		</Table>
+		<Card className="mx-auto max-w-2xl overflow-hidden">
+			<CardContent className="p-0">
+				<Table className="border-none text-[11px] sm:text-sm md:text-base">
+					<TableHeader>
+						<TableRow className="bg-primary hover:bg-primary">
+							<TableHead className="text-primary-foreground"></TableHead>
+							<TableHead className="text-primary-foreground">
+								Peace of Real Estate
+							</TableHead>
+							<TableHead className="text-primary-foreground">
+								Free Services
+							</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{rows.map(([label, pre, marketplace]) => {
+							const isPriceRow = label === 'Price'
+							return (
+								<TableRow key={label}>
+									<TableCell className="p-2 font-medium md:p-4">
+										{label}
+									</TableCell>
+									<TableCell className="p-2 md:p-4">
+										<span className="flex items-center gap-2">
+											{isPriceRow ? (
+												<XCircleIcon
+													weight="fill"
+													className="size-4 shrink-0 text-red-600 md:size-5"
+												/>
+											) : (
+												<CheckCircleIcon
+													weight="fill"
+													className="size-4 shrink-0 text-green-600 md:size-5"
+												/>
+											)}
+											{pre}
+										</span>
+									</TableCell>
+									<TableCell className="p-2 md:p-4">
+										<span className="flex items-center gap-2">
+											{isPriceRow ? (
+												<CheckCircleIcon
+													weight="fill"
+													className="size-4 shrink-0 text-green-600 md:size-5"
+												/>
+											) : (
+												<XCircleIcon
+													weight="fill"
+													className="size-4 shrink-0 text-red-600 md:size-5"
+												/>
+											)}
+											{marketplace}
+										</span>
+									</TableCell>
+								</TableRow>
+							)
+						})}
+					</TableBody>
+				</Table>
+			</CardContent>
+		</Card>
 	)
 }

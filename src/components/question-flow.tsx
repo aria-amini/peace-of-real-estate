@@ -22,6 +22,7 @@ type QuestionFlowProps = {
 	initialQuestionIndex?: number
 	onAnswersChange?: (answers: Record<string, AnswerValue>) => void
 	onComplete?: () => void
+	headerInsideCard?: boolean
 }
 
 export function QuestionFlow({
@@ -33,6 +34,7 @@ export function QuestionFlow({
 	initialQuestionIndex = 0,
 	onAnswersChange,
 	onComplete,
+	headerInsideCard = false,
 }: QuestionFlowProps) {
 	const [currentQuestion, setCurrentQuestion] = useState(
 		Math.min(Math.max(initialQuestionIndex, 0), questions.length - 1),
@@ -290,6 +292,7 @@ export function QuestionFlow({
 			subtitle="Step 2"
 			icon={ListChecks}
 			roleLabel={roleLabel}
+			headerInsideCard={headerInsideCard}
 		>
 			<div className="mb-6 w-full">
 				<div className="mb-3 flex items-center justify-between text-xs">

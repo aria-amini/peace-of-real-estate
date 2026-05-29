@@ -39,7 +39,6 @@ import {
 } from '@/components/ui/dialog'
 import {
 	Field,
-	FieldDescription,
 	FieldGroup,
 	FieldLabel,
 	FieldLegend,
@@ -394,6 +393,7 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 			subtitle="Step 1"
 			icon={MapPin}
 			roleLabel={config.label}
+			headerInsideCard
 		>
 			<div className="space-y-8">
 				<FieldSet className="gap-0">
@@ -465,21 +465,20 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 					</FieldGroup>
 				</FieldSet>
 
-				<FieldSet className="border-t pt-8">
+				<FieldSet className="pt-2">
 					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
 						What best describes your situation?
 					</FieldLegend>
-					<FieldDescription>
-						Select the option that matches where you are in the process.
-					</FieldDescription>
 					<RadioGroup value={intent} onValueChange={setIntent} className="mt-4">
 						<FieldGroup className="gap-3">
-							{config.intentOptions.map((option) => {
+							{config.intentOptions.map((option, index) => {
 								const isSelected = intent === option
+								const optionId = `${config.kind}-intent-${index}`
 
 								return (
 									<FieldLabel
 										key={option}
+										htmlFor={optionId}
 										className={cn(
 											'group flex w-full cursor-pointer items-start gap-4 rounded-lg border bg-card/60 p-4 text-left transition-all hover:border-foreground/25 hover:bg-muted/30 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50 [&>[data-slot=field]]:p-0',
 											isSelected &&
@@ -491,6 +490,7 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 											className="items-start gap-4"
 										>
 											<RadioGroupItem
+												id={optionId}
 												value={option}
 												className="mt-0.5 size-5"
 											/>
@@ -560,6 +560,7 @@ export function ConsumerQuiz({ config }: { config: ConsumerFlowConfig }) {
 			}
 			completeTo={`${config.basePath}/details`}
 			completeLabel="Continue"
+			headerInsideCard
 		/>
 	)
 }
@@ -584,6 +585,7 @@ export function ConsumerDetails({ config }: { config: ConsumerFlowConfig }) {
 			subtitle="Step 3"
 			icon={MessageCircle}
 			roleLabel={config.label}
+			headerInsideCard
 		>
 			<div className="space-y-8">
 				<div>
@@ -656,6 +658,7 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 			subtitle="Step 4"
 			icon={Sparkles}
 			roleLabel={config.label}
+			headerInsideCard
 		>
 			<div className="space-y-3">
 				{[

@@ -126,7 +126,7 @@ function QuizMockup() {
 	const selected = 1
 
 	return (
-		<div className="border-border bg-card relative overflow-hidden rounded-2xl border shadow-lg">
+		<div className="border-border bg-card relative mx-auto w-96 overflow-hidden rounded-2xl border shadow-lg">
 			<div className="space-y-4 p-5">
 				{/* Progress bar */}
 				<div className="space-y-2">
@@ -186,7 +186,7 @@ function QuizMockup() {
 
 function MatchesMockup() {
 	return (
-		<div className="pointer-events-none scale-[0.85] select-none">
+		<div className="pointer-events-none mx-auto w-96 scale-[0.85] select-none">
 			<MatchCardModern match={mockMatch1} disabled />
 		</div>
 	)
@@ -194,7 +194,7 @@ function MatchesMockup() {
 
 function IntroMockup() {
 	return (
-		<div className="border-border bg-card relative overflow-hidden rounded-2xl border shadow-lg">
+		<div className="border-border bg-card relative mx-auto w-96 overflow-hidden rounded-2xl border shadow-lg">
 			<div className="space-y-4 p-5">
 				<div className="flex items-center gap-3">
 					<div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
