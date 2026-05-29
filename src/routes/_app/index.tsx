@@ -129,12 +129,12 @@ function MarqueeBanner() {
 	]
 
 	return (
-		<section className="flex flex-col items-center gap-3 overflow-hidden border-y-2 bg-white px-6 py-6 backdrop-blur-sm">
-			<p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
+		<section className="flex flex-col items-center overflow-hidden border-2 bg-white shadow-md backdrop-blur-sm">
+			<p className="text-muted-foreground/60 w-full pt-6 pb-4 text-center text-xs font-medium tracking-widest uppercase underline">
 				Trusted by Baltimore's Top Realtors
 			</p>
 			<div
-				className="relative w-full max-w-6xl overflow-hidden py-2"
+				className="relative w-full max-w-6xl overflow-hidden px-20 pb-4"
 				style={{
 					maskImage:
 						'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
