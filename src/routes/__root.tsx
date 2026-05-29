@@ -23,7 +23,7 @@ export const Route = createRootRouteWithContext<{
 		],
 		links: [
 			{ rel: 'stylesheet', href: appCss },
-			{ rel: 'icon', type: 'image/svg+xml', href: '/logomark-fullColor.svg' },
+			{ rel: 'icon', type: 'image/svg+xml', href: '/logomark-theme.svg' },
 		],
 	}),
 	beforeLoad: async ({ location }) => {

@@ -246,7 +246,7 @@ function IntroMockup() {
 						</div>
 					</div>
 					<div className="ml-auto">
-						<span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+						<span className="bg-accent/15 text-accent-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
 							94% Match
 						</span>
 					</div>

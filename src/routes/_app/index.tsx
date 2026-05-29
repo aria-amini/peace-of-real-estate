@@ -2,9 +2,6 @@ import { redirectAuthenticatedUsers } from '@/lib/auth-guards'
 import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 
-import { MatchCardModern } from '@/components/match-card-variants'
-import type { MatchDetails } from '@/components/match-card-variants'
-import { mockMatch2 } from '@/components/match-card-variants'
 import { GetMatchedDialog } from '@/components/get-matched-dialog'
 import { FeatureShowcase } from '@/components/feature-showcase'
 import { Button } from '@/components/ui/button'
@@ -42,46 +39,40 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="from-background via-background to-muted/30 relative flex w-full flex-1 flex-col items-center justify-start gap-8 overflow-hidden bg-gradient-to-b pt-10 pb-8 text-center md:pt-14 md:pb-12">
-			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
-				<TypographyH1 className="text-4xl md:text-5xl lg:text-6xl">
-					Find your perfect agent
-				</TypographyH1>
-				<TypographyP className="text-muted-foreground max-w-2xl text-lg leading-relaxed">
-					Take a simple quiz to find your perfect agent. Free services make
-					money by letting agents bid for your attention. We guarantee an equal
-					playing field, for the most expensive decision of your life.
-				</TypographyP>
-				<GetMatchedDialog>
-					<Button
-						size="lg"
-						className="mt-2 h-14 cursor-pointer rounded-full bg-[#FFB86A] px-10 text-lg font-semibold text-neutral-900 shadow-lg shadow-[#FFB86A]/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#FFB86A]/30"
-					>
-						Get Matched
-						<ArrowRight className="h-5 w-5" />
-					</Button>
-				</GetMatchedDialog>
-			</div>
+		<section className="bg-foreground-100 relative flex w-full flex-1 flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:pt-14 md:pb-12">
+			{/* Portrait background */}
+			<div
+				className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+				style={{
+					backgroundImage:
+						'url(https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80)',
+				}}
+			/>
+			{/* Subtle overlay: light at top for dark text, slightly stronger at bottom for cards */}
+			<div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/50" />
 
-			<div className="relative z-10 mt-4 w-full max-w-lg px-6 md:mt-6">
-				<FloatingMatchPreview />
+			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
+				<div className="bg-card border-border/50 flex flex-col items-center gap-5 rounded-3xl border p-8 shadow-sm md:p-10">
+					<TypographyH1 className="text-foreground text-4xl drop-shadow-sm md:text-5xl lg:text-6xl">
+						Find your perfect agent
+					</TypographyH1>
+					<TypographyP className="text-foreground/80 max-w-2xl text-lg leading-relaxed">
+						Take a simple quiz to find your perfect agent. Free services make
+						money by letting agents bid for your attention. We guarantee an
+						equal playing field, for the most expensive decision of your life.
+					</TypographyP>
+					<GetMatchedDialog>
+						<Button
+							size="lg"
+							className="bg-primary mt-2 h-14 cursor-pointer rounded-full px-10 text-lg font-semibold shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
+						>
+							Get Matched
+							<ArrowRight className="h-5 w-5" />
+						</Button>
+					</GetMatchedDialog>
+				</div>
 			</div>
 		</section>
-	)
-}
-
-function FloatingMatchPreview() {
-	return (
-		<div className="relative mx-auto w-full max-w-md">
-			{/* Back card for depth */}
-			<div className="absolute top-4 left-1/2 w-[92%] -translate-x-1/2 scale-[0.92] opacity-40 blur-[1px]">
-				<MatchCardModern match={mockMatch2} />
-			</div>
-			{/* Main card */}
-			<div className="relative shadow-2xl">
-				<MatchCardModern match={demoMatch} />
-			</div>
-		</div>
 	)
 }
 
@@ -103,34 +94,6 @@ function ComparisonSection() {
 			<ComparisonTable />
 		</section>
 	)
-}
-
-const demoMatch: MatchDetails = {
-	id: 'demo-1',
-	name: 'Sarah Chen',
-	role: 'agent',
-	agency: 'Horizon Realty Group',
-	location: 'Baltimore, MD',
-	zipCodes: ['21201', '21202'],
-	fitScore: 94,
-	status: 'new',
-	date: '2026-05-28',
-	scores: {
-		Communication: 4.9,
-		Transparency: 4.7,
-		'Local Knowledge': 4.8,
-		Negotiation: 4.6,
-	},
-	experience: '12 years',
-	specialties: ['First-time buyers', 'Waterfront', 'Investors'],
-	about:
-		'Sarah specializes in helping first-time buyers navigate the Baltimore market with calm, clear guidance. Known for transparent pricing and patient communication.',
-	stats: {
-		transactions: 142,
-		avgDays: 18,
-		satisfaction: 4.9,
-	},
-	isTopMatch: true,
 }
 
 function MarqueeBanner() {
@@ -166,7 +129,7 @@ function MarqueeBanner() {
 	]
 
 	return (
-		<section className="border-border flex flex-col items-center gap-3 overflow-hidden border-y px-6 py-6">
+		<section className="flex flex-col items-center gap-3 overflow-hidden border-2 border-y bg-white px-6 py-6 shadow-md">
 			<p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
 				Trusted by Baltimore's Top Realtors
 			</p>

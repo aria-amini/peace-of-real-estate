@@ -141,7 +141,7 @@ export function MatchCardModern({ match }: { match: MatchDetails }) {
 								<div className="flex items-center gap-2">
 									<h3 className="text-xl font-bold">{match.name}</h3>
 									{match.isTopMatch && (
-										<span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+										<span className="bg-accent/15 text-accent-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
 											<Star className="h-3 w-3 fill-current" />
 											Top
 										</span>
@@ -199,7 +199,7 @@ export function MatchCardModern({ match }: { match: MatchDetails }) {
 					<div>
 						<div className="text-muted-foreground mb-1 text-xs">Rating</div>
 						<div className="flex items-center gap-1 text-2xl font-bold">
-							<Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+							<Star className="fill-accent text-accent h-5 w-5" />
 							{match.stats?.satisfaction}
 						</div>
 					</div>

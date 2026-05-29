@@ -154,7 +154,7 @@ export function QuestionFlow({
 	}
 
 	const createSparks = (clientX: number, clientY: number) => {
-		const colors = ['#74D4FF', '#FFB86A', '#024A70', '#CAD5E2', '#4ADE80']
+		const colors = ['#2E4A6B', '#D4AF37', '#6B8FAE', '#C9A96E', '#8A9EAF']
 		const count = 10
 		const newSparks = Array.from({ length: count }, (_, i) => {
 			const angle = (i / count) * Math.PI * 2

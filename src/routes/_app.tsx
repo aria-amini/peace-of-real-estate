@@ -74,7 +74,7 @@ function AppShell() {
 						className="flex items-center gap-2"
 					>
 						<img
-							src="/logomark-fullColor.svg"
+							src="/logomark-theme.svg"
 							alt="Peace of Real Estate"
 							className="h-8 w-auto shrink-0"
 						/>
