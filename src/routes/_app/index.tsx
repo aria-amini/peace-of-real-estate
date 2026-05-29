@@ -42,7 +42,7 @@ function LandingPage() {
 function HeroSection() {
 	return (
 		<section className="bg-card relative flex h-[clamp(620px,calc(100svh-var(--app-header-height)-180px),760px)] w-full flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:h-[clamp(520px,calc(100svh-var(--app-header-height)-180px),760px)] md:pt-14 md:pb-12">
-			{/* Portrait background */}
+			{/* Background image */}
 			<div
 				className="absolute inset-0 bg-cover bg-center bg-no-repeat"
 				style={{
@@ -50,8 +50,8 @@ function HeroSection() {
 						'url(https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80)',
 				}}
 			/>
-			{/* Subtle overlay: light at top for dark text, stronger at bottom for depth */}
-			<div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/60" />
+			{/* Dark overlay for contrast */}
+			<div className="absolute inset-0 bg-linear-to-b from-slate-950/70 via-slate-950/50 to-slate-950/80" />
 
 			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
 				<div className="flex flex-col items-center gap-6 rounded-3xl border border-white/30 bg-white/70 p-10 shadow-xl backdrop-blur-md md:p-12">
