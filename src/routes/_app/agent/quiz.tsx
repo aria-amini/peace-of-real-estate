@@ -17,6 +17,7 @@ function AgentQuiz() {
 
 	return (
 		<QuestionFlow
+			roleLabel="Agent"
 			questions={agentQuestionFlow.questions}
 			initialAnswers={draft.answers}
 			initialQuestionIndex={getNextUnansweredQuestionIndex(
@@ -28,6 +29,7 @@ function AgentQuiz() {
 			}}
 			completeTo="/agent/profile"
 			completeLabel="Continue to Details"
+			headerInsideCard
 		/>
 	)
 }

@@ -12,8 +12,10 @@ function AgentSubscribe() {
 	return (
 		<FlowPageShell
 			title="Your profile is ready, Agent."
-			subtitle="Go live with Agent Concierge"
+			subtitle="Step 7"
 			icon={CreditCard}
+			roleLabel="Agent"
+			headerInsideCard
 		>
 			<h2 className="text-center text-3xl">
 				Pax has built your match profile.

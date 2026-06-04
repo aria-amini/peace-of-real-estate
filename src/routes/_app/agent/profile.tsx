@@ -81,6 +81,8 @@ function AgentProfile() {
 			title="Your Details"
 			subtitle="Step 3 — Registration profile"
 			icon={User}
+			roleLabel="Agent"
+			headerInsideCard
 		>
 			<p className="text-muted-foreground mb-8 text-sm leading-relaxed">
 				Complete your registration. All fields are optional for the prototype.

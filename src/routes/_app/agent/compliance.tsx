@@ -17,8 +17,10 @@ function AgentCompliance() {
 	return (
 		<FlowPageShell
 			title="Compliance Checklist"
-			subtitle="Both items must be completed"
+			subtitle="Step 4"
 			icon={ShieldCheck}
+			roleLabel="Agent"
+			headerInsideCard
 		>
 			<label className="flex items-start gap-3 border p-5 text-sm leading-relaxed">
 				<input
