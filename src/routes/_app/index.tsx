@@ -42,7 +42,7 @@ function LandingPage() {
 function HeroSection() {
 	return (
 		<section className="bg-card relative flex h-[clamp(620px,calc(100svh-var(--app-header-height)-180px),760px)] w-full flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:h-[clamp(520px,calc(100svh-var(--app-header-height)-180px),760px)] md:pt-14 md:pb-12">
-			{/* Portrait background */}
+			{/* Background image */}
 			<div
 				className="absolute inset-0 bg-cover bg-center bg-no-repeat"
 				style={{
@@ -50,8 +50,8 @@ function HeroSection() {
 						'url(https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80)',
 				}}
 			/>
-			{/* Subtle overlay: light at top for dark text, stronger at bottom for depth */}
-			<div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/60" />
+			{/* Dark overlay for contrast */}
+			<div className="absolute inset-0 bg-linear-to-b from-slate-950/70 via-slate-950/50 to-slate-950/80" />
 
 			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
 				<div className="flex flex-col items-center gap-6 rounded-3xl border border-white/30 bg-white/70 p-10 shadow-xl backdrop-blur-md md:p-12">
@@ -129,12 +129,12 @@ function MarqueeBanner() {
 	]
 
 	return (
-		<section className="flex flex-col items-center gap-3 overflow-hidden border-y-2 bg-white px-6 py-6 backdrop-blur-sm">
-			<p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
+		<section className="flex flex-col items-center overflow-hidden border-2 bg-white shadow-md backdrop-blur-sm">
+			<p className="text-muted-foreground/60 w-full pt-6 pb-4 text-center text-xs font-medium tracking-widest uppercase underline">
 				Trusted by Baltimore's Top Realtors
 			</p>
 			<div
-				className="relative w-full max-w-6xl overflow-hidden py-2"
+				className="relative w-full max-w-6xl overflow-hidden px-20 pb-4"
 				style={{
 					maskImage:
 						'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',

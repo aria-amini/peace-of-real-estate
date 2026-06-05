@@ -53,7 +53,7 @@ export function FlowPageShell({
 	)
 
 	return (
-		<div className="mx-auto w-full max-w-[40rem] px-6 pt-8 pb-16 md:pt-12 md:pb-24">
+		<div className="mx-auto w-full max-w-[40rem] px-3 pt-8 pb-16 sm:px-6 md:pt-12 md:pb-24">
 			{headerInsideCard ? null : header}
 
 			{card ? (

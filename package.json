@@ -26,7 +26,7 @@
 		"compose:reset": "docker compose down --volumes --remove-orphans",
 		"db:populate": "tsx scripts/populate-db.ts",
 		"db:migrate": "drizzle-kit migrate",
-		"prepare": "vp config"
+		"prepare": "vp config --hooks-only"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1034.0",

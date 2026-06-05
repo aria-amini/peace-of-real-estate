@@ -9,23 +9,14 @@ import {
 	BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { authClient } from '@/lib/auth-client'
-
-const buyerFlow = [
-	{ label: 'Basic Information', path: 'intro' },
-	{ label: 'Quiz', path: 'quiz' },
-	{ label: 'Extra Details', path: 'details' },
-	{ label: 'Summary', path: 'summary' },
-]
-
-const sellerFlow = [
-	{ label: 'Basic Information', path: 'intro' },
-	{ label: 'Quiz', path: 'quiz' },
-	{ label: 'Extra Details', path: 'details' },
-	{ label: 'Summary', path: 'summary' },
-]
+import {
+	getSignupFlowKindFromPath,
+	signupFlowSteps,
+	type SignupFlowStep,
+} from '@/lib/signup-flow'
 
 function getFlowProgress(
-	flow: typeof buyerFlow,
+	flow: SignupFlowStep[],
 	page: string,
 	basePath: string,
 ) {
@@ -40,18 +31,16 @@ function getFlowProgress(
 }
 
 function getBreadcrumbItems(pathname: string) {
-	if (!pathname.startsWith('/buyer/') && !pathname.startsWith('/seller/')) {
+	const flowKind = getSignupFlowKindFromPath(pathname)
+
+	if (!flowKind || !pathname.startsWith(`/${flowKind}/`)) {
 		return []
 	}
 
-	if (pathname.startsWith('/buyer/')) {
-		return getFlowProgress(buyerFlow, pathname.replace('/buyer/', ''), '/buyer')
-	}
-
 	return getFlowProgress(
-		sellerFlow,
-		pathname.replace('/seller/', ''),
-		'/seller',
+		signupFlowSteps[flowKind],
+		pathname.replace(`/${flowKind}/`, ''),
+		`/${flowKind}`,
 	)
 }
 

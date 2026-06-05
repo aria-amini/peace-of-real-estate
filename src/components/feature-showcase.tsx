@@ -32,9 +32,9 @@ const steps = [
 
 export function FeatureShowcase() {
 	return (
-		<section className="relative w-full overflow-hidden py-16 md:py-24">
-			<div className="mx-auto max-w-6xl px-6">
-				<div className="mb-16 text-center">
+		<section className="relative w-full overflow-hidden py-12 md:py-24">
+			<div className="mx-auto max-w-6xl px-4 sm:px-6">
+				<div className="mb-10 text-center md:mb-16">
 					<h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
 						How it works
 					</h2>
@@ -47,7 +47,7 @@ export function FeatureShowcase() {
 					{/* Vertical timeline line - desktop only */}
 					<div className="bg-border absolute top-0 bottom-0 left-1/2 hidden w-px -translate-x-1/2 md:block" />
 
-					<div className="space-y-16 md:space-y-24">
+					<div className="space-y-12 md:space-y-24">
 						{steps.map((step) => (
 							<FeatureStep key={step.id} step={step} />
 						))}
@@ -65,7 +65,7 @@ function FeatureStep({ step }: { step: (typeof steps)[number] }) {
 	return (
 		<div
 			className={cn(
-				'relative grid items-center gap-8 md:grid-cols-2 md:gap-16',
+				'relative grid items-center gap-6 md:grid-cols-2 md:gap-16',
 				isReversed && 'md:direction-rtl',
 			)}
 		>
@@ -126,7 +126,7 @@ function QuizMockup() {
 	const selected = 1
 
 	return (
-		<div className="border-border bg-card relative mx-auto w-96 overflow-hidden rounded-2xl border shadow-lg">
+		<div className="border-border bg-card relative mx-auto w-96 scale-[0.85] overflow-hidden rounded-2xl border shadow-lg sm:scale-100">
 			<div className="space-y-4 p-5">
 				{/* Progress bar */}
 				<div className="space-y-2">
@@ -194,7 +194,7 @@ function MatchesMockup() {
 
 function IntroMockup() {
 	return (
-		<div className="border-border bg-card relative mx-auto w-96 overflow-hidden rounded-2xl border shadow-lg">
+		<div className="border-border bg-card relative mx-auto w-96 scale-[0.85] overflow-hidden rounded-2xl border shadow-lg sm:scale-100">
 			<div className="space-y-4 p-5">
 				<div className="flex items-center gap-3">
 					<div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
+import { isSignupFlowPath } from '@/lib/signup-flow'
 import {
 	createFileRoute,
 	Link,
@@ -24,16 +25,6 @@ export const Route = createFileRoute('/_app')({
 	component: AppShell,
 })
 
-function isConsumerSignupFlowPath(pathname: string) {
-	return (
-		pathname === '/signup' ||
-		pathname === '/buyer' ||
-		pathname.startsWith('/buyer/') ||
-		pathname === '/seller' ||
-		pathname.startsWith('/seller/')
-	)
-}
-
 function AppShell() {
 	const { data: session } = authClient.useSession()
 	const navigate = useNavigate()
@@ -41,8 +32,7 @@ function AppShell() {
 	const currentPath = router.location.pathname
 	const [showLeaveFlowDialog, setShowLeaveFlowDialog] = useState(false)
 	const homeTarget = session ? '/match-activity' : '/'
-	const shouldConfirmHomeNavigation =
-		!session && isConsumerSignupFlowPath(currentPath)
+	const shouldConfirmHomeNavigation = !session && isSignupFlowPath(currentPath)
 	const userInitials = session?.user.name
 		? session.user.name
 				.split(/\s+/)
@@ -122,7 +112,7 @@ function AppShell() {
 				</div>
 			</footer>
 			<Dialog open={showLeaveFlowDialog} onOpenChange={setShowLeaveFlowDialog}>
-				<DialogContent>
+				<DialogContent className="max-w-sm">
 					<DialogHeader>
 						<DialogTitle>Leave signup?</DialogTitle>
 						<DialogDescription>

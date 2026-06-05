@@ -67,8 +67,8 @@ test('question flow auto-advances and completes on final answer', async () => {
 		'Need calm guidance.',
 	)
 	await expect
-		.element(page.getByRole('link', { name: /view matches/i }))
-		.not.toBeInTheDocument()
+		.element(page.getByRole('button', { name: /view matches/i }))
+		.toBeEnabled()
 	await expect
 		.element(page.getByRole('button', { name: /previous/i }))
 		.toBeEnabled()

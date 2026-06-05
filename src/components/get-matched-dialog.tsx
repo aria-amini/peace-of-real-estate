@@ -26,7 +26,6 @@ type FlowOption = {
 	flow: 'buyer' | 'seller'
 	description: string
 	icon: Icon
-	className: string
 }
 
 const options: FlowOption[] = [
@@ -35,14 +34,12 @@ const options: FlowOption[] = [
 		flow: 'buyer',
 		description: 'Buy a House',
 		icon: HouseLineIcon,
-		className: 'border-sky/50 bg-sky/90 text-foreground hover:bg-sky',
 	},
 	{
 		to: '/seller',
 		flow: 'seller',
 		description: 'Sell a House',
 		icon: TagIcon,
-		className: 'border-gold/50 bg-gold/90 text-foreground hover:bg-gold',
 	},
 ]
 
@@ -75,9 +72,9 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 			<DialogContent className="rounded-lg" showCloseButton={false}>
 				<DialogClose asChild>
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon-sm"
-						className="text-muted-foreground hover:bg-muted hover:text-foreground absolute top-4 right-4 rounded-md"
+						className="text-muted-foreground hover:bg-muted hover:text-foreground absolute top-4 right-4"
 					>
 						<X className="size-4" />
 						<span className="sr-only">Close</span>
@@ -92,14 +89,14 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 								left off or start over.
 							</DialogDescription>
 						</DialogHeader>
-						<DialogFooter className="gap-2 sm:justify-start">
-							<Button asChild>
+						<DialogFooter className="gap-2 sm:justify-center">
+							<Button asChild variant="secondary">
 								<Link to={resumeTo}>
 									Resume
 									<ArrowRight className="h-4 w-4" />
 								</Link>
 							</Button>
-							<Button asChild variant="outline">
+							<Button asChild variant="destructive">
 								<Link
 									to={startOverTo}
 									onClick={() => clearStoredConsumerDraftForFlow(savedFlowKind)}
@@ -120,12 +117,7 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 							{options.map((option) => {
 								const OptionIcon = option.icon
 								return (
-									<Button
-										className={option.className}
-										key={option.flow}
-										asChild
-										variant="default"
-									>
+									<Button key={option.flow} asChild variant="default">
 										<Link
 											to={option.to}
 											onClick={() =>

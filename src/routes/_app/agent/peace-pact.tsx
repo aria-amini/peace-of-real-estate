@@ -18,8 +18,10 @@ function AgentPeacePact() {
 	return (
 		<FlowPageShell
 			title="The Peace Pact"
-			subtitle="Agent acknowledgment"
+			subtitle="Step 5"
 			icon={ScrollText}
+			roleLabel="Agent"
+			headerInsideCard
 		>
 			<div className="max-h-80 overflow-y-auto border p-5 text-sm leading-relaxed">
 				<h2 className="mb-4 text-xl">THE PEACE PACT</h2>
@@ -83,7 +85,7 @@ function AgentPeacePact() {
 			<div className="mt-10 flex justify-end">
 				{canSign ? (
 					<Button asChild>
-						<Link to="/agent/deep-dive">
+						<Link to="/agent/chat">
 							Sign & Activate
 							<ArrowRight className="h-4 w-4" />
 						</Link>

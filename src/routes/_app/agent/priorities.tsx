@@ -22,8 +22,10 @@ function AgentPriorities() {
 	return (
 		<FlowPageShell
 			title="Tell Us About Yourself"
-			subtitle="Agent onboarding — profile, verification, Pax"
+			subtitle="Step 1"
 			icon={Shield}
+			roleLabel="Agent"
+			headerInsideCard
 		>
 			<p className="text-muted-foreground text-sm leading-relaxed">
 				Answer questions about your working style, communication preferences,

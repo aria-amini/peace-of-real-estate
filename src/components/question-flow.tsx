@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, ArrowRight, Check, ListChecks } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -276,6 +276,8 @@ export function QuestionFlow({
 
 	const isComplete = currentQuestion === questions.length - 1 && canProceed
 	const isLastQuestion = currentQuestion === questions.length - 1
+	const shouldShowFinalAction =
+		isOpenText || arrivalAnswersRef.current[question.id] !== undefined
 	const arrivalAnsweredQuestionCount = questions.filter(
 		(candidate) => arrivalAnswersRef.current[candidate.id] !== undefined,
 	).length
@@ -325,15 +327,17 @@ export function QuestionFlow({
 					)}
 
 					{isLastQuestion ? (
-						arrivalAnswersRef.current[question.id] !== undefined ? (
+						shouldShowFinalAction ? (
 							isComplete ? (
-								<Button asChild>
-									<Link to={completeTo}>
-										{completeLabel}
-										<ArrowRight className="h-4 w-4" />
-									</Link>
+								<Button
+									type="button"
+									onClick={handleComplete}
+									disabled={isTransitioning}
+								>
+									{completeLabel}
+									<ArrowRight className="h-4 w-4" />
 								</Button>
-							) : isMultipleChoice ? (
+							) : isMultipleChoice || isOpenText ? (
 								<Button type="button" disabled>
 									{completeLabel}
 									<ArrowRight className="h-4 w-4" />
