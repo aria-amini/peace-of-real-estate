@@ -18,7 +18,6 @@ type RouteTarget =
 	| { path?: undefined; name: string }
 
 type RouteTestOptions = RouteTarget & {
-	viewport?: Viewport
 	waitFor?: (screen: RenderResult) => HTMLElement | SVGElement | null
 	prepare?: (screen: RenderResult) => Promise<void> | void
 	screenshotTarget?: (screen: RenderResult) => HTMLElement | SVGElement
@@ -35,9 +34,8 @@ type Viewport = {
 	height: number
 }
 
-const defaultViewport: Viewport = { width: 1280, height: 720 }
+const desktopViewport: Viewport = { width: 1440, height: 900 }
 const protectedPaths = new Set(['/buyer/results', '/seller/results'])
-const screenshotStyleId = 'visual-route-screenshot-styles'
 
 const testSession = {
 	user: {
@@ -81,40 +79,7 @@ async function waitForLayout() {
 	await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
 }
 
-function applyScreenshotViewportStyles(viewportHeight: number) {
-	let style = document.getElementById(
-		screenshotStyleId,
-	) as HTMLStyleElement | null
-
-	if (!style) {
-		style = document.createElement('style')
-		style.id = screenshotStyleId
-		document.head.appendChild(style)
-	}
-
-	style.textContent = `
-		.min-h-main-content {
-			min-height: calc(${viewportHeight}px - var(--app-header-height));
-		}
-
-		.min-h-main-content:last-child {
-			min-height: calc(${viewportHeight}px - var(--app-header-height) - var(--app-footer-height));
-		}
-	`
-}
-
-function resizeBrowserFrame(height: number) {
-	const frame = window.frameElement as HTMLIFrameElement | null
-
-	if (frame) {
-		frame.style.width = `${document.body.offsetWidth}px`
-		frame.style.height = `${height}px`
-	}
-}
-
 function resetScreenshotHarness(viewport: Viewport) {
-	document.getElementById(screenshotStyleId)?.remove()
-
 	const frame = window.frameElement as HTMLIFrameElement | null
 
 	if (frame) {
@@ -122,28 +87,6 @@ function resetScreenshotHarness(viewport: Viewport) {
 		frame.style.height = `${viewport.height}px`
 	}
 }
-
-function getRouteScreenshotHeight(
-	container: HTMLElement,
-	viewportHeight: number,
-) {
-	const header = container.querySelector('header')
-	const main = container.querySelector('main')
-	const footer = container.querySelector('footer')
-
-	if (!main) return Math.max(viewportHeight, container.scrollHeight)
-
-	const headerHeight = header?.getBoundingClientRect().height ?? 0
-	const footerHeight = footer?.getBoundingClientRect().height ?? 0
-	const minimumMainHeight = Math.max(
-		0,
-		viewportHeight - headerHeight - footerHeight,
-	)
-	const mainHeight = Math.max(minimumMainHeight, main.scrollHeight)
-
-	return Math.ceil(headerHeight + mainHeight + footerHeight)
-}
-
 function createTestQueryClient() {
 	appQueryClient.clear()
 	return new QueryClient({
@@ -201,14 +144,14 @@ export async function expectRouteReady(options: RouteTestOptions) {
 }
 
 export async function expectRouteScreenshot(options: RouteTestOptions) {
-	const viewport = options.viewport ?? defaultViewport
+	const viewport = desktopViewport
 
 	await page.viewport(viewport.width, viewport.height)
 	resetScreenshotHarness(viewport)
 	const screen = await expectRouteReady(options)
 	screen.container.style.width = `${viewport.width}px`
-	screen.container.style.height = 'auto'
-	screen.container.style.overflow = 'visible'
+	screen.container.style.height = `${viewport.height}px`
+	screen.container.style.overflow = 'hidden'
 	await options.prepare?.(screen)
 
 	await document.fonts.ready
@@ -217,24 +160,6 @@ export async function expectRouteScreenshot(options: RouteTestOptions) {
 
 	const screenshotTarget =
 		options.screenshotTarget?.(screen) ?? screen.container
-
-	let screenshotHeight = getRouteScreenshotHeight(
-		screen.container,
-		viewport.height,
-	)
-
-	if (screenshotHeight > viewport.height) {
-		applyScreenshotViewportStyles(viewport.height)
-		await waitForLayout()
-		screenshotHeight = getRouteScreenshotHeight(
-			screen.container,
-			viewport.height,
-		)
-		resizeBrowserFrame(screenshotHeight)
-	}
-
-	screen.container.style.height = `${screenshotHeight}px`
-	screen.container.style.overflow = 'hidden'
 
 	await expect
 		.element(screenshotTarget)
