@@ -57,26 +57,6 @@ function HeroSection() {
 							<Link to="/agent">I'm an agent</Link>
 						</Button>
 					</div>
-
-					<div className="flex items-center gap-4 pt-1">
-						<div className="flex -space-x-2">
-							{['J', 'M', 'S'].map((initial) => (
-								<div
-									key={initial}
-									className="border-background bg-secondary text-secondary-foreground flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold shadow-sm"
-								>
-									{initial}
-								</div>
-							))}
-						</div>
-						<p className="text-muted-foreground text-sm">
-							Join{' '}
-							<span className="text-foreground font-semibold">
-								8,000+ buyers
-							</span>{' '}
-							who found their match
-						</p>
-					</div>
 				</div>
 
 				<div className="relative flex w-full items-end justify-center md:justify-end">
