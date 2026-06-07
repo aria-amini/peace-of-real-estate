@@ -32,6 +32,7 @@ function AppShell() {
 	const currentPath = router.location.pathname
 	const [showLeaveFlowDialog, setShowLeaveFlowDialog] = useState(false)
 	const homeTarget = session ? '/match-activity' : '/'
+	const isMarketingHome = !session && currentPath === '/'
 	const shouldConfirmHomeNavigation = !session && isSignupFlowPath(currentPath)
 	const userInitials = session?.user.name
 		? session.user.name
@@ -56,22 +57,26 @@ function AppShell() {
 
 	return (
 		<div className="flex min-h-dvh flex-col">
-			<header className="bg-background sticky top-0 z-50 h-(--app-header-height) border-b">
-				<div className="mx-auto flex h-full w-full items-center justify-between px-5">
+			<header
+				className={`${isMarketingHome ? 'bg-card' : 'bg-background border-b'} sticky top-0 z-50 h-(--app-header-height)`}
+			>
+				<div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-5 lg:px-10">
 					<Link
 						to={homeTarget}
 						onClick={handleHomeClick}
-						className="flex items-center gap-2"
+						className="flex items-center gap-2.5"
 					>
 						<img
 							src="/logomark-theme.svg"
 							alt="Peace of Real Estate"
-							className="h-8 w-auto shrink-0"
+							className="h-8 w-auto shrink-0 md:h-9"
 						/>
-						<span className="text-sm font-medium whitespace-nowrap">
+						<span className="font-heading text-sm font-semibold whitespace-nowrap md:text-lg">
 							Peace of Real-Estate
 						</span>
 					</Link>
+
+					{isMarketingHome ? <MarketingNav /> : null}
 
 					<div className="flex items-center gap-2">
 						{session ? (
@@ -101,7 +106,9 @@ function AppShell() {
 			<main className="flex w-full flex-1 flex-col items-center overflow-x-hidden">
 				<Outlet />
 			</main>
-			<footer className="h-(--app-footer-height) w-full border-t">
+			<footer
+				className={`${isMarketingHome ? 'bg-card' : 'bg-background'} h-(--app-footer-height) w-full border-t`}
+			>
 				<div className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-2 px-6 md:flex-row md:justify-between md:gap-3 md:px-10">
 					<p className="text-muted-foreground text-xs">
 						&copy; 2026 Peace of Real Estate. All rights reserved.
@@ -144,6 +151,28 @@ function AppShell() {
 				</DialogContent>
 			</Dialog>
 		</div>
+	)
+}
+
+function MarketingNav() {
+	return (
+		<nav className="hidden items-center gap-8 text-sm font-medium lg:flex">
+			<a href="#how-it-works" className="hover:text-primary transition-colors">
+				How it works
+			</a>
+			<a href="#buyers" className="hover:text-primary transition-colors">
+				For buyers
+			</a>
+			<Link to="/agent" className="hover:text-primary transition-colors">
+				For agents
+			</Link>
+			<a href="#buyers" className="hover:text-primary transition-colors">
+				Pricing
+			</a>
+			<a href="#buyers" className="hover:text-primary transition-colors">
+				Resources
+			</a>
+		</nav>
 	)
 }
 
