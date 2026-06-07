@@ -5,12 +5,13 @@ import { useQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import type { MatchStatus } from '@/components/match-card'
 import { MatchCardModern } from '@/components/match-card-variants'
 import { getAgentMatches } from '@/lib/agent-matches'
 import { redirectUnauthenticatedUsers, isUserPremium } from '@/lib/auth-guards'
 
-export const Route = createFileRoute('/_app/match-activity')({
+export const Route = createFileRoute('/_app/matches')({
 	beforeLoad: async () => {
 		await redirectUnauthenticatedUsers()
 		const premium = await isUserPremium()
@@ -18,12 +19,12 @@ export const Route = createFileRoute('/_app/match-activity')({
 			throw redirect({ to: '/upgrade' })
 		}
 	},
-	component: MatchActivity,
+	component: Matches,
 })
 
 // ─── Main Component ──────────────────────────────────────────────────
 
-function MatchActivity() {
+function Matches() {
 	const [filter, setFilter] = useState<MatchStatus | 'all'>('all')
 
 	const { data: matches = [], isLoading } = useQuery({
@@ -36,6 +37,10 @@ function MatchActivity() {
 
 	return (
 		<div className="mx-auto w-full max-w-2xl px-6 py-12">
+			<div className="mb-6 flex items-center gap-2 md:hidden">
+				<SidebarTrigger />
+				<span className="text-sm font-medium">Menu</span>
+			</div>
 			{/* Header */}
 			<div className="mb-10">
 				<div className="flex items-center gap-4">
@@ -43,7 +48,6 @@ function MatchActivity() {
 						<ArrowRightLeft className="h-6 w-6" />
 					</div>
 					<div>
-						<div className="text-muted-foreground mb-1 text-sm">Dashboard</div>
 						<h1 className="text-3xl">Match Activity</h1>
 					</div>
 				</div>

@@ -10,7 +10,7 @@ const pages = [
 	'/agent/priorities',
 	'/agent/quiz',
 	'/agent/profile',
-	'/match-activity',
+	'/matches',
 	'/login',
 	'/signup',
 	'/beta',

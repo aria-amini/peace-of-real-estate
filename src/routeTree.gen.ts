@@ -16,7 +16,7 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
 import { Route as AppUpgradeRouteImport } from './routes/_app/upgrade'
 import { Route as AppSignupRouteImport } from './routes/_app/signup'
-import { Route as AppMatchActivityRouteImport } from './routes/_app/match-activity'
+import { Route as AppMatchesRouteImport } from './routes/_app/matches'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
 import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as AppSellerIndexRouteImport } from './routes/_app/seller/index'
@@ -81,9 +81,9 @@ const AppSignupRoute = AppSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMatchActivityRoute = AppMatchActivityRouteImport.update({
-  id: '/match-activity',
-  path: '/match-activity',
+const AppMatchesRoute = AppMatchesRouteImport.update({
+  id: '/matches',
+  path: '/matches',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLoginRoute = AppLoginRouteImport.update({
@@ -237,7 +237,7 @@ export interface FileRoutesByFullPath {
   '/beta': typeof BetaRoute
   '/account': typeof AppAccountRoute
   '/login': typeof AppLoginRoute
-  '/match-activity': typeof AppMatchActivityRoute
+  '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
   '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
@@ -274,7 +274,7 @@ export interface FileRoutesByTo {
   '/beta': typeof BetaRoute
   '/account': typeof AppAccountRoute
   '/login': typeof AppLoginRoute
-  '/match-activity': typeof AppMatchActivityRoute
+  '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
   '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
@@ -314,7 +314,7 @@ export interface FileRoutesById {
   '/beta': typeof BetaRoute
   '/_app/account': typeof AppAccountRoute
   '/_app/login': typeof AppLoginRoute
-  '/_app/match-activity': typeof AppMatchActivityRoute
+  '/_app/matches': typeof AppMatchesRoute
   '/_app/signup': typeof AppSignupRoute
   '/_app/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
@@ -355,7 +355,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/account'
     | '/login'
-    | '/match-activity'
+    | '/matches'
     | '/signup'
     | '/upgrade'
     | '/api/agent-matches'
@@ -392,7 +392,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/account'
     | '/login'
-    | '/match-activity'
+    | '/matches'
     | '/signup'
     | '/upgrade'
     | '/api/agent-matches'
@@ -431,7 +431,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/_app/account'
     | '/_app/login'
-    | '/_app/match-activity'
+    | '/_app/matches'
     | '/_app/signup'
     | '/_app/upgrade'
     | '/api/agent-matches'
@@ -528,11 +528,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSignupRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/match-activity': {
-      id: '/_app/match-activity'
-      path: '/match-activity'
-      fullPath: '/match-activity'
-      preLoaderRoute: typeof AppMatchActivityRouteImport
+    '/_app/matches': {
+      id: '/_app/matches'
+      path: '/matches'
+      fullPath: '/matches'
+      preLoaderRoute: typeof AppMatchesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/login': {
@@ -744,7 +744,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
   AppLoginRoute: typeof AppLoginRoute
-  AppMatchActivityRoute: typeof AppMatchActivityRoute
+  AppMatchesRoute: typeof AppMatchesRoute
   AppSignupRoute: typeof AppSignupRoute
   AppUpgradeRoute: typeof AppUpgradeRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -776,7 +776,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
   AppLoginRoute: AppLoginRoute,
-  AppMatchActivityRoute: AppMatchActivityRoute,
+  AppMatchesRoute: AppMatchesRoute,
   AppSignupRoute: AppSignupRoute,
   AppUpgradeRoute: AppUpgradeRoute,
   AppIndexRoute: AppIndexRoute,

@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_app/seller/summary')({
 	beforeLoad: async () => {
 		const premium = await isUserPremium()
 		if (premium) {
-			throw redirect({ to: '/match-activity' })
+			throw redirect({ to: '/matches' })
 		}
 	},
 	component: () => <ConsumerSummary config={sellerConfig} />,

@@ -37,7 +37,7 @@ function GoogleIcon({ className }: { className?: string }) {
 
 type AuthMode = 'sign-in' | 'sign-up'
 
-const DEFAULT_POST_AUTH_REDIRECT = '/match-activity'
+const DEFAULT_POST_AUTH_REDIRECT = '/matches'
 
 export function AuthCard({
 	mode,

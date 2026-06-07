@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import { categoryWeightOptions } from '@/lib/category-weight-options'
 
 import { createFileRoute, redirect } from '@tanstack/react-router'
@@ -202,6 +203,10 @@ function Account() {
 
 	return (
 		<div className="mx-auto w-full max-w-3xl px-6 py-12">
+			<div className="mb-6 flex items-center gap-2 md:hidden">
+				<SidebarTrigger />
+				<span className="text-sm font-medium">Account menu</span>
+			</div>
 			<div className="space-y-6">
 				{/* Combined Profile Bar */}
 				<Card className="rounded-none border bg-transparent p-8 py-8 shadow-none ring-0">
@@ -384,8 +389,8 @@ function Account() {
 }
 
 /* ───────────────────────────────────────────────
-   Edit Weights Modal
-   ─────────────────────────────────────────────── */
+	 Edit Weights Modal
+	 ─────────────────────────────────────────────── */
 
 function EditWeightsModal({
 	weights,
@@ -429,8 +434,8 @@ function EditWeightsModal({
 }
 
 /* ───────────────────────────────────────────────
-   Collapsible Questionnaire Editor
-   ─────────────────────────────────────────────── */
+	 Collapsible Questionnaire Editor
+	 ─────────────────────────────────────────────── */
 
 function CollapsibleQuestionnaire({
 	questions,
@@ -644,8 +649,8 @@ function CollapsibleQuestionnaire({
 }
 
 /* ───────────────────────────────────────────────
-   Edit Agent Profile Modal
-   ─────────────────────────────────────────────── */
+	 Edit Agent Profile Modal
+	 ─────────────────────────────────────────────── */
 
 function EditAgentProfileModal({
 	profile,
@@ -775,12 +780,12 @@ function EditAgentProfileModal({
 }
 
 /* ───────────────────────────────────────────────
-   Account Dropdown Menu
-   ─────────────────────────────────────────────── */
+	 Account Dropdown Menu
+	 ─────────────────────────────────────────────── */
 
 /* ───────────────────────────────────────────────
-   Reusable Modal Component
-   ─────────────────────────────────────────────── */
+	 Reusable Modal Component
+	 ─────────────────────────────────────────────── */
 
 function Modal({
 	children,

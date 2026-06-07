@@ -49,12 +49,12 @@ export async function redirectAuthenticatedUsers() {
 	const session = await getCurrentSession()
 
 	if (session) {
-		throw redirect({ to: '/match-activity' })
+		throw redirect({ to: '/matches' })
 	}
 }
 
 export async function redirectUnauthenticatedUsers({
-	redirectTo = '/match-activity',
+	redirectTo = '/matches',
 }: {
 	redirectTo?: string
 } = {}) {
