@@ -73,18 +73,26 @@ function AppShell() {
 						</span>
 					</Link>
 
-					<div className="flex items-center gap-1">
+					<div className="flex items-center gap-2">
 						{session ? (
 							<UserDropdown userInitials={userInitials} />
 						) : (
-							<Link
-								to="/login"
-								search={{ redirect: currentPath }}
-								className="hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 inline-flex h-9 items-center justify-center gap-1 rounded-4xl px-4 text-sm font-medium whitespace-nowrap transition-colors"
-							>
-								Sign in
-								<User className="h-4 w-4" />
-							</Link>
+							<>
+								<Link
+									to="/login"
+									search={{ redirect: currentPath }}
+									className="hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+								>
+									Log in
+								</Link>
+								<Link
+									to="/login"
+									search={{ redirect: currentPath }}
+									className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+								>
+									Get started
+								</Link>
+							</>
 						)}
 					</div>
 				</div>

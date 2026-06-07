@@ -78,7 +78,7 @@
 	   Deep navy (trust, authority) + sky blue (openness, clarity) + gold (premium value).
 	   Signifies: institutional trust with radical transparency. No hidden pay-to-win.
 	*/
-	--radius: 1rem;
+	--radius: 0.5rem;
 
 	/* Surface: cool, crisp white */
 	--background: oklch(0.985 0.005 250);
