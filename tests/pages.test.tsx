@@ -32,7 +32,9 @@ test('home get matched dialog matches desktop screenshot', async () => {
 		path: '/',
 		name: 'home-get-matched-dialog',
 		prepare: async () => {
-			await userEvent.click(page.getByRole('button', { name: /try for free/i }))
+			await userEvent.click(
+				page.getByRole('button', { name: /I'm a buyer\/seller/i }),
+			)
 			await expect.element(page.getByRole('dialog')).toBeVisible()
 		},
 		screenshotTarget: () => document.body,

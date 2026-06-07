@@ -45,7 +45,7 @@ function HeroSection() {
 								size="lg"
 								className="h-12 cursor-pointer rounded-xl px-8 text-base font-semibold shadow-md"
 							>
-								I'm looking to buy
+								I'm a buyer/seller
 							</Button>
 						</GetMatchedDialog>
 						<Button
