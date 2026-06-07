@@ -95,23 +95,22 @@ function HeroSection() {
 const howItWorksSteps = [
 	{
 		id: 1,
-		title: 'Tell us what you need',
+		title: 'Tell us what matters',
 		description:
-			'Share a few details about your goals, preferences, and location.',
+			'Answer a quick questionnaire about your needs, style, and deal-breakers.',
 		image: '/step1.png',
 	},
 	{
 		id: 2,
-		title: 'We find your match',
+		title: 'See your verified matches',
 		description:
-			'Our smart matching algorithm connects you with the best-fit agents.',
+			'Get ranked agent matches with a detailed fit rationale — no guessing.',
 		image: '/step2.png',
 	},
 	{
 		id: 3,
-		title: 'Connect & move forward',
-		description:
-			'Chat, interview, and choose the agent you feel most comfortable with.',
+		title: 'Request your intro',
+		description: 'Choose your agent and we handle the warm introduction. Done.',
 		image: '/step3.png',
 	},
 ]
