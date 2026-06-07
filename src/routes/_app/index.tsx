@@ -158,10 +158,11 @@ function HowItWorksSection() {
 }
 
 const featureItems = [
-	'Personalized matches based on your unique needs',
-	'Access to top-performing agents in your area',
-	'No pressure. No obligation.',
-	'100% free for buyers',
+	'Matched to agents based on your communication style, price range, goals, and needs',
+	'Peace Pact agents who commit to transparency and putting your interests first',
+	'Clear fit rationale before you commit, so you can choose with confidence',
+	'Commission coaching, tips, and scripts to help you ask the right questions upfront',
+	'Backup matches ready if your first pick is not available',
 ]
 
 function FeaturesSection() {
