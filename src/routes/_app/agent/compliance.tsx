@@ -4,6 +4,8 @@ import { useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 export const Route = createFileRoute('/_app/agent/compliance')({
 	component: AgentCompliance,
@@ -22,7 +24,7 @@ function AgentCompliance() {
 			roleLabel="Agent"
 			headerInsideCard
 		>
-			<label className="flex items-start gap-3 border p-5 text-sm leading-relaxed">
+			<Label className="flex items-start gap-3 border p-5 text-sm leading-relaxed">
 				<input
 					type="checkbox"
 					checked={attested}
@@ -36,32 +38,27 @@ function AgentCompliance() {
 					that I have not previously had a real estate license suspended,
 					revoked, or subject to formal disciplinary action.
 				</span>
-			</label>
+			</Label>
 
 			<div className="mt-8">
 				<div className="mb-3 text-sm font-medium">
 					Errors and Omissions (E&O) Insurance
 				</div>
-				<div className="space-y-3">
+				<RadioGroup value={insurance} onValueChange={setInsurance}>
 					{[
 						'Yes, I carry my own E&O policy',
 						'Yes, I am covered through my brokerage',
 						'No',
 					].map((option) => (
-						<label
+						<Label
 							key={option}
 							className="flex items-center gap-3 border p-4 text-sm"
 						>
-							<input
-								type="radio"
-								name="insurance"
-								checked={insurance === option}
-								onChange={() => setInsurance(option)}
-							/>
+							<RadioGroupItem value={option} />
 							{option}
-						</label>
+						</Label>
 					))}
-				</div>
+				</RadioGroup>
 			</div>
 
 			<div className="mt-10 flex justify-end">

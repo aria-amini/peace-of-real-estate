@@ -4,7 +4,9 @@ import { useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export const Route = createFileRoute('/_app/agent/peace-pact')({
 	component: AgentPeacePact,
@@ -23,7 +25,7 @@ function AgentPeacePact() {
 			roleLabel="Agent"
 			headerInsideCard
 		>
-			<div className="max-h-80 overflow-y-auto border p-5 text-sm leading-relaxed">
+			<Card className="max-h-80 overflow-y-auto rounded-none border bg-transparent p-5 py-5 text-sm leading-relaxed shadow-none ring-0">
 				<h2 className="mb-4 text-xl">THE PEACE PACT</h2>
 				<p>
 					This Commitment reinforces ethical, transparent, and consumer-first
@@ -51,9 +53,9 @@ function AgentPeacePact() {
 					Peace Pact in alignment with the NAR Code of Ethics, applicable
 					Consumer Guides, and governing real estate laws and regulations.
 				</p>
-			</div>
+			</Card>
 
-			<label className="mt-6 flex items-start gap-3 text-sm leading-relaxed">
+			<Label className="mt-6 flex items-start gap-3 text-sm leading-relaxed">
 				<input
 					type="checkbox"
 					checked={agreed}
@@ -64,11 +66,11 @@ function AgentPeacePact() {
 					I agree to uphold the Peace Pact in alignment with the NAR Code of
 					Ethics and applicable regulations.
 				</span>
-			</label>
+			</Label>
 
-			<label
+			<Label
 				htmlFor="agent-signature"
-				className="mt-6 block space-y-2 text-sm font-medium"
+				className="mt-6 flex-col items-start gap-2 text-sm font-medium"
 			>
 				Agent Signature (type full name)
 				<Input
@@ -76,7 +78,7 @@ function AgentPeacePact() {
 					value={signature}
 					onChange={(event) => setSignature(event.target.value)}
 				/>
-			</label>
+			</Label>
 			<p className="text-muted-foreground mt-3 text-xs">
 				Date: 5/5/2026. By signing, you confirm you will honor the Peace Pact
 				for all client engagements through PRE.

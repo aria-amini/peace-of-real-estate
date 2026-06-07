@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
 	redirectUnauthenticatedUsers,
 	isUserPremium,
@@ -88,7 +89,7 @@ function UpgradePage() {
 		<FlowPageShell title="Unlock Premium Access" icon={CreditCard} card={false}>
 			<div className="mx-auto max-w-xl space-y-10">
 				{/* Pricing Header */}
-				<div className="border p-8 text-center">
+				<Card className="rounded-none border bg-transparent p-8 py-8 text-center shadow-none ring-0">
 					<div className="text-muted-foreground mb-2 text-sm tracking-wider uppercase">
 						Unlock Matches
 					</div>
@@ -99,7 +100,7 @@ function UpgradePage() {
 					<p className="text-muted-foreground mt-2 text-sm">
 						One-time fee · No subscription · 100% refundable if no match
 					</p>
-				</div>
+				</Card>
 
 				{/* Feature List */}
 				<div className="space-y-4">

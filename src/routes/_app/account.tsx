@@ -19,7 +19,9 @@ import {
 import { buyerQuestionFlow, agentQuestionFlow } from '@/lib/questions'
 import { CategoryWeightSelector } from '@/components/category-weight-selector'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { categoryWeightOptions } from '@/lib/category-weight-options'
 
 import { createFileRoute, redirect } from '@tanstack/react-router'
@@ -202,7 +204,7 @@ function Account() {
 		<div className="mx-auto w-full max-w-3xl px-6 py-12">
 			<div className="space-y-6">
 				{/* Combined Profile Bar */}
-				<section className="border p-8">
+				<Card className="rounded-none border bg-transparent p-8 py-8 shadow-none ring-0">
 					<div className="mb-6 flex items-center gap-4">
 						<div className="border-border bg-secondary flex h-12 w-12 items-center justify-center border">
 							<User className="h-6 w-6" />
@@ -269,10 +271,10 @@ function Account() {
 							</div>
 						</div>
 					)}
-				</section>
+				</Card>
 
 				{/* Match Preferences Card */}
-				<section className="border p-8">
+				<Card className="rounded-none border bg-transparent p-8 py-8 shadow-none ring-0">
 					<div className="mb-6 flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<SlidersHorizontal className="text-muted-foreground h-5 w-5" />
@@ -285,14 +287,16 @@ function Account() {
 								</p>
 							</div>
 						</div>
-						<button
+						<Button
 							type="button"
+							variant="ghost"
+							size="sm"
 							onClick={() => setActiveModal('weights')}
-							className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
+							className="text-muted-foreground hover:text-foreground gap-1"
 						>
 							<Pencil className="h-3.5 w-3.5" />
 							Edit
-						</button>
+						</Button>
 					</div>
 
 					<div className="space-y-4">
@@ -331,10 +335,10 @@ function Account() {
 							)
 						})}
 					</div>
-				</section>
+				</Card>
 
 				{/* Questionnaire Card */}
-				<section className="border p-8">
+				<Card className="rounded-none border bg-transparent p-8 py-8 shadow-none ring-0">
 					<div className="mb-6 flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<ListChecks className="text-muted-foreground h-5 w-5" />
@@ -354,7 +358,7 @@ function Account() {
 						answers={answers}
 						onSave={handleAnswersUpdate}
 					/>
-				</section>
+				</Card>
 			</div>
 
 			{/* Edit Weights Modal */}
@@ -492,17 +496,18 @@ function CollapsibleQuestionnaire({
 					const isCategoryOpen = openCategory === category
 
 					return (
-						<div
+						<Card
 							key={category}
-							className="border-border w-full overflow-hidden rounded-lg border"
+							className="border-border w-full gap-0 overflow-hidden rounded-lg border py-0 shadow-none ring-0"
 						>
-							<button
+							<Button
 								type="button"
+								variant="ghost"
 								onClick={() => {
 									setOpenCategory(isCategoryOpen ? null : category)
 									setOpenId(null)
 								}}
-								className="flex w-full items-center justify-between px-4 py-3 text-left text-sm"
+								className="h-auto w-full justify-between rounded-none px-4 py-3 text-left text-sm"
 							>
 								<span>{category}</span>
 								<div className="flex items-center gap-2">
@@ -515,7 +520,7 @@ function CollapsibleQuestionnaire({
 										<ChevronDown className="text-muted-foreground h-4 w-4 shrink-0" />
 									)}
 								</div>
-							</button>
+							</Button>
 
 							{isCategoryOpen && (
 								<div className="border-t px-4 py-3">
@@ -528,10 +533,11 @@ function CollapsibleQuestionnaire({
 												key={q.id}
 												className="border-border w-full overflow-hidden border-b last:border-b-0"
 											>
-												<button
+												<Button
 													type="button"
+													variant="ghost"
 													onClick={() => setOpenId(isOpen ? null : q.id)}
-													className="hover:bg-secondary/50 flex w-full items-center justify-between px-4 py-3 text-left transition-colors"
+													className="hover:bg-secondary/50 h-auto w-full justify-between rounded-none px-4 py-3 text-left whitespace-normal"
 												>
 													<div className="min-w-0 flex-1">
 														<p className="text-muted-foreground text-xs">
@@ -546,16 +552,17 @@ function CollapsibleQuestionnaire({
 													) : (
 														<ChevronDown className="text-muted-foreground ml-2 h-4 w-4 shrink-0" />
 													)}
-												</button>
+												</Button>
 
 												{isOpen && (
 													<div className="bg-secondary/20 w-full border-t px-4 py-4">
 														<div className="space-y-2">
 															{q.options?.map((optLabel, optIdx) => {
 																return (
-																	<button
+																	<Button
 																		key={optIdx}
 																		type="button"
+																		variant="ghost"
 																		onClick={() => {
 																			if (q.selection?.type === 'multiple') {
 																				const arr = Array.isArray(currentValue)
@@ -571,10 +578,10 @@ function CollapsibleQuestionnaire({
 																				handleSelect(q.id, optIdx)
 																			}
 																		}}
-																		className="w-full px-4 py-3 text-left text-sm"
+																		className="h-auto w-full justify-start rounded-none px-4 py-3 text-left text-sm whitespace-normal"
 																	>
 																		{optLabel}
-																	</button>
+																	</Button>
 																)
 															})}
 														</div>
@@ -585,7 +592,7 @@ function CollapsibleQuestionnaire({
 									})}
 								</div>
 							)}
-						</div>
+						</Card>
 					)
 				})}
 			</div>
@@ -677,13 +684,13 @@ function EditAgentProfileModal({
 		<Modal onClose={onClose} title="Edit Agent Profile">
 			<div className="space-y-8">
 				<div className="space-y-3">
-					<label
+					<Label
 						htmlFor="experience"
 						className="flex items-center gap-2 text-sm font-medium"
 					>
 						<Award className="h-4 w-4" />
 						Years of Experience
-					</label>
+					</Label>
 					<select
 						id="experience"
 						value={formData.experience}
@@ -706,13 +713,13 @@ function EditAgentProfileModal({
 				<div className="hairline" />
 
 				<div className="space-y-3">
-					<label
+					<Label
 						htmlFor="zipCodes"
 						className="flex items-center gap-2 text-sm font-medium"
 					>
 						<MapPin className="h-4 w-4" />
 						Zip Codes Served
-					</label>
+					</Label>
 					<Input
 						id="zipCodes"
 						type="text"
@@ -790,19 +797,21 @@ function Modal({
 }) {
 	return (
 		<div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pt-16 backdrop-blur-sm">
-			<div
+			<Card
 				className={`bg-card border-border relative w-full border shadow-2xl ${
 					large ? 'max-w-3xl' : 'max-w-xl'
 				}`}
 			>
-				<button
+				<Button
 					type="button"
+					variant="ghost"
+					size="icon-sm"
 					onClick={onClose}
-					className="text-muted-foreground hover:text-foreground absolute top-4 right-4 transition-colors"
+					className="text-muted-foreground hover:text-foreground absolute top-4 right-4"
 					aria-label="Close"
 				>
 					<X className="h-5 w-5" />
-				</button>
+				</Button>
 				<div className="p-8">
 					<div className="mb-6">
 						<h2 className="text-xl">{title}</h2>
@@ -812,7 +821,7 @@ function Modal({
 					</div>
 					{children}
 				</div>
-			</div>
+			</Card>
 		</div>
 	)
 }

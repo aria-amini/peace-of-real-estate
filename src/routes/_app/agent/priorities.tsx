@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
 	getStoredIntakeDraftForRole,
 	saveStoredIntakeDraftForRole,
@@ -48,7 +49,7 @@ function AgentPriorities() {
 				))}
 			</div>
 
-			<div className="mt-8 border p-5">
+			<Card className="mt-8 rounded-none border bg-transparent p-5 py-5 shadow-none ring-0">
 				<h2 className="text-xl">Here's how it works — and what it costs.</h2>
 				<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
 					PRE connects agents with pre-matched consumers who already fit your
@@ -68,7 +69,7 @@ function AgentPriorities() {
 						</div>
 					))}
 				</div>
-			</div>
+			</Card>
 
 			<div className="mt-10 flex justify-end">
 				{representation ? (

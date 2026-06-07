@@ -4,7 +4,9 @@ import { useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
 	getStoredIntakeDraftForRole,
@@ -92,9 +94,9 @@ function AgentProfile() {
 
 			<div className="grid gap-4 sm:grid-cols-2">
 				{textFields.map(([field, label]) => (
-					<label
+					<Label
 						key={field}
-						className="text-muted-foreground space-y-2 text-xs font-medium tracking-[0.14em] uppercase"
+						className="text-muted-foreground flex-col items-start gap-2 text-xs font-medium tracking-[0.14em] uppercase"
 					>
 						{label}
 						<Input
@@ -102,11 +104,11 @@ function AgentProfile() {
 							onChange={(event) => updateField(field, event.target.value)}
 							className="tracking-normal normal-case"
 						/>
-					</label>
+					</Label>
 				))}
 			</div>
 
-			<label className="text-muted-foreground mt-6 block space-y-2 text-xs font-medium tracking-[0.14em] uppercase">
+			<Label className="text-muted-foreground mt-6 flex-col items-start gap-2 text-xs font-medium tracking-[0.14em] uppercase">
 				Full or part time
 				<select
 					value={formData.employmentStatus ?? ''}
@@ -119,11 +121,11 @@ function AgentProfile() {
 					<option value="Full time">Full time</option>
 					<option value="Part time">Part time</option>
 				</select>
-			</label>
+			</Label>
 
-			<label
+			<Label
 				htmlFor="client-first-terms"
-				className="text-muted-foreground mt-6 block space-y-2 text-xs font-medium tracking-[0.14em] uppercase"
+				className="text-muted-foreground mt-6 flex-col items-start gap-2 text-xs font-medium tracking-[0.14em] uppercase"
 			>
 				What contract terms do you offer that put clients first?
 				<Textarea
@@ -136,9 +138,9 @@ function AgentProfile() {
 					placeholder="Shorter commitments, easy exit clauses, communication guarantees, or anything else in your agreements."
 					className="tracking-normal normal-case"
 				/>
-			</label>
+			</Label>
 
-			<div className="mt-6 border p-5">
+			<Card className="mt-6 gap-4 rounded-none border bg-transparent p-5 py-5 shadow-none ring-0">
 				<div className="flex items-start gap-3">
 					<input
 						id="use-pax-writer"
@@ -149,11 +151,11 @@ function AgentProfile() {
 						}
 						className="mt-1"
 					/>
-					<label htmlFor="use-pax-writer" className="text-sm leading-relaxed">
+					<Label htmlFor="use-pax-writer" className="text-sm leading-relaxed">
 						Use Pax AI writer for my value proposition. After you complete your
 						profile Pax will get to know you through a short conversation and
 						write the copy shown on your matched agent card.
-					</label>
+					</Label>
 				</div>
 				<Textarea
 					value={formData.valueProposition ?? ''}
@@ -162,9 +164,8 @@ function AgentProfile() {
 					}
 					rows={5}
 					placeholder="Already have one? Paste your value proposition here."
-					className="mt-4"
 				/>
-			</div>
+			</Card>
 
 			<div className="mt-10 flex justify-end">
 				<Button asChild>

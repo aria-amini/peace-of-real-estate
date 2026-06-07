@@ -45,6 +45,7 @@ import {
 	FieldSet,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
 	Popover,
 	PopoverContent,
@@ -598,12 +599,12 @@ export function ConsumerDetails({ config }: { config: ConsumerFlowConfig }) {
 				</div>
 
 				<div className="border-t pt-8">
-					<label
+					<Label
 						htmlFor={`${config.kind}-details`}
 						className="font-heading text-xl leading-relaxed font-normal"
 					>
 						Additional details
-					</label>
+					</Label>
 					<p className="text-muted-foreground mt-2 text-sm">
 						Optional — the more you share, the better we can match you.
 					</p>
@@ -701,7 +702,7 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 					))}
 				</div>
 
-				<div className="bg-muted/30 flex flex-col gap-3 rounded-2xl border p-6 sm:flex-row sm:items-center sm:justify-between">
+				<Card className="bg-muted/30 flex flex-col gap-3 rounded-2xl border p-6 py-6 shadow-none ring-0 sm:flex-row sm:items-center sm:justify-between">
 					<div>
 						<p className="font-medium">
 							{isUnlocked
@@ -742,7 +743,7 @@ export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
 							</Link>
 						)}
 					</Button>
-				</div>
+				</Card>
 			</div>
 		</FlowPageShell>
 	)
@@ -795,13 +796,13 @@ function LockedMatchPreview({
 						</div>
 					</div>
 				) : (
-					<div className="text-muted-foreground mt-5 flex items-center gap-3 rounded-lg border border-dashed p-4 text-sm">
+					<Card className="text-muted-foreground mt-5 flex-row items-center gap-3 rounded-lg border border-dashed bg-transparent p-4 py-4 text-sm shadow-none ring-0">
 						<Lock className="h-4 w-4 shrink-0" />
 						<span>
 							Full profile, fit breakdown, and contact details unlock after
 							sign-up
 						</span>
-					</div>
+					</Card>
 				)}
 			</CardContent>
 		</Card>
@@ -866,7 +867,7 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 	return (
 		<FlowPageShell title="Payment" icon={CreditCard} roleLabel={config.label}>
 			<div className="space-y-8">
-				<div className="bg-muted/30 rounded-lg border p-6 text-center">
+				<Card className="bg-muted/30 rounded-lg border p-6 py-6 text-center shadow-none ring-0">
 					<div className="text-muted-foreground mb-2 text-sm">
 						UNLOCK MATCHES
 					</div>
@@ -877,13 +878,13 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 					<p className="text-muted-foreground mt-2 text-sm">
 						One-time fee · No subscription · 100% refundable if no match
 					</p>
-				</div>
+				</Card>
 
 				<div className="space-y-4">
 					<div>
-						<label htmlFor="card-number" className="text-sm font-medium">
+						<Label htmlFor="card-number" className="text-sm font-medium">
 							Card Number
-						</label>
+						</Label>
 						<Input
 							id="card-number"
 							placeholder="4242 4242 4242 4242"
@@ -893,9 +894,9 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 					</div>
 					<div className="grid grid-cols-2 gap-4">
 						<div>
-							<label htmlFor="card-expiry" className="text-sm font-medium">
+							<Label htmlFor="card-expiry" className="text-sm font-medium">
 								Expiry
-							</label>
+							</Label>
 							<Input
 								id="card-expiry"
 								placeholder="MM/YY"
@@ -904,9 +905,9 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 							/>
 						</div>
 						<div>
-							<label htmlFor="card-cvc" className="text-sm font-medium">
+							<Label htmlFor="card-cvc" className="text-sm font-medium">
 								CVC
-							</label>
+							</Label>
 							<Input
 								id="card-cvc"
 								placeholder="123"
@@ -916,9 +917,9 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 						</div>
 					</div>
 					<div>
-						<label htmlFor="card-name" className="text-sm font-medium">
+						<Label htmlFor="card-name" className="text-sm font-medium">
 							Name on Card
-						</label>
+						</Label>
 						<Input
 							id="card-name"
 							placeholder="Jordan Lee"
@@ -962,10 +963,10 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 				))}
 			</div>
 			{config.kind === 'seller' ? (
-				<p className="text-muted-foreground mt-6 border p-4 text-sm">
+				<Card className="text-muted-foreground mt-6 rounded-none border bg-transparent p-4 py-4 text-sm shadow-none ring-0">
 					Seller tip: Always request that buyer agent compensation is submitted
 					with the offer — not agreed to upfront.
-				</p>
+				</Card>
 			) : null}
 		</FlowPageShell>
 	)

@@ -54,7 +54,7 @@ function HeroSection() {
 			<div className="absolute inset-0 bg-linear-to-b from-slate-950/70 via-slate-950/50 to-slate-950/80" />
 
 			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
-				<div className="flex flex-col items-center gap-6 rounded-3xl border border-white/30 bg-white/70 p-10 shadow-xl backdrop-blur-md md:p-12">
+				<Card className="flex flex-col items-center gap-6 rounded-3xl border border-white/30 bg-white/70 p-10 py-10 text-center shadow-xl ring-0 backdrop-blur-md md:p-12 md:py-12">
 					<TypographyH1 className="text-foreground text-4xl tracking-tight md:text-5xl lg:text-6xl">
 						Find your perfect agent
 					</TypographyH1>
@@ -72,7 +72,7 @@ function HeroSection() {
 							<ArrowRight className="h-5 w-5" />
 						</Button>
 					</GetMatchedDialog>
-				</div>
+				</Card>
 			</div>
 		</section>
 	)
