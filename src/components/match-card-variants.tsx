@@ -231,7 +231,7 @@ export function MatchCardModern({
 
 				{/* Actions */}
 				{!locked && (
-					<div className="mt-6 flex justify-center">
+					<div className="mt-6 flex">
 						<Button
 							disabled={disabled}
 							className="h-12 rounded-2xl px-12 text-base"

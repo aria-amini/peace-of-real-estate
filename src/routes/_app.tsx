@@ -115,7 +115,7 @@ function AppShell() {
 					<FlowBreadcrumb />
 				</>
 			)}
-			<main className="flex w-full flex-1 flex-col items-center overflow-x-hidden">
+			<main className="flex w-full flex-1 flex-col overflow-x-hidden">
 				<Outlet />
 			</main>
 			{!hideFooter && (
@@ -171,9 +171,7 @@ function AppShell() {
 		return (
 			<SidebarProvider>
 				<AccountSidebar />
-				<SidebarInset className="items-center overflow-x-hidden">
-					{layout}
-				</SidebarInset>
+				<SidebarInset className="overflow-x-hidden">{layout}</SidebarInset>
 			</SidebarProvider>
 		)
 	}

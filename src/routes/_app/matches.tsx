@@ -32,7 +32,7 @@ function Matches() {
 		filter === 'all' ? matches : matches.filter((m) => m.status === filter)
 
 	return (
-		<div className="mx-auto w-full max-w-2xl px-6 py-12">
+		<div className="mx-auto w-full max-w-3xl px-6 py-12 xl:mx-0 xl:ml-[calc((100vw-48rem)/2-var(--sidebar-width))]">
 			<div className="mb-6 flex items-center gap-2 md:hidden">
 				<SidebarTrigger />
 				<span className="text-sm font-medium">Menu</span>
