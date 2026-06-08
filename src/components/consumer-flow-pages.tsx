@@ -260,13 +260,7 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 	}, [config.kind])
 
 	return (
-		<FlowPageShell
-			title="Basic Information"
-			subtitle="Step 1"
-			icon={MapPin}
-			roleLabel={config.label}
-			headerInsideCard
-		>
+		<FlowPageShell title="Basic Information" icon={MapPin} headerInsideCard>
 			<div className="space-y-8">
 				<FieldSet className="gap-0">
 					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
@@ -415,7 +409,6 @@ export function ConsumerQuiz({ config }: { config: ConsumerFlowConfig }) {
 
 	return (
 		<QuestionFlow
-			roleLabel={config.label}
 			questions={config.questionFlow.questions}
 			initialAnswers={draft.answers}
 			initialQuestionIndex={getNextUnansweredQuestionIndex(
@@ -464,11 +457,7 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 
 	if (isComplete) {
 		return (
-			<FlowPageShell
-				title="Payment Complete"
-				icon={CheckCircle2}
-				roleLabel={config.label}
-			>
+			<FlowPageShell title="Payment Complete" icon={CheckCircle2}>
 				<div className="space-y-6 text-center">
 					<div className="flex justify-center">
 						<div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -493,7 +482,7 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 	}
 
 	return (
-		<FlowPageShell title="Payment" icon={CreditCard} roleLabel={config.label}>
+		<FlowPageShell title="Payment" icon={CreditCard}>
 			<div className="space-y-8">
 				<Card className="bg-muted/30 rounded-lg border p-6 py-6 text-center shadow-none ring-0">
 					<div className="text-muted-foreground mb-2 text-sm">
@@ -580,7 +569,7 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 	}, [config.kind])
 
 	return (
-		<FlowPageShell title="Results" icon={Trophy} roleLabel={config.label}>
+		<FlowPageShell title="Results" icon={Trophy}>
 			<p className="text-muted-foreground mb-6 text-center text-sm leading-relaxed">
 				Real agents ranked by fit — not by who paid the most to get your contact
 				info. You can select up to 3 agents total.
@@ -614,7 +603,6 @@ export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 			title="Your Matches"
 			subtitle="Preview"
 			icon={Sparkles}
-			roleLabel={config.label}
 			headerInsideCard
 		>
 			<div className="space-y-6">

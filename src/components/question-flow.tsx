@@ -1,5 +1,14 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, ArrowRight, Check, ListChecks } from 'lucide-react'
+import {
+	ArrowLeft,
+	ArrowRight,
+	Briefcase,
+	Check,
+	Eye,
+	HeartHandshake,
+	ListChecks,
+	MessageSquare,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
@@ -69,7 +78,6 @@ export function QuestionFlow({
 	}, [currentQuestion])
 
 	const question = questions[currentQuestion]!
-	const progress = ((currentQuestion + 1) / questions.length) * 100
 	const answer = answers[question.id]
 
 	const isMultipleChoice = question.selection?.type === 'multiple'
@@ -288,19 +296,82 @@ export function QuestionFlow({
 	const showContinueButton =
 		canShowContinue && (!isTransitioning || wasContinueVisible)
 
+	const groupedQuestions = questions.reduce(
+		(acc, q) => {
+			const cat = q.category || q.categories?.[0] || 'Other'
+			const existing = acc.find((g) => g.category === cat)
+			if (existing) {
+				existing.questions.push(q)
+			} else {
+				acc.push({ category: cat, questions: [q] })
+			}
+			return acc
+		},
+		[] as { category: string; questions: CoreQuestion[] }[],
+	)
+
+	const categoryMeta: Record<
+		string,
+		{
+			icon: React.ComponentType<{ className?: string }>
+			color: string
+			bg: string
+			ring: string
+			label: string
+		}
+	> = {
+		'Working Style': {
+			icon: Briefcase,
+			color: 'text-blue-500',
+			bg: 'bg-blue-500',
+			ring: 'ring-blue-500/30',
+			label: 'Working Style',
+		},
+		Communication: {
+			icon: MessageSquare,
+			color: 'text-amber-500',
+			bg: 'bg-amber-500',
+			ring: 'ring-amber-500/30',
+			label: 'Communication',
+		},
+		Transparency: {
+			icon: Eye,
+			color: 'text-emerald-500',
+			bg: 'bg-emerald-500',
+			ring: 'ring-emerald-500/30',
+			label: 'Transparency',
+		},
+		Fit: {
+			icon: HeartHandshake,
+			color: 'text-rose-500',
+			bg: 'bg-rose-500',
+			ring: 'ring-rose-500/30',
+			label: 'Fit',
+		},
+	}
+
+	const answeredCount = questions.filter(
+		(q) => answers[q.id] !== undefined,
+	).length
+	const progressPercent = Math.round((answeredCount / questions.length) * 100)
+	const currentCategory =
+		question.category || question.categories?.[0] || 'Other'
+
 	return (
 		<FlowPageShell
 			title="Quiz"
-			subtitle="Step 2"
 			icon={ListChecks}
 			roleLabel={roleLabel}
 			headerInsideCard={headerInsideCard}
 		>
 			<div className="mb-6 w-full">
-				<div className="mb-3 flex items-center justify-between text-xs">
+				<div className="mb-5 flex items-center justify-between text-xs">
 					<div className="flex items-center gap-3">
-						<span>
+						<span className="font-medium">
 							Question {currentQuestion + 1} of {questions.length}
+						</span>
+						<span className="text-muted-foreground font-medium">
+							{progressPercent}%
 						</span>
 						{isMultipleChoice ? (
 							<span className="text-muted-foreground">
@@ -308,16 +379,115 @@ export function QuestionFlow({
 							</span>
 						) : null}
 					</div>
-					<span className="text-muted-foreground">{Math.round(progress)}%</span>
 				</div>
-				<div className="bg-border h-1 overflow-hidden">
-					<div
-						className="bg-primary h-full"
-						style={{ width: `${progress}%` }}
-					/>
+
+				<div className="flex items-center justify-center">
+					<div className="flex items-center gap-3 sm:gap-5">
+						{groupedQuestions.map((group, groupIndex) => {
+							const meta = categoryMeta[group.category] ?? {
+								icon: Check,
+								color: 'text-muted-foreground',
+								bg: 'bg-muted-foreground',
+								ring: 'ring-muted-foreground/30',
+								label: group.category,
+							}
+							const CategoryIcon = meta.icon
+							const isCurrentCategory = group.category === currentCategory
+							const isCompletedCategory = group.questions.every(
+								(q) => answers[q.id] !== undefined,
+							)
+							const isFutureCategory =
+								groupedQuestions.findIndex(
+									(g) => g.category === currentCategory,
+								) < groupIndex
+
+							return (
+								<div
+									key={group.category}
+									className="flex items-center gap-3 sm:gap-5"
+								>
+									<div className="flex flex-col items-center gap-2">
+										<div
+											className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-500 sm:h-12 sm:w-12 ${
+												isCurrentCategory
+													? `${meta.color} bg-background ring-2 ${meta.ring} scale-110 shadow-lg`
+													: isCompletedCategory
+														? `${meta.color} bg-background ring-1 ${meta.ring} opacity-80`
+														: isFutureCategory
+															? 'text-muted-foreground/40 bg-muted/30 ring-muted/20 ring-1'
+															: `${meta.color} bg-background ring-1 ${meta.ring} opacity-60`
+											} ${isCurrentCategory ? 'animate-category-pulse' : ''}`}
+										>
+											<CategoryIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+											{isCompletedCategory && !isCurrentCategory ? (
+												<div
+													className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full ${meta.bg} text-white shadow-sm`}
+												>
+													<Check className="h-2.5 w-2.5" />
+												</div>
+											) : null}
+										</div>
+										<span
+											className={`text-[10px] font-semibold tracking-wide transition-colors duration-300 sm:text-xs ${
+												isCurrentCategory
+													? 'text-foreground'
+													: isCompletedCategory
+														? meta.color
+														: 'text-muted-foreground/40'
+											}`}
+										>
+											{meta.label}
+										</span>
+
+										<div className="flex items-center gap-1.5 pt-1">
+											{group.questions.map((q) => {
+												const isAnswered = answers[q.id] !== undefined
+												const isCurrentQuestion =
+													questions[currentQuestion]?.id === q.id
+												return (
+													<div
+														key={q.id}
+														className={`rounded-full transition-all duration-500 ${
+															isCurrentQuestion
+																? `h-2.5 w-2.5 ${meta.bg} shadow-md`
+																: isCurrentCategory && isAnswered
+																	? `h-2 w-2 ${meta.bg} opacity-60`
+																	: isAnswered
+																		? 'bg-muted-foreground/30 h-2 w-2'
+																		: 'bg-muted-foreground/10 h-2 w-2'
+														} ${
+															isCurrentQuestion && !isAnswered
+																? 'animate-light-pulse ring-2 ring-offset-1 ' +
+																	meta.ring
+																: ''
+														} ${
+															isCurrentQuestion && isAnswered
+																? 'animate-light-pop'
+																: ''
+														}`}
+													/>
+												)
+											})}
+										</div>
+									</div>
+
+									{groupIndex < groupedQuestions.length - 1 ? (
+										<div
+											className={`h-px w-6 transition-colors duration-500 sm:w-10 ${
+												isCompletedCategory && !isFutureCategory
+													? meta.bg
+													: 'bg-muted-foreground/15'
+											}`}
+										/>
+									) : null}
+								</div>
+							)
+						})}
+					</div>
 				</div>
+
 				<div
-					className={`mt-3 flex items-center ${currentQuestion > 0 ? 'justify-between' : 'justify-end'}`}
+					className={`mt-4 flex items-center ${currentQuestion > 0 ? 'justify-between' : 'justify-end'}`}
 				>
 					{currentQuestion > 0 && (
 						<Button type="button" onClick={handleBack} variant="ghost">

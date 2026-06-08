@@ -22,7 +22,7 @@ function LandingPage() {
 
 function HeroSection() {
 	return (
-		<section className="bg-card relative w-full overflow-hidden pt-12 pb-10 md:pt-20 md:pb-12">
+		<section className="bg-card relative w-full overflow-hidden pb-10">
 			<div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-8 lg:px-10">
 				<div className="flex max-w-xl flex-col items-start gap-6 md:gap-8">
 					<h1 className="font-heading text-5xl leading-[0.98] font-semibold tracking-tight text-balance md:text-6xl lg:text-7xl">
