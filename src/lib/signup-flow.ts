@@ -9,14 +9,12 @@ export const signupFlowSteps = {
 	buyer: [
 		{ label: 'Basic Information', path: 'intro' },
 		{ label: 'Quiz', path: 'quiz' },
-		{ label: 'Extra Details', path: 'details' },
-		{ label: 'Summary', path: 'summary' },
+		{ label: 'Matches', path: 'preview' },
 	],
 	seller: [
 		{ label: 'Basic Information', path: 'intro' },
 		{ label: 'Quiz', path: 'quiz' },
-		{ label: 'Extra Details', path: 'details' },
-		{ label: 'Summary', path: 'summary' },
+		{ label: 'Matches', path: 'preview' },
 	],
 	agent: [
 		{ label: 'Priorities', path: 'priorities' },

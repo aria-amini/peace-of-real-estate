@@ -14,7 +14,7 @@ const pages = [
 	'/login',
 	'/signup',
 	'/beta',
-	'/buyer/summary',
+	'/buyer/preview',
 ] as const
 
 test.each(

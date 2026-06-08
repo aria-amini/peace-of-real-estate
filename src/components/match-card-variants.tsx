@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import type { MatchDetails, MatchStatus } from '@/components/match-card'
 
 export { type MatchDetails, type MatchStatus }
@@ -111,9 +112,11 @@ export const mockMatch3: MatchDetails = {
 export function MatchCardModern({
 	match,
 	disabled = false,
+	locked = false,
 }: {
 	match: MatchDetails
 	disabled?: boolean
+	locked?: boolean
 }) {
 	const initials = match.name
 		.split(' ')
@@ -132,11 +135,19 @@ export function MatchCardModern({
 							<img
 								src={match.avatar}
 								alt={match.name}
-								className="h-16 w-16 rounded-2xl object-cover"
+								className={cn(
+									'h-16 w-16 rounded-2xl object-cover',
+									locked && 'blur-md',
+								)}
 								onError={() => setAvatarFailed(true)}
 							/>
 						) : (
-							<div className="bg-secondary flex h-16 w-16 items-center justify-center rounded-2xl text-lg font-medium">
+							<div
+								className={cn(
+									'bg-secondary flex h-16 w-16 items-center justify-center rounded-2xl text-lg font-medium',
+									locked && 'blur-md select-none',
+								)}
+							>
 								{initials}
 							</div>
 						)}
@@ -145,7 +156,14 @@ export function MatchCardModern({
 						<div className="flex items-start justify-between gap-2">
 							<div>
 								<div className="flex items-center gap-2">
-									<h3 className="text-xl font-bold">{match.name}</h3>
+									<h3
+										className={cn(
+											'text-xl font-bold',
+											locked && 'blur-sm select-none',
+										)}
+									>
+										{match.name}
+									</h3>
 									{match.isTopMatch && (
 										<span className="bg-accent/15 text-accent-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
 											<Star className="h-3 w-3 fill-current" />
@@ -212,14 +230,16 @@ export function MatchCardModern({
 				</div>
 
 				{/* Actions */}
-				<div className="mt-6 flex justify-center">
-					<Button
-						disabled={disabled}
-						className="h-12 rounded-2xl px-12 text-base"
-					>
-						Accept Match
-					</Button>
-				</div>
+				{!locked && (
+					<div className="mt-6 flex justify-center">
+						<Button
+							disabled={disabled}
+							className="h-12 rounded-2xl px-12 text-base"
+						>
+							Accept Match
+						</Button>
+					</div>
+				)}
 			</CardContent>
 		</Card>
 	)

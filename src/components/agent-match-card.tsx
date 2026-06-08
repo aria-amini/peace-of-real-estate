@@ -2,6 +2,7 @@ import { Award, MapPin, MessageCircle, Star } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 export type AgentMatch = {
 	id: number
@@ -37,9 +38,11 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 
 export function AgentMatchCard({
 	match,
+	locked = false,
 }: {
 	match: AgentMatch
 	index?: number
+	locked?: boolean
 }) {
 	return (
 		<Card>
@@ -52,7 +55,12 @@ export function AgentMatchCard({
 
 			<CardContent>
 				<div className="mb-8 flex flex-col gap-6 md:flex-row md:items-start">
-					<div className="flex h-16 w-16 shrink-0 items-center justify-center text-2xl">
+					<div
+						className={cn(
+							'flex h-16 w-16 shrink-0 items-center justify-center text-2xl',
+							locked && 'blur-md select-none',
+						)}
+					>
 						{match.name
 							.split(' ')
 							.map((n) => n[0])
@@ -61,7 +69,9 @@ export function AgentMatchCard({
 
 					<div className="flex-1">
 						<div className="mb-1 flex items-center gap-3">
-							<h3 className="text-xl">{match.name}</h3>
+							<h3 className={cn('text-xl', locked && 'blur-sm select-none')}>
+								{match.name}
+							</h3>
 							<span className="text-muted-foreground text-sm">
 								{match.agency}
 							</span>

@@ -6,19 +6,31 @@ import {
 	CheckCircle2,
 	ChevronsUpDown,
 	CreditCard,
-	Lock,
 	MapPin,
-	MessageCircle,
 	Sparkles,
 	Trophy,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import { AgentMatchCard, type AgentMatch } from '@/components/agent-match-card'
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
+import { AuthCard } from '@/components/auth-card'
+import { AgentMatchCard, type AgentMatch } from '@/components/agent-match-card'
+import {
+	MatchCardModern,
+	mockMatch1,
+	mockMatch2,
+} from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import {
 	Command,
 	CommandEmpty,
@@ -42,9 +54,7 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { authClient } from '@/lib/auth-client'
 import { upgradeToPremium } from '@/lib/auth-guards'
 import {
 	getNextUnansweredQuestionIndex,
@@ -420,253 +430,10 @@ export function ConsumerQuiz({ config }: { config: ConsumerFlowConfig }) {
 					lastCompletedStage: 'quiz',
 				})
 			}
-			completeTo={`${config.basePath}/details`}
+			completeTo={`${config.basePath}/preview`}
 			completeLabel="Continue"
 			headerInsideCard
 		/>
-	)
-}
-
-export function ConsumerDetails({ config }: { config: ConsumerFlowConfig }) {
-	const draft = getStoredConsumerDraftForFlow(config.kind)
-	const [matchDetails, setMatchDetails] = useState(draft.matchDetails ?? '')
-
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'details' })
-	}, [config.kind])
-
-	const save = () =>
-		saveStoredConsumerDraftForFlow(config.kind, {
-			matchDetails,
-			lastCompletedStage: 'details',
-		})
-
-	return (
-		<FlowPageShell
-			title="Extra Details"
-			subtitle="Step 3"
-			icon={MessageCircle}
-			roleLabel={config.label}
-			headerInsideCard
-		>
-			<div className="space-y-8">
-				<div>
-					<h2 className="font-heading text-xl leading-relaxed font-normal">
-						Tell us anything else that would help us find a better match.
-					</h2>
-					<p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-						Optional details help us match you more accurately.
-					</p>
-				</div>
-
-				<div className="border-t pt-8">
-					<Label
-						htmlFor={`${config.kind}-details`}
-						className="font-heading text-xl leading-relaxed font-normal"
-					>
-						Additional details
-					</Label>
-					<p className="text-muted-foreground mt-2 text-sm">
-						Optional — the more you share, the better we can match you.
-					</p>
-					<Textarea
-						id={`${config.kind}-details`}
-						value={matchDetails}
-						onChange={(event) => setMatchDetails(event.target.value)}
-						rows={5}
-						placeholder="Timing, concerns, must-haves, constraints, or anything Pax should understand."
-						className="mt-4"
-					/>
-				</div>
-			</div>
-
-			<div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-				<Button asChild>
-					<Link to={`${config.basePath}/summary`} onClick={save}>
-						View Fit Summary
-						<ArrowRight className="h-4 w-4" />
-					</Link>
-				</Button>
-				<Link
-					to={`${config.basePath}/summary`}
-					onClick={() =>
-						saveStoredConsumerDraftForFlow(config.kind, {
-							matchDetails: '',
-							lastCompletedStage: 'details',
-						})
-					}
-					className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-				>
-					Skip for now
-				</Link>
-			</div>
-		</FlowPageShell>
-	)
-}
-
-export function ConsumerSummary({ config }: { config: ConsumerFlowConfig }) {
-	const { data: session } = authClient.useSession()
-	const isUnlocked = Boolean(session)
-	const unlockTo =
-		config.basePath === '/buyer' ? '/buyer/summary' : '/seller/summary'
-
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'summary' })
-	}, [config.kind])
-
-	return (
-		<FlowPageShell
-			title="Summary"
-			subtitle="Step 4"
-			icon={Sparkles}
-			roleLabel={config.label}
-			headerInsideCard
-		>
-			<div className="space-y-3">
-				{[
-					'You prefer clear expectations before big decisions.',
-					'Communication fit matters as much as market knowledge.',
-					'PRE will rank agents by fit, not by ad spend or lead buying.',
-				].map((item) => (
-					<div
-						key={item}
-						className="bg-muted/40 flex gap-3 rounded-xl p-4 text-sm"
-					>
-						<CheckCircle2 className="text-primary mt-0.5 h-4 w-4 shrink-0" />
-						<span>{item}</span>
-					</div>
-				))}
-			</div>
-
-			<div className="mt-8 space-y-5">
-				<div className="space-y-3 text-center">
-					<p className="text-muted-foreground text-sm tracking-[0.25em] uppercase">
-						{isUnlocked ? 'Preview unlocked' : 'Locked preview'}
-					</p>
-					<h2 className="text-2xl font-semibold">
-						See a sneak peek of your best-fit matches
-					</h2>
-					<p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed">
-						We show you a preview first so you can decide if you want to create
-						an account and unlock the full match details.
-					</p>
-				</div>
-
-				<div className="space-y-4">
-					{consumerMatches.slice(0, 2).map((match, index) => (
-						<LockedMatchPreview
-							key={match.id}
-							match={match}
-							index={index}
-							isUnlocked={isUnlocked}
-						/>
-					))}
-				</div>
-
-				<Card className="bg-muted/30 flex flex-col gap-3 rounded-2xl border p-6 py-6 shadow-none ring-0 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<p className="font-medium">
-							{isUnlocked
-								? 'Preview unlocked'
-								: 'Create a free account to unlock'}
-						</p>
-						<p className="text-muted-foreground text-sm">
-							{isUnlocked
-								? 'Continue to checkout when you are ready.'
-								: 'No spam. No commitment. Just the next step to reveal the full matches.'}
-						</p>
-					</div>
-					<Button asChild>
-						{isUnlocked ? (
-							<Link
-								to={`${config.basePath}/payment`}
-								onClick={() =>
-									saveStoredConsumerDraftForFlow(config.kind, {
-										lastCompletedStage: 'summary',
-									})
-								}
-							>
-								Continue to Payment
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						) : (
-							<Link
-								to="/signup"
-								search={{ redirect: unlockTo }}
-								onClick={() =>
-									saveStoredConsumerDraftForFlow(config.kind, {
-										lastCompletedStage: 'summary',
-									})
-								}
-							>
-								Sign up to Unlock
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						)}
-					</Button>
-				</Card>
-			</div>
-		</FlowPageShell>
-	)
-}
-
-function LockedMatchPreview({
-	index,
-	match,
-	isUnlocked,
-}: {
-	index: number
-	match: AgentMatch
-	isUnlocked: boolean
-}) {
-	return (
-		<Card>
-			<CardContent className="pt-6">
-				<div className="flex items-start justify-between gap-4">
-					<div>
-						<div className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
-							Match {index + 1}
-						</div>
-						<h3 className="text-xl">{match.name}</h3>
-						<p className="text-muted-foreground mt-1 text-sm">
-							{match.agency} · {match.location}
-						</p>
-					</div>
-					<div className="text-right">
-						<div className="text-3xl font-semibold">
-							{match.overall.toFixed(1)}
-						</div>
-						<div className="text-muted-foreground text-xs">Fit</div>
-					</div>
-				</div>
-
-				{isUnlocked ? (
-					<div className="mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
-						<p className="text-muted-foreground text-sm leading-relaxed">
-							{match.about}
-						</p>
-						<div className="flex flex-wrap gap-2">
-							{match.specialties.map((specialty) => (
-								<span
-									key={specialty}
-									className="bg-secondary text-secondary-foreground rounded-md border px-3 py-1 text-xs font-medium"
-								>
-									{specialty}
-								</span>
-							))}
-						</div>
-					</div>
-				) : (
-					<Card className="text-muted-foreground mt-5 flex-row items-center gap-3 rounded-lg border border-dashed bg-transparent p-4 py-4 text-sm shadow-none ring-0">
-						<Lock className="h-4 w-4 shrink-0" />
-						<span>
-							Full profile, fit breakdown, and contact details unlock after
-							sign-up
-						</span>
-					</Card>
-				)}
-			</CardContent>
-		</Card>
 	)
 }
 
@@ -829,6 +596,60 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 					with the offer — not agreed to upfront.
 				</Card>
 			) : null}
+		</FlowPageShell>
+	)
+}
+
+const previewMatches = [mockMatch1, mockMatch2]
+
+export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
+	const [dialogOpen, setDialogOpen] = useState(false)
+
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'preview' })
+	}, [config.kind])
+
+	return (
+		<FlowPageShell
+			title="Your Matches"
+			subtitle="Preview"
+			icon={Sparkles}
+			roleLabel={config.label}
+			headerInsideCard
+		>
+			<div className="space-y-6">
+				<div className="space-y-4 text-center">
+					<h2 className="font-heading text-xl leading-relaxed font-normal">
+						Meet the agents who actually fit you
+					</h2>
+					<p className="text-muted-foreground text-sm leading-relaxed">
+						Based on your answers, we found agents ranked by fit.
+					</p>
+					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+						<DialogTrigger asChild>
+							<Button size="lg" className="gap-2">
+								Unlock Full Matches
+								<ArrowRight className="h-4 w-4" />
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="max-w-md">
+							<DialogHeader>
+								<DialogTitle>Create your account</DialogTitle>
+								<DialogDescription>
+									Unlock your full match details and connect with agents.
+								</DialogDescription>
+							</DialogHeader>
+							<AuthCard mode="sign-up" embedded redirect="/matches" />
+						</DialogContent>
+					</Dialog>
+				</div>
+
+				<div className="space-y-3">
+					{previewMatches.map((match) => (
+						<MatchCardModern key={match.id} match={match} locked />
+					))}
+				</div>
+			</div>
 		</FlowPageShell>
 	)
 }

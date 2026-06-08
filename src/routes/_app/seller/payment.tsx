@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_app/seller/payment')({
 		if (!session) {
 			throw redirect({
 				to: '/signup',
-				search: { redirect: '/seller/summary' },
+				search: { redirect: '/seller/payment' },
 			})
 		}
 	},

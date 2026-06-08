@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRightLeft, Zap, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -9,15 +9,11 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import type { MatchStatus } from '@/components/match-card'
 import { MatchCardModern } from '@/components/match-card-variants'
 import { getAgentMatches } from '@/lib/agent-matches'
-import { redirectUnauthenticatedUsers, isUserPremium } from '@/lib/auth-guards'
+import { redirectUnauthenticatedUsers } from '@/lib/auth-guards'
 
 export const Route = createFileRoute('/_app/matches')({
 	beforeLoad: async () => {
 		await redirectUnauthenticatedUsers()
-		const premium = await isUserPremium()
-		if (!premium) {
-			throw redirect({ to: '/upgrade' })
-		}
 	},
 	component: Matches,
 })
