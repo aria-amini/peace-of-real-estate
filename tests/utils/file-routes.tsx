@@ -35,7 +35,11 @@ type Viewport = {
 }
 
 const desktopViewport: Viewport = { width: 1440, height: 900 }
-const protectedPaths = new Set(['/buyer/results', '/seller/results'])
+const protectedPaths = new Set([
+	'/buyer/results',
+	'/seller/results',
+	'/matches',
+])
 
 const testSession = {
 	user: {
