@@ -1,11 +1,10 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import * as zipcodes from 'zipcodes'
 import {
 	ArrowRight,
 	Check,
 	CheckCircle2,
 	ChevronsUpDown,
-	Circle,
 	CreditCard,
 	Lock,
 	MapPin,
@@ -29,15 +28,6 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
-import {
 	Field,
 	FieldGroup,
 	FieldLabel,
@@ -57,8 +47,6 @@ import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/auth-client'
 import { upgradeToPremium } from '@/lib/auth-guards'
 import {
-	clearStoredConsumerDraftForFlow,
-	getNextPathForConsumerFlow,
 	getNextUnansweredQuestionIndex,
 	getStoredConsumerDraftForFlow,
 	saveStoredConsumerDraftForFlow,
@@ -248,133 +236,6 @@ const consumerMatches: AgentMatch[] = [
 		topMatch: false,
 	},
 ]
-
-export function ConsumerResumeGate({ config }: { config: ConsumerFlowConfig }) {
-	const draft = getStoredConsumerDraftForFlow(config.kind)
-	const [dialogOpen, setDialogOpen] = useState(false)
-	const navigate = useNavigate()
-
-	const hasProgress = Boolean(
-		draft.lastCompletedStage ||
-		draft.zipCode ||
-		draft.intent ||
-		Object.keys(draft.answers ?? {}).length > 0,
-	)
-
-	useEffect(() => {
-		if (!hasProgress) {
-			void navigate({ to: `${config.basePath}/intro` })
-		}
-	}, [hasProgress, config.basePath, navigate])
-
-	const handleStartFresh = () => {
-		clearStoredConsumerDraftForFlow(config.kind)
-		setDialogOpen(false)
-	}
-
-	const resumeTo = getNextPathForConsumerFlow(config.kind, draft)
-	const steps = [
-		{ id: 'intro', label: 'Basic Information' },
-		{ id: 'quiz', label: 'Quiz' },
-		{ id: 'details', label: 'Extra Details' },
-		{ id: 'summary', label: 'Summary' },
-	]
-	const stageOrder = ['intro', 'quiz', 'details', 'summary']
-	const rawCompletedIndex = stageOrder.indexOf(draft.lastCompletedStage ?? '')
-	const completedIndex = Math.min(
-		rawCompletedIndex,
-		stageOrder.indexOf('details'),
-	)
-	const currentStepId = resumeTo.split('/').pop()
-	const currentIndex = stageOrder.indexOf(currentStepId ?? '')
-
-	return (
-		<FlowPageShell
-			title={`${config.label} Profile`}
-			icon={MapPin}
-			roleLabel={config.label}
-		>
-			<div className="space-y-6">
-				<p className="text-muted-foreground text-center text-sm leading-relaxed">
-					You have a saved profile. Pick up where you left off or start fresh.
-				</p>
-
-				<div className="space-y-2">
-					{steps.map((step, index) => {
-						const isCompleted = completedIndex >= index
-						const isCurrent = currentIndex === index
-						return (
-							<div
-								key={step.id}
-								className={cn(
-									'flex items-center gap-3 rounded-lg border p-3 text-sm',
-									isCompleted && 'border-green-200 bg-green-50/50',
-									isCurrent && 'border-foreground',
-								)}
-							>
-								<div className="flex h-6 w-6 shrink-0 items-center justify-center">
-									{isCompleted ? (
-										<CheckCircle2 className="h-5 w-5 text-green-600" />
-									) : (
-										<Circle
-											className={cn(
-												'h-4 w-4',
-												isCurrent ? 'text-primary' : 'text-muted-foreground',
-											)}
-										/>
-									)}
-								</div>
-								<span
-									className={cn(
-										'font-medium',
-										isCurrent && 'text-primary',
-										!isCompleted && !isCurrent && 'text-muted-foreground',
-									)}
-								>
-									{step.label}
-								</span>
-							</div>
-						)
-					})}
-				</div>
-
-				<div className="flex flex-col gap-3 pt-2 sm:flex-row">
-					<Button asChild className="flex-1">
-						<Link to={resumeTo}>
-							Resume where I left off
-							<ArrowRight className="h-4 w-4" />
-						</Link>
-					</Button>
-					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-						<DialogTrigger asChild>
-							<Button variant="destructive" className="flex-1">
-								Start fresh
-							</Button>
-						</DialogTrigger>
-						<DialogContent showCloseButton={false}>
-							<DialogHeader>
-								<DialogTitle>Start fresh?</DialogTitle>
-								<DialogDescription>
-									This will clear your saved {config.label.toLowerCase()}{' '}
-									profile and you will have to begin from step 1. This action
-									cannot be undone.
-								</DialogDescription>
-							</DialogHeader>
-							<DialogFooter>
-								<Button variant="outline" onClick={() => setDialogOpen(false)}>
-									Cancel
-								</Button>
-								<Button variant="destructive" onClick={handleStartFresh}>
-									Start fresh
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
-				</div>
-			</div>
-		</FlowPageShell>
-	)
-}
 
 export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 	const draft = getStoredConsumerDraftForFlow(config.kind)
