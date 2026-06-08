@@ -4,8 +4,10 @@ import {
 	Dialog,
 	DialogClose,
 	DialogContent,
-	DialogTrigger,
+	DialogDescription,
 	DialogFooter,
+	DialogTitle,
+	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Link } from '@tanstack/react-router'
 import { CheckCircle2, X } from 'lucide-react'
@@ -39,16 +41,14 @@ function PricingInfo() {
 
 	return (
 		<div className="flex flex-col gap-5">
-			<div className="flex flex-col gap-1">
-				<h3 className="text-primary font-heading text-2xl font-bold">
-					How this works
-				</h3>
-			</div>
-			<p className="text-muted-foreground text-sm leading-relaxed">
+			<DialogTitle className="text-primary font-heading text-2xl font-bold">
+				How this works
+			</DialogTitle>
+			<DialogDescription className="text-muted-foreground text-sm leading-relaxed">
 				Answer everything for free. If you want your verified PRE matches, PRE
 				is <span className="font-semibold">$19.99 (one-time)</span>. No
 				subscription.
-			</p>
+			</DialogDescription>
 			<ul className="flex flex-col gap-2.5">
 				{[
 					'Free fit snapshot',
