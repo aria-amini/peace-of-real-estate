@@ -16,7 +16,7 @@
 		"test:browser": "vp test run --project browser",
 		"test:update": "vp test run --project browser --update",
 		"test:watch": "vp test --watch",
-		"test:ui": "vp test dev --ui --open=false --api.host 0.0.0.0 --api.port 5123 --api.strictPort --project browser",
+		"test:ui": "vp test dev --ui --open=false --api.port 5123 --api.strictPort --project browser",
 		"e2e": "playwright test",
 		"e2e:staging": "BASE_URL=https://imdbgraph.org playwright test",
 		"e2e:update": "playwright test --update-snapshots",

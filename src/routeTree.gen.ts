@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DemoRouteImport } from './routes/demo'
 import { Route as BetaRouteImport } from './routes/beta'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
@@ -17,7 +16,7 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
 import { Route as AppUpgradeRouteImport } from './routes/_app/upgrade'
 import { Route as AppSignupRouteImport } from './routes/_app/signup'
-import { Route as AppMatchActivityRouteImport } from './routes/_app/match-activity'
+import { Route as AppMatchesRouteImport } from './routes/_app/matches'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
 import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as AppSellerIndexRouteImport } from './routes/_app/seller/index'
@@ -26,18 +25,16 @@ import { Route as AppAgentIndexRouteImport } from './routes/_app/agent/index'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest/$'
 import { Route as ApiBetaAuthRouteImport } from './routes/api/beta/auth'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as AppSellerSummaryRouteImport } from './routes/_app/seller/summary'
 import { Route as AppSellerResultsRouteImport } from './routes/_app/seller/results'
 import { Route as AppSellerQuizRouteImport } from './routes/_app/seller/quiz'
+import { Route as AppSellerPreviewRouteImport } from './routes/_app/seller/preview'
 import { Route as AppSellerPaymentRouteImport } from './routes/_app/seller/payment'
 import { Route as AppSellerIntroRouteImport } from './routes/_app/seller/intro'
-import { Route as AppSellerDetailsRouteImport } from './routes/_app/seller/details'
-import { Route as AppBuyerSummaryRouteImport } from './routes/_app/buyer/summary'
 import { Route as AppBuyerResultsRouteImport } from './routes/_app/buyer/results'
 import { Route as AppBuyerQuizRouteImport } from './routes/_app/buyer/quiz'
+import { Route as AppBuyerPreviewRouteImport } from './routes/_app/buyer/preview'
 import { Route as AppBuyerPaymentRouteImport } from './routes/_app/buyer/payment'
 import { Route as AppBuyerIntroRouteImport } from './routes/_app/buyer/intro'
-import { Route as AppBuyerDetailsRouteImport } from './routes/_app/buyer/details'
 import { Route as AppAgentSubscribeRouteImport } from './routes/_app/agent/subscribe'
 import { Route as AppAgentQuizRouteImport } from './routes/_app/agent/quiz'
 import { Route as AppAgentProfileRouteImport } from './routes/_app/agent/profile'
@@ -48,11 +45,6 @@ import { Route as AppAgentComplianceRouteImport } from './routes/_app/agent/comp
 import { Route as AppAgentChatRouteImport } from './routes/_app/agent/chat'
 import { Route as ApiIngestStaticSplatRouteImport } from './routes/api/ingest/static/$'
 
-const DemoRoute = DemoRouteImport.update({
-  id: '/demo',
-  path: '/demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BetaRoute = BetaRouteImport.update({
   id: '/beta',
   path: '/beta',
@@ -87,9 +79,9 @@ const AppSignupRoute = AppSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMatchActivityRoute = AppMatchActivityRouteImport.update({
-  id: '/match-activity',
-  path: '/match-activity',
+const AppMatchesRoute = AppMatchesRouteImport.update({
+  id: '/matches',
+  path: '/matches',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLoginRoute = AppLoginRouteImport.update({
@@ -132,11 +124,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppSellerSummaryRoute = AppSellerSummaryRouteImport.update({
-  id: '/seller/summary',
-  path: '/seller/summary',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppSellerResultsRoute = AppSellerResultsRouteImport.update({
   id: '/seller/results',
   path: '/seller/results',
@@ -145,6 +132,11 @@ const AppSellerResultsRoute = AppSellerResultsRouteImport.update({
 const AppSellerQuizRoute = AppSellerQuizRouteImport.update({
   id: '/seller/quiz',
   path: '/seller/quiz',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSellerPreviewRoute = AppSellerPreviewRouteImport.update({
+  id: '/seller/preview',
+  path: '/seller/preview',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSellerPaymentRoute = AppSellerPaymentRouteImport.update({
@@ -157,16 +149,6 @@ const AppSellerIntroRoute = AppSellerIntroRouteImport.update({
   path: '/seller/intro',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSellerDetailsRoute = AppSellerDetailsRouteImport.update({
-  id: '/seller/details',
-  path: '/seller/details',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBuyerSummaryRoute = AppBuyerSummaryRouteImport.update({
-  id: '/buyer/summary',
-  path: '/buyer/summary',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppBuyerResultsRoute = AppBuyerResultsRouteImport.update({
   id: '/buyer/results',
   path: '/buyer/results',
@@ -177,6 +159,11 @@ const AppBuyerQuizRoute = AppBuyerQuizRouteImport.update({
   path: '/buyer/quiz',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBuyerPreviewRoute = AppBuyerPreviewRouteImport.update({
+  id: '/buyer/preview',
+  path: '/buyer/preview',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppBuyerPaymentRoute = AppBuyerPaymentRouteImport.update({
   id: '/buyer/payment',
   path: '/buyer/payment',
@@ -185,11 +172,6 @@ const AppBuyerPaymentRoute = AppBuyerPaymentRouteImport.update({
 const AppBuyerIntroRoute = AppBuyerIntroRouteImport.update({
   id: '/buyer/intro',
   path: '/buyer/intro',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBuyerDetailsRoute = AppBuyerDetailsRouteImport.update({
-  id: '/buyer/details',
-  path: '/buyer/details',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAgentSubscribeRoute = AppAgentSubscribeRouteImport.update({
@@ -241,10 +223,9 @@ const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/beta': typeof BetaRoute
-  '/demo': typeof DemoRoute
   '/account': typeof AppAccountRoute
   '/login': typeof AppLoginRoute
-  '/match-activity': typeof AppMatchActivityRoute
+  '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
   '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
@@ -257,18 +238,16 @@ export interface FileRoutesByFullPath {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/buyer/details': typeof AppBuyerDetailsRoute
   '/buyer/intro': typeof AppBuyerIntroRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
+  '/buyer/preview': typeof AppBuyerPreviewRoute
   '/buyer/quiz': typeof AppBuyerQuizRoute
   '/buyer/results': typeof AppBuyerResultsRoute
-  '/buyer/summary': typeof AppBuyerSummaryRoute
-  '/seller/details': typeof AppSellerDetailsRoute
   '/seller/intro': typeof AppSellerIntroRoute
   '/seller/payment': typeof AppSellerPaymentRoute
+  '/seller/preview': typeof AppSellerPreviewRoute
   '/seller/quiz': typeof AppSellerQuizRoute
   '/seller/results': typeof AppSellerResultsRoute
-  '/seller/summary': typeof AppSellerSummaryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -279,10 +258,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/beta': typeof BetaRoute
-  '/demo': typeof DemoRoute
   '/account': typeof AppAccountRoute
   '/login': typeof AppLoginRoute
-  '/match-activity': typeof AppMatchActivityRoute
+  '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
   '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
@@ -296,18 +274,16 @@ export interface FileRoutesByTo {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/buyer/details': typeof AppBuyerDetailsRoute
   '/buyer/intro': typeof AppBuyerIntroRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
+  '/buyer/preview': typeof AppBuyerPreviewRoute
   '/buyer/quiz': typeof AppBuyerQuizRoute
   '/buyer/results': typeof AppBuyerResultsRoute
-  '/buyer/summary': typeof AppBuyerSummaryRoute
-  '/seller/details': typeof AppSellerDetailsRoute
   '/seller/intro': typeof AppSellerIntroRoute
   '/seller/payment': typeof AppSellerPaymentRoute
+  '/seller/preview': typeof AppSellerPreviewRoute
   '/seller/quiz': typeof AppSellerQuizRoute
   '/seller/results': typeof AppSellerResultsRoute
-  '/seller/summary': typeof AppSellerSummaryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -320,10 +296,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/beta': typeof BetaRoute
-  '/demo': typeof DemoRoute
   '/_app/account': typeof AppAccountRoute
   '/_app/login': typeof AppLoginRoute
-  '/_app/match-activity': typeof AppMatchActivityRoute
+  '/_app/matches': typeof AppMatchesRoute
   '/_app/signup': typeof AppSignupRoute
   '/_app/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
@@ -337,18 +312,16 @@ export interface FileRoutesById {
   '/_app/agent/profile': typeof AppAgentProfileRoute
   '/_app/agent/quiz': typeof AppAgentQuizRoute
   '/_app/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/_app/buyer/details': typeof AppBuyerDetailsRoute
   '/_app/buyer/intro': typeof AppBuyerIntroRoute
   '/_app/buyer/payment': typeof AppBuyerPaymentRoute
+  '/_app/buyer/preview': typeof AppBuyerPreviewRoute
   '/_app/buyer/quiz': typeof AppBuyerQuizRoute
   '/_app/buyer/results': typeof AppBuyerResultsRoute
-  '/_app/buyer/summary': typeof AppBuyerSummaryRoute
-  '/_app/seller/details': typeof AppSellerDetailsRoute
   '/_app/seller/intro': typeof AppSellerIntroRoute
   '/_app/seller/payment': typeof AppSellerPaymentRoute
+  '/_app/seller/preview': typeof AppSellerPreviewRoute
   '/_app/seller/quiz': typeof AppSellerQuizRoute
   '/_app/seller/results': typeof AppSellerResultsRoute
-  '/_app/seller/summary': typeof AppSellerSummaryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -362,10 +335,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/beta'
-    | '/demo'
     | '/account'
     | '/login'
-    | '/match-activity'
+    | '/matches'
     | '/signup'
     | '/upgrade'
     | '/api/agent-matches'
@@ -378,18 +350,16 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
-    | '/buyer/details'
     | '/buyer/intro'
     | '/buyer/payment'
+    | '/buyer/preview'
     | '/buyer/quiz'
     | '/buyer/results'
-    | '/buyer/summary'
-    | '/seller/details'
     | '/seller/intro'
     | '/seller/payment'
+    | '/seller/preview'
     | '/seller/quiz'
     | '/seller/results'
-    | '/seller/summary'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -400,10 +370,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/beta'
-    | '/demo'
     | '/account'
     | '/login'
-    | '/match-activity'
+    | '/matches'
     | '/signup'
     | '/upgrade'
     | '/api/agent-matches'
@@ -417,18 +386,16 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
-    | '/buyer/details'
     | '/buyer/intro'
     | '/buyer/payment'
+    | '/buyer/preview'
     | '/buyer/quiz'
     | '/buyer/results'
-    | '/buyer/summary'
-    | '/seller/details'
     | '/seller/intro'
     | '/seller/payment'
+    | '/seller/preview'
     | '/seller/quiz'
     | '/seller/results'
-    | '/seller/summary'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -440,10 +407,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/beta'
-    | '/demo'
     | '/_app/account'
     | '/_app/login'
-    | '/_app/match-activity'
+    | '/_app/matches'
     | '/_app/signup'
     | '/_app/upgrade'
     | '/api/agent-matches'
@@ -457,18 +423,16 @@ export interface FileRouteTypes {
     | '/_app/agent/profile'
     | '/_app/agent/quiz'
     | '/_app/agent/subscribe'
-    | '/_app/buyer/details'
     | '/_app/buyer/intro'
     | '/_app/buyer/payment'
+    | '/_app/buyer/preview'
     | '/_app/buyer/quiz'
     | '/_app/buyer/results'
-    | '/_app/buyer/summary'
-    | '/_app/seller/details'
     | '/_app/seller/intro'
     | '/_app/seller/payment'
+    | '/_app/seller/preview'
     | '/_app/seller/quiz'
     | '/_app/seller/results'
-    | '/_app/seller/summary'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -481,7 +445,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   BetaRoute: typeof BetaRoute
-  DemoRoute: typeof DemoRoute
   ApiAgentMatchesRoute: typeof ApiAgentMatchesRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -492,13 +455,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/demo': {
-      id: '/demo'
-      path: '/demo'
-      fullPath: '/demo'
-      preLoaderRoute: typeof DemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/beta': {
       id: '/beta'
       path: '/beta'
@@ -548,11 +504,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSignupRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/match-activity': {
-      id: '/_app/match-activity'
-      path: '/match-activity'
-      fullPath: '/match-activity'
-      preLoaderRoute: typeof AppMatchActivityRouteImport
+    '/_app/matches': {
+      id: '/_app/matches'
+      path: '/matches'
+      fullPath: '/matches'
+      preLoaderRoute: typeof AppMatchesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/login': {
@@ -611,13 +567,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/seller/summary': {
-      id: '/_app/seller/summary'
-      path: '/seller/summary'
-      fullPath: '/seller/summary'
-      preLoaderRoute: typeof AppSellerSummaryRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/seller/results': {
       id: '/_app/seller/results'
       path: '/seller/results'
@@ -630,6 +579,13 @@ declare module '@tanstack/react-router' {
       path: '/seller/quiz'
       fullPath: '/seller/quiz'
       preLoaderRoute: typeof AppSellerQuizRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/seller/preview': {
+      id: '/_app/seller/preview'
+      path: '/seller/preview'
+      fullPath: '/seller/preview'
+      preLoaderRoute: typeof AppSellerPreviewRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/seller/payment': {
@@ -646,20 +602,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSellerIntroRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/seller/details': {
-      id: '/_app/seller/details'
-      path: '/seller/details'
-      fullPath: '/seller/details'
-      preLoaderRoute: typeof AppSellerDetailsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/buyer/summary': {
-      id: '/_app/buyer/summary'
-      path: '/buyer/summary'
-      fullPath: '/buyer/summary'
-      preLoaderRoute: typeof AppBuyerSummaryRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/buyer/results': {
       id: '/_app/buyer/results'
       path: '/buyer/results'
@@ -674,6 +616,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBuyerQuizRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/buyer/preview': {
+      id: '/_app/buyer/preview'
+      path: '/buyer/preview'
+      fullPath: '/buyer/preview'
+      preLoaderRoute: typeof AppBuyerPreviewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/buyer/payment': {
       id: '/_app/buyer/payment'
       path: '/buyer/payment'
@@ -686,13 +635,6 @@ declare module '@tanstack/react-router' {
       path: '/buyer/intro'
       fullPath: '/buyer/intro'
       preLoaderRoute: typeof AppBuyerIntroRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/buyer/details': {
-      id: '/_app/buyer/details'
-      path: '/buyer/details'
-      fullPath: '/buyer/details'
-      preLoaderRoute: typeof AppBuyerDetailsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/agent/subscribe': {
@@ -764,7 +706,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
   AppLoginRoute: typeof AppLoginRoute
-  AppMatchActivityRoute: typeof AppMatchActivityRoute
+  AppMatchesRoute: typeof AppMatchesRoute
   AppSignupRoute: typeof AppSignupRoute
   AppUpgradeRoute: typeof AppUpgradeRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -776,18 +718,16 @@ interface AppRouteChildren {
   AppAgentProfileRoute: typeof AppAgentProfileRoute
   AppAgentQuizRoute: typeof AppAgentQuizRoute
   AppAgentSubscribeRoute: typeof AppAgentSubscribeRoute
-  AppBuyerDetailsRoute: typeof AppBuyerDetailsRoute
   AppBuyerIntroRoute: typeof AppBuyerIntroRoute
   AppBuyerPaymentRoute: typeof AppBuyerPaymentRoute
+  AppBuyerPreviewRoute: typeof AppBuyerPreviewRoute
   AppBuyerQuizRoute: typeof AppBuyerQuizRoute
   AppBuyerResultsRoute: typeof AppBuyerResultsRoute
-  AppBuyerSummaryRoute: typeof AppBuyerSummaryRoute
-  AppSellerDetailsRoute: typeof AppSellerDetailsRoute
   AppSellerIntroRoute: typeof AppSellerIntroRoute
   AppSellerPaymentRoute: typeof AppSellerPaymentRoute
+  AppSellerPreviewRoute: typeof AppSellerPreviewRoute
   AppSellerQuizRoute: typeof AppSellerQuizRoute
   AppSellerResultsRoute: typeof AppSellerResultsRoute
-  AppSellerSummaryRoute: typeof AppSellerSummaryRoute
   AppAgentIndexRoute: typeof AppAgentIndexRoute
   AppBuyerIndexRoute: typeof AppBuyerIndexRoute
   AppSellerIndexRoute: typeof AppSellerIndexRoute
@@ -796,7 +736,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
   AppLoginRoute: AppLoginRoute,
-  AppMatchActivityRoute: AppMatchActivityRoute,
+  AppMatchesRoute: AppMatchesRoute,
   AppSignupRoute: AppSignupRoute,
   AppUpgradeRoute: AppUpgradeRoute,
   AppIndexRoute: AppIndexRoute,
@@ -808,18 +748,16 @@ const AppRouteChildren: AppRouteChildren = {
   AppAgentProfileRoute: AppAgentProfileRoute,
   AppAgentQuizRoute: AppAgentQuizRoute,
   AppAgentSubscribeRoute: AppAgentSubscribeRoute,
-  AppBuyerDetailsRoute: AppBuyerDetailsRoute,
   AppBuyerIntroRoute: AppBuyerIntroRoute,
   AppBuyerPaymentRoute: AppBuyerPaymentRoute,
+  AppBuyerPreviewRoute: AppBuyerPreviewRoute,
   AppBuyerQuizRoute: AppBuyerQuizRoute,
   AppBuyerResultsRoute: AppBuyerResultsRoute,
-  AppBuyerSummaryRoute: AppBuyerSummaryRoute,
-  AppSellerDetailsRoute: AppSellerDetailsRoute,
   AppSellerIntroRoute: AppSellerIntroRoute,
   AppSellerPaymentRoute: AppSellerPaymentRoute,
+  AppSellerPreviewRoute: AppSellerPreviewRoute,
   AppSellerQuizRoute: AppSellerQuizRoute,
   AppSellerResultsRoute: AppSellerResultsRoute,
-  AppSellerSummaryRoute: AppSellerSummaryRoute,
   AppAgentIndexRoute: AppAgentIndexRoute,
   AppBuyerIndexRoute: AppBuyerIndexRoute,
   AppSellerIndexRoute: AppSellerIndexRoute,
@@ -830,7 +768,6 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   BetaRoute: BetaRoute,
-  DemoRoute: DemoRoute,
   ApiAgentMatchesRoute: ApiAgentMatchesRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

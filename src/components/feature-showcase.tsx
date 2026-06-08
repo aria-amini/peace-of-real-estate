@@ -1,5 +1,7 @@
 import { CheckCircle2, ClipboardList, MessageSquare, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { MatchCardModern } from '@/components/match-card-variants'
 import { mockMatch1 } from '@/components/match-card-variants'
 
@@ -126,7 +128,7 @@ function QuizMockup() {
 	const selected = 1
 
 	return (
-		<div className="border-border bg-card relative mx-auto w-96 scale-[0.85] overflow-hidden rounded-2xl border shadow-lg sm:scale-100">
+		<Card className="border-border bg-card relative mx-auto w-96 scale-[0.85] overflow-hidden rounded-2xl border p-0 py-0 shadow-lg ring-0 sm:scale-100">
 			<div className="space-y-4 p-5">
 				{/* Progress bar */}
 				<div className="space-y-2">
@@ -154,12 +156,13 @@ function QuizMockup() {
 						'Phone calls — I like real-time conversation',
 						'Mixed — depends on the situation',
 					].map((option, i) => (
-						<button
+						<Button
 							key={option}
 							type="button"
+							variant="outline"
 							disabled
 							className={cn(
-								'flex w-full items-center gap-3 rounded-lg border p-3 text-left text-xs disabled:pointer-events-none',
+								'h-auto w-full justify-start gap-3 rounded-lg p-3 text-left text-xs whitespace-normal',
 								selected === i
 									? 'border-primary bg-primary/5'
 									: 'border-border',
@@ -176,11 +179,11 @@ function QuizMockup() {
 								{selected === i && <CheckCircle2 className="h-3 w-3" />}
 							</div>
 							<span>{option}</span>
-						</button>
+						</Button>
 					))}
 				</div>
 			</div>
-		</div>
+		</Card>
 	)
 }
 
@@ -194,7 +197,7 @@ function MatchesMockup() {
 
 function IntroMockup() {
 	return (
-		<div className="border-border bg-card relative mx-auto w-96 scale-[0.85] overflow-hidden rounded-2xl border shadow-lg sm:scale-100">
+		<Card className="border-border bg-card relative mx-auto w-96 scale-[0.85] overflow-hidden rounded-2xl border p-0 py-0 shadow-lg ring-0 sm:scale-100">
 			<div className="space-y-4 p-5">
 				<div className="flex items-center gap-3">
 					<div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
@@ -225,22 +228,23 @@ function IntroMockup() {
 				</div>
 
 				<div className="flex gap-2">
-					<button
+					<Button
 						type="button"
 						disabled
-						className="bg-primary text-primary-foreground flex-1 rounded-lg py-2 text-xs font-medium disabled:pointer-events-none disabled:opacity-50"
+						className="flex-1 rounded-lg py-2 text-xs"
 					>
 						Send Introduction
-					</button>
-					<button
+					</Button>
+					<Button
 						type="button"
 						disabled
-						className="border-border flex-1 rounded-lg border py-2 text-xs font-medium disabled:pointer-events-none disabled:opacity-50"
+						variant="outline"
+						className="flex-1 rounded-lg py-2 text-xs"
 					>
 						View Full Profile
-					</button>
+					</Button>
 				</div>
 			</div>
-		</div>
+		</Card>
 	)
 }

@@ -17,6 +17,7 @@ export type ConsumerFlowStage =
 	| 'quiz'
 	| 'details'
 	| 'summary'
+	| 'preview'
 	| 'payment'
 	| 'results'
 

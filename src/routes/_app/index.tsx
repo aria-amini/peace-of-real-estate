@@ -1,25 +1,9 @@
 import { redirectAuthenticatedUsers } from '@/lib/auth-guards'
-import { CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react'
-import { createFileRoute } from '@tanstack/react-router'
-import { ArrowRight } from 'lucide-react'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 import { GetMatchedDialog } from '@/components/get-matched-dialog'
-import { FeatureShowcase } from '@/components/feature-showcase'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table'
-import {
-	TypographyH1,
-	TypographyH2,
-	TypographyP,
-} from '@/components/typography'
 
 export const Route = createFileRoute('/_app/')({
 	beforeLoad: redirectAuthenticatedUsers,
@@ -29,131 +13,143 @@ export const Route = createFileRoute('/_app/')({
 function LandingPage() {
 	return (
 		<>
-			<div className="flex w-full flex-col">
-				<HeroSection />
-				<MarqueeBanner />
-			</div>
-			<FeatureShowcase />
-			<ComparisonSection />
+			<HeroSection />
+			<HowItWorksSection />
+			<FeaturesSection />
 		</>
 	)
 }
 
 function HeroSection() {
 	return (
-		<section className="bg-card relative flex h-[clamp(620px,calc(100svh-var(--app-header-height)-180px),760px)] w-full flex-col items-center justify-start gap-8 overflow-hidden pt-10 pb-8 text-center md:h-[clamp(520px,calc(100svh-var(--app-header-height)-180px),760px)] md:pt-14 md:pb-12">
-			{/* Background image */}
-			<div
-				className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-				style={{
-					backgroundImage:
-						'url(https://images.unsplash.com/photo-1685636916180-fc0ee6ad581b?auto=format&fit=crop&w=1600&q=80)',
-				}}
-			/>
-			{/* Dark overlay for contrast */}
-			<div className="absolute inset-0 bg-linear-to-b from-slate-950/70 via-slate-950/50 to-slate-950/80" />
+		<section className="bg-card relative w-full overflow-hidden pt-12 pb-10 md:pt-20 md:pb-12">
+			<div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-8 lg:px-10">
+				<div className="flex max-w-xl flex-col items-start gap-6 md:gap-8">
+					<h1 className="font-heading text-5xl leading-[0.98] font-semibold tracking-tight text-balance md:text-6xl lg:text-7xl">
+						Perfect Agent,
+						<br />
+						<span className="text-sky">Perfect Home.</span>
+					</h1>
 
-			<div className="relative z-10 flex max-w-3xl flex-col items-center gap-5 px-6">
-				<div className="flex flex-col items-center gap-6 rounded-3xl border border-white/30 bg-white/70 p-10 shadow-xl backdrop-blur-md md:p-12">
-					<TypographyH1 className="text-foreground text-4xl tracking-tight md:text-5xl lg:text-6xl">
-						Find your perfect agent
-					</TypographyH1>
-					<TypographyP className="text-foreground/70 max-w-xl text-lg leading-relaxed">
-						Take a simple quiz to find your perfect agent. Free services make
-						money by letting agents bid for your attention. We guarantee an
-						equal playing field, for the most expensive decision of your life.
-					</TypographyP>
-					<GetMatchedDialog>
+					<p className="text-muted-foreground max-w-lg text-base leading-8 md:text-lg">
+						The most expensive decision of your life starts with one choice —
+						the right agent. PRE is the first platform built to make sure that
+						choice is actually right — matched on working style, communication
+						expectations, and fit. Built for the consumer and the transparent,
+						authentic agent simultaneously.
+					</p>
+
+					<div className="flex flex-wrap gap-4 pt-1">
+						<GetMatchedDialog>
+							<Button
+								size="lg"
+								className="h-12 cursor-pointer rounded-xl px-8 text-base font-semibold shadow-md"
+							>
+								I'm a buyer/seller
+							</Button>
+						</GetMatchedDialog>
 						<Button
+							variant="outline"
 							size="lg"
-							className="mt-2 h-14 cursor-pointer rounded-full bg-linear-to-r from-slate-800 to-slate-900 px-10 text-lg font-semibold text-white shadow-lg shadow-slate-900/20 transition-all hover:from-slate-700 hover:to-slate-800 hover:shadow-xl hover:shadow-slate-900/30"
+							className="bg-card h-12 cursor-pointer rounded-xl px-8 text-base font-semibold"
+							asChild
 						>
-							Try For Free
-							<ArrowRight className="h-5 w-5" />
+							<Link to="/agent">I'm an agent</Link>
 						</Button>
-					</GetMatchedDialog>
+					</div>
+				</div>
+
+				<div className="relative flex w-full items-end justify-center md:justify-end">
+					<div className="bg-sky/10 absolute right-0 bottom-4 left-12 h-2/3 rounded-[3rem] blur-3xl" />
+					<img
+						src="/hero.png"
+						alt="Buyer and real estate agent shaking hands outside a home"
+						className="relative z-10 w-full max-w-2xl object-contain md:max-w-none"
+					/>
 				</div>
 			</div>
 		</section>
 	)
 }
 
-function ComparisonSection() {
+const howItWorksSteps = [
+	{
+		id: 1,
+		title: 'Tell us what matters',
+		description:
+			'Answer a quick questionnaire about your needs, style, and deal-breakers.',
+		image: '/step1.png',
+	},
+	{
+		id: 2,
+		title: 'See your verified matches',
+		description:
+			'Get ranked agent matches with a detailed fit rationale — no guessing.',
+		image: '/step2.png',
+	},
+	{
+		id: 3,
+		title: 'Request your intro',
+		description: 'Choose your agent and we handle the warm introduction. Done.',
+		image: '/step3.png',
+	},
+]
+
+function HowItWorksSection() {
 	return (
-		<section className="min-h-main-content flex flex-col gap-6 p-6">
-			<div className="mx-auto max-w-2xl">
-				<TypographyH2 className="text-center !text-4xl">Pricing</TypographyH2>
-				<TypographyP className="text-muted-foreground text-base">
-					If you are not paying for the matching service, someone else is. That
-					means agents pay for leads, referral access, or visibility. That
-					creates a platform incentive to maximize lead volume and agent spend,
-					not your fit.
-				</TypographyP>
-			</div>
+		<section
+			id="how-it-works"
+			className="bg-secondary/40 w-full py-16 md:py-20"
+		>
+			<div className="mx-auto max-w-6xl px-6 lg:px-10">
+				<div className="mb-12 text-center md:mb-16">
+					<h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
+						How Peace of Real Estate works
+					</h2>
+				</div>
 
-			<ComparisonTable />
-		</section>
-	)
-}
+				<div className="relative grid gap-10 md:grid-cols-3 md:gap-12">
+					<div className="pointer-events-none absolute top-14 left-1/3 hidden w-1/6 -translate-x-1/2 md:block">
+						<svg viewBox="0 0 120 24" fill="none" className="w-full">
+							<path
+								d="M0 12 Q60 0, 120 12"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeDasharray="6 4"
+								className="text-sky"
+							/>
+						</svg>
+					</div>
+					<div className="pointer-events-none absolute top-14 right-1/3 hidden w-1/6 translate-x-1/2 md:block">
+						<svg viewBox="0 0 120 24" fill="none" className="w-full">
+							<path
+								d="M0 12 Q60 0, 120 12"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeDasharray="6 4"
+								className="text-sky"
+							/>
+						</svg>
+					</div>
 
-function MarqueeBanner() {
-	const companies = [
-		{
-			name: 'Keller Williams',
-			logo: '/brand-logos/keller-williams.svg',
-		},
-		{
-			name: 'Coldwell Banker',
-			logo: '/brand-logos/coldwell-banker.svg',
-		},
-		{
-			name: 'RE/MAX',
-			logo: '/brand-logos/remax.svg',
-		},
-		{
-			name: 'Century 21',
-			logo: '/brand-logos/century-21.svg',
-		},
-		{
-			name: 'Berkshire Hathaway',
-			logo: '/brand-logos/berkshire-hathaway.svg',
-		},
-		{
-			name: 'Zillow',
-			logo: '/brand-logos/zillow.svg',
-		},
-		{
-			name: 'Opendoor',
-			logo: '/brand-logos/opendoor.svg',
-		},
-	]
-
-	return (
-		<section className="flex flex-col items-center overflow-hidden border-2 bg-white shadow-md backdrop-blur-sm">
-			<p className="text-muted-foreground/60 w-full pt-6 pb-4 text-center text-xs font-medium tracking-widest uppercase underline">
-				Trusted by Baltimore's Top Realtors
-			</p>
-			<div
-				className="relative w-full max-w-6xl overflow-hidden px-20 pb-4"
-				style={{
-					maskImage:
-						'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
-					WebkitMaskImage:
-						'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
-				}}
-			>
-				<div className="animate-marquee flex w-max items-center gap-14">
-					{[...companies, ...companies].map((company, i) => (
-						<span
-							key={i}
-							className="flex h-12 min-w-36 items-center justify-center opacity-50 transition-opacity hover:opacity-100"
+					{howItWorksSteps.map((step) => (
+						<div
+							key={step.id}
+							className="relative flex flex-col items-center text-center"
 						>
 							<img
-								src={company.logo}
-								alt={company.name}
-								className="max-h-8 max-w-32 object-contain"
+								src={step.image}
+								alt=""
+								className="mb-5 h-28 w-28 object-contain md:h-32 md:w-32"
 							/>
-						</span>
+
+							<h3 className="font-heading mb-3 text-lg font-semibold">
+								{step.title}
+							</h3>
+							<p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
+								{step.description}
+							</p>
+						</div>
 					))}
 				</div>
 			</div>
@@ -161,78 +157,57 @@ function MarqueeBanner() {
 	)
 }
 
-function ComparisonTable() {
-	const rows = [
-		['Price', '$20.00', '$0.00'],
-		['Optimized for', 'Fit and transparency', 'Lead volume'],
-		['Agent incentives', 'Serve aligned clients', 'Win auctioned attention'],
-		['Hidden fees', 'None', 'Referral fees up to 40%'],
-		['Your info sold', 'Never', 'To agents & partners'],
-		['Agent vetting', 'Quality screened', 'Open to all'],
-		['Support', 'Dedicated concierge', 'Self-service only'],
-	]
+const featureItems = [
+	'Matched to agents based on your communication style, price range, goals, and needs',
+	'Peace Pact agents who commit to transparency and putting your interests first',
+	'Clear fit rationale before you commit, so you can choose with confidence',
+	'Commission coaching, tips, and scripts to help you ask the right questions upfront',
+	'Backup matches ready if your first pick is not available',
+]
 
+function FeaturesSection() {
 	return (
-		<Card className="mx-auto max-w-2xl overflow-hidden">
-			<CardContent className="p-0">
-				<Table className="border-none text-[11px] sm:text-sm md:text-base">
-					<TableHeader>
-						<TableRow className="bg-primary hover:bg-primary">
-							<TableHead className="text-primary-foreground"></TableHead>
-							<TableHead className="text-primary-foreground">
-								Peace of Real Estate
-							</TableHead>
-							<TableHead className="text-primary-foreground">
-								Free Services
-							</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{rows.map(([label, pre, marketplace]) => {
-							const isPriceRow = label === 'Price'
-							return (
-								<TableRow key={label}>
-									<TableCell className="p-2 font-medium md:p-4">
-										{label}
-									</TableCell>
-									<TableCell className="p-2 md:p-4">
-										<span className="flex items-center gap-2">
-											{isPriceRow ? (
-												<XCircleIcon
-													weight="fill"
-													className="size-4 shrink-0 text-red-600 md:size-5"
-												/>
-											) : (
-												<CheckCircleIcon
-													weight="fill"
-													className="size-4 shrink-0 text-green-600 md:size-5"
-												/>
-											)}
-											{pre}
-										</span>
-									</TableCell>
-									<TableCell className="p-2 md:p-4">
-										<span className="flex items-center gap-2">
-											{isPriceRow ? (
-												<CheckCircleIcon
-													weight="fill"
-													className="size-4 shrink-0 text-green-600 md:size-5"
-												/>
-											) : (
-												<XCircleIcon
-													weight="fill"
-													className="size-4 shrink-0 text-red-600 md:size-5"
-												/>
-											)}
-											{marketplace}
-										</span>
-									</TableCell>
-								</TableRow>
-							)
-						})}
-					</TableBody>
-				</Table>
-			</CardContent>
-		</Card>
+		<section id="buyers" className="bg-card w-full py-16 md:py-20">
+			<div className="mx-auto grid max-w-6xl items-center gap-12 px-6 md:grid-cols-2 md:gap-16 lg:px-10">
+				<div className="relative flex w-full justify-center md:justify-start">
+					<div className="bg-sky/10 absolute inset-x-8 top-14 bottom-10 rounded-full blur-3xl" />
+					<img
+						src="/match.png"
+						alt="Agent match preview on a phone"
+						className="relative z-10 w-full max-w-lg rounded-[2rem] object-contain"
+					/>
+				</div>
+
+				<div className="flex w-full flex-col gap-6">
+					<p className="text-sky text-xs font-semibold tracking-wider uppercase">
+						Built for buyers
+					</p>
+					<h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
+						More than agents.
+						<br />
+						Real partners.
+					</h2>
+
+					<ul className="flex flex-col gap-4">
+						{featureItems.map((item) => (
+							<li key={item} className="flex items-start gap-3">
+								<div className="bg-primary/10 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+									<CheckCircle2 className="text-primary h-3.5 w-3.5" />
+								</div>
+								<span className="text-sm leading-relaxed">{item}</span>
+							</li>
+						))}
+					</ul>
+
+					<Link
+						to="/"
+						className="text-primary inline-flex items-center gap-1 text-sm font-medium hover:underline"
+					>
+						Learn more for buyers
+						<ArrowRight className="h-4 w-4" />
+					</Link>
+				</div>
+			</div>
+		</section>
 	)
 }

@@ -392,14 +392,15 @@ export function QuestionFlow({
 								: answer === optionIndex
 							const isPopped = poppedOption === optionIndex
 							return (
-								<button
+								<Button
 									key={option}
 									type="button"
+									variant="outline"
 									onClick={(e) =>
 										toggleOption(optionIndex, e.clientX, e.clientY)
 									}
 									disabled={isTransitioning}
-									className="group flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-transform duration-200 ease-out disabled:opacity-50"
+									className="group h-auto w-full justify-start gap-4 rounded-lg p-4 text-left whitespace-normal transition-transform duration-200 ease-out"
 								>
 									<div
 										className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-all duration-200 ease-out ${isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30'} ${isPopped ? 'scale-125' : ''}`}
@@ -411,7 +412,7 @@ export function QuestionFlow({
 									<span className="text-foreground text-sm leading-relaxed">
 										{option}
 									</span>
-								</button>
+								</Button>
 							)
 						})}
 					</div>

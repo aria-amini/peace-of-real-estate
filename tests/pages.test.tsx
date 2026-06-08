@@ -10,11 +10,11 @@ const pages = [
 	'/agent/priorities',
 	'/agent/quiz',
 	'/agent/profile',
-	'/match-activity',
+	'/matches',
 	'/login',
 	'/signup',
 	'/beta',
-	'/buyer/summary',
+	'/buyer/preview',
 ] as const
 
 test.each(
@@ -32,7 +32,9 @@ test('home get matched dialog matches desktop screenshot', async () => {
 		path: '/',
 		name: 'home-get-matched-dialog',
 		prepare: async () => {
-			await userEvent.click(page.getByRole('button', { name: /try for free/i }))
+			await userEvent.click(
+				page.getByRole('button', { name: /I'm a buyer\/seller/i }),
+			)
 			await expect.element(page.getByRole('dialog')).toBeVisible()
 		},
 		screenshotTarget: () => document.body,

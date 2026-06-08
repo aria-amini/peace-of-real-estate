@@ -1,3 +1,4 @@
+import { AccountSidebar } from '@/components/account-sidebar'
 import { FlowBreadcrumb } from '@/components/flow-breadcrumb'
 import {
 	Dialog,
@@ -8,6 +9,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/auth-client'
 import { isSignupFlowPath } from '@/lib/signup-flow'
@@ -31,8 +33,15 @@ function AppShell() {
 	const router = useRouterState()
 	const currentPath = router.location.pathname
 	const [showLeaveFlowDialog, setShowLeaveFlowDialog] = useState(false)
-	const homeTarget = session ? '/match-activity' : '/'
+	const homeTarget = session ? '/matches' : '/'
+	const isMarketingHome = !session && currentPath === '/'
 	const shouldConfirmHomeNavigation = !session && isSignupFlowPath(currentPath)
+	const showSidebar =
+		currentPath === '/matches' ||
+		currentPath.startsWith('/account') ||
+		currentPath === '/upgrade'
+	const hideHeader = showSidebar
+	const hideFooter = showSidebar
 	const userInitials = session?.user.name
 		? session.user.name
 				.split(/\s+/)
@@ -54,63 +63,83 @@ function AppShell() {
 		void navigate({ to: homeTarget })
 	}
 
-	return (
+	const layout = (
 		<div className="flex min-h-dvh flex-col">
-			<header className="bg-background sticky top-0 z-50 h-(--app-header-height) border-b">
-				<div className="mx-auto flex h-full w-full items-center justify-between px-5">
-					<Link
-						to={homeTarget}
-						onClick={handleHomeClick}
-						className="flex items-center gap-2"
+			{!hideHeader && (
+				<>
+					<header
+						className={`${isMarketingHome ? 'bg-card' : 'bg-background border-b'} sticky top-0 z-50 h-(--app-header-height)`}
 					>
-						<img
-							src="/logomark-theme.svg"
-							alt="Peace of Real Estate"
-							className="h-8 w-auto shrink-0"
-						/>
-						<span className="text-sm font-medium whitespace-nowrap">
-							Peace of Real-Estate
-						</span>
-					</Link>
-
-					<div className="flex items-center gap-1">
-						{session ? (
-							<UserDropdown userInitials={userInitials} />
-						) : (
+						<div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-5 lg:px-10">
 							<Link
-								to="/login"
-								search={{ redirect: currentPath }}
-								className="hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 inline-flex h-9 items-center justify-center gap-1 rounded-4xl px-4 text-sm font-medium whitespace-nowrap transition-colors"
+								to={homeTarget}
+								onClick={handleHomeClick}
+								className="flex items-center gap-2.5"
 							>
-								Sign in
-								<User className="h-4 w-4" />
+								<img
+									src="/logomark-theme.svg"
+									alt="Peace of Real Estate"
+									className="h-8 w-auto shrink-0 md:h-9"
+								/>
+								<span className="font-heading text-sm font-semibold whitespace-nowrap md:text-lg">
+									Peace of Real-Estate
+								</span>
 							</Link>
-						)}
-					</div>
-				</div>
-			</header>
-			<FlowBreadcrumb />
-			<main className="flex w-full flex-1 flex-col items-center overflow-x-hidden">
+
+							{isMarketingHome ? <MarketingNav /> : null}
+
+							<div className="flex items-center gap-2">
+								{session ? (
+									<UserDropdown userInitials={userInitials} />
+								) : (
+									<>
+										<Link
+											to="/login"
+											search={{ redirect: currentPath }}
+											className="hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+										>
+											Log in
+										</Link>
+										<Link
+											to="/login"
+											search={{ redirect: currentPath }}
+											className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+										>
+											Get started
+										</Link>
+									</>
+								)}
+							</div>
+						</div>
+					</header>
+					<FlowBreadcrumb />
+				</>
+			)}
+			<main className="flex w-full flex-1 flex-col overflow-x-hidden">
 				<Outlet />
 			</main>
-			<footer className="h-(--app-footer-height) w-full border-t">
-				<div className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-2 px-6 md:flex-row md:justify-between md:gap-3 md:px-10">
-					<p className="text-muted-foreground text-xs">
-						&copy; 2026 Peace of Real Estate. All rights reserved.
-					</p>
-					<div className="flex gap-6">
-						<Link to="/agent" className="text-muted-foreground text-xs">
-							Agent Login
-						</Link>
-						<Link to="/" className="text-muted-foreground text-xs">
-							Privacy
-						</Link>
-						<Link to="/" className="text-muted-foreground text-xs">
-							Terms
-						</Link>
+			{!hideFooter && (
+				<footer
+					className={`${isMarketingHome ? 'bg-card' : 'bg-background'} h-(--app-footer-height) w-full border-t`}
+				>
+					<div className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-2 px-6 md:flex-row md:justify-between md:gap-3 md:px-10">
+						<p className="text-muted-foreground text-xs">
+							&copy; 2026 Peace of Real Estate. All rights reserved.
+						</p>
+						<div className="flex gap-6">
+							<Link to="/agent" className="text-muted-foreground text-xs">
+								Agent Login
+							</Link>
+							<Link to="/" className="text-muted-foreground text-xs">
+								Privacy
+							</Link>
+							<Link to="/" className="text-muted-foreground text-xs">
+								Terms
+							</Link>
+						</div>
 					</div>
-				</div>
-			</footer>
+				</footer>
+			)}
 			<Dialog open={showLeaveFlowDialog} onOpenChange={setShowLeaveFlowDialog}>
 				<DialogContent className="max-w-sm">
 					<DialogHeader>
@@ -136,6 +165,39 @@ function AppShell() {
 				</DialogContent>
 			</Dialog>
 		</div>
+	)
+
+	if (showSidebar) {
+		return (
+			<SidebarProvider>
+				<AccountSidebar />
+				<SidebarInset className="overflow-x-hidden">{layout}</SidebarInset>
+			</SidebarProvider>
+		)
+	}
+
+	return layout
+}
+
+function MarketingNav() {
+	return (
+		<nav className="hidden items-center gap-8 text-sm font-medium lg:flex">
+			<a href="#how-it-works" className="hover:text-primary transition-colors">
+				How it works
+			</a>
+			<a href="#buyers" className="hover:text-primary transition-colors">
+				For buyers
+			</a>
+			<Link to="/agent" className="hover:text-primary transition-colors">
+				For agents
+			</Link>
+			<a href="#buyers" className="hover:text-primary transition-colors">
+				Pricing
+			</a>
+			<a href="#buyers" className="hover:text-primary transition-colors">
+				Resources
+			</a>
+		</nav>
 	)
 }
 
@@ -197,7 +259,7 @@ function UserDropdown({ userInitials }: { userInitials: string | null }) {
 							My profile
 						</Link>
 						<Link
-							to="/match-activity"
+							to="/matches"
 							className="hover:bg-muted flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors"
 							onClick={() => setIsOpen(false)}
 						>

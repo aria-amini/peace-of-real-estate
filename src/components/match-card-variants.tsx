@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import type { MatchDetails, MatchStatus } from '@/components/match-card'
 
 export { type MatchDetails, type MatchStatus }
@@ -111,9 +112,11 @@ export const mockMatch3: MatchDetails = {
 export function MatchCardModern({
 	match,
 	disabled = false,
+	locked = false,
 }: {
 	match: MatchDetails
 	disabled?: boolean
+	locked?: boolean
 }) {
 	const initials = match.name
 		.split(' ')
@@ -123,39 +126,50 @@ export function MatchCardModern({
 	const showAvatar = Boolean(match.avatar) && !avatarFailed
 
 	return (
-		<Card className="overflow-hidden">
-			<CardContent className="p-6">
-				{/* Header */}
+		<Card className="mx-auto max-w-xl overflow-hidden">
+			<CardContent className="p-5">
+				{/* Header: Avatar + Info + Match Score */}
 				<div className="flex items-start gap-4">
 					<div className="shrink-0">
 						{showAvatar ? (
 							<img
 								src={match.avatar}
 								alt={match.name}
-								className="h-16 w-16 rounded-2xl object-cover"
+								className={cn(
+									'h-14 w-14 rounded-xl object-cover',
+									locked && 'blur-md',
+								)}
 								onError={() => setAvatarFailed(true)}
 							/>
 						) : (
-							<div className="bg-secondary flex h-16 w-16 items-center justify-center rounded-2xl text-lg font-medium">
+							<div
+								className={cn(
+									'bg-secondary flex h-14 w-14 items-center justify-center rounded-xl text-base font-medium',
+									locked && 'blur-md select-none',
+								)}
+							>
 								{initials}
 							</div>
 						)}
 					</div>
 					<div className="min-w-0 flex-1">
-						<div className="flex items-start justify-between gap-2">
-							<div>
-								<div className="flex items-center gap-2">
-									<h3 className="text-xl font-bold">{match.name}</h3>
-									{match.isTopMatch && (
-										<span className="bg-accent/15 text-accent-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
-											<Star className="h-3 w-3 fill-current" />
-											Top
-										</span>
-									)}
-								</div>
-								<p className="text-muted-foreground text-sm">{match.agency}</p>
-							</div>
+						<div className="flex items-center gap-2">
+							<h3
+								className={cn(
+									'text-lg font-bold',
+									locked && 'blur-sm select-none',
+								)}
+							>
+								{match.name}
+							</h3>
+							{match.isTopMatch && (
+								<span className="bg-accent/15 text-accent-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
+									<Star className="h-3 w-3 fill-current" />
+									Top
+								</span>
+							)}
 						</div>
+						<p className="text-muted-foreground text-sm">{match.agency}</p>
 						<div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
 							<span className="flex items-center gap-1">
 								<MapPin className="h-3 w-3" />
@@ -167,15 +181,21 @@ export function MatchCardModern({
 							</span>
 						</div>
 					</div>
+					{/* Match Score Badge */}
+					<div className="shrink-0 text-center">
+						<div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-xl text-base font-bold">
+							{match.fitScore}%
+						</div>
+					</div>
 				</div>
 
 				{/* Bio */}
-				<p className="text-muted-foreground mt-4 text-sm leading-relaxed">
+				<p className="text-muted-foreground mt-3 text-sm leading-relaxed">
 					{match.about}
 				</p>
 
 				{/* Specialties */}
-				<div className="mt-4 flex flex-wrap gap-1.5">
+				<div className="mt-3 flex flex-wrap gap-1.5">
 					{match.specialties.map((s) => (
 						<span
 							key={s}
@@ -186,40 +206,37 @@ export function MatchCardModern({
 					))}
 				</div>
 
-				{/* Stats */}
-				<div className="mt-6 grid grid-cols-4 gap-4">
-					<div>
-						<div className="text-muted-foreground mb-1 text-xs">Deals</div>
-						<div className="text-2xl font-bold">
-							{match.stats?.transactions}
+				{/* Stats Row */}
+				{match.stats && (
+					<div className="mt-4 flex items-center gap-3 border-t pt-3 text-sm">
+						<div className="flex items-center gap-1.5">
+							<span className="text-muted-foreground text-xs">Deals</span>
+							<span className="font-semibold">{match.stats.transactions}</span>
+						</div>
+						<div className="bg-border h-3.5 w-px" />
+						<div className="flex items-center gap-1.5">
+							<span className="text-muted-foreground text-xs">Days</span>
+							<span className="font-semibold">{match.stats.avgDays}</span>
+						</div>
+						<div className="bg-border h-3.5 w-px" />
+						<div className="flex items-center gap-1">
+							<Star className="fill-accent text-accent h-3.5 w-3.5" />
+							<span className="font-semibold">{match.stats.satisfaction}</span>
 						</div>
 					</div>
-					<div>
-						<div className="text-muted-foreground mb-1 text-xs">Days</div>
-						<div className="text-2xl font-bold">{match.stats?.avgDays}</div>
-					</div>
-					<div>
-						<div className="text-muted-foreground mb-1 text-xs">Match</div>
-						<div className="text-2xl font-bold">{match.fitScore}%</div>
-					</div>
-					<div>
-						<div className="text-muted-foreground mb-1 text-xs">Rating</div>
-						<div className="flex items-center gap-1 text-2xl font-bold">
-							<Star className="fill-accent text-accent h-5 w-5" />
-							{match.stats?.satisfaction}
-						</div>
-					</div>
-				</div>
+				)}
 
 				{/* Actions */}
-				<div className="mt-6 flex justify-center">
-					<Button
-						disabled={disabled}
-						className="h-12 rounded-2xl px-12 text-base"
-					>
-						Accept Match
-					</Button>
-				</div>
+				{!locked && (
+					<div className="mt-4">
+						<Button
+							disabled={disabled}
+							className="h-11 w-full rounded-xl text-base"
+						>
+							Accept Match
+						</Button>
+					</div>
+				)}
 			</CardContent>
 		</Card>
 	)
