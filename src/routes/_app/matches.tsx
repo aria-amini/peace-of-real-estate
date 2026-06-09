@@ -1,15 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { ArrowRightLeft, Users } from 'lucide-react'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { ArrowRightLeft, Lock, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import type { MatchStatus } from '@/components/match-card'
-import { MatchCardModern } from '@/components/match-card-variants'
+import {
+	MatchCardModern,
+	type MatchStatus,
+} from '@/components/match-card-variants'
 import { getAgentMatches } from '@/lib/agent-matches'
-import { redirectUnauthenticatedUsers } from '@/lib/auth-guards'
+import { isUserPremium, redirectUnauthenticatedUsers } from '@/lib/auth-guards'
 
 export const Route = createFileRoute('/_app/matches')({
 	beforeLoad: async () => {
@@ -22,6 +24,12 @@ export const Route = createFileRoute('/_app/matches')({
 
 function Matches() {
 	const [filter, setFilter] = useState<MatchStatus | 'all'>('all')
+
+	const { data: premiumStatus } = useQuery({
+		queryKey: ['user-premium'],
+		queryFn: isUserPremium,
+	})
+	const isLocked = !premiumStatus
 
 	const { data: matches = [], isLoading } = useQuery({
 		queryKey: ['agent-matches'],
@@ -53,6 +61,20 @@ function Matches() {
 				</p>
 			</div>
 
+			{/* Preview Banner */}
+			{isLocked && (
+				<div className="mx-auto mb-6 flex max-w-xl items-center gap-3 rounded-xl border bg-amber-50/50 px-4 py-3 dark:bg-amber-950/20">
+					<Lock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+					<p className="text-sm">
+						Preview mode — upgrade to unlock full match details and connect with
+						agents.
+					</p>
+					<Button asChild size="sm" className="ml-auto shrink-0">
+						<Link to="/upgrade">Unlock</Link>
+					</Button>
+				</div>
+			)}
+
 			{/* Filters */}
 			<div className="mx-auto mb-6 flex max-w-xl flex-wrap items-center gap-2">
 				<span className="text-muted-foreground mr-2 text-xs font-medium">
@@ -65,6 +87,7 @@ function Matches() {
 							onClick={() => setFilter(f)}
 							variant={filter === f ? 'default' : 'outline'}
 							size="sm"
+							disabled={isLocked}
 						>
 							{f.charAt(0).toUpperCase() + f.slice(1)}
 							{f !== 'all' && (
@@ -92,7 +115,7 @@ function Matches() {
 					</Card>
 				) : (
 					filteredMatches.map((match) => (
-						<MatchCardModern key={match.id} match={match} />
+						<MatchCardModern key={match.id} match={match} locked={isLocked} />
 					))
 				)}
 			</div>

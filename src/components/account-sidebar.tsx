@@ -81,16 +81,22 @@ export function AccountSidebar() {
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
-								<SidebarMenuButton asChild>
-									<Link to="/account">
+								<SidebarMenuButton
+									asChild
+									isActive={isActive('/account/preferences')}
+								>
+									<Link to="/account/preferences">
 										<SlidersHorizontal />
 										<span>Preferences</span>
 									</Link>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
-								<SidebarMenuButton asChild>
-									<Link to="/account">
+								<SidebarMenuButton
+									asChild
+									isActive={isActive('/account/questionnaire')}
+								>
+									<Link to="/account/questionnaire">
 										<ListChecks />
 										<span>Questionnaire</span>
 									</Link>

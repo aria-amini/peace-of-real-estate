@@ -15,11 +15,11 @@ import { useEffect, useState } from 'react'
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
 import { AuthCard } from '@/components/auth-card'
-import { AgentMatchCard, type AgentMatch } from '@/components/agent-match-card'
 import {
 	MatchCardModern,
 	mockMatch1,
 	mockMatch2,
+	type MatchDetails,
 } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -208,42 +208,50 @@ export const sellerConfig = {
 	accent: 'amber',
 } satisfies ConsumerFlowConfig
 
-const consumerMatches: AgentMatch[] = [
+const consumerMatches: MatchDetails[] = [
 	{
-		id: 1,
+		id: 'consumer-1',
 		name: 'Sarah Chen',
-		agency: 'Horizon Realty Group',
+		role: 'agent',
 		location: 'Austin, TX',
-		overall: 4.8,
+		zipCodes: ['78701'],
+		fitScore: 96,
+		status: 'new',
+		date: 'Just now',
+		experience: '12 years',
+		agency: 'Horizon Realty Group',
+		specialties: ['First-time buyers', 'Luxury homes', 'Calm negotiation'],
+		about:
+			'Known for patient guidance and transparent communication. Strong fit for clients who want a steady, low-pressure process.',
 		scores: {
 			'Working Style': 4.9,
 			Communication: 4.7,
 			Transparency: 4.8,
 			Fit: 4.9,
 		},
-		experience: '12 years',
-		specialties: ['First-time buyers', 'Luxury homes', 'Calm negotiation'],
-		about:
-			'Known for patient guidance and transparent communication. Strong fit for clients who want a steady, low-pressure process.',
-		topMatch: true,
+		isTopMatch: true,
 	},
 	{
-		id: 2,
+		id: 'consumer-2',
 		name: 'Marcus Johnson',
-		agency: 'Urban Nest Properties',
+		role: 'agent',
 		location: 'Austin, TX',
-		overall: 4.5,
+		zipCodes: ['78701'],
+		fitScore: 90,
+		status: 'new',
+		date: 'Just now',
+		experience: '8 years',
+		agency: 'Urban Nest Properties',
+		specialties: ['Fast timelines', 'Urban properties', 'Relocation'],
+		about:
+			'Efficient, data-driven agent who respects your time and keeps decisions moving without extra drama.',
 		scores: {
 			'Working Style': 4.6,
 			Communication: 4.4,
 			Transparency: 4.5,
 			Fit: 4.4,
 		},
-		experience: '8 years',
-		specialties: ['Fast timelines', 'Urban properties', 'Relocation'],
-		about:
-			'Efficient, data-driven agent who respects your time and keeps decisions moving without extra drama.',
-		topMatch: false,
+		isTopMatch: false,
 	},
 ]
 
@@ -575,8 +583,13 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 				info. You can select up to 3 agents total.
 			</p>
 			<div className="space-y-4">
-				{consumerMatches.map((match, index) => (
-					<AgentMatchCard key={match.id} match={match} index={index} />
+				{consumerMatches.map((match) => (
+					<MatchCardModern
+						key={match.id}
+						match={match}
+						showScoreBreakdown
+						actionLabel="Select Agent"
+					/>
 				))}
 			</div>
 			{config.kind === 'seller' ? (
