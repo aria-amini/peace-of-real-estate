@@ -23,9 +23,9 @@ function LandingPage() {
 function HeroSection() {
 	return (
 		<section className="bg-card relative w-full overflow-hidden pb-10">
-			<div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-8 lg:px-10">
+			<div className="mx-auto grid max-w-7xl gap-10 px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-8 lg:px-10">
 				<div className="flex max-w-xl flex-col items-start gap-6 md:gap-8">
-					<h1 className="font-heading text-5xl leading-[0.98] font-semibold tracking-tight text-balance md:text-6xl lg:text-7xl">
+					<h1 className="font-heading mt-8 text-5xl leading-[0.98] font-semibold tracking-tight text-balance md:text-6xl lg:text-7xl">
 						Perfect Agent,
 						<br />
 						<span className="text-sky">Perfect Home.</span>
@@ -59,14 +59,11 @@ function HeroSection() {
 					</div>
 				</div>
 
-				<div className="relative flex w-full items-end justify-center md:justify-end">
-					<div className="bg-sky/10 absolute right-0 bottom-4 left-12 h-2/3 rounded-[3rem] blur-3xl" />
-					<img
-						src="/hero.png"
-						alt="Buyer and real estate agent shaking hands outside a home"
-						className="relative z-10 w-full max-w-2xl object-contain md:max-w-none"
-					/>
-				</div>
+				<img
+					src="/hero.png"
+					alt="Buyer and real estate agent shaking hands outside a home"
+					className="w-full max-w-2xl object-contain"
+				/>
 			</div>
 		</section>
 	)
