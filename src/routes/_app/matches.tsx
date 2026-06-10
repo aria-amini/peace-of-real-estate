@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRightLeft, Lock, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -10,6 +10,7 @@ import {
 	MatchCardModern,
 	type MatchStatus,
 } from '@/components/match-card-variants'
+import { PaywallDialog } from '@/components/paywall-dialog'
 import { getAgentMatches } from '@/lib/agent-matches'
 import { isUserPremium, redirectUnauthenticatedUsers } from '@/lib/auth-guards'
 
@@ -24,8 +25,9 @@ export const Route = createFileRoute('/_app/matches')({
 
 function Matches() {
 	const [filter, setFilter] = useState<MatchStatus | 'all'>('all')
+	const [showPaywall, setShowPaywall] = useState(false)
 
-	const { data: premiumStatus } = useQuery({
+	const { data: premiumStatus, refetch: refetchPremium } = useQuery({
 		queryKey: ['user-premium'],
 		queryFn: isUserPremium,
 	})
@@ -38,6 +40,10 @@ function Matches() {
 
 	const filteredMatches =
 		filter === 'all' ? matches : matches.filter((m) => m.status === filter)
+
+	const handleUpgrade = () => {
+		void refetchPremium()
+	}
 
 	return (
 		<div className="mx-auto w-full max-w-3xl px-6 py-12 xl:mx-0 xl:ml-[calc((100vw-48rem)/2-var(--sidebar-width))]">
@@ -69,8 +75,12 @@ function Matches() {
 						Preview mode — upgrade to unlock full match details and connect with
 						agents.
 					</p>
-					<Button asChild size="sm" className="ml-auto shrink-0">
-						<Link to="/upgrade">Unlock</Link>
+					<Button
+						size="sm"
+						className="ml-auto shrink-0"
+						onClick={() => setShowPaywall(true)}
+					>
+						Unlock
 					</Button>
 				</div>
 			)}
@@ -115,10 +125,20 @@ function Matches() {
 					</Card>
 				) : (
 					filteredMatches.map((match) => (
-						<MatchCardModern key={match.id} match={match} locked={isLocked} />
+						<MatchCardModern
+							key={match.id}
+							match={match}
+							locked={isLocked}
+							onUnlock={() => setShowPaywall(true)}
+						/>
 					))
 				)}
 			</div>
+			<PaywallDialog
+				open={showPaywall}
+				onOpenChange={setShowPaywall}
+				onUpgrade={handleUpgrade}
+			/>
 		</div>
 	)
 }

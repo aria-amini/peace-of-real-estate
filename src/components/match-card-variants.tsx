@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router'
 import { MapPin, Star, Award, Lock } from 'lucide-react'
 import { useState } from 'react'
 
@@ -160,12 +159,14 @@ export function MatchCardModern({
 	locked = false,
 	showScoreBreakdown = false,
 	actionLabel,
+	onUnlock,
 }: {
 	match: MatchDetails
 	disabled?: boolean
 	locked?: boolean
 	showScoreBreakdown?: boolean
 	actionLabel?: string
+	onUnlock?: () => void
 }) {
 	const initials = match.name
 		.split(' ')
@@ -292,11 +293,12 @@ export function MatchCardModern({
 				{/* Actions */}
 				{locked ? (
 					<div className="mt-4">
-						<Button asChild className="h-11 w-full rounded-xl text-base">
-							<Link to="/upgrade">
-								<Lock className="mr-2 h-4 w-4" />
-								Unlock Matches
-							</Link>
+						<Button
+							className="h-11 w-full rounded-xl text-base"
+							onClick={onUnlock}
+						>
+							<Lock className="mr-2 h-4 w-4" />
+							Unlock Matches
 						</Button>
 					</div>
 				) : (

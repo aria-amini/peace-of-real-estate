@@ -14,7 +14,6 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
-import { Route as AppUpgradeRouteImport } from './routes/_app/upgrade'
 import { Route as AppSignupRouteImport } from './routes/_app/signup'
 import { Route as AppMatchesRouteImport } from './routes/_app/matches'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
@@ -71,11 +70,6 @@ const ApiAgentMatchesRoute = ApiAgentMatchesRouteImport.update({
   id: '/api/agent-matches',
   path: '/api/agent-matches',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AppUpgradeRoute = AppUpgradeRouteImport.update({
-  id: '/upgrade',
-  path: '/upgrade',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppSignupRoute = AppSignupRouteImport.update({
   id: '/signup',
@@ -245,7 +239,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof AppLoginRoute
   '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
-  '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/account/preferences': typeof AppAccountPreferencesRoute
@@ -282,7 +275,6 @@ export interface FileRoutesByTo {
   '/login': typeof AppLoginRoute
   '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
-  '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/': typeof AppIndexRoute
@@ -323,7 +315,6 @@ export interface FileRoutesById {
   '/_app/login': typeof AppLoginRoute
   '/_app/matches': typeof AppMatchesRoute
   '/_app/signup': typeof AppSignupRoute
-  '/_app/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/_app/': typeof AppIndexRoute
@@ -365,7 +356,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/signup'
-    | '/upgrade'
     | '/api/agent-matches'
     | '/api/health'
     | '/account/preferences'
@@ -402,7 +392,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/signup'
-    | '/upgrade'
     | '/api/agent-matches'
     | '/api/health'
     | '/'
@@ -442,7 +431,6 @@ export interface FileRouteTypes {
     | '/_app/login'
     | '/_app/matches'
     | '/_app/signup'
-    | '/_app/upgrade'
     | '/api/agent-matches'
     | '/api/health'
     | '/_app/'
@@ -523,13 +511,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/agent-matches'
       preLoaderRoute: typeof ApiAgentMatchesRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_app/upgrade': {
-      id: '/_app/upgrade'
-      path: '/upgrade'
-      fullPath: '/upgrade'
-      preLoaderRoute: typeof AppUpgradeRouteImport
-      parentRoute: typeof AppRoute
     }
     '/_app/signup': {
       id: '/_app/signup'
@@ -779,7 +760,6 @@ interface AppRouteChildren {
   AppLoginRoute: typeof AppLoginRoute
   AppMatchesRoute: typeof AppMatchesRoute
   AppSignupRoute: typeof AppSignupRoute
-  AppUpgradeRoute: typeof AppUpgradeRoute
   AppIndexRoute: typeof AppIndexRoute
   AppAgentChatRoute: typeof AppAgentChatRoute
   AppAgentComplianceRoute: typeof AppAgentComplianceRoute
@@ -809,7 +789,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppLoginRoute: AppLoginRoute,
   AppMatchesRoute: AppMatchesRoute,
   AppSignupRoute: AppSignupRoute,
-  AppUpgradeRoute: AppUpgradeRoute,
   AppIndexRoute: AppIndexRoute,
   AppAgentChatRoute: AppAgentChatRoute,
   AppAgentComplianceRoute: AppAgentComplianceRoute,

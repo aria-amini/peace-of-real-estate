@@ -37,9 +37,7 @@ function AppShell() {
 	const isMarketingHome = !session && currentPath === '/'
 	const shouldConfirmHomeNavigation = !session && isSignupFlowPath(currentPath)
 	const showSidebar =
-		currentPath === '/matches' ||
-		currentPath.startsWith('/account') ||
-		currentPath === '/upgrade'
+		currentPath === '/matches' || currentPath.startsWith('/account')
 	const hideHeader = showSidebar
 	const hideFooter = showSidebar
 	const userInitials = session?.user.name

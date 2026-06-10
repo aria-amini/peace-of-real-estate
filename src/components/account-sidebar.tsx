@@ -17,7 +17,6 @@ import {
 	User,
 	SlidersHorizontal,
 	ListChecks,
-	CreditCard,
 	LogOut,
 } from 'lucide-react'
 
@@ -99,22 +98,6 @@ export function AccountSidebar() {
 									<Link to="/account/questionnaire">
 										<ListChecks />
 										<span>Questionnaire</span>
-									</Link>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-
-				<SidebarGroup>
-					<SidebarGroupLabel>Plan</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							<SidebarMenuItem>
-								<SidebarMenuButton asChild isActive={isActive('/upgrade')}>
-									<Link to="/upgrade">
-										<CreditCard />
-										<span>Subscription</span>
 									</Link>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
