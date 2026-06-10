@@ -25,7 +25,7 @@ import {
 	type MatchDetails,
 } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
 	Dialog,
@@ -638,172 +638,126 @@ export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 			subtitle="Preview"
 			icon={Sparkles}
 			headerInsideCard
+			card={false}
 		>
-			<div className="space-y-8">
-				{/* Profile Summary */}
-				<div className="space-y-4">
-					<div className="space-y-2 text-center">
-						<h2 className="font-heading text-2xl leading-relaxed font-normal">
-							Here's what we learned about you
-						</h2>
-						<p className="text-muted-foreground text-sm">
-							Your answers shaped this profile — and the agents we matched you
-							with.
-						</p>
-					</div>
-					<div className="min-h-[180px]">
-						{summaryReady ? (
-							<div className="bg-muted/40 space-y-4 rounded-xl p-5">
-								<div className="flex items-start gap-3">
-									<div className="bg-background flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-										<MessageSquare className="text-primary h-4 w-4" />
-									</div>
-									<p className="text-muted-foreground text-sm leading-relaxed">
-										You value clear, upfront communication and expect your agent
-										to set expectations early.
-									</p>
-								</div>
-								<div className="flex items-start gap-3">
-									<div className="bg-background flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-										<BarChart3 className="text-primary h-4 w-4" />
-									</div>
-									<p className="text-muted-foreground text-sm leading-relaxed">
-										You prefer a data-driven approach with market analysis to
-										inform every decision.
-									</p>
-								</div>
-								<div className="flex items-start gap-3">
-									<div className="bg-background flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-										<Zap className="text-primary h-4 w-4" />
-									</div>
-									<p className="text-muted-foreground text-sm leading-relaxed">
-										Timeliness matters to you — you want an agent who responds
-										quickly and keeps things moving.
-									</p>
-								</div>
-							</div>
-						) : (
-							<div className="bg-muted/40 space-y-4 rounded-xl p-5">
-								{Array.from({ length: 3 }).map((_, i) => (
-									<div key={i} className="flex items-start gap-3">
-										<Skeleton className="h-8 w-8 shrink-0 rounded-lg" />
-										<div className="flex-1 space-y-1.5 pt-0.5">
-											<Skeleton className="h-4 w-full" />
-											<Skeleton className="h-4 w-4/5" />
+			<div className="space-y-6">
+				{/* Unified Preview Panel */}
+				<Card className="overflow-hidden">
+					<CardContent className="p-6">
+						{/* Profile Summary */}
+						<div className="space-y-4">
+							<h2 className="font-heading text-lg">Your profile</h2>
+							<div className="min-h-[120px]">
+								{summaryReady ? (
+									<div className="space-y-3">
+										<div className="flex items-start gap-3">
+											<MessageSquare className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+											<p className="text-sm leading-snug">
+												Values clear, upfront communication
+											</p>
+										</div>
+										<div className="flex items-start gap-3">
+											<BarChart3 className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+											<p className="text-sm leading-snug">
+												Prefers data-driven market analysis
+											</p>
+										</div>
+										<div className="flex items-start gap-3">
+											<Zap className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+											<p className="text-sm leading-snug">
+												Wants fast responses and steady progress
+											</p>
 										</div>
 									</div>
-								))}
+								) : (
+									<div className="space-y-3">
+										{Array.from({ length: 3 }).map((_, i) => (
+											<div key={i} className="flex items-start gap-3">
+												<Skeleton className="h-4 w-4 shrink-0 rounded-sm" />
+												<div className="flex-1 space-y-1">
+													<Skeleton className="h-3.5 w-full" />
+													<Skeleton className="h-3.5 w-4/5" />
+												</div>
+											</div>
+										))}
+									</div>
+								)}
 							</div>
-						)}
-					</div>
-				</div>
+						</div>
 
-				{/* CTA */}
-				<div className="space-y-3 text-center">
-					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-						<DialogTrigger asChild>
-							<Button size="lg" className="gap-2">
-								Unlock Full Matches
-								<ArrowRight className="h-4 w-4" />
-							</Button>
-						</DialogTrigger>
-						<DialogContent className="max-w-md">
-							<DialogHeader>
-								<DialogTitle>Create your account</DialogTitle>
-								<DialogDescription>
-									Unlock your full match details and connect with agents.
-								</DialogDescription>
-							</DialogHeader>
-							<AuthCard mode="sign-up" embedded redirect="/matches" />
-						</DialogContent>
-					</Dialog>
-					<p className="text-muted-foreground text-sm">
-						Create your free account to see all match details and connect with
-						agents.
-					</p>
-				</div>
+						{/* Divider */}
+						<div className="my-6 border-t" />
 
-				{/* Match Teaser */}
-				<div className="space-y-4">
-					<div className="space-y-2 text-center">
-						<h3 className="font-heading text-lg leading-relaxed font-normal">
-							Your top match
-						</h3>
-						<p className="text-muted-foreground text-sm">
-							Based on your profile, here's your highest-ranked agent.
-						</p>
-					</div>
+						{/* Match Teaser */}
+						<div className="space-y-4">
+							<div className="flex items-center gap-2">
+								<Star className="text-primary h-4 w-4" />
+								<h3 className="font-heading text-base">Your top match</h3>
+							</div>
 
-					<div className="min-h-[200px]">
-						{matchReady ? (
-							<Card className="mx-auto max-w-md overflow-hidden">
-								<CardContent className="p-5">
-									<div className="flex items-start gap-4">
+							<div className="min-h-[120px]">
+								{matchReady ? (
+									<div className="border-border/60 bg-muted/30 flex items-start gap-4 rounded-xl border border-dashed p-4">
 										<div className="shrink-0">
-											<div className="bg-secondary flex h-14 w-14 items-center justify-center rounded-xl text-base font-medium blur-md select-none">
+											<div className="bg-secondary flex h-12 w-12 items-center justify-center rounded-lg text-sm font-medium blur-md select-none">
 												{initials}
 											</div>
 										</div>
 										<div className="min-w-0 flex-1">
-											<div className="flex items-center gap-2">
-												<h3 className="text-lg font-bold blur-sm select-none">
-													{topMatch.name}
-												</h3>
-												{topMatch.isTopMatch && (
-													<span className="bg-accent/15 text-accent-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
-														<Star className="h-3 w-3 fill-current" />
-														Top Match
-													</span>
-												)}
-											</div>
-											<p className="text-muted-foreground text-sm">
+											<h4 className="text-base font-semibold blur-sm select-none">
+												{topMatch.name}
+											</h4>
+											<p className="text-muted-foreground text-xs">
 												{topMatch.agency}
 											</p>
-											<div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
-												<span className="flex items-center gap-1">
-													<MapPin className="h-3 w-3" />
-													{topMatch.location}
-												</span>
-											</div>
+											<p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-xs">
+												<MapPin className="h-3 w-3" />
+												{topMatch.location}
+											</p>
 										</div>
 										<div className="shrink-0 text-center">
-											<div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-xl text-base font-bold">
+											<div className="bg-primary text-primary-foreground flex h-11 w-11 items-center justify-center rounded-lg text-sm font-bold">
 												{topMatch.fitScore}%
 											</div>
 										</div>
 									</div>
-
-									<div className="mt-4 border-t pt-4">
-										<p className="text-muted-foreground text-center text-sm leading-relaxed">
-											This agent scored {topMatch.fitScore}% fit based on your
-											communication and transparency preferences.
-										</p>
-									</div>
-								</CardContent>
-							</Card>
-						) : (
-							<Card className="mx-auto max-w-md overflow-hidden">
-								<CardContent className="p-5">
-									<div className="flex items-start gap-4">
-										<Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
+								) : (
+									<div className="border-border/60 bg-muted/30 flex items-start gap-4 rounded-xl border border-dashed p-4">
+										<Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
 										<div className="min-w-0 flex-1 space-y-2">
-											<div className="flex items-center gap-2">
-												<Skeleton className="h-5 w-32" />
-												<Skeleton className="h-5 w-16 rounded-full" />
-											</div>
-											<Skeleton className="h-4 w-40" />
+											<Skeleton className="h-4 w-32" />
+											<Skeleton className="h-3 w-40" />
 											<Skeleton className="h-3 w-28" />
 										</div>
-										<Skeleton className="h-12 w-12 shrink-0 rounded-xl" />
+										<Skeleton className="h-11 w-11 shrink-0 rounded-lg" />
 									</div>
-									<div className="mt-4 border-t pt-4">
-										<Skeleton className="mx-auto h-4 w-full max-w-xs" />
-									</div>
-								</CardContent>
-							</Card>
-						)}
-					</div>
-				</div>
+								)}
+							</div>
+						</div>
+					</CardContent>
+					<CardFooter className="flex-col gap-2 pt-2">
+						<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+							<DialogTrigger asChild>
+								<Button size="lg" className="w-full gap-2 sm:w-auto">
+									Unlock for $19.99
+									<ArrowRight className="h-4 w-4" />
+								</Button>
+							</DialogTrigger>
+							<DialogContent className="max-w-md">
+								<DialogHeader>
+									<DialogTitle>Create your free account</DialogTitle>
+									<DialogDescription>
+										Then unlock your matches and connect with agents.
+									</DialogDescription>
+								</DialogHeader>
+								<AuthCard mode="sign-up" embedded redirect="/matches" />
+							</DialogContent>
+						</Dialog>
+						<p className="text-muted-foreground text-center text-xs">
+							One-time fee · No subscription · 100% refundable if no match
+						</p>
+					</CardFooter>
+				</Card>
 			</div>
 		</FlowPageShell>
 	)
