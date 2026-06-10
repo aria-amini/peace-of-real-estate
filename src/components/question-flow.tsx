@@ -340,6 +340,18 @@ export function QuestionFlow({
 	const currentCategory =
 		question.category || question.categories?.[0] || 'Other'
 
+	const currentGroup = groupedQuestions.find(
+		(g) => g.category === currentCategory,
+	)
+	const currentMeta = categoryMeta[currentCategory] ?? {
+		icon: Check,
+		color: 'text-muted-foreground',
+		bg: 'bg-muted-foreground',
+		ring: 'ring-muted-foreground/30',
+		label: currentCategory,
+	}
+	const CurrentIcon = currentMeta.icon
+
 	// Keyboard & swipe navigation
 	useQuizKeyboard({
 		onNext: handleNext,
@@ -368,9 +380,31 @@ export function QuestionFlow({
 		>
 			{/* Category progress */}
 			<div className="mb-6 w-full">
-				<div className="flex items-center justify-center">
-					<div className="flex items-center gap-3 sm:gap-5">
-						{groupedQuestions.map((group, groupIndex) => {
+				<div className="flex flex-col items-center gap-4">
+					{/* Current category header with crossfade */}
+					<AnimatePresence mode="wait">
+						<motion.div
+							key={currentCategory}
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -8 }}
+							transition={{ duration: 0.2, ease: 'easeInOut' }}
+							className="flex items-center gap-2.5"
+						>
+							<div
+								className={`flex h-8 w-8 items-center justify-center rounded-full ${currentMeta.bg} text-white shadow-sm`}
+							>
+								<CurrentIcon className="h-4 w-4" />
+							</div>
+							<span className={`text-sm font-semibold ${currentMeta.color}`}>
+								{currentMeta.label}
+							</span>
+						</motion.div>
+					</AnimatePresence>
+
+					{/* Segmented progress bar */}
+					<div className="flex w-full max-w-xs gap-1.5">
+						{groupedQuestions.map((group) => {
 							const meta = categoryMeta[group.category] ?? {
 								icon: Check,
 								color: 'text-muted-foreground',
@@ -378,95 +412,44 @@ export function QuestionFlow({
 								ring: 'ring-muted-foreground/30',
 								label: group.category,
 							}
-							const CategoryIcon = meta.icon
-							const isCurrentCategory = group.category === currentCategory
-							const isCompletedCategory = group.questions.every(
+							const isCompleted = group.questions.every(
 								(q) => answers[q.id] !== undefined,
 							)
-							const isFutureCategory =
-								groupedQuestions.findIndex(
-									(g) => g.category === currentCategory,
-								) < groupIndex
+							const isCurrent = group.category === currentCategory
 
 							return (
-								<div
+								<motion.div
 									key={group.category}
-									className="flex items-center gap-3 sm:gap-5"
-								>
-									<div className="flex flex-col items-center gap-2">
-										<motion.div
-											animate={
-												isCurrentCategory ? { scale: 1.1 } : { scale: 1 }
-											}
-											transition={{
-												type: 'spring',
-												stiffness: 500,
-												damping: 15,
-											}}
-											className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 sm:h-12 sm:w-12 ${
-												isCurrentCategory
-													? `${meta.color} bg-background ring-2 ${meta.ring} shadow-lg`
-													: isCompletedCategory
-														? `${meta.color} bg-background ring-1 ${meta.ring} opacity-50`
-														: isFutureCategory
-															? 'text-muted-foreground/40 bg-muted/30 ring-muted/20 ring-1'
-															: `${meta.color} bg-background ring-1 ${meta.ring} opacity-70`
-											}`}
-										>
-											<CategoryIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-											{isCompletedCategory ? (
-												<div
-													className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full ${meta.bg} text-white shadow-sm`}
-												>
-													<Check className="h-2.5 w-2.5" />
-												</div>
-											) : null}
-										</motion.div>
-										<span
-											className={`text-[10px] font-semibold tracking-wide whitespace-nowrap transition-colors duration-200 sm:text-xs ${
-												isCurrentCategory
-													? 'text-foreground'
-													: isCompletedCategory
-														? meta.color
-														: 'text-muted-foreground/40'
-											}`}
-										>
-											{meta.label}
-										</span>
+									layout
+									className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+										isCurrent
+											? meta.bg
+											: isCompleted
+												? `${meta.bg} opacity-40`
+												: 'bg-muted-foreground/15'
+									}`}
+								/>
+							)
+						})}
+					</div>
 
-										<div className="flex items-center gap-1.5 pt-1">
-											{group.questions.map((q) => {
-												const isAnswered = answers[q.id] !== undefined
-												const isCurrentQuestion =
-													questions[currentQuestion]?.id === q.id
-												return (
-													<div
-														key={q.id}
-														className={`rounded-full transition-all duration-200 ${
-															isCurrentQuestion
-																? `h-2.5 w-2.5 ${meta.bg} shadow-md`
-																: isCurrentCategory && isAnswered
-																	? `h-2 w-2 ${meta.bg} opacity-60`
-																	: isAnswered
-																		? `h-2 w-2 ${meta.bg} opacity-30`
-																		: 'bg-muted-foreground/10 h-2 w-2'
-														}`}
-													/>
-												)
-											})}
-										</div>
-									</div>
-
-									{groupIndex < groupedQuestions.length - 1 ? (
-										<div
-											className={`h-px w-6 transition-colors duration-200 sm:w-10 ${
-												isCompletedCategory && !isFutureCategory
-													? meta.bg
-													: 'bg-muted-foreground/15'
-											}`}
-										/>
-									) : null}
-								</div>
+					{/* Question dots for current category only */}
+					<div className="flex items-center gap-1.5">
+						{currentGroup?.questions.map((q) => {
+							const isAnswered = answers[q.id] !== undefined
+							const isCurrentQuestion = questions[currentQuestion]?.id === q.id
+							return (
+								<motion.div
+									key={q.id}
+									layout
+									className={`rounded-full transition-all duration-200 ${
+										isCurrentQuestion
+											? `h-2.5 w-2.5 ${currentMeta.bg} shadow-md`
+											: isAnswered
+												? `h-2 w-2 ${currentMeta.bg} opacity-60`
+												: 'bg-muted-foreground/15 h-2 w-2'
+									}`}
+								/>
 							)
 						})}
 					</div>
@@ -552,11 +535,13 @@ export function QuestionFlow({
 								return (
 									<motion.div
 										key={option}
-										initial={{ opacity: 0, y: 6 }}
+										initial={{ opacity: 0, y: 8 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{
-											delay: optionIndex * 0.02,
-											duration: 0.12,
+											delay: optionIndex * 0.04,
+											type: 'spring',
+											stiffness: 500,
+											damping: 25,
 										}}
 									>
 										<Button

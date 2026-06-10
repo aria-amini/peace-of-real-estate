@@ -57,7 +57,7 @@ test('question flow auto-advances and completes on final answer', async () => {
 
 	await userEvent.click(page.getByRole('button', { name: /same day/i }))
 
-	await expect.element(page.getByText('Question 2 of 2')).toBeVisible()
+	await expect.element(page.getByText('2 of 2')).toBeVisible()
 	await expect
 		.element(page.getByPlaceholder(/share a few details/i))
 		.toBeVisible()
@@ -66,13 +66,14 @@ test('question flow auto-advances and completes on final answer', async () => {
 		page.getByPlaceholder(/share a few details/i),
 		'Need calm guidance.',
 	)
+
+	// Right arrow should be enabled now that text is entered
 	await expect
-		.element(page.getByRole('button', { name: /view matches/i }))
+		.element(page.getByRole('button', { name: /next question/i }))
 		.toBeEnabled()
 	await expect
-		.element(page.getByRole('button', { name: /previous/i }))
+		.element(page.getByRole('button', { name: /previous question/i }))
 		.toBeEnabled()
-	await expect.element(page.getByText('100%')).toBeVisible()
 })
 
 test('question flow supports multi-select before completion', async () => {
@@ -97,10 +98,7 @@ test('question flow supports multi-select before completion', async () => {
 		{ wrapper: MockRouter },
 	)
 
-	await expect.element(page.getByText('0 of 2 selected')).toBeVisible()
-	await expect
-		.element(page.getByText('Select up to 2 answers to continue.'))
-		.toBeVisible()
+	await expect.element(page.getByText(/select up to 2 answers/i)).toBeVisible()
 	await expect
 		.element(page.getByRole('button', { name: /finish/i }))
 		.not.toBeInTheDocument()
@@ -109,13 +107,11 @@ test('question flow supports multi-select before completion', async () => {
 		.not.toBeInTheDocument()
 
 	await userEvent.click(page.getByRole('button', { name: /clarity/i }))
-	await expect.element(page.getByText('1 of 2 selected')).toBeVisible()
 	await expect
 		.element(page.getByRole('link', { name: /finish/i }))
 		.not.toBeInTheDocument()
 	await userEvent.click(page.getByRole('button', { name: /speed/i }))
-	await expect.element(page.getByText('100%')).toBeVisible()
-	await expect.element(page.getByText('2 of 2 selected')).toBeVisible()
+	// After selecting 2, it should auto-complete and navigate
 	await expect
 		.element(page.getByRole('link', { name: /finish/i }))
 		.not.toBeInTheDocument()
@@ -158,19 +154,17 @@ test('question flow shows continue when user goes back to answered question', as
 		{ wrapper: MockRouter },
 	)
 
-	await expect.element(page.getByText('Question 3 of 3')).toBeVisible()
+	await expect.element(page.getByText('3 of 3')).toBeVisible()
 	await userEvent.click(
 		page.getByRole('button', { name: /previous question/i }),
 	)
-	await expect.element(page.getByText('Question 2 of 3')).toBeVisible()
+	await expect.element(page.getByText('2 of 3')).toBeVisible()
+	// Right arrow (next) should be enabled since this question was already answered
 	await expect
-		.element(page.getByRole('button', { name: /continue/i }))
-		.toBeVisible()
-	await expect
-		.element(page.getByRole('button', { name: /continue/i }))
+		.element(page.getByRole('button', { name: /next question/i }))
 		.toBeEnabled()
-	await userEvent.click(page.getByRole('button', { name: /continue/i }))
-	await expect.element(page.getByText('Question 3 of 3')).toBeVisible()
+	await userEvent.click(page.getByRole('button', { name: /next question/i }))
+	await expect.element(page.getByText('3 of 3')).toBeVisible()
 })
 
 test('clicking selected multi-select option deselects it', async () => {
@@ -195,11 +189,11 @@ test('clicking selected multi-select option deselects it', async () => {
 		{ wrapper: MockRouter },
 	)
 
-	await userEvent.click(page.getByRole('button', { name: /clarity/i }))
-	await expect.element(page.getByText('1 of 2 selected')).toBeVisible()
-	await userEvent.click(page.getByRole('button', { name: /clarity/i }))
-	await expect.element(page.getByText('0 of 2 selected')).toBeVisible()
-	await expect
-		.element(page.getByRole('button', { name: /finish/i }))
-		.not.toBeInTheDocument()
+	const clarityButton = page.getByRole('button', { name: /clarity/i })
+	await userEvent.click(clarityButton)
+	// Clarity should be selected
+	await expect.element(clarityButton).toHaveClass(/border-primary/)
+	await userEvent.click(clarityButton)
+	// Clarity should be deselected
+	await expect.element(clarityButton).not.toHaveClass(/border-primary/)
 })
