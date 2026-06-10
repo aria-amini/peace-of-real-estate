@@ -2,17 +2,19 @@ import { Link } from '@tanstack/react-router'
 import * as zipcodes from 'zipcodes'
 import {
 	ArrowRight,
+	BarChart3,
 	Check,
 	CheckCircle2,
 	ChevronsUpDown,
 	CreditCard,
 	MapPin,
+	MessageSquare,
 	Sparkles,
+	Star,
 	Trophy,
+	Zap,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-
-import { Skeleton } from '@/components/ui/skeleton'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
@@ -20,11 +22,11 @@ import { AuthCard } from '@/components/auth-card'
 import {
 	MatchCardModern,
 	mockMatch1,
-	mockMatch2,
 	type MatchDetails,
 } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
 	Dialog,
 	DialogContent,
@@ -604,25 +606,31 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 	)
 }
 
-const previewMatches = [mockMatch1, mockMatch2]
+const previewMatches = [mockMatch1]
 
 export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 	const [dialogOpen, setDialogOpen] = useState(false)
 	const [summaryReady, setSummaryReady] = useState(false)
-	const [previewsReady, setPreviewsReady] = useState(false)
+	const [matchReady, setMatchReady] = useState(false)
 
 	useEffect(() => {
 		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'preview' })
 	}, [config.kind])
 
 	useEffect(() => {
-		const summaryTimer = setTimeout(() => setSummaryReady(true), 3000)
-		const previewsTimer = setTimeout(() => setPreviewsReady(true), 5000)
+		const summaryTimer = setTimeout(() => setSummaryReady(true), 800)
+		const matchTimer = setTimeout(() => setMatchReady(true), 1600)
 		return () => {
 			clearTimeout(summaryTimer)
-			clearTimeout(previewsTimer)
+			clearTimeout(matchTimer)
 		}
 	}, [])
+
+	const topMatch = previewMatches[0]!
+	const initials = topMatch.name
+		.split(' ')
+		.map((n) => n[0])
+		.join('')
 
 	return (
 		<FlowPageShell
@@ -632,13 +640,66 @@ export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 			headerInsideCard
 		>
 			<div className="space-y-8">
-				<div className="space-y-4 text-center">
-					<h2 className="font-heading text-xl leading-relaxed font-normal">
-						Meet the agents who actually fit you
-					</h2>
-					<p className="text-muted-foreground text-sm leading-relaxed">
-						Based on your answers, we found agents ranked by fit.
-					</p>
+				{/* Profile Summary */}
+				<div className="space-y-4">
+					<div className="space-y-2 text-center">
+						<h2 className="font-heading text-2xl leading-relaxed font-normal">
+							Here's what we learned about you
+						</h2>
+						<p className="text-muted-foreground text-sm">
+							Your answers shaped this profile — and the agents we matched you
+							with.
+						</p>
+					</div>
+					<div className="min-h-[180px]">
+						{summaryReady ? (
+							<div className="bg-muted/40 space-y-4 rounded-xl p-5">
+								<div className="flex items-start gap-3">
+									<div className="bg-background flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+										<MessageSquare className="text-primary h-4 w-4" />
+									</div>
+									<p className="text-muted-foreground text-sm leading-relaxed">
+										You value clear, upfront communication and expect your agent
+										to set expectations early.
+									</p>
+								</div>
+								<div className="flex items-start gap-3">
+									<div className="bg-background flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+										<BarChart3 className="text-primary h-4 w-4" />
+									</div>
+									<p className="text-muted-foreground text-sm leading-relaxed">
+										You prefer a data-driven approach with market analysis to
+										inform every decision.
+									</p>
+								</div>
+								<div className="flex items-start gap-3">
+									<div className="bg-background flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+										<Zap className="text-primary h-4 w-4" />
+									</div>
+									<p className="text-muted-foreground text-sm leading-relaxed">
+										Timeliness matters to you — you want an agent who responds
+										quickly and keeps things moving.
+									</p>
+								</div>
+							</div>
+						) : (
+							<div className="bg-muted/40 space-y-4 rounded-xl p-5">
+								{Array.from({ length: 3 }).map((_, i) => (
+									<div key={i} className="flex items-start gap-3">
+										<Skeleton className="h-8 w-8 shrink-0 rounded-lg" />
+										<div className="flex-1 space-y-1.5 pt-0.5">
+											<Skeleton className="h-4 w-full" />
+											<Skeleton className="h-4 w-4/5" />
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* CTA */}
+				<div className="space-y-3 text-center">
 					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 						<DialogTrigger asChild>
 							<Button size="lg" className="gap-2">
@@ -656,69 +717,92 @@ export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 							<AuthCard mode="sign-up" embedded redirect="/matches" />
 						</DialogContent>
 					</Dialog>
+					<p className="text-muted-foreground text-sm">
+						Create your free account to see all match details and connect with
+						agents.
+					</p>
 				</div>
 
-				<div className="space-y-3">
-					<h3 className="text-muted-foreground text-center text-xs font-semibold tracking-widest uppercase">
-						Your Profile Summary
-					</h3>
-					{summaryReady ? (
-						<ul className="text-muted-foreground mx-auto max-w-sm list-disc space-y-1 px-6 text-left text-sm leading-relaxed">
-							<li>
-								You value clear, upfront communication and expect your agent to
-								set expectations early.
-							</li>
-							<li>
-								You prefer a data-driven approach with market analysis to inform
-								every decision.
-							</li>
-							<li>
-								Timeliness matters to you — you want an agent who responds
-								quickly and keeps things moving.
-							</li>
-						</ul>
-					) : (
-						<div className="mx-auto max-w-sm space-y-2 px-6 text-left">
-							<Skeleton className="h-4 w-full" />
-							<Skeleton className="h-4 w-5/6" />
-							<Skeleton className="h-4 w-4/5" />
-						</div>
-					)}
-				</div>
+				{/* Match Teaser */}
+				<div className="space-y-4">
+					<div className="space-y-2 text-center">
+						<h3 className="font-heading text-lg leading-relaxed font-normal">
+							Your top match
+						</h3>
+						<p className="text-muted-foreground text-sm">
+							Based on your profile, here's your highest-ranked agent.
+						</p>
+					</div>
 
-				<div className="space-y-3">
-					<h3 className="text-muted-foreground text-center text-xs font-semibold tracking-widest uppercase">
-						Top Matches
-					</h3>
-					{previewsReady
-						? previewMatches.map((match) => (
-								<MatchCardModern key={match.id} match={match} locked />
-							))
-						: Array.from({ length: 2 }).map((_, i) => (
-								<Card key={i} className="mx-auto max-w-xl overflow-hidden">
-									<CardContent className="p-5">
-										<div className="flex items-start gap-4">
-											<Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
-											<div className="min-w-0 flex-1 space-y-2">
-												<Skeleton className="h-5 w-32" />
-												<Skeleton className="h-4 w-48" />
-												<Skeleton className="h-3 w-40" />
+					<div className="min-h-[200px]">
+						{matchReady ? (
+							<Card className="mx-auto max-w-md overflow-hidden">
+								<CardContent className="p-5">
+									<div className="flex items-start gap-4">
+										<div className="shrink-0">
+											<div className="bg-secondary flex h-14 w-14 items-center justify-center rounded-xl text-base font-medium blur-md select-none">
+												{initials}
 											</div>
-											<Skeleton className="h-12 w-12 shrink-0 rounded-xl" />
 										</div>
-										<div className="mt-3 space-y-2">
-											<Skeleton className="h-4 w-full" />
-											<Skeleton className="h-4 w-5/6" />
+										<div className="min-w-0 flex-1">
+											<div className="flex items-center gap-2">
+												<h3 className="text-lg font-bold blur-sm select-none">
+													{topMatch.name}
+												</h3>
+												{topMatch.isTopMatch && (
+													<span className="bg-accent/15 text-accent-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium">
+														<Star className="h-3 w-3 fill-current" />
+														Top Match
+													</span>
+												)}
+											</div>
+											<p className="text-muted-foreground text-sm">
+												{topMatch.agency}
+											</p>
+											<div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+												<span className="flex items-center gap-1">
+													<MapPin className="h-3 w-3" />
+													{topMatch.location}
+												</span>
+											</div>
 										</div>
-										<div className="mt-3 flex flex-wrap gap-1.5">
-											<Skeleton className="h-5 w-20 rounded-full" />
-											<Skeleton className="h-5 w-24 rounded-full" />
-											<Skeleton className="h-5 w-16 rounded-full" />
+										<div className="shrink-0 text-center">
+											<div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-xl text-base font-bold">
+												{topMatch.fitScore}%
+											</div>
 										</div>
-										<Skeleton className="mt-4 h-11 w-full rounded-xl" />
-									</CardContent>
-								</Card>
-							))}
+									</div>
+
+									<div className="mt-4 border-t pt-4">
+										<p className="text-muted-foreground text-center text-sm leading-relaxed">
+											This agent scored {topMatch.fitScore}% fit based on your
+											communication and transparency preferences.
+										</p>
+									</div>
+								</CardContent>
+							</Card>
+						) : (
+							<Card className="mx-auto max-w-md overflow-hidden">
+								<CardContent className="p-5">
+									<div className="flex items-start gap-4">
+										<Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
+										<div className="min-w-0 flex-1 space-y-2">
+											<div className="flex items-center gap-2">
+												<Skeleton className="h-5 w-32" />
+												<Skeleton className="h-5 w-16 rounded-full" />
+											</div>
+											<Skeleton className="h-4 w-40" />
+											<Skeleton className="h-3 w-28" />
+										</div>
+										<Skeleton className="h-12 w-12 shrink-0 rounded-xl" />
+									</div>
+									<div className="mt-4 border-t pt-4">
+										<Skeleton className="mx-auto h-4 w-full max-w-xs" />
+									</div>
+								</CardContent>
+							</Card>
+						)}
+					</div>
 				</div>
 			</div>
 		</FlowPageShell>
