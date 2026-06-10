@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { Skeleton } from '@/components/ui/skeleton'
+
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
 import { AuthCard } from '@/components/auth-card'
@@ -22,7 +24,7 @@ import {
 	type MatchDetails,
 } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
 	Dialog,
 	DialogContent,
@@ -606,10 +608,21 @@ const previewMatches = [mockMatch1, mockMatch2]
 
 export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 	const [dialogOpen, setDialogOpen] = useState(false)
+	const [summaryReady, setSummaryReady] = useState(false)
+	const [previewsReady, setPreviewsReady] = useState(false)
 
 	useEffect(() => {
 		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'preview' })
 	}, [config.kind])
+
+	useEffect(() => {
+		const summaryTimer = setTimeout(() => setSummaryReady(true), 3000)
+		const previewsTimer = setTimeout(() => setPreviewsReady(true), 5000)
+		return () => {
+			clearTimeout(summaryTimer)
+			clearTimeout(previewsTimer)
+		}
+	}, [])
 
 	return (
 		<FlowPageShell
@@ -618,7 +631,7 @@ export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 			icon={Sparkles}
 			headerInsideCard
 		>
-			<div className="space-y-6">
+			<div className="space-y-8">
 				<div className="space-y-4 text-center">
 					<h2 className="font-heading text-xl leading-relaxed font-normal">
 						Meet the agents who actually fit you
@@ -646,9 +659,66 @@ export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 				</div>
 
 				<div className="space-y-3">
-					{previewMatches.map((match) => (
-						<MatchCardModern key={match.id} match={match} locked />
-					))}
+					<h3 className="text-muted-foreground text-center text-xs font-semibold tracking-widest uppercase">
+						Your Profile Summary
+					</h3>
+					{summaryReady ? (
+						<ul className="text-muted-foreground mx-auto max-w-sm list-disc space-y-1 px-6 text-left text-sm leading-relaxed">
+							<li>
+								You value clear, upfront communication and expect your agent to
+								set expectations early.
+							</li>
+							<li>
+								You prefer a data-driven approach with market analysis to inform
+								every decision.
+							</li>
+							<li>
+								Timeliness matters to you — you want an agent who responds
+								quickly and keeps things moving.
+							</li>
+						</ul>
+					) : (
+						<div className="mx-auto max-w-sm space-y-2 px-6 text-left">
+							<Skeleton className="h-4 w-full" />
+							<Skeleton className="h-4 w-5/6" />
+							<Skeleton className="h-4 w-4/5" />
+						</div>
+					)}
+				</div>
+
+				<div className="space-y-3">
+					<h3 className="text-muted-foreground text-center text-xs font-semibold tracking-widest uppercase">
+						Top Matches
+					</h3>
+					{previewsReady
+						? previewMatches.map((match) => (
+								<MatchCardModern key={match.id} match={match} locked />
+							))
+						: Array.from({ length: 2 }).map((_, i) => (
+								<Card key={i} className="mx-auto max-w-xl overflow-hidden">
+									<CardContent className="p-5">
+										<div className="flex items-start gap-4">
+											<Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
+											<div className="min-w-0 flex-1 space-y-2">
+												<Skeleton className="h-5 w-32" />
+												<Skeleton className="h-4 w-48" />
+												<Skeleton className="h-3 w-40" />
+											</div>
+											<Skeleton className="h-12 w-12 shrink-0 rounded-xl" />
+										</div>
+										<div className="mt-3 space-y-2">
+											<Skeleton className="h-4 w-full" />
+											<Skeleton className="h-4 w-5/6" />
+										</div>
+										<div className="mt-3 flex flex-wrap gap-1.5">
+											<Skeleton className="h-5 w-20 rounded-full" />
+											<Skeleton className="h-5 w-24 rounded-full" />
+											<Skeleton className="h-5 w-16 rounded-full" />
+										</div>
+										<Skeleton className="mt-4 h-11 w-full rounded-xl" />
+									</CardContent>
+								</Card>
+							))}
 				</div>
 			</div>
 		</FlowPageShell>
