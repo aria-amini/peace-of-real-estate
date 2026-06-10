@@ -1,10 +1,22 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, ArrowRight, Check, ListChecks } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import {
+	ArrowLeft,
+	ArrowRight,
+	Briefcase,
+	Check,
+	Eye,
+	HeartHandshake,
+	ListChecks,
+	MessageSquare,
+} from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { useQuizKeyboard } from '@/hooks/use-quiz-keyboard'
+import { useSwipe } from '@/hooks/use-swipe'
 import type { CoreQuestion } from '@/lib/questions'
 
 type AnswerValue = number | number[] | string
@@ -29,7 +41,7 @@ export function QuestionFlow({
 	roleLabel,
 	questions,
 	completeTo,
-	completeLabel,
+	completeLabel: _completeLabel,
 	initialAnswers = {},
 	initialQuestionIndex = 0,
 	onAnswersChange,
@@ -42,8 +54,8 @@ export function QuestionFlow({
 	const [answers, setAnswers] =
 		useState<Record<string, AnswerValue>>(initialAnswers)
 	const [isTransitioning, setIsTransitioning] = useState(false)
-	const [wasContinueVisible, setWasContinueVisible] = useState(false)
 	const [poppedOption, setPoppedOption] = useState<number | null>(null)
+	const [direction, setDirection] = useState(1)
 	const [sparks, setSparks] = useState<
 		{
 			id: number
@@ -69,25 +81,11 @@ export function QuestionFlow({
 	}, [currentQuestion])
 
 	const question = questions[currentQuestion]!
-	const progress = ((currentQuestion + 1) / questions.length) * 100
 	const answer = answers[question.id]
 
 	const isMultipleChoice = question.selection?.type === 'multiple'
 	const isOpenText = question.inputType === 'open-text'
 	const requiredSelections = question.selection?.maxSelections ?? 1
-	const selectedCount = Array.isArray(answer) ? answer.length : 0
-
-	const canProceed = (() => {
-		if (isOpenText) {
-			return typeof answer === 'string' && answer.trim().length > 0
-		}
-
-		if (isMultipleChoice) {
-			return selectedCount > 0
-		}
-
-		return typeof answer === 'number'
-	})()
 
 	const handleNext = () => {
 		if (autoAdvanceTimer.current) {
@@ -96,7 +94,7 @@ export function QuestionFlow({
 		}
 
 		if (currentQuestion < questions.length - 1) {
-			setWasContinueVisible(canShowContinue)
+			setDirection(1)
 			setIsTransitioning(true)
 			if (transitionTimer.current) {
 				clearTimeout(transitionTimer.current)
@@ -104,8 +102,7 @@ export function QuestionFlow({
 			transitionTimer.current = setTimeout(() => {
 				setCurrentQuestion((prev) => prev + 1)
 				setIsTransitioning(false)
-				setWasContinueVisible(false)
-			}, 250)
+			}, 120)
 		}
 	}
 
@@ -119,11 +116,12 @@ export function QuestionFlow({
 		completeTimer.current = setTimeout(() => {
 			onComplete?.()
 			void navigate({ to: completeTo })
-		}, 220)
+		}, 100)
 	}
 
 	const handleBack = () => {
 		if (currentQuestion > 0) {
+			setDirection(-1)
 			setCurrentQuestion((prev) => prev - 1)
 		}
 	}
@@ -145,17 +143,22 @@ export function QuestionFlow({
 		}
 	}, [])
 
-	const updateAnswers = (
-		updater: (prev: Record<string, AnswerValue>) => Record<string, AnswerValue>,
-	) => {
-		setAnswers((prev) => {
-			const next = updater(prev)
-			onAnswersChange?.(next)
-			return next
-		})
-	}
+	const updateAnswers = useCallback(
+		(
+			updater: (
+				prev: Record<string, AnswerValue>,
+			) => Record<string, AnswerValue>,
+		) => {
+			setAnswers((prev) => {
+				const next = updater(prev)
+				onAnswersChange?.(next)
+				return next
+			})
+		},
+		[onAnswersChange],
+	)
 
-	const createSparks = (clientX: number, clientY: number) => {
+	const createSparks = useCallback((clientX: number, clientY: number) => {
 		const colors = ['#2E4A6B', '#D4AF37', '#6B8FAE', '#C9A96E', '#8A9EAF']
 		const count = 10
 		const newSparks = Array.from({ length: count }, (_, i) => {
@@ -176,7 +179,7 @@ export function QuestionFlow({
 				prev.filter((s) => !newSparks.find((ns) => ns.id === s.id)),
 			)
 		}, 600)
-	}
+	}, [])
 
 	const toggleOption = (
 		optionIndex: number,
@@ -203,7 +206,7 @@ export function QuestionFlow({
 			if (popTimer.current) {
 				clearTimeout(popTimer.current)
 			}
-			popTimer.current = setTimeout(() => setPoppedOption(null), 220)
+			popTimer.current = setTimeout(() => setPoppedOption(null), 100)
 
 			if (currentQuestion === questions.length - 1) {
 				handleComplete()
@@ -214,11 +217,10 @@ export function QuestionFlow({
 				if (autoAdvanceTimer.current) {
 					clearTimeout(autoAdvanceTimer.current)
 				}
-				setWasContinueVisible(canShowContinue)
 				setIsTransitioning(true)
 				autoAdvanceTimer.current = setTimeout(() => {
 					handleNext()
-				}, 250)
+				}, 120)
 			}
 			return
 		}
@@ -249,7 +251,7 @@ export function QuestionFlow({
 		if (popTimer.current) {
 			clearTimeout(popTimer.current)
 		}
-		popTimer.current = setTimeout(() => setPoppedOption(null), 220)
+		popTimer.current = setTimeout(() => setPoppedOption(null), 100)
 
 		if (
 			currentQuestion < questions.length - 1 &&
@@ -258,11 +260,10 @@ export function QuestionFlow({
 			if (autoAdvanceTimer.current) {
 				clearTimeout(autoAdvanceTimer.current)
 			}
-			setWasContinueVisible(canShowContinue)
 			setIsTransitioning(true)
 			autoAdvanceTimer.current = setTimeout(() => {
 				handleNext()
-			}, 250)
+			}, 120)
 		}
 
 		if (
@@ -274,10 +275,7 @@ export function QuestionFlow({
 		return
 	}
 
-	const isComplete = currentQuestion === questions.length - 1 && canProceed
 	const isLastQuestion = currentQuestion === questions.length - 1
-	const shouldShowFinalAction =
-		isOpenText || arrivalAnswersRef.current[question.id] !== undefined
 	const arrivalAnsweredQuestionCount = questions.filter(
 		(candidate) => arrivalAnswersRef.current[candidate.id] !== undefined,
 	).length
@@ -285,139 +283,316 @@ export function QuestionFlow({
 		!isLastQuestion &&
 		(isMultipleChoice || currentQuestion < arrivalAnsweredQuestionCount)
 
-	const showContinueButton =
-		canShowContinue && (!isTransitioning || wasContinueVisible)
+	const groupedQuestions = questions.reduce(
+		(acc, q) => {
+			const cat = q.category || q.categories?.[0] || 'Other'
+			const existing = acc.find((g) => g.category === cat)
+			if (existing) {
+				existing.questions.push(q)
+			} else {
+				acc.push({ category: cat, questions: [q] })
+			}
+			return acc
+		},
+		[] as { category: string; questions: CoreQuestion[] }[],
+	)
+
+	const categoryMeta: Record<
+		string,
+		{
+			icon: React.ComponentType<{ className?: string }>
+			color: string
+			bg: string
+			ring: string
+			label: string
+		}
+	> = {
+		'Working Style': {
+			icon: Briefcase,
+			color: 'text-blue-500',
+			bg: 'bg-blue-500',
+			ring: 'ring-blue-500/30',
+			label: 'Working Style',
+		},
+		Communication: {
+			icon: MessageSquare,
+			color: 'text-amber-500',
+			bg: 'bg-amber-500',
+			ring: 'ring-amber-500/30',
+			label: 'Communication',
+		},
+		Transparency: {
+			icon: Eye,
+			color: 'text-emerald-500',
+			bg: 'bg-emerald-500',
+			ring: 'ring-emerald-500/30',
+			label: 'Transparency',
+		},
+		Fit: {
+			icon: HeartHandshake,
+			color: 'text-rose-500',
+			bg: 'bg-rose-500',
+			ring: 'ring-rose-500/30',
+			label: 'Fit',
+		},
+	}
+
+	const currentCategory =
+		question.category || question.categories?.[0] || 'Other'
+
+	const currentGroup = groupedQuestions.find(
+		(g) => g.category === currentCategory,
+	)
+	const currentMeta = categoryMeta[currentCategory] ?? {
+		icon: Check,
+		color: 'text-muted-foreground',
+		bg: 'bg-muted-foreground',
+		ring: 'ring-muted-foreground/30',
+		label: currentCategory,
+	}
+	const CurrentIcon = currentMeta.icon
+
+	// Keyboard & swipe navigation
+	useQuizKeyboard({
+		onNext: handleNext,
+		onPrev: handleBack,
+		onSelect: (index) => {
+			if (!isOpenText && question.options) {
+				toggleOption(index)
+			}
+		},
+		optionCount: question.options?.length ?? 0,
+		isEnabled: !isTransitioning,
+	})
+
+	useSwipe({
+		onSwipeLeft: handleNext,
+		onSwipeRight: handleBack,
+		isEnabled: !isTransitioning,
+	})
 
 	return (
 		<FlowPageShell
 			title="Quiz"
-			subtitle="Step 2"
 			icon={ListChecks}
 			roleLabel={roleLabel}
 			headerInsideCard={headerInsideCard}
 		>
+			{/* Category progress */}
 			<div className="mb-6 w-full">
-				<div className="mb-3 flex items-center justify-between text-xs">
-					<div className="flex items-center gap-3">
-						<span>
-							Question {currentQuestion + 1} of {questions.length}
-						</span>
-						{isMultipleChoice ? (
-							<span className="text-muted-foreground">
-								{selectedCount} of {requiredSelections} selected
-							</span>
-						) : null}
-					</div>
-					<span className="text-muted-foreground">{Math.round(progress)}%</span>
-				</div>
-				<div className="bg-border h-1 overflow-hidden">
-					<div
-						className="bg-primary h-full"
-						style={{ width: `${progress}%` }}
-					/>
-				</div>
-				<div
-					className={`mt-3 flex items-center ${currentQuestion > 0 ? 'justify-between' : 'justify-end'}`}
-				>
-					{currentQuestion > 0 && (
-						<Button type="button" onClick={handleBack} variant="ghost">
-							<ArrowLeft className="h-4 w-4" />
-							Previous Question
-						</Button>
-					)}
-
-					{isLastQuestion ? (
-						shouldShowFinalAction ? (
-							isComplete ? (
-								<Button
-									type="button"
-									onClick={handleComplete}
-									disabled={isTransitioning}
-								>
-									{completeLabel}
-									<ArrowRight className="h-4 w-4" />
-								</Button>
-							) : isMultipleChoice || isOpenText ? (
-								<Button type="button" disabled>
-									{completeLabel}
-									<ArrowRight className="h-4 w-4" />
-								</Button>
-							) : null
-						) : null
-					) : showContinueButton ? (
-						<Button
-							type="button"
-							onClick={handleNext}
-							disabled={!canProceed || isTransitioning}
+				<div className="flex flex-col items-center gap-4">
+					{/* Current category header with crossfade */}
+					<AnimatePresence mode="wait">
+						<motion.div
+							key={currentCategory}
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -8 }}
+							transition={{ duration: 0.2, ease: 'easeInOut' }}
+							className="flex items-center gap-2.5"
 						>
-							Continue
-							<ArrowRight className="h-4 w-4" />
-						</Button>
-					) : null}
-				</div>
-			</div>
+							<div
+								className={`flex h-8 w-8 items-center justify-center rounded-full ${currentMeta.bg} text-white shadow-sm`}
+							>
+								<CurrentIcon className="h-4 w-4" />
+							</div>
+							<span className={`text-sm font-semibold ${currentMeta.color}`}>
+								{currentMeta.label}
+							</span>
+						</motion.div>
+					</AnimatePresence>
 
-			<div>
-				<h2 className="mb-2 text-xl">{question.prompt}</h2>
-				{isMultipleChoice ? (
-					<p className="text-muted-foreground mb-3 text-sm">
-						Select up to {requiredSelections} answers to continue.
-					</p>
-				) : null}
-				{question.categoryNote ? (
-					<p className="text-muted-foreground mb-8 text-sm">
-						{question.categoryNote}
-					</p>
-				) : !isMultipleChoice ? (
-					<div className="mb-8" />
-				) : null}
+					{/* Segmented progress bar */}
+					<div className="flex w-full max-w-xs gap-1.5">
+						{groupedQuestions.map((group) => {
+							const meta = categoryMeta[group.category] ?? {
+								icon: Check,
+								color: 'text-muted-foreground',
+								bg: 'bg-muted-foreground',
+								ring: 'ring-muted-foreground/30',
+								label: group.category,
+							}
+							const isCompleted = group.questions.every(
+								(q) => answers[q.id] !== undefined,
+							)
+							const isCurrent = group.category === currentCategory
 
-				{isOpenText ? (
-					<Textarea
-						value={typeof answer === 'string' ? answer : ''}
-						onChange={(e) =>
-							updateAnswers((prev) => ({
-								...prev,
-								[question.id]: e.target.value,
-							}))
-						}
-						placeholder="Share a few details"
-						rows={6}
-					/>
-				) : (
-					<div className="space-y-3">
-						{question.options?.map((option, optionIndex) => {
-							const isSelected = Array.isArray(answer)
-								? answer.includes(optionIndex)
-								: answer === optionIndex
-							const isPopped = poppedOption === optionIndex
 							return (
-								<Button
-									key={option}
-									type="button"
-									variant="outline"
-									onClick={(e) =>
-										toggleOption(optionIndex, e.clientX, e.clientY)
-									}
-									disabled={isTransitioning}
-									className="group h-auto w-full justify-start gap-4 rounded-lg p-4 text-left whitespace-normal transition-transform duration-200 ease-out"
-								>
-									<div
-										className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-all duration-200 ease-out ${isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/30'} ${isPopped ? 'scale-125' : ''}`}
-									>
-										<Check
-											className={`h-3.5 w-3.5 transition-all duration-200 ${isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
-										/>
-									</div>
-									<span className="text-foreground text-sm leading-relaxed">
-										{option}
-									</span>
-								</Button>
+								<motion.div
+									key={group.category}
+									layout
+									className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+										isCurrent
+											? meta.bg
+											: isCompleted
+												? `${meta.bg} opacity-40`
+												: 'bg-muted-foreground/15'
+									}`}
+								/>
 							)
 						})}
 					</div>
-				)}
+
+					{/* Question dots for current category only */}
+					<div className="flex items-center gap-1.5">
+						{currentGroup?.questions.map((q) => {
+							const isAnswered = answers[q.id] !== undefined
+							const isCurrentQuestion = questions[currentQuestion]?.id === q.id
+							return (
+								<motion.div
+									key={q.id}
+									layout
+									className={`rounded-full transition-all duration-200 ${
+										isCurrentQuestion
+											? `h-2.5 w-2.5 ${currentMeta.bg} shadow-md`
+											: isAnswered
+												? `h-2 w-2 ${currentMeta.bg} opacity-60`
+												: 'bg-muted-foreground/15 h-2 w-2'
+									}`}
+								/>
+							)
+						})}
+					</div>
+				</div>
 			</div>
+
+			{/* Step counter + Arrow navigation */}
+			<div className="mb-4 flex items-center justify-end gap-4">
+				<div className="flex items-center gap-3">
+					<button
+						type="button"
+						onClick={handleBack}
+						disabled={currentQuestion === 0 || isTransitioning}
+						className="border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-25"
+					>
+						<ArrowLeft className="h-4 w-4" />
+						<span className="sr-only">Previous question</span>
+					</button>
+
+					<span className="text-muted-foreground text-sm">
+						{currentQuestion + 1} of {questions.length}
+					</span>
+
+					<button
+						type="button"
+						onClick={isLastQuestion ? handleComplete : handleNext}
+						disabled={
+							isTransitioning ||
+							(!isLastQuestion && !canShowContinue) ||
+							(isLastQuestion && answer === undefined)
+						}
+						className="border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-25"
+					>
+						<ArrowRight className="h-4 w-4" />
+						<span className="sr-only">Next question</span>
+					</button>
+				</div>
+			</div>
+
+			{/* Question with directional slide */}
+			<AnimatePresence mode="wait" custom={direction}>
+				<motion.div
+					key={currentQuestion}
+					custom={direction}
+					initial={{ x: direction > 0 ? 60 : -60, opacity: 0 }}
+					animate={{ x: 0, opacity: 1 }}
+					exit={{ x: direction > 0 ? -60 : 60, opacity: 0 }}
+					transition={{ duration: 0.15, ease: 'easeOut' }}
+				>
+					<h2 className="mb-2 text-xl">{question.prompt}</h2>
+					{isMultipleChoice ? (
+						<p className="text-muted-foreground mb-3 text-sm">
+							Select up to {requiredSelections} answers to continue.
+						</p>
+					) : null}
+					{question.categoryNote ? (
+						<p className="text-muted-foreground mb-8 text-sm">
+							{question.categoryNote}
+						</p>
+					) : !isMultipleChoice ? (
+						<div className="mb-8" />
+					) : null}
+
+					{isOpenText ? (
+						<Textarea
+							value={typeof answer === 'string' ? answer : ''}
+							onChange={(e) =>
+								updateAnswers((prev) => ({
+									...prev,
+									[question.id]: e.target.value,
+								}))
+							}
+							placeholder="Share a few details"
+							rows={6}
+						/>
+					) : (
+						<div className="space-y-3">
+							{question.options?.map((option, optionIndex) => {
+								const isSelected = Array.isArray(answer)
+									? answer.includes(optionIndex)
+									: answer === optionIndex
+								const isPopped = poppedOption === optionIndex
+								return (
+									<motion.div
+										key={option}
+										initial={{ opacity: 0, y: 8 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{
+											delay: optionIndex * 0.04,
+											type: 'spring',
+											stiffness: 500,
+											damping: 25,
+										}}
+									>
+										<Button
+											type="button"
+											variant="outline"
+											onClick={(e) =>
+												toggleOption(optionIndex, e.clientX, e.clientY)
+											}
+											disabled={isTransitioning}
+											className={`group h-auto w-full justify-start gap-4 rounded-lg p-4 text-left whitespace-normal transition-all duration-150 ease-out ${
+												isSelected
+													? 'border-primary bg-primary/5 ring-primary/20 shadow-sm ring-1'
+													: 'hover:border-foreground/25 hover:bg-muted/30'
+											}`}
+										>
+											<motion.div
+												animate={isPopped ? { scale: 1.2 } : { scale: 1 }}
+												transition={{
+													type: 'spring',
+													stiffness: 600,
+													damping: 12,
+												}}
+												className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border transition-colors duration-150 ${
+													isSelected
+														? 'border-primary bg-primary text-primary-foreground'
+														: 'border-muted-foreground/30'
+												}`}
+											>
+												<Check
+													className={`h-3.5 w-3.5 transition-all duration-150 ${
+														isSelected
+															? 'scale-100 opacity-100'
+															: 'scale-0 opacity-0'
+													}`}
+												/>
+											</motion.div>
+											<span
+												className="text-foreground text-sm leading-relaxed"
+												style={{ fontFeatureSettings: '"kern" 1' }}
+											>
+												{option}
+											</span>
+										</Button>
+									</motion.div>
+								)
+							})}
+						</div>
+					)}
+				</motion.div>
+			</AnimatePresence>
+
 			{sparks.map((spark) => (
 				<div
 					key={spark.id}

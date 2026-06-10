@@ -1,12 +1,37 @@
-import { MapPin, Star, Award } from 'lucide-react'
+import { MapPin, Star, Award, Lock } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import type { MatchDetails, MatchStatus } from '@/components/match-card'
+export type MatchStatus = 'pending' | 'accepted' | 'completed' | 'new'
 
-export { type MatchDetails, type MatchStatus }
+export interface MatchDetails {
+	id: string
+	name: string
+	role: 'buyer' | 'seller' | 'agent'
+	location: string
+	zipCodes: string[]
+	fitScore: number
+	status: MatchStatus
+	date: string
+	avatar?: string
+	experience?: string
+	agency?: string
+	specialties: string[]
+	about: string
+	scores: Record<string, number>
+	contact?: {
+		phone?: string
+		email?: string
+	}
+	stats?: {
+		transactions: number
+		avgDays: number
+		satisfaction: number
+	}
+	isTopMatch?: boolean
+}
 
 export const mockMatch1: MatchDetails = {
 	id: 'mock-1',
@@ -107,16 +132,41 @@ export const mockMatch3: MatchDetails = {
 	isTopMatch: true,
 }
 
+function ScoreBar({ label, score }: { label: string; score: number }) {
+	const percentage = (score / 5) * 100
+
+	return (
+		<div className="space-y-2">
+			<div className="flex items-center justify-between text-xs">
+				<span className="text-muted-foreground">{label}</span>
+				<span>{score.toFixed(1)}</span>
+			</div>
+			<div className="bg-border h-1 overflow-hidden">
+				<div
+					className="bg-primary h-full"
+					style={{ width: `${percentage}%` }}
+				/>
+			</div>
+		</div>
+	)
+}
+
 // ─── Design 1: Modern Profile (Refined) ──────────────────────────────
 
 export function MatchCardModern({
 	match,
 	disabled = false,
 	locked = false,
+	showScoreBreakdown = false,
+	actionLabel,
+	onUnlock,
 }: {
 	match: MatchDetails
 	disabled?: boolean
 	locked?: boolean
+	showScoreBreakdown?: boolean
+	actionLabel?: string
+	onUnlock?: () => void
 }) {
 	const initials = match.name
 		.split(' ')
@@ -226,14 +276,38 @@ export function MatchCardModern({
 					</div>
 				)}
 
+				{/* Score Breakdown */}
+				{showScoreBreakdown && (
+					<div className="mt-4 border-t pt-4">
+						<div className="text-muted-foreground mb-3 text-sm">
+							Fit Breakdown
+						</div>
+						<div className="grid gap-3 sm:grid-cols-2">
+							{Object.entries(match.scores).map(([label, score]) => (
+								<ScoreBar key={label} label={label} score={score} />
+							))}
+						</div>
+					</div>
+				)}
+
 				{/* Actions */}
-				{!locked && (
+				{locked ? (
+					<div className="mt-4">
+						<Button
+							className="h-11 w-full rounded-xl text-base"
+							onClick={onUnlock}
+						>
+							<Lock className="mr-2 h-4 w-4" />
+							Unlock Matches
+						</Button>
+					</div>
+				) : (
 					<div className="mt-4">
 						<Button
 							disabled={disabled}
 							className="h-11 w-full rounded-xl text-base"
 						>
-							Accept Match
+							{actionLabel ?? 'Accept Match'}
 						</Button>
 					</div>
 				)}

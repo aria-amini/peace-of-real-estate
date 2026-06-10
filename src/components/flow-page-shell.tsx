@@ -25,28 +25,20 @@ export function FlowPageShell({
 }: FlowPageShellProps) {
 	const header = (
 		<div className={headerInsideCard ? 'mb-8' : 'mb-10'}>
-			<div className="flex items-center gap-4">
-				<div className="flex h-10 w-10 items-center justify-center">
-					<Icon className="h-5 w-5" />
+			<div className="flex items-start gap-3">
+				<div className="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+					<Icon className="text-muted-foreground h-4 w-4" />
 				</div>
-				<div>
-					{subtitle ? (
-						<div className="text-muted-foreground mb-1 flex items-center gap-2 text-sm">
-							{subtitle}
-							{roleLabel ? (
-								<span className="bg-foreground text-background inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
-									{roleLabel}
-								</span>
-							) : null}
-						</div>
-					) : roleLabel ? (
-						<div className="mb-1">
-							<span className="bg-foreground text-background inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold">
-								{roleLabel}
-							</span>
-						</div>
+				<div className="flex flex-col gap-1">
+					{roleLabel ? (
+						<span className="bg-foreground text-background inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wider uppercase">
+							{roleLabel}
+						</span>
 					) : null}
-					<h1 className="text-2xl">{title}</h1>
+					<h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+					{subtitle ? (
+						<p className="text-muted-foreground text-sm">{subtitle}</p>
+					) : null}
 				</div>
 			</div>
 		</div>

@@ -1,5 +1,4 @@
 import { AccountSidebar } from '@/components/account-sidebar'
-import { FlowBreadcrumb } from '@/components/flow-breadcrumb'
 import {
 	Dialog,
 	DialogClose,
@@ -22,6 +21,7 @@ import {
 } from '@tanstack/react-router'
 import { ArrowRightLeft, ChevronDown, LogOut, User } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { GetMatchedDialog } from '@/components/get-matched-dialog'
 
 export const Route = createFileRoute('/_app')({
 	component: AppShell,
@@ -37,9 +37,7 @@ function AppShell() {
 	const isMarketingHome = !session && currentPath === '/'
 	const shouldConfirmHomeNavigation = !session && isSignupFlowPath(currentPath)
 	const showSidebar =
-		currentPath === '/matches' ||
-		currentPath.startsWith('/account') ||
-		currentPath === '/upgrade'
+		currentPath === '/matches' || currentPath.startsWith('/account')
 	const hideHeader = showSidebar
 	const hideFooter = showSidebar
 	const userInitials = session?.user.name
@@ -86,8 +84,6 @@ function AppShell() {
 								</span>
 							</Link>
 
-							{isMarketingHome ? <MarketingNav /> : null}
-
 							<div className="flex items-center gap-2">
 								{session ? (
 									<UserDropdown userInitials={userInitials} />
@@ -100,19 +96,19 @@ function AppShell() {
 										>
 											Log in
 										</Link>
-										<Link
-											to="/login"
-											search={{ redirect: currentPath }}
-											className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
-										>
-											Get started
-										</Link>
+										<GetMatchedDialog>
+											<button
+												type="button"
+												className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+											>
+												Get started
+											</button>
+										</GetMatchedDialog>
 									</>
 								)}
 							</div>
 						</div>
 					</header>
-					<FlowBreadcrumb />
 				</>
 			)}
 			<main className="flex w-full flex-1 flex-col overflow-x-hidden">
@@ -177,28 +173,6 @@ function AppShell() {
 	}
 
 	return layout
-}
-
-function MarketingNav() {
-	return (
-		<nav className="hidden items-center gap-8 text-sm font-medium lg:flex">
-			<a href="#how-it-works" className="hover:text-primary transition-colors">
-				How it works
-			</a>
-			<a href="#buyers" className="hover:text-primary transition-colors">
-				For buyers
-			</a>
-			<Link to="/agent" className="hover:text-primary transition-colors">
-				For agents
-			</Link>
-			<a href="#buyers" className="hover:text-primary transition-colors">
-				Pricing
-			</a>
-			<a href="#buyers" className="hover:text-primary transition-colors">
-				Resources
-			</a>
-		</nav>
-	)
 }
 
 function UserDropdown({ userInitials }: { userInitials: string | null }) {

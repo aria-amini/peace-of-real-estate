@@ -9,7 +9,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { Link } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { CheckCircle2, X } from 'lucide-react'
 import { HouseLineIcon, TagIcon } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
@@ -81,8 +81,19 @@ function PricingInfo() {
 }
 
 export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
+	const [open, setOpen] = useState(false)
+	const navigate = useNavigate()
+
+	const handleOptionClick = (to: string) => {
+		setOpen(false)
+		// Small delay to let the dialog close animation play
+		setTimeout(() => {
+			void navigate({ to })
+		}, 150)
+	}
+
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent showCloseButton={false}>
 				<DialogClose asChild>
@@ -104,11 +115,13 @@ export function GetMatchedDialog({ children }: { children: React.ReactNode }) {
 						{options.map((option) => {
 							const OptionIcon = option.icon
 							return (
-								<Button key={option.flow} asChild variant="default">
-									<Link to={option.to}>
-										<OptionIcon className="size-6" />
-										{option.description}
-									</Link>
+								<Button
+									key={option.flow}
+									variant="default"
+									onClick={() => handleOptionClick(option.to)}
+								>
+									<OptionIcon className="size-6" />
+									{option.description}
 								</Button>
 							)
 						})}

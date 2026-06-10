@@ -14,7 +14,6 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
-import { Route as AppUpgradeRouteImport } from './routes/_app/upgrade'
 import { Route as AppSignupRouteImport } from './routes/_app/signup'
 import { Route as AppMatchesRouteImport } from './routes/_app/matches'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
@@ -22,6 +21,7 @@ import { Route as AppAccountRouteImport } from './routes/_app/account'
 import { Route as AppSellerIndexRouteImport } from './routes/_app/seller/index'
 import { Route as AppBuyerIndexRouteImport } from './routes/_app/buyer/index'
 import { Route as AppAgentIndexRouteImport } from './routes/_app/agent/index'
+import { Route as AppAccountIndexRouteImport } from './routes/_app/account/index'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest/$'
 import { Route as ApiBetaAuthRouteImport } from './routes/api/beta/auth'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -43,6 +43,8 @@ import { Route as AppAgentPeacePactRouteImport } from './routes/_app/agent/peace
 import { Route as AppAgentDeepDiveRouteImport } from './routes/_app/agent/deep-dive'
 import { Route as AppAgentComplianceRouteImport } from './routes/_app/agent/compliance'
 import { Route as AppAgentChatRouteImport } from './routes/_app/agent/chat'
+import { Route as AppAccountQuestionnaireRouteImport } from './routes/_app/account/questionnaire'
+import { Route as AppAccountPreferencesRouteImport } from './routes/_app/account/preferences'
 import { Route as ApiIngestStaticSplatRouteImport } from './routes/api/ingest/static/$'
 
 const BetaRoute = BetaRouteImport.update({
@@ -68,11 +70,6 @@ const ApiAgentMatchesRoute = ApiAgentMatchesRouteImport.update({
   id: '/api/agent-matches',
   path: '/api/agent-matches',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AppUpgradeRoute = AppUpgradeRouteImport.update({
-  id: '/upgrade',
-  path: '/upgrade',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppSignupRoute = AppSignupRouteImport.update({
   id: '/signup',
@@ -108,6 +105,11 @@ const AppAgentIndexRoute = AppAgentIndexRouteImport.update({
   id: '/agent/',
   path: '/agent/',
   getParentRoute: () => AppRoute,
+} as any)
+const AppAccountIndexRoute = AppAccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAccountRoute,
 } as any)
 const ApiIngestSplatRoute = ApiIngestSplatRouteImport.update({
   id: '/api/ingest/$',
@@ -214,6 +216,16 @@ const AppAgentChatRoute = AppAgentChatRouteImport.update({
   path: '/agent/chat',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountQuestionnaireRoute = AppAccountQuestionnaireRouteImport.update({
+  id: '/questionnaire',
+  path: '/questionnaire',
+  getParentRoute: () => AppAccountRoute,
+} as any)
+const AppAccountPreferencesRoute = AppAccountPreferencesRouteImport.update({
+  id: '/preferences',
+  path: '/preferences',
+  getParentRoute: () => AppAccountRoute,
+} as any)
 const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
   id: '/api/ingest/static/$',
   path: '/api/ingest/static/$',
@@ -223,13 +235,14 @@ const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/beta': typeof BetaRoute
-  '/account': typeof AppAccountRoute
+  '/account': typeof AppAccountRouteWithChildren
   '/login': typeof AppLoginRoute
   '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
-  '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
+  '/account/preferences': typeof AppAccountPreferencesRoute
+  '/account/questionnaire': typeof AppAccountQuestionnaireRoute
   '/agent/chat': typeof AppAgentChatRoute
   '/agent/compliance': typeof AppAgentComplianceRoute
   '/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -251,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
+  '/account/': typeof AppAccountIndexRoute
   '/agent/': typeof AppAgentIndexRoute
   '/buyer/': typeof AppBuyerIndexRoute
   '/seller/': typeof AppSellerIndexRoute
@@ -258,14 +272,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/beta': typeof BetaRoute
-  '/account': typeof AppAccountRoute
   '/login': typeof AppLoginRoute
   '/matches': typeof AppMatchesRoute
   '/signup': typeof AppSignupRoute
-  '/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/': typeof AppIndexRoute
+  '/account/preferences': typeof AppAccountPreferencesRoute
+  '/account/questionnaire': typeof AppAccountQuestionnaireRoute
   '/agent/chat': typeof AppAgentChatRoute
   '/agent/compliance': typeof AppAgentComplianceRoute
   '/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -287,6 +301,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
+  '/account': typeof AppAccountIndexRoute
   '/agent': typeof AppAgentIndexRoute
   '/buyer': typeof AppBuyerIndexRoute
   '/seller': typeof AppSellerIndexRoute
@@ -296,14 +311,15 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/beta': typeof BetaRoute
-  '/_app/account': typeof AppAccountRoute
+  '/_app/account': typeof AppAccountRouteWithChildren
   '/_app/login': typeof AppLoginRoute
   '/_app/matches': typeof AppMatchesRoute
   '/_app/signup': typeof AppSignupRoute
-  '/_app/upgrade': typeof AppUpgradeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/account/preferences': typeof AppAccountPreferencesRoute
+  '/_app/account/questionnaire': typeof AppAccountQuestionnaireRoute
   '/_app/agent/chat': typeof AppAgentChatRoute
   '/_app/agent/compliance': typeof AppAgentComplianceRoute
   '/_app/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -325,6 +341,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
+  '/_app/account/': typeof AppAccountIndexRoute
   '/_app/agent/': typeof AppAgentIndexRoute
   '/_app/buyer/': typeof AppBuyerIndexRoute
   '/_app/seller/': typeof AppSellerIndexRoute
@@ -339,9 +356,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/signup'
-    | '/upgrade'
     | '/api/agent-matches'
     | '/api/health'
+    | '/account/preferences'
+    | '/account/questionnaire'
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
@@ -363,6 +381,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
+    | '/account/'
     | '/agent/'
     | '/buyer/'
     | '/seller/'
@@ -370,14 +389,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/beta'
-    | '/account'
     | '/login'
     | '/matches'
     | '/signup'
-    | '/upgrade'
     | '/api/agent-matches'
     | '/api/health'
     | '/'
+    | '/account/preferences'
+    | '/account/questionnaire'
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
@@ -399,6 +418,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
+    | '/account'
     | '/agent'
     | '/buyer'
     | '/seller'
@@ -411,10 +431,11 @@ export interface FileRouteTypes {
     | '/_app/login'
     | '/_app/matches'
     | '/_app/signup'
-    | '/_app/upgrade'
     | '/api/agent-matches'
     | '/api/health'
     | '/_app/'
+    | '/_app/account/preferences'
+    | '/_app/account/questionnaire'
     | '/_app/agent/chat'
     | '/_app/agent/compliance'
     | '/_app/agent/deep-dive'
@@ -436,6 +457,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
+    | '/_app/account/'
     | '/_app/agent/'
     | '/_app/buyer/'
     | '/_app/seller/'
@@ -490,13 +512,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentMatchesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/upgrade': {
-      id: '/_app/upgrade'
-      path: '/upgrade'
-      fullPath: '/upgrade'
-      preLoaderRoute: typeof AppUpgradeRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/signup': {
       id: '/_app/signup'
       path: '/signup'
@@ -545,6 +560,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/agent/'
       preLoaderRoute: typeof AppAgentIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/account/': {
+      id: '/_app/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AppAccountIndexRouteImport
+      parentRoute: typeof AppAccountRoute
     }
     '/api/ingest/$': {
       id: '/api/ingest/$'
@@ -693,6 +715,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAgentChatRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/account/questionnaire': {
+      id: '/_app/account/questionnaire'
+      path: '/questionnaire'
+      fullPath: '/account/questionnaire'
+      preLoaderRoute: typeof AppAccountQuestionnaireRouteImport
+      parentRoute: typeof AppAccountRoute
+    }
+    '/_app/account/preferences': {
+      id: '/_app/account/preferences'
+      path: '/preferences'
+      fullPath: '/account/preferences'
+      preLoaderRoute: typeof AppAccountPreferencesRouteImport
+      parentRoute: typeof AppAccountRoute
+    }
     '/api/ingest/static/$': {
       id: '/api/ingest/static/$'
       path: '/api/ingest/static/$'
@@ -703,12 +739,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppAccountRouteChildren {
+  AppAccountPreferencesRoute: typeof AppAccountPreferencesRoute
+  AppAccountQuestionnaireRoute: typeof AppAccountQuestionnaireRoute
+  AppAccountIndexRoute: typeof AppAccountIndexRoute
+}
+
+const AppAccountRouteChildren: AppAccountRouteChildren = {
+  AppAccountPreferencesRoute: AppAccountPreferencesRoute,
+  AppAccountQuestionnaireRoute: AppAccountQuestionnaireRoute,
+  AppAccountIndexRoute: AppAccountIndexRoute,
+}
+
+const AppAccountRouteWithChildren = AppAccountRoute._addFileChildren(
+  AppAccountRouteChildren,
+)
+
 interface AppRouteChildren {
-  AppAccountRoute: typeof AppAccountRoute
+  AppAccountRoute: typeof AppAccountRouteWithChildren
   AppLoginRoute: typeof AppLoginRoute
   AppMatchesRoute: typeof AppMatchesRoute
   AppSignupRoute: typeof AppSignupRoute
-  AppUpgradeRoute: typeof AppUpgradeRoute
   AppIndexRoute: typeof AppIndexRoute
   AppAgentChatRoute: typeof AppAgentChatRoute
   AppAgentComplianceRoute: typeof AppAgentComplianceRoute
@@ -734,11 +785,10 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAccountRoute: AppAccountRoute,
+  AppAccountRoute: AppAccountRouteWithChildren,
   AppLoginRoute: AppLoginRoute,
   AppMatchesRoute: AppMatchesRoute,
   AppSignupRoute: AppSignupRoute,
-  AppUpgradeRoute: AppUpgradeRoute,
   AppIndexRoute: AppIndexRoute,
   AppAgentChatRoute: AppAgentChatRoute,
   AppAgentComplianceRoute: AppAgentComplianceRoute,

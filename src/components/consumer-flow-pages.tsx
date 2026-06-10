@@ -2,27 +2,31 @@ import { Link } from '@tanstack/react-router'
 import * as zipcodes from 'zipcodes'
 import {
 	ArrowRight,
+	BarChart3,
 	Check,
 	CheckCircle2,
 	ChevronsUpDown,
 	CreditCard,
 	MapPin,
+	MessageSquare,
 	Sparkles,
+	Star,
 	Trophy,
+	Zap,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
 import { AuthCard } from '@/components/auth-card'
-import { AgentMatchCard, type AgentMatch } from '@/components/agent-match-card'
 import {
 	MatchCardModern,
 	mockMatch1,
-	mockMatch2,
+	type MatchDetails,
 } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
 	Dialog,
 	DialogContent,
@@ -208,42 +212,50 @@ export const sellerConfig = {
 	accent: 'amber',
 } satisfies ConsumerFlowConfig
 
-const consumerMatches: AgentMatch[] = [
+const consumerMatches: MatchDetails[] = [
 	{
-		id: 1,
+		id: 'consumer-1',
 		name: 'Sarah Chen',
-		agency: 'Horizon Realty Group',
+		role: 'agent',
 		location: 'Austin, TX',
-		overall: 4.8,
+		zipCodes: ['78701'],
+		fitScore: 96,
+		status: 'new',
+		date: 'Just now',
+		experience: '12 years',
+		agency: 'Horizon Realty Group',
+		specialties: ['First-time buyers', 'Luxury homes', 'Calm negotiation'],
+		about:
+			'Known for patient guidance and transparent communication. Strong fit for clients who want a steady, low-pressure process.',
 		scores: {
 			'Working Style': 4.9,
 			Communication: 4.7,
 			Transparency: 4.8,
 			Fit: 4.9,
 		},
-		experience: '12 years',
-		specialties: ['First-time buyers', 'Luxury homes', 'Calm negotiation'],
-		about:
-			'Known for patient guidance and transparent communication. Strong fit for clients who want a steady, low-pressure process.',
-		topMatch: true,
+		isTopMatch: true,
 	},
 	{
-		id: 2,
+		id: 'consumer-2',
 		name: 'Marcus Johnson',
-		agency: 'Urban Nest Properties',
+		role: 'agent',
 		location: 'Austin, TX',
-		overall: 4.5,
+		zipCodes: ['78701'],
+		fitScore: 90,
+		status: 'new',
+		date: 'Just now',
+		experience: '8 years',
+		agency: 'Urban Nest Properties',
+		specialties: ['Fast timelines', 'Urban properties', 'Relocation'],
+		about:
+			'Efficient, data-driven agent who respects your time and keeps decisions moving without extra drama.',
 		scores: {
 			'Working Style': 4.6,
 			Communication: 4.4,
 			Transparency: 4.5,
 			Fit: 4.4,
 		},
-		experience: '8 years',
-		specialties: ['Fast timelines', 'Urban properties', 'Relocation'],
-		about:
-			'Efficient, data-driven agent who respects your time and keeps decisions moving without extra drama.',
-		topMatch: false,
+		isTopMatch: false,
 	},
 ]
 
@@ -260,13 +272,7 @@ export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
 	}, [config.kind])
 
 	return (
-		<FlowPageShell
-			title="Basic Information"
-			subtitle="Step 1"
-			icon={MapPin}
-			roleLabel={config.label}
-			headerInsideCard
-		>
+		<FlowPageShell title="Basic Information" icon={MapPin} headerInsideCard>
 			<div className="space-y-8">
 				<FieldSet className="gap-0">
 					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
@@ -415,7 +421,6 @@ export function ConsumerQuiz({ config }: { config: ConsumerFlowConfig }) {
 
 	return (
 		<QuestionFlow
-			roleLabel={config.label}
 			questions={config.questionFlow.questions}
 			initialAnswers={draft.answers}
 			initialQuestionIndex={getNextUnansweredQuestionIndex(
@@ -464,11 +469,7 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 
 	if (isComplete) {
 		return (
-			<FlowPageShell
-				title="Payment Complete"
-				icon={CheckCircle2}
-				roleLabel={config.label}
-			>
+			<FlowPageShell title="Payment Complete" icon={CheckCircle2}>
 				<div className="space-y-6 text-center">
 					<div className="flex justify-center">
 						<div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -493,7 +494,7 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 	}
 
 	return (
-		<FlowPageShell title="Payment" icon={CreditCard} roleLabel={config.label}>
+		<FlowPageShell title="Payment" icon={CreditCard}>
 			<div className="space-y-8">
 				<Card className="bg-muted/30 rounded-lg border p-6 py-6 text-center shadow-none ring-0">
 					<div className="text-muted-foreground mb-2 text-sm">
@@ -580,14 +581,19 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 	}, [config.kind])
 
 	return (
-		<FlowPageShell title="Results" icon={Trophy} roleLabel={config.label}>
+		<FlowPageShell title="Results" icon={Trophy}>
 			<p className="text-muted-foreground mb-6 text-center text-sm leading-relaxed">
 				Real agents ranked by fit — not by who paid the most to get your contact
 				info. You can select up to 3 agents total.
 			</p>
 			<div className="space-y-4">
-				{consumerMatches.map((match, index) => (
-					<AgentMatchCard key={match.id} match={match} index={index} />
+				{consumerMatches.map((match) => (
+					<MatchCardModern
+						key={match.id}
+						match={match}
+						showScoreBreakdown
+						actionLabel="Select Agent"
+					/>
 				))}
 			</div>
 			{config.kind === 'seller' ? (
@@ -600,55 +606,158 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 	)
 }
 
-const previewMatches = [mockMatch1, mockMatch2]
+const previewMatches = [mockMatch1]
 
 export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
 	const [dialogOpen, setDialogOpen] = useState(false)
+	const [summaryReady, setSummaryReady] = useState(false)
+	const [matchReady, setMatchReady] = useState(false)
 
 	useEffect(() => {
 		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'preview' })
 	}, [config.kind])
+
+	useEffect(() => {
+		const summaryTimer = setTimeout(() => setSummaryReady(true), 800)
+		const matchTimer = setTimeout(() => setMatchReady(true), 1600)
+		return () => {
+			clearTimeout(summaryTimer)
+			clearTimeout(matchTimer)
+		}
+	}, [])
+
+	const topMatch = previewMatches[0]!
+	const initials = topMatch.name
+		.split(' ')
+		.map((n) => n[0])
+		.join('')
 
 	return (
 		<FlowPageShell
 			title="Your Matches"
 			subtitle="Preview"
 			icon={Sparkles}
-			roleLabel={config.label}
 			headerInsideCard
+			card={false}
 		>
 			<div className="space-y-6">
-				<div className="space-y-4 text-center">
-					<h2 className="font-heading text-xl leading-relaxed font-normal">
-						Meet the agents who actually fit you
-					</h2>
-					<p className="text-muted-foreground text-sm leading-relaxed">
-						Based on your answers, we found agents ranked by fit.
-					</p>
-					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-						<DialogTrigger asChild>
-							<Button size="lg" className="gap-2">
-								Unlock Full Matches
-								<ArrowRight className="h-4 w-4" />
-							</Button>
-						</DialogTrigger>
-						<DialogContent className="max-w-md">
-							<DialogHeader>
-								<DialogTitle>Create your account</DialogTitle>
-								<DialogDescription>
-									Unlock your full match details and connect with agents.
-								</DialogDescription>
-							</DialogHeader>
-							<AuthCard mode="sign-up" embedded redirect="/matches" />
-						</DialogContent>
-					</Dialog>
-				</div>
+				{/* Unified Preview Panel */}
+				<Card className="overflow-hidden">
+					<CardContent className="p-6">
+						{/* Profile Summary */}
+						<div className="space-y-4">
+							<h2 className="font-heading text-lg">Your profile</h2>
+							<div className="min-h-[120px]">
+								{summaryReady ? (
+									<div className="space-y-3">
+										<div className="flex items-start gap-3">
+											<MessageSquare className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+											<p className="text-sm leading-snug">
+												Values clear, upfront communication
+											</p>
+										</div>
+										<div className="flex items-start gap-3">
+											<BarChart3 className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+											<p className="text-sm leading-snug">
+												Prefers data-driven market analysis
+											</p>
+										</div>
+										<div className="flex items-start gap-3">
+											<Zap className="text-primary mt-0.5 h-4 w-4 shrink-0" />
+											<p className="text-sm leading-snug">
+												Wants fast responses and steady progress
+											</p>
+										</div>
+									</div>
+								) : (
+									<div className="space-y-3">
+										{Array.from({ length: 3 }).map((_, i) => (
+											<div key={i} className="flex items-start gap-3">
+												<Skeleton className="h-4 w-4 shrink-0 rounded-sm" />
+												<div className="flex-1 space-y-1">
+													<Skeleton className="h-3.5 w-full" />
+													<Skeleton className="h-3.5 w-4/5" />
+												</div>
+											</div>
+										))}
+									</div>
+								)}
+							</div>
+						</div>
 
-				<div className="space-y-3">
-					{previewMatches.map((match) => (
-						<MatchCardModern key={match.id} match={match} locked />
-					))}
-				</div>
+						{/* Divider */}
+						<div className="my-6 border-t" />
+
+						{/* Match Teaser */}
+						<div className="space-y-4">
+							<div className="flex items-center gap-2">
+								<Star className="text-primary h-4 w-4" />
+								<h3 className="font-heading text-base">Your top match</h3>
+							</div>
+
+							<div className="min-h-[120px]">
+								{matchReady ? (
+									<div className="border-border/60 bg-muted/30 flex items-start gap-4 rounded-xl border border-dashed p-4">
+										<div className="shrink-0">
+											<div className="bg-secondary flex h-12 w-12 items-center justify-center rounded-lg text-sm font-medium blur-md select-none">
+												{initials}
+											</div>
+										</div>
+										<div className="min-w-0 flex-1">
+											<h4 className="text-base font-semibold blur-sm select-none">
+												{topMatch.name}
+											</h4>
+											<p className="text-muted-foreground text-xs">
+												{topMatch.agency}
+											</p>
+											<p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-xs">
+												<MapPin className="h-3 w-3" />
+												{topMatch.location}
+											</p>
+										</div>
+										<div className="shrink-0 text-center">
+											<div className="bg-primary text-primary-foreground flex h-11 w-11 items-center justify-center rounded-lg text-sm font-bold">
+												{topMatch.fitScore}%
+											</div>
+										</div>
+									</div>
+								) : (
+									<div className="border-border/60 bg-muted/30 flex items-start gap-4 rounded-xl border border-dashed p-4">
+										<Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
+										<div className="min-w-0 flex-1 space-y-2">
+											<Skeleton className="h-4 w-32" />
+											<Skeleton className="h-3 w-40" />
+											<Skeleton className="h-3 w-28" />
+										</div>
+										<Skeleton className="h-11 w-11 shrink-0 rounded-lg" />
+									</div>
+								)}
+							</div>
+						</div>
+					</CardContent>
+					<CardFooter className="flex-col gap-2 pt-2">
+						<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+							<DialogTrigger asChild>
+								<Button size="lg" className="w-full gap-2 sm:w-auto">
+									Unlock for $19.99
+									<ArrowRight className="h-4 w-4" />
+								</Button>
+							</DialogTrigger>
+							<DialogContent className="max-w-md">
+								<DialogHeader>
+									<DialogTitle>Create your free account</DialogTitle>
+									<DialogDescription>
+										Then unlock your matches and connect with agents.
+									</DialogDescription>
+								</DialogHeader>
+								<AuthCard mode="sign-up" embedded redirect="/matches" />
+							</DialogContent>
+						</Dialog>
+						<p className="text-muted-foreground text-center text-xs">
+							One-time fee · No subscription · 100% refundable if no match
+						</p>
+					</CardFooter>
+				</Card>
 			</div>
 		</FlowPageShell>
 	)
