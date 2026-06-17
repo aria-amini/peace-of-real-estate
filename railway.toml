@@ -1,7 +1,7 @@
 [build]
 builder = "RAILPACK"
 buildCommand = "vp build"
-preDeployCommand = "vp run db:migrate"
+preDeployCommand = "vp run db:push"
 
 [deploy]
 runtime = "V2"

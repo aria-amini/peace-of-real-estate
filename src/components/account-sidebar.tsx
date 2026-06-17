@@ -54,6 +54,7 @@ export function AccountSidebar() {
 	const currentPath = router.location.pathname
 	const { data: session } = authClient.useSession()
 	const isAuthenticated = Boolean(session)
+	const showPremiumCard = currentPath !== '/buyer/preview'
 	const [showPaywall, setShowPaywall] = useState(false)
 	const [showSupport, setShowSupport] = useState(false)
 	const { data: premiumStatus } = useQuery({
@@ -219,24 +220,28 @@ export function AccountSidebar() {
 				</SidebarContent>
 
 				<SidebarFooter className="gap-3">
-					<button
-						type="button"
-						disabled={!isAuthenticated}
-						onClick={() => setShowPaywall(true)}
-						className="bg-card text-card-foreground hover:border-primary/50 hover:bg-card/95 group mx-2 rounded-xl border-2 p-3 text-left shadow-sm transition hover:shadow-md disabled:pointer-events-none disabled:opacity-50"
-					>
-						<div className="mb-2 flex items-center gap-2">
-							<span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
-								<Sparkles className="size-3.5" />
+					{showPremiumCard ? (
+						<button
+							type="button"
+							disabled={!isAuthenticated}
+							onClick={() => setShowPaywall(true)}
+							className="bg-card text-card-foreground hover:border-primary/50 hover:bg-card/95 group mx-2 rounded-xl border-2 p-3 text-left shadow-sm transition hover:shadow-md disabled:pointer-events-none disabled:opacity-50"
+						>
+							<div className="mb-2 flex items-center gap-2">
+								<span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
+									<Sparkles className="size-3.5" />
+								</span>
+								<span className="text-sm font-medium">Upgrade</span>
+							</div>
+							<p className="text-muted-foreground mb-2 text-xs leading-snug">
+								Unlock full agent profiles, saved preferences, and better match
+								insights.
+							</p>
+							<span className="text-primary text-xs font-medium">
+								See plans
 							</span>
-							<span className="text-sm font-medium">Upgrade</span>
-						</div>
-						<p className="text-muted-foreground mb-2 text-xs leading-snug">
-							Unlock full agent profiles, saved preferences, and better match
-							insights.
-						</p>
-						<span className="text-primary text-xs font-medium">See plans</span>
-					</button>
+						</button>
+					) : null}
 
 					<SidebarMenu>
 						<SidebarMenuItem>
