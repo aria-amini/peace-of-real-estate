@@ -32,6 +32,7 @@ import { SignupDialog } from '@/components/signup-dialog'
 import {
 	ArrowRightLeft,
 	HelpCircle,
+	LogOut,
 	MessageSquare,
 	Search,
 	Sparkles,
@@ -71,6 +72,16 @@ export function AccountSidebar() {
 
 	const isActive = (path: string) =>
 		currentPath === path || currentPath.startsWith(`${path}/`)
+
+	const handleSignOut = async () => {
+		await authClient.signOut({
+			fetchOptions: {
+				onSuccess: () => {
+					window.location.assign('/')
+				},
+			},
+		})
+	}
 
 	const agentItems: SidebarItem[] = [
 		{ label: 'Matches', icon: Users, href: '/matches' },
@@ -234,6 +245,14 @@ export function AccountSidebar() {
 								<span>Support</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
+						{isAuthenticated ? (
+							<SidebarMenuItem>
+								<SidebarMenuButton onClick={() => void handleSignOut()}>
+									<LogOut />
+									<span>Sign out</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						) : null}
 					</SidebarMenu>
 
 					{!isAuthenticated ? (
