@@ -50,7 +50,7 @@ const data = coreQuestions as CoreQuestionsData
 export const buyerQuestionFlow = data.flows.buyer
 export const agentQuestionFlow = data.flows.agent
 
-const buyerMatchingQuestionIds = ['B.6', 'B.11', 'B.12', 'B.14', 'B.8', 'B.9']
+const buyerMatchingQuestionIds = ['B.6', 'B.11', 'B.12', 'B.14']
 
 function pickQuestions(flow: QuestionFlow, ids: string[]): QuestionFlow {
 	const questionsById = new Map(

@@ -36,6 +36,9 @@ import { Route as AppAgentPeacePactRouteImport } from './routes/_app/agent/peace
 import { Route as AppAgentDeepDiveRouteImport } from './routes/_app/agent/deep-dive'
 import { Route as AppAgentComplianceRouteImport } from './routes/_app/agent/compliance'
 import { Route as AppAgentChatRouteImport } from './routes/_app/agent/chat'
+import { Route as AppAccountSearchPreferencesRouteImport } from './routes/_app/account/search-preferences'
+import { Route as AppAccountPracticeNegotiatingRouteImport } from './routes/_app/account/practice-negotiating'
+import { Route as AppAccountIntroductionsRouteImport } from './routes/_app/account/introductions'
 import { Route as ApiIngestStaticSplatRouteImport } from './routes/api/ingest/static/$'
 
 const BetaRoute = BetaRouteImport.update({
@@ -172,6 +175,23 @@ const AppAgentChatRoute = AppAgentChatRouteImport.update({
   path: '/agent/chat',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountSearchPreferencesRoute =
+  AppAccountSearchPreferencesRouteImport.update({
+    id: '/search-preferences',
+    path: '/search-preferences',
+    getParentRoute: () => AppAccountRoute,
+  } as any)
+const AppAccountPracticeNegotiatingRoute =
+  AppAccountPracticeNegotiatingRouteImport.update({
+    id: '/practice-negotiating',
+    path: '/practice-negotiating',
+    getParentRoute: () => AppAccountRoute,
+  } as any)
+const AppAccountIntroductionsRoute = AppAccountIntroductionsRouteImport.update({
+  id: '/introductions',
+  path: '/introductions',
+  getParentRoute: () => AppAccountRoute,
+} as any)
 const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
   id: '/api/ingest/static/$',
   path: '/api/ingest/static/$',
@@ -187,6 +207,9 @@ export interface FileRoutesByFullPath {
   '/signup': typeof AppSignupRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
+  '/account/introductions': typeof AppAccountIntroductionsRoute
+  '/account/practice-negotiating': typeof AppAccountPracticeNegotiatingRoute
+  '/account/search-preferences': typeof AppAccountSearchPreferencesRoute
   '/agent/chat': typeof AppAgentChatRoute
   '/agent/compliance': typeof AppAgentComplianceRoute
   '/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -215,6 +238,9 @@ export interface FileRoutesByTo {
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/': typeof AppIndexRoute
+  '/account/introductions': typeof AppAccountIntroductionsRoute
+  '/account/practice-negotiating': typeof AppAccountPracticeNegotiatingRoute
+  '/account/search-preferences': typeof AppAccountSearchPreferencesRoute
   '/agent/chat': typeof AppAgentChatRoute
   '/agent/compliance': typeof AppAgentComplianceRoute
   '/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -246,6 +272,9 @@ export interface FileRoutesById {
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/account/introductions': typeof AppAccountIntroductionsRoute
+  '/_app/account/practice-negotiating': typeof AppAccountPracticeNegotiatingRoute
+  '/_app/account/search-preferences': typeof AppAccountSearchPreferencesRoute
   '/_app/agent/chat': typeof AppAgentChatRoute
   '/_app/agent/compliance': typeof AppAgentComplianceRoute
   '/_app/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -277,6 +306,9 @@ export interface FileRouteTypes {
     | '/signup'
     | '/api/agent-matches'
     | '/api/health'
+    | '/account/introductions'
+    | '/account/practice-negotiating'
+    | '/account/search-preferences'
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
@@ -305,6 +337,9 @@ export interface FileRouteTypes {
     | '/api/agent-matches'
     | '/api/health'
     | '/'
+    | '/account/introductions'
+    | '/account/practice-negotiating'
+    | '/account/search-preferences'
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
@@ -335,6 +370,9 @@ export interface FileRouteTypes {
     | '/api/agent-matches'
     | '/api/health'
     | '/_app/'
+    | '/_app/account/introductions'
+    | '/_app/account/practice-negotiating'
+    | '/_app/account/search-preferences'
     | '/_app/agent/chat'
     | '/_app/agent/compliance'
     | '/_app/agent/deep-dive'
@@ -558,6 +596,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAgentChatRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/account/search-preferences': {
+      id: '/_app/account/search-preferences'
+      path: '/search-preferences'
+      fullPath: '/account/search-preferences'
+      preLoaderRoute: typeof AppAccountSearchPreferencesRouteImport
+      parentRoute: typeof AppAccountRoute
+    }
+    '/_app/account/practice-negotiating': {
+      id: '/_app/account/practice-negotiating'
+      path: '/practice-negotiating'
+      fullPath: '/account/practice-negotiating'
+      preLoaderRoute: typeof AppAccountPracticeNegotiatingRouteImport
+      parentRoute: typeof AppAccountRoute
+    }
+    '/_app/account/introductions': {
+      id: '/_app/account/introductions'
+      path: '/introductions'
+      fullPath: '/account/introductions'
+      preLoaderRoute: typeof AppAccountIntroductionsRouteImport
+      parentRoute: typeof AppAccountRoute
+    }
     '/api/ingest/static/$': {
       id: '/api/ingest/static/$'
       path: '/api/ingest/static/$'
@@ -569,10 +628,16 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppAccountRouteChildren {
+  AppAccountIntroductionsRoute: typeof AppAccountIntroductionsRoute
+  AppAccountPracticeNegotiatingRoute: typeof AppAccountPracticeNegotiatingRoute
+  AppAccountSearchPreferencesRoute: typeof AppAccountSearchPreferencesRoute
   AppAccountIndexRoute: typeof AppAccountIndexRoute
 }
 
 const AppAccountRouteChildren: AppAccountRouteChildren = {
+  AppAccountIntroductionsRoute: AppAccountIntroductionsRoute,
+  AppAccountPracticeNegotiatingRoute: AppAccountPracticeNegotiatingRoute,
+  AppAccountSearchPreferencesRoute: AppAccountSearchPreferencesRoute,
   AppAccountIndexRoute: AppAccountIndexRoute,
 }
 
