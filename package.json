@@ -25,7 +25,7 @@
 		"compose:down": "docker compose down",
 		"compose:reset": "docker compose down --volumes --remove-orphans",
 		"db:populate": "tsx scripts/populate-db.ts",
-		"db:migrate": "drizzle-kit migrate",
+		"db:push": "drizzle-kit push",
 		"prepare": "vp config --hooks-only",
 		"update-pnpm": "corepack prepare pnpm@latest --activate"
 	},
