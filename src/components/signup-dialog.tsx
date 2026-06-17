@@ -14,10 +14,12 @@ export function SignupDialog({
 	children,
 	open,
 	onOpenChange,
+	redirect = '/matches',
 }: {
 	children?: React.ReactNode
 	open?: boolean
 	onOpenChange?: (open: boolean) => void
+	redirect?: string
 }) {
 	const isControlled = open !== undefined
 	const [internalOpen, setInternalOpen] = useState(false)
@@ -38,7 +40,7 @@ export function SignupDialog({
 						agents.
 					</DialogDescription>
 				</DialogHeader>
-				<AuthCard mode="sign-up" embedded redirect="/matches" />
+				<AuthCard mode="sign-up" embedded redirect={redirect} />
 			</DialogContent>
 		</Dialog>
 	)

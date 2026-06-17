@@ -28,7 +28,10 @@ import {
 	buyerQuestionFlow,
 } from '@/lib/matching/questions'
 import { getAnswerSummary } from '@/lib/matching/settings'
-import { getStoredConsumerDraftForFlow } from '@/lib/matching/intake-draft'
+import {
+	getStoredConsumerDraftForFlow,
+	saveStoredConsumerDraftForFlow,
+} from '@/lib/matching/intake-draft'
 import { getCurrentSession } from '@/lib/auth/functions'
 
 const stateNames: Record<string, string> = {
@@ -233,6 +236,11 @@ function BuyerPreview() {
 		return null
 	}
 
+	const handleCreateProfile = () => {
+		saveStoredConsumerDraftForFlow('buyer', draft)
+		setSignupOpen(true)
+	}
+
 	return (
 		<div className="min-h-dvh w-full bg-slate-100">
 			<motion.div
@@ -355,7 +363,7 @@ function BuyerPreview() {
 									<Button
 										size="lg"
 										className="h-12 rounded-xl px-8 text-base shadow-md transition-shadow hover:shadow-lg"
-										onClick={() => setSignupOpen(true)}
+										onClick={handleCreateProfile}
 									>
 										Create free profile
 										<ArrowRight className="ml-2 h-4 w-4" />
@@ -383,7 +391,11 @@ function BuyerPreview() {
 				) : null}
 			</motion.div>
 
-			<SignupDialog open={signupOpen} onOpenChange={setSignupOpen} />
+			<SignupDialog
+				open={signupOpen}
+				onOpenChange={setSignupOpen}
+				redirect="/buyer/complete-profile"
+			/>
 		</div>
 	)
 }
