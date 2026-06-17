@@ -347,7 +347,7 @@ function PreferencesSummaryCard({
 				</div>
 
 				<Button asChild variant="outline" size="sm" className="shrink-0">
-					<Link to="/buyer/intake" search={{ step: 'quiz' }}>
+					<Link to="/buyer/intake" search={{ step: 'quiz', edit: true }}>
 						<Pencil className="mr-1 h-3.5 w-3.5" />
 						Edit Preferences
 					</Link>

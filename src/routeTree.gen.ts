@@ -28,6 +28,7 @@ import { Route as AppBuyerPrioritiesRouteImport } from './routes/_app/buyer/prio
 import { Route as AppBuyerPreviewRouteImport } from './routes/_app/buyer/preview'
 import { Route as AppBuyerPaymentRouteImport } from './routes/_app/buyer/payment'
 import { Route as AppBuyerIntakeRouteImport } from './routes/_app/buyer/intake'
+import { Route as AppBuyerCompleteProfileRouteImport } from './routes/_app/buyer/complete-profile'
 import { Route as AppAgentSubscribeRouteImport } from './routes/_app/agent/subscribe'
 import { Route as AppAgentQuizRouteImport } from './routes/_app/agent/quiz'
 import { Route as AppAgentProfileRouteImport } from './routes/_app/agent/profile'
@@ -135,6 +136,11 @@ const AppBuyerIntakeRoute = AppBuyerIntakeRouteImport.update({
   path: '/buyer/intake',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBuyerCompleteProfileRoute = AppBuyerCompleteProfileRouteImport.update({
+  id: '/buyer/complete-profile',
+  path: '/buyer/complete-profile',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAgentSubscribeRoute = AppAgentSubscribeRouteImport.update({
   id: '/agent/subscribe',
   path: '/agent/subscribe',
@@ -218,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
+  '/buyer/complete-profile': typeof AppBuyerCompleteProfileRoute
   '/buyer/intake': typeof AppBuyerIntakeRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
   '/buyer/preview': typeof AppBuyerPreviewRoute
@@ -249,6 +256,7 @@ export interface FileRoutesByTo {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
+  '/buyer/complete-profile': typeof AppBuyerCompleteProfileRoute
   '/buyer/intake': typeof AppBuyerIntakeRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
   '/buyer/preview': typeof AppBuyerPreviewRoute
@@ -283,6 +291,7 @@ export interface FileRoutesById {
   '/_app/agent/profile': typeof AppAgentProfileRoute
   '/_app/agent/quiz': typeof AppAgentQuizRoute
   '/_app/agent/subscribe': typeof AppAgentSubscribeRoute
+  '/_app/buyer/complete-profile': typeof AppBuyerCompleteProfileRoute
   '/_app/buyer/intake': typeof AppBuyerIntakeRoute
   '/_app/buyer/payment': typeof AppBuyerPaymentRoute
   '/_app/buyer/preview': typeof AppBuyerPreviewRoute
@@ -317,6 +326,7 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
+    | '/buyer/complete-profile'
     | '/buyer/intake'
     | '/buyer/payment'
     | '/buyer/preview'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
+    | '/buyer/complete-profile'
     | '/buyer/intake'
     | '/buyer/payment'
     | '/buyer/preview'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/_app/agent/profile'
     | '/_app/agent/quiz'
     | '/_app/agent/subscribe'
+    | '/_app/buyer/complete-profile'
     | '/_app/buyer/intake'
     | '/_app/buyer/payment'
     | '/_app/buyer/preview'
@@ -540,6 +552,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBuyerIntakeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/buyer/complete-profile': {
+      id: '/_app/buyer/complete-profile'
+      path: '/buyer/complete-profile'
+      fullPath: '/buyer/complete-profile'
+      preLoaderRoute: typeof AppBuyerCompleteProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/agent/subscribe': {
       id: '/_app/agent/subscribe'
       path: '/agent/subscribe'
@@ -659,6 +678,7 @@ interface AppRouteChildren {
   AppAgentProfileRoute: typeof AppAgentProfileRoute
   AppAgentQuizRoute: typeof AppAgentQuizRoute
   AppAgentSubscribeRoute: typeof AppAgentSubscribeRoute
+  AppBuyerCompleteProfileRoute: typeof AppBuyerCompleteProfileRoute
   AppBuyerIntakeRoute: typeof AppBuyerIntakeRoute
   AppBuyerPaymentRoute: typeof AppBuyerPaymentRoute
   AppBuyerPreviewRoute: typeof AppBuyerPreviewRoute
@@ -681,6 +701,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAgentProfileRoute: AppAgentProfileRoute,
   AppAgentQuizRoute: AppAgentQuizRoute,
   AppAgentSubscribeRoute: AppAgentSubscribeRoute,
+  AppBuyerCompleteProfileRoute: AppBuyerCompleteProfileRoute,
   AppBuyerIntakeRoute: AppBuyerIntakeRoute,
   AppBuyerPaymentRoute: AppBuyerPaymentRoute,
   AppBuyerPreviewRoute: AppBuyerPreviewRoute,

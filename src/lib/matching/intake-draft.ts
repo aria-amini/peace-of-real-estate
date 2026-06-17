@@ -36,14 +36,14 @@ export function getStoredIntakeDraft(): IntakeDraft | null {
 		return null
 	}
 
-	if (USE_MEMORY_IN_DEV) {
+	const rawValue = window.localStorage.getItem(STORAGE_KEY)
+
+	if (USE_MEMORY_IN_DEV && devDraft) {
 		return devDraft
 	}
 
-	const rawValue = window.localStorage.getItem(STORAGE_KEY)
-
 	if (!rawValue) {
-		return null
+		return USE_MEMORY_IN_DEV ? devDraft : null
 	}
 
 	try {
@@ -69,10 +69,7 @@ export function clearStoredIntakeDraft() {
 		return
 	}
 
-	if (USE_MEMORY_IN_DEV) {
-		devDraft = null
-		return
-	}
+	devDraft = null
 
 	window.localStorage.removeItem(STORAGE_KEY)
 }
@@ -84,8 +81,6 @@ export function saveStoredIntakeDraft(draft: IntakeDraft) {
 
 	if (USE_MEMORY_IN_DEV) {
 		devDraft = draft
-		window.dispatchEvent(new Event(DRAFT_UPDATED_EVENT))
-		return
 	}
 
 	window.localStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
@@ -193,6 +188,7 @@ export function clearStoredConsumerDraftForFlow(flowKind: ConsumerFlowKind) {
 
 	const existing = getStoredIntakeDraft()
 	if (existing?.role === 'consumer' && existing.flowKind === flowKind) {
+		devDraft = null
 		window.localStorage.removeItem(STORAGE_KEY)
 	}
 }
