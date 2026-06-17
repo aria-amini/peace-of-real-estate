@@ -7,15 +7,41 @@ import {
 } from '@aws-sdk/client-s3'
 import { serverEnv } from '../src/env.server'
 import { getDb } from '../src/db/connection'
+import { agentQuestionFlow } from '../src/lib/matching/questions'
 import {
 	user,
-	agents,
-	agentQuestionnaires,
+	agentProfiles,
 	session,
 	account,
-	consumers,
-	consumerQuestionnaires,
+	buyerProfiles,
+	sellerProfiles,
 } from '../src/db/tables'
+
+type SeedAnswer = number | number[] | string
+
+function answerToOption(questionId: string, answer: SeedAnswer | undefined) {
+	if (typeof answer === 'string') return answer
+	if (typeof answer !== 'number') return null
+	return (
+		agentQuestionFlow.questions.find((question) => question.id === questionId)
+			?.options?.[answer] ?? null
+	)
+}
+
+function answerToOptions(questionId: string, answer: SeedAnswer | undefined) {
+	const options = agentQuestionFlow.questions.find(
+		(question) => question.id === questionId,
+	)?.options
+	const selected = Array.isArray(answer)
+		? answer
+		: typeof answer === 'number'
+			? [answer]
+			: []
+
+	return selected
+		.map((index) => options?.[index])
+		.filter((option): option is string => Boolean(option))
+}
 
 // Hardcoded seed data for deterministic tests
 const SEED_AGENTS = [
@@ -568,10 +594,9 @@ async function seedAgents() {
 	await ensureAvatarBucket()
 
 	console.log(`Clearing existing data...`)
-	await db.delete(consumerQuestionnaires)
-	await db.delete(consumers)
-	await db.delete(agentQuestionnaires)
-	await db.delete(agents)
+	await db.delete(buyerProfiles)
+	await db.delete(sellerProfiles)
+	await db.delete(agentProfiles)
 	await db.delete(session)
 	await db.delete(account)
 	await db.delete(user)
@@ -594,25 +619,30 @@ async function seedAgents() {
 			updatedAt: now,
 		})
 
-		await db.insert(agents).values({
+		await db.insert(agentProfiles).values({
 			id: agentId,
 			userId,
-			agency: agent.agency,
-			experience: agent.experience,
-			bio: `Experienced real estate professional serving the local community with dedication and expertise.`,
-			zipCodesJson: agent.zipCodes,
-			servicesJson: agent.services,
-			peacePactSigned: agent.peacePactSigned,
-			createdAt: now,
-			updatedAt: now,
-		})
-
-		await db.insert(agentQuestionnaires).values({
-			id: `22222222-2222-2222-2222-${String(agent.index).padStart(12, '0')}`,
-			agentId,
 			status: 'submitted',
-			weightsJson: agent.weights,
-			answersJson: agent.answers,
+			representationSide: answerToOption('A.1', agent.answers['A.1']),
+			typicalPriceRange: answerToOption('A.2', agent.answers['A.2']),
+			brokerageName: agent.agency,
+			yearsLicensed: agent.experience,
+			averageTransactions: String(40 + agent.index * 7),
+			serviceArea1: agent.zipCodes[0] ?? null,
+			serviceArea2: agent.zipCodes[1] ?? null,
+			serviceArea3: agent.zipCodes[2] ?? null,
+			bestClientTypesJson: answerToOptions('A.3', agent.answers['A.3']),
+			notFitFor: `Not the best fit for clients outside ${agent.services.join(', ').toLowerCase()}.`,
+			workingStyle: answerToOption('A.4', agent.answers['A.4']),
+			dealStressStyle: answerToOption('A.8', agent.answers['A.8']),
+			communicationCadence: answerToOption('A.5', agent.answers['A.5']),
+			quickContactStyle: answerToOption('A.6', agent.answers['A.6']),
+			updateDeliveryStyle: answerToOption('A.7', agent.answers['A.7']),
+			responseTime: answerToOption('A.9', agent.answers['A.9']),
+			commissionStyle: answerToOption('A.10', agent.answers['A.10']),
+			dualAgencyStyle: answerToOption('A.11', agent.answers['A.11']),
+			valueProposition: `Experienced real estate professional serving the local community with dedication and expertise.`,
+			peacePactSigned: agent.peacePactSigned,
 			createdAt: now,
 			updatedAt: now,
 		})

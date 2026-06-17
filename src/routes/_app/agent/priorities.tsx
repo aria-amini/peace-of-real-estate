@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card'
 import {
 	getStoredIntakeDraftForRole,
 	saveStoredIntakeDraftForRole,
-} from '@/lib/intake-draft'
+} from '@/lib/matching/intake-draft'
 
 export const Route = createFileRoute('/_app/agent/priorities')({
 	component: AgentPriorities,

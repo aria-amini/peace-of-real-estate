@@ -10,7 +10,7 @@ export function setMockSession(session: MockSession) {
 	authState.session = session
 }
 
-vi.mock('@/lib/auth-client', () => ({
+vi.mock('@/lib/auth/client', () => ({
 	authClient: {
 		useSession: () => ({ data: authState.session, isPending: false }),
 		signIn: {
@@ -24,15 +24,18 @@ vi.mock('@/lib/auth-client', () => ({
 	},
 }))
 
-vi.mock('@/lib/auth-guards', () => ({
+vi.mock('@/lib/auth/functions', () => ({
 	getCurrentSession: () => authState.session,
-	isUserPremium: () => false,
-	upgradeToPremium: () => ({ success: true }),
 	redirectAuthenticatedUsers: () => undefined,
 	redirectUnauthenticatedUsers: () => ({ session: authState.session }),
 }))
 
-vi.mock('@/lib/beta-auth', () => ({
+vi.mock('@/lib/premium', () => ({
+	isUserPremium: () => false,
+	upgradeToPremium: () => ({ success: true }),
+}))
+
+vi.mock('@/lib/auth/beta', () => ({
 	checkBetaAuthClient: () => true,
 	checkBetaAuthServer: async () => true,
 }))
@@ -49,7 +52,7 @@ vi.mock('@/routes/__root', async () => {
 	}
 })
 
-vi.mock('@/lib/agent-matches', () => ({
+vi.mock('@/lib/matching/matches', () => ({
 	getAgentMatches: () =>
 		Promise.resolve([
 			{

@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ArrowRightLeft, Lock, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -11,17 +11,34 @@ import {
 	type MatchStatus,
 } from '@/components/match-card-variants'
 import { PaywallDialog } from '@/components/paywall-dialog'
-import { getAgentMatches } from '@/lib/agent-matches'
-import { isUserPremium, redirectUnauthenticatedUsers } from '@/lib/auth-guards'
+import { getAgentMatches } from '@/lib/matching/matches'
+import { isUserPremium } from '@/lib/premium'
+import { getStoredConsumerDraftForFlow } from '@/lib/matching/intake-draft'
+import { getCurrentSession } from '@/lib/auth/functions'
+import { getUserSettings } from '@/lib/matching/settings'
 
 export const Route = createFileRoute('/_app/matches')({
 	beforeLoad: async () => {
-		await redirectUnauthenticatedUsers()
+		const draft = getStoredConsumerDraftForFlow('buyer')
+		const hasDraftAnswers = Object.keys(draft.answers ?? {}).length > 0
+		const session = await getCurrentSession()
+
+		if (!session) {
+			if (!hasDraftAnswers) {
+				throw redirect({ to: '/buyer/intake', search: { step: 'intro' } })
+			}
+			throw redirect({ to: '/buyer/preview' })
+		}
+
+		const userSettings = await getUserSettings()
+		const hasSavedAnswers = Object.keys(userSettings?.answers ?? {}).length > 0
+
+		if (!hasDraftAnswers && !hasSavedAnswers) {
+			throw redirect({ to: '/buyer/intake', search: { step: 'intro' } })
+		}
 	},
 	component: Matches,
 })
-
-// ─── Main Component ──────────────────────────────────────────────────
 
 function Matches() {
 	const [filter, setFilter] = useState<MatchStatus | 'all'>('all')
@@ -51,7 +68,7 @@ function Matches() {
 				<SidebarTrigger />
 				<span className="text-sm font-medium">Menu</span>
 			</div>
-			{/* Header */}
+
 			<div className="mx-auto mb-10 max-w-xl">
 				<div className="flex items-center gap-4">
 					<div className="flex h-12 w-12 items-center justify-center border">
@@ -67,7 +84,6 @@ function Matches() {
 				</p>
 			</div>
 
-			{/* Preview Banner */}
 			{isLocked && (
 				<div className="mx-auto mb-6 flex max-w-xl items-center gap-3 rounded-xl border bg-amber-50/50 px-4 py-3 dark:bg-amber-950/20">
 					<Lock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
@@ -85,7 +101,6 @@ function Matches() {
 				</div>
 			)}
 
-			{/* Filters */}
 			<div className="mx-auto mb-6 flex max-w-xl flex-wrap items-center gap-2">
 				<span className="text-muted-foreground mr-2 text-xs font-medium">
 					Filter:
@@ -110,7 +125,6 @@ function Matches() {
 				)}
 			</div>
 
-			{/* Match Cards */}
 			<div className="mx-auto max-w-xl space-y-4">
 				{isLoading ? (
 					<Card className="py-16 text-center">
@@ -134,6 +148,7 @@ function Matches() {
 					))
 				)}
 			</div>
+
 			<PaywallDialog
 				open={showPaywall}
 				onOpenChange={setShowPaywall}

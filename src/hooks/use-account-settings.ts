@@ -4,17 +4,15 @@ import {
 	getUserSettings,
 	getDefaultSettings,
 	saveUserSettings,
-	updateWeights,
 	updateAnswers,
 	updateAgentProfile,
 	type UserSettings,
-	type CategoryWeights,
 	type QuestionnaireAnswers,
-} from '@/lib/user-settings'
+} from '@/lib/matching/settings'
 import {
 	clearStoredIntakeDraft,
 	getStoredIntakeDraft,
-} from '@/lib/intake-draft'
+} from '@/lib/matching/intake-draft'
 
 export function useAccountSettings() {
 	const [settings, setSettings] = useState<UserSettings | null>(null)
@@ -47,19 +45,6 @@ export function useAccountSettings() {
 			}
 		},
 		[],
-	)
-
-	const handleWeightsUpdate = useCallback(
-		async (weights: CategoryWeights) => {
-			try {
-				await updateWeights(weights)
-				setSettings((prev) => (prev ? { ...prev, weights } : prev))
-				showSaveToast('saved')
-			} catch {
-				showSaveToast('error')
-			}
-		},
-		[showSaveToast],
 	)
 
 	const handleAnswersUpdate = useCallback(
@@ -99,7 +84,6 @@ export function useAccountSettings() {
 	return {
 		settings,
 		loading,
-		handleWeightsUpdate,
 		handleAnswersUpdate,
 		handleAgentProfileUpdate,
 	}

@@ -1,40 +1,40 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import {
+	ArrowsLeftRightIcon,
+	BarnIcon,
+	BuildingApartmentIcon,
+	BuildingIcon,
+	ClockIcon,
+	CurrencyDollarIcon,
+	HouseLineIcon,
+	MagnifyingGlassIcon,
+	MapPinIcon,
+	QuestionIcon,
+	TagIcon,
+} from '@phosphor-icons/react'
+import type { Icon } from '@phosphor-icons/react'
 import * as zipcodes from 'zipcodes'
 import {
 	ArrowRight,
-	BarChart3,
 	Check,
 	CheckCircle2,
 	ChevronsUpDown,
 	CreditCard,
-	MapPin,
-	MessageSquare,
-	Sparkles,
-	Star,
+	ListChecks,
 	Trophy,
-	Zap,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
-import { AuthCard } from '@/components/auth-card'
+import { WizardShell } from '@/components/wizard-shell'
 import {
 	MatchCardModern,
-	mockMatch1,
 	type MatchDetails,
 } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
+import { Card, CardContent } from '@/components/ui/card'
 import {
 	Command,
 	CommandEmpty,
@@ -43,13 +43,6 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
-import {
-	Field,
-	FieldGroup,
-	FieldLabel,
-	FieldLegend,
-	FieldSet,
-} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -57,25 +50,270 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
-import { upgradeToPremium } from '@/lib/auth-guards'
+import { upgradeToPremium } from '@/lib/premium'
+
+function StepProgressHeader({
+	stepNumber,
+	totalSteps,
+	title,
+	items,
+	titleIcon: TitleIcon,
+	showTitle = true,
+}: {
+	stepNumber: number
+	totalSteps: number
+	title: string
+	items: boolean[]
+	titleIcon?: Icon
+	showTitle?: boolean
+}) {
+	const completedCount = items.filter(Boolean).length
+	const total = items.length
+	const isComplete = completedCount === total
+
+	return (
+		<div className="space-y-2">
+			{showTitle && (
+				<div className="flex items-center justify-between gap-3">
+					<div>
+						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+							Step {stepNumber} of {totalSteps}
+						</p>
+						<h2 className="font-heading flex items-center gap-2 text-xl font-semibold tracking-tight">
+							{TitleIcon && <TitleIcon className="h-5 w-5" />}
+							{title}
+						</h2>
+					</div>
+				</div>
+			)}
+			<div className="flex flex-col items-center gap-1.5">
+				<div className="flex items-center gap-2.5">
+					{Array.from({ length: total }).map((_, index) => (
+						<div
+							key={index}
+							className={cn(
+								'h-2.5 w-2.5 rounded-full transition-colors duration-500',
+								index < completedCount ? 'bg-primary' : 'bg-muted',
+							)}
+						/>
+					))}
+				</div>
+				<span
+					className={cn(
+						'text-xs font-bold transition-colors',
+						isComplete ? 'text-primary' : 'text-muted-foreground',
+					)}
+				>
+					{completedCount} of {total}
+				</span>
+			</div>
+		</div>
+	)
+}
+
+function AnimatedStatusIcon({
+	complete,
+	icon: Icon,
+	className,
+}: {
+	complete: boolean
+	icon: React.ElementType
+	className?: string
+}) {
+	return (
+		<span
+			className={cn(
+				'relative flex h-5 w-5 items-center justify-center',
+				className,
+			)}
+		>
+			<span
+				className={cn(
+					'absolute inset-0 flex items-center justify-center rounded-full border transition-all duration-300',
+					'border-foreground/20 bg-foreground/5 text-foreground/70',
+					complete ? 'scale-50 opacity-0' : 'scale-100 opacity-100',
+				)}
+			>
+				<Icon className="h-3 w-3" weight="duotone" />
+			</span>
+			<span
+				className={cn(
+					'absolute inset-0 flex items-center justify-center rounded-full border transition-all duration-300',
+					'border-primary bg-primary/[0.04] text-primary',
+					complete ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+				)}
+			>
+				<Check className="h-3 w-3" />
+			</span>
+		</span>
+	)
+}
 import {
 	getNextUnansweredQuestionIndex,
 	getStoredConsumerDraftForFlow,
 	saveStoredConsumerDraftForFlow,
-} from '@/lib/intake-draft'
-import { buyerQuestionFlow, sellerQuestionFlow } from '@/lib/questions'
-import type { ConsumerFlowKind } from '@/lib/user-settings'
+} from '@/lib/matching/intake-draft'
+import {
+	buyerMatchingQuestionFlow,
+	type QuestionFlow as MatchingQuestionFlow,
+} from '@/lib/matching/questions'
+import type { ConsumerFlowKind } from '@/lib/matching/settings'
+import { getAnswerSummary } from '@/lib/matching/settings'
 
 type ConsumerFlowConfig = {
 	kind: ConsumerFlowKind
-	basePath: '/buyer' | '/seller'
-	label: 'Buyer' | 'Seller'
+	basePath: '/buyer'
+	label: 'Buyer'
 	areaPrompt: string
+	situationPrompt: string
 	intentOptions: string[]
-	questionFlow: typeof buyerQuestionFlow
+	experiencePrompt: string
+	experienceOptions: string[]
+	pricePrompt: string
+	priceOptions: string[]
+	propertyPrompt: string
+	propertyOptions: string[]
+	questionFlow: MatchingQuestionFlow
 	accent: 'navy' | 'amber'
+}
+
+type ConsumerFlowStep = 'intro' | 'situation' | 'quiz'
+const SKIPPED_ANSWER = '__skipped__'
+
+const consumerFlowSteps: { id: ConsumerFlowStep; label: string }[] = [
+	{ id: 'intro', label: 'Home' },
+	{ id: 'situation', label: 'Situation' },
+	{ id: 'quiz', label: 'Preferences' },
+]
+
+const stepOrder: ConsumerFlowStep[] = ['intro', 'situation', 'quiz']
+
+const cardVariants = {
+	enter: (direction: number) => ({
+		y: direction > 0 ? '100%' : '-40%',
+		opacity: 0,
+		scale: 0.96,
+	}),
+	center: {
+		y: 0,
+		opacity: 1,
+		scale: 1,
+	},
+	exit: (direction: number) => ({
+		y: direction > 0 ? '-40%' : '60%',
+		opacity: 0,
+		scale: 0.96,
+	}),
+}
+
+function AnimatedStepCard({
+	children,
+	stepKey,
+	direction,
+}: {
+	children: React.ReactNode
+	stepKey: string
+	direction: number
+}) {
+	return (
+		<div className="relative overflow-hidden">
+			<AnimatePresence mode="wait" custom={direction}>
+				<motion.div
+					key={stepKey}
+					custom={direction}
+					variants={cardVariants}
+					initial="enter"
+					animate="center"
+					exit="exit"
+					transition={{
+						y: { type: 'spring', stiffness: 320, damping: 30 },
+						opacity: { duration: 0.25 },
+						scale: { duration: 0.25 },
+					}}
+				>
+					{children}
+				</motion.div>
+			</AnimatePresence>
+		</div>
+	)
+}
+
+function ConsumerIntakeProgress({
+	current,
+	currentStepProgress = 1,
+}: {
+	current: ConsumerFlowStep
+	currentStepProgress?: number
+}) {
+	const currentIndex = consumerFlowSteps.findIndex(
+		(step) => step.id === current,
+	)
+	const clampedCurrentStepProgress = Math.min(
+		Math.max(currentStepProgress, 0),
+		1,
+	)
+
+	return (
+		<div
+			className="grid grid-cols-3 gap-3"
+			aria-label={`Step ${currentIndex + 1} of ${consumerFlowSteps.length}`}
+		>
+			{consumerFlowSteps.map((step, index) => {
+				const isCurrent = index === currentIndex
+				const isComplete = index < currentIndex
+				const fillPercent = isComplete
+					? 100
+					: isCurrent
+						? clampedCurrentStepProgress * 100
+						: 0
+
+				return (
+					<div
+						key={step.id}
+						className={cn(
+							'space-y-2 transition-opacity',
+							isCurrent || isComplete ? 'opacity-100' : 'opacity-45',
+						)}
+					>
+						<div className="bg-muted-foreground/15 h-1.5 overflow-hidden rounded-full">
+							<div
+								className={cn(
+									'h-full origin-left rounded-full transition-all duration-700 ease-out',
+									isComplete ? 'bg-primary/70' : 'bg-primary',
+								)}
+								style={{ width: `${fillPercent}%` }}
+							/>
+						</div>
+						<p
+							className={cn(
+								'flex items-center gap-1.5 text-[10px] font-semibold tracking-wide uppercase transition-colors',
+								isCurrent
+									? 'text-primary'
+									: isComplete
+										? 'text-primary/75'
+										: 'text-muted-foreground',
+							)}
+						>
+							<span
+								className={cn(
+									'flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold',
+									isCurrent
+										? 'bg-primary text-primary-foreground'
+										: isComplete
+											? 'bg-primary/15 text-primary'
+											: 'bg-muted text-muted-foreground',
+								)}
+							>
+								{index + 1}
+							</span>
+							<span>{step.label}</span>
+						</p>
+					</div>
+				)
+			})}
+		</div>
+	)
 }
 const zipCodeLocations = Object.values(zipcodes.codes).filter(
 	(location) => location.country === 'US',
@@ -189,30 +427,28 @@ export const buyerConfig = {
 	basePath: '/buyer',
 	label: 'Buyer',
 	areaPrompt: 'City, State, or ZIP code',
-	intentOptions: [
-		'I am ready to buy a home',
-		'I am starting to explore what is out there',
-		'I am selling my home first and then buying next',
+	situationPrompt: 'What do you want to do?',
+	intentOptions: ['Buy', 'Sell', 'Buy then Sell'],
+	experiencePrompt: 'What is your experience level?',
+	experienceOptions: [
+		'First-time client',
+		"I've done this before",
+		"I'm very experienced",
 	],
-	questionFlow: buyerQuestionFlow,
+	pricePrompt: 'What price range are you considering?',
+	priceOptions: [
+		'Under $400k',
+		'$400k to $750k',
+		'$750k to $1.5M',
+		'$1.5M and above',
+	],
+	propertyPrompt: 'What type of home are you looking for?',
+	propertyOptions: ['Single-Family', 'Condo/Townhome', 'Multi-family', 'Land'],
+	questionFlow: buyerMatchingQuestionFlow,
 	accent: 'navy',
 } satisfies ConsumerFlowConfig
 
-export const sellerConfig = {
-	kind: 'seller',
-	basePath: '/seller',
-	label: 'Seller',
-	areaPrompt: 'In what area is your property located?',
-	intentOptions: [
-		'I am ready to sell my home',
-		'I am starting to explore what selling looks like',
-		'I am selling first, then buying',
-	],
-	questionFlow: sellerQuestionFlow,
-	accent: 'amber',
-} satisfies ConsumerFlowConfig
-
-const consumerMatches: MatchDetails[] = [
+export const consumerMatches: MatchDetails[] = [
 	{
 		id: 'consumer-1',
 		name: 'Sarah Chen',
@@ -259,186 +495,867 @@ const consumerMatches: MatchDetails[] = [
 	},
 ]
 
-export function ConsumerIntro({ config }: { config: ConsumerFlowConfig }) {
+function getPropertyIcon(option: string): Icon {
+	if (option.includes('Single-Family')) return HouseLineIcon
+	if (option.includes('Condo')) return BuildingIcon
+	if (option.includes('Land')) return BarnIcon
+	if (option.includes('Multi-family')) return BuildingApartmentIcon
+	return QuestionIcon
+}
+
+function getIntentIcon(option: string): Icon {
+	const text = option.toLowerCase()
+	if (
+		text.includes('swap') ||
+		text.includes('buying') ||
+		text.includes('then sell')
+	)
+		return ArrowsLeftRightIcon
+	if (text.includes('sell')) return TagIcon
+	if (text === 'buy') return HouseLineIcon
+	if (text.includes('explore')) return MagnifyingGlassIcon
+	return QuestionIcon
+}
+
+function getExperienceLevel(option: string) {
+	const text = option.toLowerCase()
+	if (text.includes('first-time')) return 1
+	if (text.includes('done this') || text.includes('sold before')) return 2
+	if (text.includes('experienced')) return 3
+	return 1
+}
+
+function deriveStateFromLocation(location: string): string | undefined {
+	const trimmed = location.trim()
+	if (!trimmed) return undefined
+
+	// Direct 5-digit ZIP lookup
+	const zipMatch = trimmed.match(/\b(\d{5})\b/)
+	if (zipMatch) {
+		const record = zipcodes.lookup(zipMatch[1] as string)
+		if (record?.state) return record.state
+	}
+
+	// "City, ST" or "ST"
+	const parts = trimmed.split(',').map((s) => s.trim())
+	const lastPart = parts.at(-1)
+	if (lastPart) {
+		const normalized = zipcodes.states.normalize(lastPart)
+		if (normalized) return normalized
+	}
+
+	return undefined
+}
+
+export function ConsumerIntro({
+	config,
+	direction,
+	onContinue,
+}: {
+	config: ConsumerFlowConfig
+	direction: number
+	onContinue: () => void
+}) {
 	const draft = getStoredConsumerDraftForFlow(config.kind)
-	const [location, setLocation] = useState(draft.zipCode ?? '')
+	const [committedLocation, setCommittedLocation] = useState(
+		draft.zipCode ?? '',
+	)
+	const [locationQuery, setLocationQuery] = useState(draft.zipCode ?? '')
+	const [locationEdited, setLocationEdited] = useState(false)
 	const [locationOpen, setLocationOpen] = useState(false)
-	const [intent, setIntent] = useState(draft.intent ?? '')
-	const canContinue = location.trim().length >= 2 && intent.length > 0
-	const locationSuggestions = getLocationSuggestions(location)
+	const [hasTriedContinue, setHasTriedContinue] = useState(false)
+	const [priceIndex, setPriceIndex] = useState(() => {
+		const storedIndex = config.priceOptions.indexOf(draft.priceRange ?? '')
+		return storedIndex >= 0 ? storedIndex : undefined
+	})
+	const [propertyType, setPropertyType] = useState<string[]>(
+		draft.propertyType ?? [],
+	)
+	const priceRange =
+		priceIndex !== undefined ? config.priceOptions[priceIndex] : undefined
+	const marketComplete = committedLocation.trim().length >= 2
+	const priceComplete = priceRange !== undefined
+	const propertyComplete = propertyType.length > 0
+	const effectiveLocation = (
+		locationEdited ? locationQuery : committedLocation
+	).trim()
+	const canContinue =
+		effectiveLocation.length >= 2 && priceComplete && propertyComplete
+	const locationSuggestions = getLocationSuggestions(locationQuery)
+	const showMarketError = hasTriedContinue && !marketComplete
+	const showPriceError = hasTriedContinue && !priceComplete
+	const showPropertyError = hasTriedContinue && !propertyComplete
 
 	useEffect(() => {
 		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'intro' })
 	}, [config.kind])
 
+	const handleContinue = () => {
+		const finalLocation = (
+			locationEdited ? locationQuery : committedLocation
+		).trim()
+		const finalMarketComplete = finalLocation.length >= 2
+		const finalCanContinue =
+			finalMarketComplete && priceComplete && propertyComplete
+
+		if (!finalCanContinue) {
+			setHasTriedContinue(true)
+			return
+		}
+
+		const state = deriveStateFromLocation(finalLocation)
+
+		saveStoredConsumerDraftForFlow(config.kind, {
+			zipCode: finalLocation,
+			...(state ? { state } : {}),
+			priceRange: priceRange!,
+			propertyType,
+			lastCompletedStage: 'intro',
+		})
+		onContinue()
+	}
+
 	return (
-		<FlowPageShell title="Basic Information" icon={MapPin} headerInsideCard>
-			<div className="space-y-8">
-				<FieldSet className="gap-0">
-					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
-						{config.areaPrompt}
-					</FieldLegend>
-					<FieldGroup className="mt-2 gap-0">
-						<Field className="gap-0">
-							<FieldLabel
-								htmlFor={`${config.kind}-location`}
-								className="sr-only"
-							>
-								Location
-							</FieldLabel>
-							<Popover open={locationOpen} onOpenChange={setLocationOpen}>
-								<PopoverTrigger asChild>
-									<Button
-										id={`${config.kind}-location`}
-										variant="outline"
-										aria-expanded={locationOpen}
-										className="bg-input/30 mt-1.5 h-9 w-full justify-between rounded-4xl px-3 font-normal"
-									>
-										<span className={cn(!location && 'text-muted-foreground')}>
-											{location || 'e.g. Austin, TX or 78704'}
-										</span>
-										<ChevronsUpDown className="opacity-50" />
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent
-									align="start"
-									className="w-(--radix-popover-trigger-width) p-0"
-								>
-									<Command shouldFilter={false}>
-										<CommandInput
-											value={location}
-											onValueChange={setLocation}
-											placeholder="Search city, state, or ZIP..."
-										/>
-										<CommandList>
-											<CommandEmpty>
-												No suggestions. You can still use what you typed.
-											</CommandEmpty>
-											<CommandGroup>
-												{locationSuggestions.map((suggestion) => (
-													<CommandItem
-														key={suggestion}
-														value={suggestion}
-														onSelect={(value) => {
-															setLocation(value)
-															setLocationOpen(false)
-														}}
-													>
-														<Check
-															className={cn(
-																location === suggestion
-																	? 'opacity-100'
-																	: 'opacity-0',
-															)}
-														/>
-														{suggestion}
-													</CommandItem>
-												))}
-											</CommandGroup>
-										</CommandList>
-									</Command>
-								</PopoverContent>
-							</Popover>
-						</Field>
-					</FieldGroup>
-				</FieldSet>
+		<AnimatedStepCard stepKey="intro" direction={direction}>
+			<Card size="sm" className="shadow-sm">
+				<CardContent className="space-y-8">
+					<div className="space-y-2">
+						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+							Step 1 of 3
+						</p>
+						<h2 className="font-heading flex items-center gap-2 text-xl font-semibold tracking-tight">
+							<HouseLineIcon className="h-5 w-5" />
+							Your Home
+						</h2>
+					</div>
 
-				<FieldSet className="pt-2">
-					<FieldLegend className="font-heading mb-0 text-xl leading-relaxed font-normal">
-						What best describes your situation?
-					</FieldLegend>
-					<RadioGroup value={intent} onValueChange={setIntent} className="mt-4">
-						<FieldGroup className="gap-3">
-							{config.intentOptions.map((option, index) => {
-								const isSelected = intent === option
-								const optionId = `${config.kind}-intent-${index}`
-
-								return (
-									<FieldLabel
-										key={option}
-										htmlFor={optionId}
-										className={cn(
-											'group flex w-full cursor-pointer items-start gap-4 rounded-lg border bg-card/60 p-4 text-left transition-all hover:border-foreground/25 hover:bg-muted/30 has-[:focus-visible]:border-ring has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50 [&>[data-slot=field]]:p-0',
-											isSelected &&
-												'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20',
-										)}
-									>
-										<Field
-											orientation="horizontal"
-											className="items-start gap-4"
-										>
-											<RadioGroupItem
-												id={optionId}
-												value={option}
-												className="mt-0.5 size-5"
-											/>
-											<span className="text-foreground flex-1 text-sm leading-relaxed font-medium">
-												{option}
-											</span>
-										</Field>
-									</FieldLabel>
-								)
-							})}
-						</FieldGroup>
-					</RadioGroup>
-				</FieldSet>
-			</div>
-
-			<div className="mt-10 flex justify-end">
-				{canContinue ? (
-					<Button asChild>
-						<Link
-							to={`${config.basePath}/quiz`}
-							onClick={() => {
-								saveStoredConsumerDraftForFlow(config.kind, {
-									zipCode: location.trim(),
-									intent,
-									lastCompletedStage: 'intro',
-								})
+					{/* Location */}
+					<div className="space-y-3">
+						<div
+							className={cn(
+								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
+								showMarketError
+									? 'text-destructive'
+									: marketComplete
+										? 'text-primary'
+										: 'text-foreground',
+							)}
+						>
+							<AnimatedStatusIcon complete={marketComplete} icon={MapPinIcon} />
+							Location
+						</div>
+						<Popover
+							open={locationOpen}
+							onOpenChange={(open) => {
+								if (!open) {
+									setCommittedLocation(locationQuery)
+									setLocationEdited(false)
+								}
+								setLocationOpen(open)
 							}}
 						>
-							Find My PRE Match
-							<ArrowRight className="h-4 w-4" />
-						</Link>
-					</Button>
-				) : (
-					<Button disabled>
-						Find My PRE Match
-						<ArrowRight className="h-4 w-4" />
-					</Button>
-				)}
-			</div>
-		</FlowPageShell>
+							<PopoverTrigger asChild>
+								<Button
+									id={`${config.kind}-location`}
+									variant="outline"
+									aria-expanded={locationOpen}
+									className={cn(
+										'h-14 w-full justify-between rounded-xl px-4 text-left text-base font-medium transition',
+										marketComplete
+											? 'border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.06]'
+											: 'border-border bg-card hover:bg-muted/30',
+									)}
+								>
+									<span
+										className={cn(
+											!committedLocation && 'text-muted-foreground',
+											'truncate',
+										)}
+									>
+										{committedLocation || config.areaPrompt}
+									</span>
+									<ChevronsUpDown className="text-muted-foreground h-4 w-4 shrink-0" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								align="start"
+								className="w-(--radix-popover-trigger-width) min-w-[260px] p-0"
+							>
+								<Command shouldFilter={false}>
+									<CommandInput
+										value={locationQuery}
+										onValueChange={(value) => {
+											setLocationQuery(value)
+											setLocationEdited(true)
+										}}
+										placeholder="Search city, state, or ZIP..."
+									/>
+									<CommandList>
+										<CommandEmpty>
+											No suggestions. You can still use what you typed.
+										</CommandEmpty>
+										<CommandGroup>
+											{locationSuggestions.map((suggestion) => (
+												<CommandItem
+													key={suggestion}
+													value={suggestion}
+													onSelect={(value) => {
+														setCommittedLocation(value)
+														setLocationQuery(value)
+														setLocationEdited(false)
+														setLocationOpen(false)
+													}}
+												>
+													<Check
+														className={cn(
+															committedLocation === suggestion
+																? 'opacity-100'
+																: 'opacity-0',
+														)}
+													/>
+													{suggestion}
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
+						{showMarketError ? (
+							<p className="text-destructive text-xs">
+								Enter a city, state, or ZIP.
+							</p>
+						) : null}
+					</div>
+
+					{/* Budget & Home type */}
+					<div className="grid gap-6 sm:grid-cols-2">
+						{/* Budget */}
+						<div className="space-y-3">
+							<div
+								className={cn(
+									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
+									showPriceError
+										? 'text-destructive'
+										: priceComplete
+											? 'text-primary'
+											: 'text-foreground',
+								)}
+							>
+								<AnimatedStatusIcon
+									complete={priceComplete}
+									icon={CurrencyDollarIcon}
+								/>
+								{config.kind === 'buyer' ? 'Budget' : 'Value'}
+							</div>
+							<div className="grid grid-cols-1 gap-2.5">
+								{config.priceOptions.map((option, index) => {
+									const isSelected = priceIndex === index
+
+									return (
+										<button
+											key={option}
+											type="button"
+											onClick={() => setPriceIndex(index)}
+											className={cn(
+												'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
+												isSelected
+													? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
+													: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
+											)}
+											aria-pressed={isSelected}
+										>
+											<span
+												className={cn(
+													'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors',
+													isSelected
+														? 'border-primary bg-transparent'
+														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
+												)}
+											>
+												{isSelected ? (
+													<span className="bg-primary h-2 w-2 rounded-full" />
+												) : null}
+											</span>
+											{option}
+										</button>
+									)
+								})}
+							</div>
+							{showPriceError ? (
+								<p className="text-destructive text-xs">
+									Choose a price range.
+								</p>
+							) : null}
+						</div>
+
+						{/* Home type */}
+						<div className="space-y-3">
+							<div
+								className={cn(
+									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
+									showPropertyError
+										? 'text-destructive'
+										: propertyComplete
+											? 'text-primary'
+											: 'text-foreground',
+								)}
+							>
+								<AnimatedStatusIcon
+									complete={propertyComplete}
+									icon={HouseLineIcon}
+								/>
+								Home type
+							</div>
+							<div className="grid grid-cols-1 gap-2.5">
+								{config.propertyOptions.map((option) => {
+									const isSelected = propertyType.includes(option)
+									const PropertyIcon = getPropertyIcon(option)
+
+									return (
+										<button
+											key={option}
+											type="button"
+											onClick={() => {
+												setPropertyType((current) =>
+													current.includes(option)
+														? current.filter((item) => item !== option)
+														: [...current, option],
+												)
+											}}
+											className={cn(
+												'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
+												isSelected
+													? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
+													: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
+											)}
+											aria-pressed={isSelected}
+										>
+											<span
+												className={cn(
+													'flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
+													isSelected
+														? 'border-primary bg-transparent'
+														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
+												)}
+											>
+												{isSelected ? (
+													<Check className="text-primary h-3 w-3" />
+												) : null}
+											</span>
+											<PropertyIcon
+												className={cn(
+													'h-5 w-5 shrink-0',
+													isSelected
+														? 'text-primary'
+														: 'text-muted-foreground group-hover:text-primary',
+												)}
+												weight="duotone"
+											/>
+											{option}
+										</button>
+									)
+								})}
+							</div>
+							{showPropertyError ? (
+								<p className="text-destructive text-xs">
+									Choose at least one property type.
+								</p>
+							) : null}
+						</div>
+					</div>
+
+					<div className="space-y-4">
+						<StepProgressHeader
+							stepNumber={1}
+							totalSteps={3}
+							title="Your Home"
+							titleIcon={HouseLineIcon}
+							items={[marketComplete, priceComplete, propertyComplete]}
+							showTitle={false}
+						/>
+						<div className="flex justify-center">
+							<Button
+								onClick={handleContinue}
+								disabled={!canContinue}
+								size="lg"
+								className={cn(
+									'gap-2 rounded-xl px-8 transition-all duration-300',
+									canContinue
+										? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+										: 'bg-muted text-muted-foreground',
+								)}
+							>
+								Continue
+								<ArrowRight className="h-4 w-4" />
+							</Button>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</AnimatedStepCard>
 	)
 }
 
-export function ConsumerQuiz({ config }: { config: ConsumerFlowConfig }) {
+export function ConsumerSituation({
+	config,
+	direction,
+	onContinue,
+}: {
+	config: ConsumerFlowConfig
+	direction: number
+	onContinue: () => void
+}) {
 	const draft = getStoredConsumerDraftForFlow(config.kind)
+	const [intent, setIntent] = useState(draft.intent ?? '')
+	const [experienceLevel, setExperienceLevel] = useState(
+		draft.experienceLevel ?? '',
+	)
+	const canContinue = intent.length > 0 && experienceLevel.length > 0
+
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'situation' })
+	}, [config.kind])
+
+	const handleContinue = () => {
+		if (!canContinue) return
+		saveStoredConsumerDraftForFlow(config.kind, {
+			intent,
+			experienceLevel,
+			lastCompletedStage: 'situation',
+		})
+		onContinue()
+	}
+
+	return (
+		<AnimatedStepCard stepKey="situation" direction={direction}>
+			<Card size="sm" className="shadow-sm">
+				<CardContent className="space-y-8">
+					<div className="space-y-2">
+						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+							Step 2 of 3
+						</p>
+						<h2 className="font-heading text-xl font-semibold tracking-tight">
+							Your situation
+						</h2>
+					</div>
+
+					{/* Intent */}
+					<div className="space-y-3">
+						<div
+							className={cn(
+								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground transition-colors',
+								intent.length > 0 ? 'text-primary' : 'text-foreground',
+							)}
+						>
+							<AnimatedStatusIcon
+								complete={intent.length > 0}
+								icon={ClockIcon}
+							/>
+							{config.situationPrompt}
+						</div>
+						<div className="grid gap-3 sm:grid-cols-3">
+							{config.intentOptions.map((option) => {
+								const isSelected = intent === option
+								const IntentIcon = getIntentIcon(option)
+
+								return (
+									<button
+										key={option}
+										type="button"
+										onClick={() => setIntent(option)}
+										className={cn(
+											'group relative flex flex-col items-start gap-2.5 rounded-xl border p-4 text-left transition',
+											isSelected
+												? 'border-primary/30 bg-secondary shadow-sm'
+												: 'border-border bg-card hover:border-primary/30 hover:shadow-sm',
+										)}
+										aria-pressed={isSelected}
+									>
+										<span
+											className={cn(
+												'absolute top-3 right-3 flex h-4 w-4 items-center justify-center rounded-full border transition-colors',
+												isSelected
+													? 'border-primary/40 bg-white text-primary'
+													: 'border-muted-foreground/25 bg-muted/30',
+											)}
+										>
+											<Check
+												className={cn(
+													'h-2.5 w-2.5 transition-opacity',
+													isSelected ? 'opacity-100' : 'opacity-0',
+												)}
+											/>
+										</span>
+										<span
+											className={cn(
+												'flex h-9 w-9 items-center justify-center rounded-lg border transition-colors',
+												isSelected
+													? 'border-primary/20 bg-white text-primary'
+													: 'border-border bg-muted text-muted-foreground group-hover:border-primary/20 group-hover:text-primary',
+											)}
+										>
+											<IntentIcon className="h-5 w-5" weight="duotone" />
+										</span>
+										<span className="text-foreground text-sm leading-snug font-medium">
+											{option}
+										</span>
+									</button>
+								)
+							})}
+						</div>
+					</div>
+
+					{/* Experience */}
+					<div className="space-y-3">
+						<div
+							className={cn(
+								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground transition-colors',
+								experienceLevel.length > 0 ? 'text-primary' : 'text-foreground',
+							)}
+						>
+							<AnimatedStatusIcon
+								complete={experienceLevel.length > 0}
+								icon={QuestionIcon}
+							/>
+							{config.experiencePrompt}
+						</div>
+						<div className="grid gap-3 sm:grid-cols-3">
+							{config.experienceOptions.map((option) => {
+								const isSelected = experienceLevel === option
+								const level = getExperienceLevel(option)
+
+								return (
+									<button
+										key={option}
+										type="button"
+										onClick={() => setExperienceLevel(option)}
+										className={cn(
+											'group relative flex flex-col items-start gap-2.5 rounded-xl border p-4 text-left transition',
+											isSelected
+												? 'border-primary/30 bg-secondary shadow-sm'
+												: 'border-border bg-card hover:border-primary/30 hover:shadow-sm',
+										)}
+										aria-pressed={isSelected}
+									>
+										<span
+											className={cn(
+												'absolute top-3 right-3 flex h-4 w-4 items-center justify-center rounded-full border transition-colors',
+												isSelected
+													? 'border-primary/40 bg-white text-primary'
+													: 'border-muted-foreground/25 bg-muted/30',
+											)}
+										>
+											<Check
+												className={cn(
+													'h-2.5 w-2.5 transition-opacity',
+													isSelected ? 'opacity-100' : 'opacity-0',
+												)}
+											/>
+										</span>
+										<span
+											className={cn(
+												'flex h-9 w-9 items-end justify-center gap-0.5 rounded-lg border pb-1.5 transition-colors',
+												isSelected
+													? 'border-primary/20 bg-white text-primary'
+													: 'border-border bg-muted text-muted-foreground group-hover:border-primary/20 group-hover:text-primary',
+											)}
+										>
+											{[1, 2, 3].map((bar) => (
+												<span
+													key={bar}
+													className={cn(
+														'w-1 rounded-full',
+														bar === 1 && 'h-2',
+														bar === 2 && 'h-3',
+														bar === 3 && 'h-4',
+														bar <= level ? 'bg-current' : 'bg-current/25',
+													)}
+												/>
+											))}
+										</span>
+										<span className="text-foreground text-sm leading-snug font-medium">
+											{option}
+										</span>
+									</button>
+								)
+							})}
+						</div>
+					</div>
+
+					<div className="space-y-4">
+						<StepProgressHeader
+							stepNumber={2}
+							totalSteps={3}
+							title="Your situation"
+							items={[intent.length > 0, experienceLevel.length > 0]}
+							showTitle={false}
+						/>
+						<div className="flex justify-center">
+							<Button
+								onClick={handleContinue}
+								disabled={!canContinue}
+								size="lg"
+								className={cn(
+									'rounded-xl px-8 transition-all duration-300',
+									canContinue
+										? 'shadow-md hover:shadow-lg'
+										: 'bg-muted text-muted-foreground',
+								)}
+							>
+								Continue
+							</Button>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</AnimatedStepCard>
+	)
+}
+
+export function ConsumerQuiz({
+	config,
+	direction,
+	onComplete,
+}: {
+	config: ConsumerFlowConfig
+	direction: number
+	onComplete: () => void
+}) {
+	const draft = getStoredConsumerDraftForFlow(config.kind)
+	const [answers, setAnswers] = useState(draft.answers)
 
 	useEffect(() => {
 		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'quiz' })
 	}, [config.kind])
 
 	return (
-		<QuestionFlow
-			questions={config.questionFlow.questions}
-			initialAnswers={draft.answers}
-			initialQuestionIndex={getNextUnansweredQuestionIndex(
-				config.questionFlow.questions,
-				draft.answers,
+		<AnimatedStepCard stepKey="quiz" direction={direction}>
+			<Card size="sm" className="shadow-sm">
+				<CardContent className="space-y-6">
+					<StepProgressHeader
+						stepNumber={3}
+						totalSteps={3}
+						title="Your preferences"
+						items={config.questionFlow.questions.map(
+							(q) =>
+								answers[q.id] !== undefined && answers[q.id] !== SKIPPED_ANSWER,
+						)}
+					/>
+					<QuestionFlow
+						questions={config.questionFlow.questions}
+						titleVisibility="sr-only"
+						mode="single-question"
+						title="Step 3: Your Agent"
+						wrapper="wizard"
+						initialAnswers={draft.answers}
+						initialQuestionIndex={getNextUnansweredQuestionIndex(
+							config.questionFlow.questions,
+							draft.answers,
+						)}
+						onAnswersChange={(nextAnswers) => {
+							const cleaned: Record<string, number | number[] | string> = {}
+							for (const [key, value] of Object.entries(nextAnswers)) {
+								if (value !== undefined) {
+									cleaned[key] = value
+								}
+							}
+							setAnswers(cleaned)
+							saveStoredConsumerDraftForFlow(config.kind, { answers: cleaned })
+						}}
+						onComplete={() => {
+							saveStoredConsumerDraftForFlow(config.kind, {
+								lastCompletedStage: 'preview',
+								currentStage: 'preview',
+							})
+							onComplete()
+						}}
+						completeTo="/buyer/preview"
+						completeLabel="Continue"
+					/>
+				</CardContent>
+			</Card>
+		</AnimatedStepCard>
+	)
+}
+
+export function ConsumerIntake({
+	config,
+	step,
+}: {
+	config: ConsumerFlowConfig
+	step: ConsumerFlowStep
+}) {
+	const navigate = useNavigate()
+	const currentIndex = stepOrder.indexOf(step)
+	const [direction, setDirection] = useState(1)
+	const previousIndexRef = useRef(currentIndex)
+
+	useEffect(() => {
+		setDirection(currentIndex >= previousIndexRef.current ? 1 : -1)
+		previousIndexRef.current = currentIndex
+	}, [currentIndex])
+
+	const goToStep = (nextStep: ConsumerFlowStep) => {
+		void navigate({
+			to: `${config.basePath}/intake`,
+			search: { step: nextStep },
+		})
+	}
+
+	const progress = useMemo(() => {
+		switch (step) {
+			case 'intro':
+				return <ConsumerIntakeProgress current="intro" />
+			case 'situation':
+				return <ConsumerIntakeProgress current="situation" />
+			case 'quiz':
+				return <ConsumerIntakeProgress current="quiz" />
+		}
+	}, [step])
+
+	return (
+		<WizardShell
+			steps={consumerFlowSteps}
+			currentStepId={step}
+			progress={progress}
+		>
+			{step === 'intro' ? (
+				<ConsumerIntro
+					config={config}
+					direction={direction}
+					onContinue={() => goToStep('situation')}
+				/>
+			) : step === 'situation' ? (
+				<ConsumerSituation
+					config={config}
+					direction={direction}
+					onContinue={() => goToStep('quiz')}
+				/>
+			) : (
+				<ConsumerQuiz
+					config={config}
+					direction={direction}
+					onComplete={() => {}}
+				/>
 			)}
-			onAnswersChange={(answers) =>
-				saveStoredConsumerDraftForFlow(config.kind, { answers })
+		</WizardShell>
+	)
+}
+
+export function ConsumerPriorities({ config }: { config: ConsumerFlowConfig }) {
+	const draft = getStoredConsumerDraftForFlow(config.kind)
+	const [selectedPriorities, setSelectedPriorities] = useState<string[]>(
+		draft.matchPriorities ?? [],
+	)
+	const canContinue = selectedPriorities.length > 0
+
+	const answeredQuestions = config.questionFlow.questions
+		.filter(
+			(q) =>
+				draft.answers[q.id] !== undefined &&
+				draft.answers[q.id] !== SKIPPED_ANSWER,
+		)
+		.sort((a, b) => a.number - b.number)
+	const maxSelections = 2
+
+	useEffect(() => {
+		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'priorities' })
+	}, [config.kind])
+
+	const togglePriority = (questionId: string) => {
+		setSelectedPriorities((current) => {
+			if (current.includes(questionId)) {
+				return current.filter((item) => item !== questionId)
 			}
-			onComplete={() =>
-				saveStoredConsumerDraftForFlow(config.kind, {
-					lastCompletedStage: 'quiz',
-				})
-			}
-			completeTo={`${config.basePath}/preview`}
-			completeLabel="Continue"
+			if (current.length >= maxSelections) return current
+			return [...current, questionId]
+		})
+	}
+
+	return (
+		<FlowPageShell
+			title="What matters most?"
+			subtitle="Pick up to 2 answers we should prioritize when ranking your matches."
+			icon={ListChecks}
 			headerInsideCard
-		/>
+		>
+			<div className="space-y-4">
+				<div className="space-y-2">
+					{answeredQuestions.map((q) => {
+						const questionId = q.id
+						const isSelected = selectedPriorities.includes(questionId)
+						const rank = selectedPriorities.indexOf(questionId) + 1
+						const atLimit =
+							!isSelected && selectedPriorities.length >= maxSelections
+
+						return (
+							<button
+								key={questionId}
+								type="button"
+								disabled={atLimit}
+								onClick={() => togglePriority(questionId)}
+								className={cn(
+									'flex w-full items-start gap-2.5 rounded-lg border px-3 py-2.5 text-left transition',
+									isSelected
+										? 'border-primary/60 bg-primary/5 shadow-sm'
+										: atLimit
+											? 'border-border bg-muted/30 opacity-50'
+											: 'border-border bg-background hover:border-foreground/20 hover:bg-muted/30',
+								)}
+								aria-pressed={isSelected}
+							>
+								<div
+									className={cn(
+										'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
+										isSelected
+											? 'border-primary bg-transparent text-primary'
+											: 'border-muted-foreground/30',
+									)}
+								>
+									{isSelected ? <Check className="h-3.5 w-3.5" /> : null}
+								</div>
+								<div className="min-w-0 flex-1 space-y-0.5">
+									<p className="text-muted-foreground text-xs">{q.prompt}</p>
+									<p className="text-sm font-medium">
+										{getAnswerSummary(q, draft.answers[questionId]!)}
+									</p>
+								</div>
+								{isSelected ? (
+									<span className="bg-primary text-primary-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+										{rank}
+									</span>
+								) : null}
+							</button>
+						)
+					})}
+				</div>
+			</div>
+
+			<div className="mt-4 flex justify-end">
+				{canContinue ? (
+					<Button asChild>
+						<Link
+							to="/matches"
+							onClick={() => {
+								saveStoredConsumerDraftForFlow(config.kind, {
+									matchPriorities: selectedPriorities,
+									lastCompletedStage: 'priorities',
+								})
+							}}
+						>
+							Preview my match
+							<ArrowRight className="h-4 w-4" />
+						</Link>
+					</Button>
+				) : (
+					<Button disabled>
+						Preview my match
+						<ArrowRight className="h-4 w-4" />
+					</Button>
+				)}
+			</div>
+		</FlowPageShell>
 	)
 }
 
@@ -483,7 +1400,7 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 						</p>
 					</div>
 					<Button asChild className="w-full">
-						<Link to={`${config.basePath}/results`}>
+						<Link to="/matches">
 							View My Matches
 							<ArrowRight className="h-4 w-4" />
 						</Link>
@@ -595,169 +1512,6 @@ export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
 						actionLabel="Select Agent"
 					/>
 				))}
-			</div>
-			{config.kind === 'seller' ? (
-				<Card className="text-muted-foreground mt-6 rounded-none border bg-transparent p-4 py-4 text-sm shadow-none ring-0">
-					Seller tip: Always request that buyer agent compensation is submitted
-					with the offer — not agreed to upfront.
-				</Card>
-			) : null}
-		</FlowPageShell>
-	)
-}
-
-const previewMatches = [mockMatch1]
-
-export function ConsumerPreview({ config }: { config: ConsumerFlowConfig }) {
-	const [dialogOpen, setDialogOpen] = useState(false)
-	const [summaryReady, setSummaryReady] = useState(false)
-	const [matchReady, setMatchReady] = useState(false)
-
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'preview' })
-	}, [config.kind])
-
-	useEffect(() => {
-		const summaryTimer = setTimeout(() => setSummaryReady(true), 800)
-		const matchTimer = setTimeout(() => setMatchReady(true), 1600)
-		return () => {
-			clearTimeout(summaryTimer)
-			clearTimeout(matchTimer)
-		}
-	}, [])
-
-	const topMatch = previewMatches[0]!
-	const initials = topMatch.name
-		.split(' ')
-		.map((n) => n[0])
-		.join('')
-
-	return (
-		<FlowPageShell
-			title="Your Matches"
-			subtitle="Preview"
-			icon={Sparkles}
-			headerInsideCard
-			card={false}
-		>
-			<div className="space-y-6">
-				{/* Unified Preview Panel */}
-				<Card className="overflow-hidden">
-					<CardContent className="p-6">
-						{/* Profile Summary */}
-						<div className="space-y-4">
-							<h2 className="font-heading text-lg">Your profile</h2>
-							<div className="min-h-[120px]">
-								{summaryReady ? (
-									<div className="space-y-3">
-										<div className="flex items-start gap-3">
-											<MessageSquare className="text-primary mt-0.5 h-4 w-4 shrink-0" />
-											<p className="text-sm leading-snug">
-												Values clear, upfront communication
-											</p>
-										</div>
-										<div className="flex items-start gap-3">
-											<BarChart3 className="text-primary mt-0.5 h-4 w-4 shrink-0" />
-											<p className="text-sm leading-snug">
-												Prefers data-driven market analysis
-											</p>
-										</div>
-										<div className="flex items-start gap-3">
-											<Zap className="text-primary mt-0.5 h-4 w-4 shrink-0" />
-											<p className="text-sm leading-snug">
-												Wants fast responses and steady progress
-											</p>
-										</div>
-									</div>
-								) : (
-									<div className="space-y-3">
-										{Array.from({ length: 3 }).map((_, i) => (
-											<div key={i} className="flex items-start gap-3">
-												<Skeleton className="h-4 w-4 shrink-0 rounded-sm" />
-												<div className="flex-1 space-y-1">
-													<Skeleton className="h-3.5 w-full" />
-													<Skeleton className="h-3.5 w-4/5" />
-												</div>
-											</div>
-										))}
-									</div>
-								)}
-							</div>
-						</div>
-
-						{/* Divider */}
-						<div className="my-6 border-t" />
-
-						{/* Match Teaser */}
-						<div className="space-y-4">
-							<div className="flex items-center gap-2">
-								<Star className="text-primary h-4 w-4" />
-								<h3 className="font-heading text-base">Your top match</h3>
-							</div>
-
-							<div className="min-h-[120px]">
-								{matchReady ? (
-									<div className="border-border/60 bg-muted/30 flex items-start gap-4 rounded-xl border border-dashed p-4">
-										<div className="shrink-0">
-											<div className="bg-secondary flex h-12 w-12 items-center justify-center rounded-lg text-sm font-medium blur-md select-none">
-												{initials}
-											</div>
-										</div>
-										<div className="min-w-0 flex-1">
-											<h4 className="text-base font-semibold blur-sm select-none">
-												{topMatch.name}
-											</h4>
-											<p className="text-muted-foreground text-xs">
-												{topMatch.agency}
-											</p>
-											<p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-xs">
-												<MapPin className="h-3 w-3" />
-												{topMatch.location}
-											</p>
-										</div>
-										<div className="shrink-0 text-center">
-											<div className="bg-primary text-primary-foreground flex h-11 w-11 items-center justify-center rounded-lg text-sm font-bold">
-												{topMatch.fitScore}%
-											</div>
-										</div>
-									</div>
-								) : (
-									<div className="border-border/60 bg-muted/30 flex items-start gap-4 rounded-xl border border-dashed p-4">
-										<Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
-										<div className="min-w-0 flex-1 space-y-2">
-											<Skeleton className="h-4 w-32" />
-											<Skeleton className="h-3 w-40" />
-											<Skeleton className="h-3 w-28" />
-										</div>
-										<Skeleton className="h-11 w-11 shrink-0 rounded-lg" />
-									</div>
-								)}
-							</div>
-						</div>
-					</CardContent>
-					<CardFooter className="flex-col gap-2 pt-2">
-						<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-							<DialogTrigger asChild>
-								<Button size="lg" className="w-full gap-2 sm:w-auto">
-									Unlock for $19.99
-									<ArrowRight className="h-4 w-4" />
-								</Button>
-							</DialogTrigger>
-							<DialogContent className="max-w-md">
-								<DialogHeader>
-									<DialogTitle>Create your free account</DialogTitle>
-									<DialogDescription>
-										Then unlock your matches and connect with agents.
-									</DialogDescription>
-								</DialogHeader>
-								<AuthCard mode="sign-up" embedded redirect="/matches" />
-							</DialogContent>
-						</Dialog>
-						<p className="text-muted-foreground text-center text-xs">
-							One-time fee · No subscription · 100% refundable if no match
-						</p>
-					</CardFooter>
-				</Card>
 			</div>
 		</FlowPageShell>
 	)

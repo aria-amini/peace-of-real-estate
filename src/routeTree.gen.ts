@@ -18,23 +18,16 @@ import { Route as AppSignupRouteImport } from './routes/_app/signup'
 import { Route as AppMatchesRouteImport } from './routes/_app/matches'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
 import { Route as AppAccountRouteImport } from './routes/_app/account'
-import { Route as AppSellerIndexRouteImport } from './routes/_app/seller/index'
 import { Route as AppBuyerIndexRouteImport } from './routes/_app/buyer/index'
 import { Route as AppAgentIndexRouteImport } from './routes/_app/agent/index'
 import { Route as AppAccountIndexRouteImport } from './routes/_app/account/index'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest/$'
 import { Route as ApiBetaAuthRouteImport } from './routes/api/beta/auth'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as AppSellerResultsRouteImport } from './routes/_app/seller/results'
-import { Route as AppSellerQuizRouteImport } from './routes/_app/seller/quiz'
-import { Route as AppSellerPreviewRouteImport } from './routes/_app/seller/preview'
-import { Route as AppSellerPaymentRouteImport } from './routes/_app/seller/payment'
-import { Route as AppSellerIntroRouteImport } from './routes/_app/seller/intro'
-import { Route as AppBuyerResultsRouteImport } from './routes/_app/buyer/results'
-import { Route as AppBuyerQuizRouteImport } from './routes/_app/buyer/quiz'
+import { Route as AppBuyerPrioritiesRouteImport } from './routes/_app/buyer/priorities'
 import { Route as AppBuyerPreviewRouteImport } from './routes/_app/buyer/preview'
 import { Route as AppBuyerPaymentRouteImport } from './routes/_app/buyer/payment'
-import { Route as AppBuyerIntroRouteImport } from './routes/_app/buyer/intro'
+import { Route as AppBuyerIntakeRouteImport } from './routes/_app/buyer/intake'
 import { Route as AppAgentSubscribeRouteImport } from './routes/_app/agent/subscribe'
 import { Route as AppAgentQuizRouteImport } from './routes/_app/agent/quiz'
 import { Route as AppAgentProfileRouteImport } from './routes/_app/agent/profile'
@@ -43,8 +36,6 @@ import { Route as AppAgentPeacePactRouteImport } from './routes/_app/agent/peace
 import { Route as AppAgentDeepDiveRouteImport } from './routes/_app/agent/deep-dive'
 import { Route as AppAgentComplianceRouteImport } from './routes/_app/agent/compliance'
 import { Route as AppAgentChatRouteImport } from './routes/_app/agent/chat'
-import { Route as AppAccountQuestionnaireRouteImport } from './routes/_app/account/questionnaire'
-import { Route as AppAccountPreferencesRouteImport } from './routes/_app/account/preferences'
 import { Route as ApiIngestStaticSplatRouteImport } from './routes/api/ingest/static/$'
 
 const BetaRoute = BetaRouteImport.update({
@@ -91,11 +82,6 @@ const AppAccountRoute = AppAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSellerIndexRoute = AppSellerIndexRouteImport.update({
-  id: '/seller/',
-  path: '/seller/',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppBuyerIndexRoute = AppBuyerIndexRouteImport.update({
   id: '/buyer/',
   path: '/buyer/',
@@ -126,39 +112,9 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppSellerResultsRoute = AppSellerResultsRouteImport.update({
-  id: '/seller/results',
-  path: '/seller/results',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSellerQuizRoute = AppSellerQuizRouteImport.update({
-  id: '/seller/quiz',
-  path: '/seller/quiz',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSellerPreviewRoute = AppSellerPreviewRouteImport.update({
-  id: '/seller/preview',
-  path: '/seller/preview',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSellerPaymentRoute = AppSellerPaymentRouteImport.update({
-  id: '/seller/payment',
-  path: '/seller/payment',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSellerIntroRoute = AppSellerIntroRouteImport.update({
-  id: '/seller/intro',
-  path: '/seller/intro',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBuyerResultsRoute = AppBuyerResultsRouteImport.update({
-  id: '/buyer/results',
-  path: '/buyer/results',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBuyerQuizRoute = AppBuyerQuizRouteImport.update({
-  id: '/buyer/quiz',
-  path: '/buyer/quiz',
+const AppBuyerPrioritiesRoute = AppBuyerPrioritiesRouteImport.update({
+  id: '/buyer/priorities',
+  path: '/buyer/priorities',
   getParentRoute: () => AppRoute,
 } as any)
 const AppBuyerPreviewRoute = AppBuyerPreviewRouteImport.update({
@@ -171,9 +127,9 @@ const AppBuyerPaymentRoute = AppBuyerPaymentRouteImport.update({
   path: '/buyer/payment',
   getParentRoute: () => AppRoute,
 } as any)
-const AppBuyerIntroRoute = AppBuyerIntroRouteImport.update({
-  id: '/buyer/intro',
-  path: '/buyer/intro',
+const AppBuyerIntakeRoute = AppBuyerIntakeRouteImport.update({
+  id: '/buyer/intake',
+  path: '/buyer/intake',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAgentSubscribeRoute = AppAgentSubscribeRouteImport.update({
@@ -216,16 +172,6 @@ const AppAgentChatRoute = AppAgentChatRouteImport.update({
   path: '/agent/chat',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAccountQuestionnaireRoute = AppAccountQuestionnaireRouteImport.update({
-  id: '/questionnaire',
-  path: '/questionnaire',
-  getParentRoute: () => AppAccountRoute,
-} as any)
-const AppAccountPreferencesRoute = AppAccountPreferencesRouteImport.update({
-  id: '/preferences',
-  path: '/preferences',
-  getParentRoute: () => AppAccountRoute,
-} as any)
 const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
   id: '/api/ingest/static/$',
   path: '/api/ingest/static/$',
@@ -241,8 +187,6 @@ export interface FileRoutesByFullPath {
   '/signup': typeof AppSignupRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
-  '/account/preferences': typeof AppAccountPreferencesRoute
-  '/account/questionnaire': typeof AppAccountQuestionnaireRoute
   '/agent/chat': typeof AppAgentChatRoute
   '/agent/compliance': typeof AppAgentComplianceRoute
   '/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -251,23 +195,16 @@ export interface FileRoutesByFullPath {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/buyer/intro': typeof AppBuyerIntroRoute
+  '/buyer/intake': typeof AppBuyerIntakeRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
   '/buyer/preview': typeof AppBuyerPreviewRoute
-  '/buyer/quiz': typeof AppBuyerQuizRoute
-  '/buyer/results': typeof AppBuyerResultsRoute
-  '/seller/intro': typeof AppSellerIntroRoute
-  '/seller/payment': typeof AppSellerPaymentRoute
-  '/seller/preview': typeof AppSellerPreviewRoute
-  '/seller/quiz': typeof AppSellerQuizRoute
-  '/seller/results': typeof AppSellerResultsRoute
+  '/buyer/priorities': typeof AppBuyerPrioritiesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/account/': typeof AppAccountIndexRoute
   '/agent/': typeof AppAgentIndexRoute
   '/buyer/': typeof AppBuyerIndexRoute
-  '/seller/': typeof AppSellerIndexRoute
   '/api/ingest/static/$': typeof ApiIngestStaticSplatRoute
 }
 export interface FileRoutesByTo {
@@ -278,8 +215,6 @@ export interface FileRoutesByTo {
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/': typeof AppIndexRoute
-  '/account/preferences': typeof AppAccountPreferencesRoute
-  '/account/questionnaire': typeof AppAccountQuestionnaireRoute
   '/agent/chat': typeof AppAgentChatRoute
   '/agent/compliance': typeof AppAgentComplianceRoute
   '/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -288,23 +223,16 @@ export interface FileRoutesByTo {
   '/agent/profile': typeof AppAgentProfileRoute
   '/agent/quiz': typeof AppAgentQuizRoute
   '/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/buyer/intro': typeof AppBuyerIntroRoute
+  '/buyer/intake': typeof AppBuyerIntakeRoute
   '/buyer/payment': typeof AppBuyerPaymentRoute
   '/buyer/preview': typeof AppBuyerPreviewRoute
-  '/buyer/quiz': typeof AppBuyerQuizRoute
-  '/buyer/results': typeof AppBuyerResultsRoute
-  '/seller/intro': typeof AppSellerIntroRoute
-  '/seller/payment': typeof AppSellerPaymentRoute
-  '/seller/preview': typeof AppSellerPreviewRoute
-  '/seller/quiz': typeof AppSellerQuizRoute
-  '/seller/results': typeof AppSellerResultsRoute
+  '/buyer/priorities': typeof AppBuyerPrioritiesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/account': typeof AppAccountIndexRoute
   '/agent': typeof AppAgentIndexRoute
   '/buyer': typeof AppBuyerIndexRoute
-  '/seller': typeof AppSellerIndexRoute
   '/api/ingest/static/$': typeof ApiIngestStaticSplatRoute
 }
 export interface FileRoutesById {
@@ -318,8 +246,6 @@ export interface FileRoutesById {
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
   '/_app/': typeof AppIndexRoute
-  '/_app/account/preferences': typeof AppAccountPreferencesRoute
-  '/_app/account/questionnaire': typeof AppAccountQuestionnaireRoute
   '/_app/agent/chat': typeof AppAgentChatRoute
   '/_app/agent/compliance': typeof AppAgentComplianceRoute
   '/_app/agent/deep-dive': typeof AppAgentDeepDiveRoute
@@ -328,23 +254,16 @@ export interface FileRoutesById {
   '/_app/agent/profile': typeof AppAgentProfileRoute
   '/_app/agent/quiz': typeof AppAgentQuizRoute
   '/_app/agent/subscribe': typeof AppAgentSubscribeRoute
-  '/_app/buyer/intro': typeof AppBuyerIntroRoute
+  '/_app/buyer/intake': typeof AppBuyerIntakeRoute
   '/_app/buyer/payment': typeof AppBuyerPaymentRoute
   '/_app/buyer/preview': typeof AppBuyerPreviewRoute
-  '/_app/buyer/quiz': typeof AppBuyerQuizRoute
-  '/_app/buyer/results': typeof AppBuyerResultsRoute
-  '/_app/seller/intro': typeof AppSellerIntroRoute
-  '/_app/seller/payment': typeof AppSellerPaymentRoute
-  '/_app/seller/preview': typeof AppSellerPreviewRoute
-  '/_app/seller/quiz': typeof AppSellerQuizRoute
-  '/_app/seller/results': typeof AppSellerResultsRoute
+  '/_app/buyer/priorities': typeof AppBuyerPrioritiesRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/_app/account/': typeof AppAccountIndexRoute
   '/_app/agent/': typeof AppAgentIndexRoute
   '/_app/buyer/': typeof AppBuyerIndexRoute
-  '/_app/seller/': typeof AppSellerIndexRoute
   '/api/ingest/static/$': typeof ApiIngestStaticSplatRoute
 }
 export interface FileRouteTypes {
@@ -358,8 +277,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/api/agent-matches'
     | '/api/health'
-    | '/account/preferences'
-    | '/account/questionnaire'
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
@@ -368,23 +285,16 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
-    | '/buyer/intro'
+    | '/buyer/intake'
     | '/buyer/payment'
     | '/buyer/preview'
-    | '/buyer/quiz'
-    | '/buyer/results'
-    | '/seller/intro'
-    | '/seller/payment'
-    | '/seller/preview'
-    | '/seller/quiz'
-    | '/seller/results'
+    | '/buyer/priorities'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
     | '/account/'
     | '/agent/'
     | '/buyer/'
-    | '/seller/'
     | '/api/ingest/static/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -395,8 +305,6 @@ export interface FileRouteTypes {
     | '/api/agent-matches'
     | '/api/health'
     | '/'
-    | '/account/preferences'
-    | '/account/questionnaire'
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
@@ -405,23 +313,16 @@ export interface FileRouteTypes {
     | '/agent/profile'
     | '/agent/quiz'
     | '/agent/subscribe'
-    | '/buyer/intro'
+    | '/buyer/intake'
     | '/buyer/payment'
     | '/buyer/preview'
-    | '/buyer/quiz'
-    | '/buyer/results'
-    | '/seller/intro'
-    | '/seller/payment'
-    | '/seller/preview'
-    | '/seller/quiz'
-    | '/seller/results'
+    | '/buyer/priorities'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
     | '/account'
     | '/agent'
     | '/buyer'
-    | '/seller'
     | '/api/ingest/static/$'
   id:
     | '__root__'
@@ -434,8 +335,6 @@ export interface FileRouteTypes {
     | '/api/agent-matches'
     | '/api/health'
     | '/_app/'
-    | '/_app/account/preferences'
-    | '/_app/account/questionnaire'
     | '/_app/agent/chat'
     | '/_app/agent/compliance'
     | '/_app/agent/deep-dive'
@@ -444,23 +343,16 @@ export interface FileRouteTypes {
     | '/_app/agent/profile'
     | '/_app/agent/quiz'
     | '/_app/agent/subscribe'
-    | '/_app/buyer/intro'
+    | '/_app/buyer/intake'
     | '/_app/buyer/payment'
     | '/_app/buyer/preview'
-    | '/_app/buyer/quiz'
-    | '/_app/buyer/results'
-    | '/_app/seller/intro'
-    | '/_app/seller/payment'
-    | '/_app/seller/preview'
-    | '/_app/seller/quiz'
-    | '/_app/seller/results'
+    | '/_app/buyer/priorities'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
     | '/_app/account/'
     | '/_app/agent/'
     | '/_app/buyer/'
-    | '/_app/seller/'
     | '/api/ingest/static/$'
   fileRoutesById: FileRoutesById
 }
@@ -540,13 +432,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/seller/': {
-      id: '/_app/seller/'
-      path: '/seller'
-      fullPath: '/seller/'
-      preLoaderRoute: typeof AppSellerIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/buyer/': {
       id: '/_app/buyer/'
       path: '/buyer'
@@ -589,53 +474,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/seller/results': {
-      id: '/_app/seller/results'
-      path: '/seller/results'
-      fullPath: '/seller/results'
-      preLoaderRoute: typeof AppSellerResultsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/seller/quiz': {
-      id: '/_app/seller/quiz'
-      path: '/seller/quiz'
-      fullPath: '/seller/quiz'
-      preLoaderRoute: typeof AppSellerQuizRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/seller/preview': {
-      id: '/_app/seller/preview'
-      path: '/seller/preview'
-      fullPath: '/seller/preview'
-      preLoaderRoute: typeof AppSellerPreviewRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/seller/payment': {
-      id: '/_app/seller/payment'
-      path: '/seller/payment'
-      fullPath: '/seller/payment'
-      preLoaderRoute: typeof AppSellerPaymentRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/seller/intro': {
-      id: '/_app/seller/intro'
-      path: '/seller/intro'
-      fullPath: '/seller/intro'
-      preLoaderRoute: typeof AppSellerIntroRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/buyer/results': {
-      id: '/_app/buyer/results'
-      path: '/buyer/results'
-      fullPath: '/buyer/results'
-      preLoaderRoute: typeof AppBuyerResultsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/buyer/quiz': {
-      id: '/_app/buyer/quiz'
-      path: '/buyer/quiz'
-      fullPath: '/buyer/quiz'
-      preLoaderRoute: typeof AppBuyerQuizRouteImport
+    '/_app/buyer/priorities': {
+      id: '/_app/buyer/priorities'
+      path: '/buyer/priorities'
+      fullPath: '/buyer/priorities'
+      preLoaderRoute: typeof AppBuyerPrioritiesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/buyer/preview': {
@@ -652,11 +495,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBuyerPaymentRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/buyer/intro': {
-      id: '/_app/buyer/intro'
-      path: '/buyer/intro'
-      fullPath: '/buyer/intro'
-      preLoaderRoute: typeof AppBuyerIntroRouteImport
+    '/_app/buyer/intake': {
+      id: '/_app/buyer/intake'
+      path: '/buyer/intake'
+      fullPath: '/buyer/intake'
+      preLoaderRoute: typeof AppBuyerIntakeRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/agent/subscribe': {
@@ -715,20 +558,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAgentChatRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/account/questionnaire': {
-      id: '/_app/account/questionnaire'
-      path: '/questionnaire'
-      fullPath: '/account/questionnaire'
-      preLoaderRoute: typeof AppAccountQuestionnaireRouteImport
-      parentRoute: typeof AppAccountRoute
-    }
-    '/_app/account/preferences': {
-      id: '/_app/account/preferences'
-      path: '/preferences'
-      fullPath: '/account/preferences'
-      preLoaderRoute: typeof AppAccountPreferencesRouteImport
-      parentRoute: typeof AppAccountRoute
-    }
     '/api/ingest/static/$': {
       id: '/api/ingest/static/$'
       path: '/api/ingest/static/$'
@@ -740,14 +569,10 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppAccountRouteChildren {
-  AppAccountPreferencesRoute: typeof AppAccountPreferencesRoute
-  AppAccountQuestionnaireRoute: typeof AppAccountQuestionnaireRoute
   AppAccountIndexRoute: typeof AppAccountIndexRoute
 }
 
 const AppAccountRouteChildren: AppAccountRouteChildren = {
-  AppAccountPreferencesRoute: AppAccountPreferencesRoute,
-  AppAccountQuestionnaireRoute: AppAccountQuestionnaireRoute,
   AppAccountIndexRoute: AppAccountIndexRoute,
 }
 
@@ -769,19 +594,12 @@ interface AppRouteChildren {
   AppAgentProfileRoute: typeof AppAgentProfileRoute
   AppAgentQuizRoute: typeof AppAgentQuizRoute
   AppAgentSubscribeRoute: typeof AppAgentSubscribeRoute
-  AppBuyerIntroRoute: typeof AppBuyerIntroRoute
+  AppBuyerIntakeRoute: typeof AppBuyerIntakeRoute
   AppBuyerPaymentRoute: typeof AppBuyerPaymentRoute
   AppBuyerPreviewRoute: typeof AppBuyerPreviewRoute
-  AppBuyerQuizRoute: typeof AppBuyerQuizRoute
-  AppBuyerResultsRoute: typeof AppBuyerResultsRoute
-  AppSellerIntroRoute: typeof AppSellerIntroRoute
-  AppSellerPaymentRoute: typeof AppSellerPaymentRoute
-  AppSellerPreviewRoute: typeof AppSellerPreviewRoute
-  AppSellerQuizRoute: typeof AppSellerQuizRoute
-  AppSellerResultsRoute: typeof AppSellerResultsRoute
+  AppBuyerPrioritiesRoute: typeof AppBuyerPrioritiesRoute
   AppAgentIndexRoute: typeof AppAgentIndexRoute
   AppBuyerIndexRoute: typeof AppBuyerIndexRoute
-  AppSellerIndexRoute: typeof AppSellerIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -798,19 +616,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppAgentProfileRoute: AppAgentProfileRoute,
   AppAgentQuizRoute: AppAgentQuizRoute,
   AppAgentSubscribeRoute: AppAgentSubscribeRoute,
-  AppBuyerIntroRoute: AppBuyerIntroRoute,
+  AppBuyerIntakeRoute: AppBuyerIntakeRoute,
   AppBuyerPaymentRoute: AppBuyerPaymentRoute,
   AppBuyerPreviewRoute: AppBuyerPreviewRoute,
-  AppBuyerQuizRoute: AppBuyerQuizRoute,
-  AppBuyerResultsRoute: AppBuyerResultsRoute,
-  AppSellerIntroRoute: AppSellerIntroRoute,
-  AppSellerPaymentRoute: AppSellerPaymentRoute,
-  AppSellerPreviewRoute: AppSellerPreviewRoute,
-  AppSellerQuizRoute: AppSellerQuizRoute,
-  AppSellerResultsRoute: AppSellerResultsRoute,
+  AppBuyerPrioritiesRoute: AppBuyerPrioritiesRoute,
   AppAgentIndexRoute: AppAgentIndexRoute,
   AppBuyerIndexRoute: AppBuyerIndexRoute,
-  AppSellerIndexRoute: AppSellerIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

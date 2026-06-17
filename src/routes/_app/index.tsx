@@ -1,8 +1,7 @@
-import { redirectAuthenticatedUsers } from '@/lib/auth-guards'
+import { redirectAuthenticatedUsers } from '@/lib/auth/functions'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
-import { GetMatchedDialog } from '@/components/get-matched-dialog'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_app/')({
@@ -25,7 +24,7 @@ function HeroSection() {
 		<section className="bg-card relative w-full overflow-hidden pb-10">
 			<div className="mx-auto grid max-w-7xl gap-10 px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-8 lg:px-10">
 				<div className="flex max-w-xl flex-col items-start gap-6 md:gap-8">
-					<h1 className="font-heading mt-8 text-5xl leading-[0.98] font-semibold tracking-tight text-balance md:text-6xl lg:text-7xl">
+					<h1 className="font-heading mt-8 text-4xl leading-snug font-bold tracking-tight text-balance md:text-5xl">
 						Perfect Agent,
 						<br />
 						<span className="text-sky">Perfect Home.</span>
@@ -39,22 +38,13 @@ function HeroSection() {
 						authentic agent simultaneously.
 					</p>
 
-					<div className="flex flex-wrap gap-4 pt-1">
-						<GetMatchedDialog>
-							<Button
-								size="lg"
-								className="h-12 cursor-pointer rounded-xl px-8 text-base font-semibold shadow-md"
-							>
-								I'm a buyer/seller
-							</Button>
-						</GetMatchedDialog>
+					<div className="flex flex-wrap gap-4 pt-2">
 						<Button
-							variant="outline"
 							size="lg"
-							className="bg-card h-12 cursor-pointer rounded-xl px-8 text-base font-semibold"
+							className="h-16 cursor-pointer rounded-2xl px-12 text-xl font-bold shadow-lg"
 							asChild
 						>
-							<Link to="/agent">I'm an agent</Link>
+							<Link to="/buyer">Find Your Agent</Link>
 						</Button>
 					</div>
 				</div>
@@ -72,22 +62,17 @@ function HeroSection() {
 const howItWorksSteps = [
 	{
 		id: 1,
-		title: 'Tell us what matters',
-		description:
-			'Answer a quick questionnaire about your needs, style, and deal-breakers.',
+		title: 'Take a short quiz',
 		image: '/step1.png',
 	},
 	{
 		id: 2,
-		title: 'See your verified matches',
-		description:
-			'Get ranked agent matches with a detailed fit rationale — no guessing.',
+		title: 'Browse Agents',
 		image: '/step2.png',
 	},
 	{
 		id: 3,
-		title: 'Request your intro',
-		description: 'Choose your agent and we handle the warm introduction. Done.',
+		title: 'Request an Introduction',
 		image: '/step3.png',
 	},
 ]
@@ -101,7 +86,7 @@ function HowItWorksSection() {
 			<div className="mx-auto max-w-6xl px-6 lg:px-10">
 				<div className="mb-12 text-center md:mb-16">
 					<h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
-						How Peace of Real Estate works
+						How It Works (3 Steps)
 					</h2>
 				</div>
 
@@ -134,18 +119,19 @@ function HowItWorksSection() {
 							key={step.id}
 							className="relative flex flex-col items-center text-center"
 						>
+							<div className="bg-sky text-primary-foreground mb-4 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold">
+								{step.id}
+							</div>
+
 							<img
 								src={step.image}
 								alt=""
 								className="mb-5 h-28 w-28 object-contain md:h-32 md:w-32"
 							/>
 
-							<h3 className="font-heading mb-3 text-lg font-semibold">
+							<h3 className="font-heading text-muted-foreground text-lg font-semibold">
 								{step.title}
 							</h3>
-							<p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
-								{step.description}
-							</p>
 						</div>
 					))}
 				</div>

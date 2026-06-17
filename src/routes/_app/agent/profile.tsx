@@ -11,8 +11,8 @@ import { Textarea } from '@/components/ui/textarea'
 import {
 	getStoredIntakeDraftForRole,
 	saveStoredIntakeDraftForRole,
-} from '@/lib/intake-draft'
-import type { AgentProfileData } from '@/lib/user-settings'
+} from '@/lib/matching/intake-draft'
+import type { AgentProfileData } from '@/lib/matching/settings'
 
 export const Route = createFileRoute('/_app/agent/profile')({
 	component: AgentProfile,

@@ -1,6 +1,6 @@
 import '../mocks/browser'
 
-import { queryClient as appQueryClient } from '@/lib/react-query'
+import { queryClient as appQueryClient } from '@/lib/query'
 import { expect } from '@config/test/browser'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
@@ -20,6 +20,7 @@ type RouteTarget =
 type RouteTestOptions = RouteTarget & {
 	waitFor?: (screen: RenderResult) => HTMLElement | SVGElement | null
 	prepare?: (screen: RenderResult) => Promise<void> | void
+	setup?: () => Promise<void> | void
 	screenshotTarget?: (screen: RenderResult) => HTMLElement | SVGElement
 }
 
@@ -35,11 +36,7 @@ type Viewport = {
 }
 
 const desktopViewport: Viewport = { width: 1440, height: 900 }
-const protectedPaths = new Set([
-	'/buyer/results',
-	'/seller/results',
-	'/matches',
-])
+const protectedPaths = new Set<string>(['/matches'])
 
 const testSession = {
 	user: {
@@ -116,9 +113,10 @@ export async function renderWithFileRoutes(
 	const history = createMemoryHistory({ initialEntries: [path] })
 
 	setRouteSession(path)
-	const { routeTree } = await import('@/routeTree.gen')
 	localStorage.clear()
 	document.body.replaceChildren()
+	await options.setup?.()
+	const { routeTree } = await import('@/routeTree.gen')
 
 	const router = createRouter({
 		routeTree,

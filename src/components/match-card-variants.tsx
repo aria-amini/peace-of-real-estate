@@ -9,7 +9,7 @@ export type MatchStatus = 'pending' | 'accepted' | 'completed' | 'new'
 export interface MatchDetails {
 	id: string
 	name: string
-	role: 'buyer' | 'seller' | 'agent'
+	role: 'agent'
 	location: string
 	zipCodes: string[]
 	fitScore: number
@@ -178,7 +178,7 @@ export function MatchCardModern({
 	return (
 		<Card className="mx-auto max-w-xl overflow-hidden">
 			<CardContent className="p-5">
-				{/* Header: Avatar + Info + Match Score */}
+				{/* Header: Avatar + Info */}
 				<div className="flex items-start gap-4">
 					<div className="shrink-0">
 						{showAvatar ? (
@@ -229,12 +229,6 @@ export function MatchCardModern({
 								<Award className="h-3 w-3" />
 								{match.experience}
 							</span>
-						</div>
-					</div>
-					{/* Match Score Badge */}
-					<div className="shrink-0 text-center">
-						<div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-xl text-base font-bold">
-							{match.fitScore}%
 						</div>
 					</div>
 				</div>
@@ -292,15 +286,17 @@ export function MatchCardModern({
 
 				{/* Actions */}
 				{locked ? (
-					<div className="mt-4">
-						<Button
-							className="h-11 w-full rounded-xl text-base"
-							onClick={onUnlock}
-						>
-							<Lock className="mr-2 h-4 w-4" />
-							Unlock Matches
-						</Button>
-					</div>
+					onUnlock ? (
+						<div className="mt-4">
+							<Button
+								className="h-11 w-full rounded-xl text-base"
+								onClick={onUnlock}
+							>
+								<Lock className="mr-2 h-4 w-4" />
+								Unlock Matches
+							</Button>
+						</div>
+					) : null
 				) : (
 					<div className="mt-4">
 						<Button
