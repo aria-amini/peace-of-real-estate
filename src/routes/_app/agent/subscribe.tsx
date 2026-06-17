@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_app/agent/subscribe')({
 function AgentSubscribe() {
 	return (
 		<FlowPageShell
-			title="Your profile is ready, Agent."
+			title="Sign Up"
 			subtitle="Step 7"
 			icon={CreditCard}
 			roleLabel="Agent"

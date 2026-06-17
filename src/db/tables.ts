@@ -9,20 +9,11 @@ import {
 	uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
-type ProfileType = 'buyer' | 'seller'
+type ProfileStatus = 'draft' | 'submitted' | 'active'
 
-type QuestionnaireStatus = 'draft' | 'submitted'
+type EntitlementKey = 'consumer_lifetime_premium' | 'agent_subscription'
 
-type CategoryWeights = {
-	'working-style': number
-	communication: number
-	transparency: number
-	fit: number
-}
-
-type AnswerValue = number | number[] | string
-
-type QuestionnaireAnswers = Record<string, AnswerValue>
+type EntitlementSource = 'manual' | 'stripe_checkout' | 'stripe_subscription'
 
 export const user = pgTable(
 	'user',
@@ -32,11 +23,36 @@ export const user = pgTable(
 		email: text().notNull(),
 		emailVerified: boolean('email_verified').default(false).notNull(),
 		image: text(),
-		isPremium: boolean('is_premium').default(false).notNull(),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 	},
 	(table) => [uniqueIndex('user_email_index').on(table.email)],
+)
+
+export const userEntitlements = pgTable(
+	'user_entitlements',
+	{
+		id: text().primaryKey().notNull(),
+		userId: text('user_id').notNull(),
+		key: text().$type<EntitlementKey>().notNull(),
+		source: text().$type<EntitlementSource>().notNull(),
+		stripeCustomerId: text('stripe_customer_id'),
+		stripePaymentIntentId: text('stripe_payment_intent_id'),
+		stripeSubscriptionId: text('stripe_subscription_id'),
+		startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
+		endsAt: timestamp('ends_at', { withTimezone: true }),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+	},
+	(table) => [
+		index('user_entitlements_user_id_index').using('btree', table.userId),
+		uniqueIndex('user_entitlements_user_key_index').on(table.userId, table.key),
+		foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: 'user_entitlements_user_id_fk',
+		}),
+	],
 )
 
 export const session = pgTable(
@@ -117,90 +133,139 @@ export const verification = pgTable(
 	],
 )
 
-export const consumers = pgTable(
-	'consumers',
+export const buyerProfiles = pgTable(
+	'buyer_profiles',
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		type: text().$type<ProfileType>().notNull(),
-		zipCodesJson: jsonb('zip_codes_json').$type<string[] | null>(),
+		status: text().$type<ProfileStatus>().default('draft').notNull(),
+		location: text(),
+		priceRange: text('price_range'),
+		propertyTypesJson: jsonb('property_types_json').$type<string[] | null>(),
+		intent: text(),
+		experienceLevel: text('experience_level'),
+		preferredContactMethod: text('preferred_contact_method'),
+		updateDeliveryPreference: text('update_delivery_preference'),
+		responseTimeExpectation: text('response_time_expectation'),
+		agentRolePreference: text('agent_role_preference'),
+		involvementLevel: text('involvement_level'),
+		decisionStyle: text('decision_style'),
+		toughLossPreference: text('tough_loss_preference'),
+		agentNonNegotiablesJson: jsonb('agent_non_negotiables_json').$type<
+			string[] | null
+		>(),
+		representationPreference: text('representation_preference'),
+		commissionComfort: text('commission_comfort'),
+		matchPrioritiesJson: jsonb('match_priorities_json').$type<
+			string[] | null
+		>(),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 	},
 	(table) => [
-		uniqueIndex('consumers_user_id_index').on(table.userId),
+		uniqueIndex('buyer_profiles_user_id_index').on(table.userId),
 		foreignKey({
 			columns: [table.userId],
 			foreignColumns: [user.id],
-			name: 'consumers_user_id_fk',
+			name: 'buyer_profiles_user_id_fk',
 		}),
 	],
 )
 
-export const consumerQuestionnaires = pgTable(
-	'consumer_questionnaires',
+export const sellerProfiles = pgTable(
+	'seller_profiles',
 	{
 		id: text().primaryKey().notNull(),
-		consumerId: text('consumer_id').notNull(),
-		status: text().$type<QuestionnaireStatus>().notNull(),
-		weightsJson: jsonb('weights_json').$type<CategoryWeights>().notNull(),
-		answersJson: jsonb('answers_json').$type<QuestionnaireAnswers>().notNull(),
+		userId: text('user_id').notNull(),
+		status: text().$type<ProfileStatus>().default('draft').notNull(),
+		location: text(),
+		estimatedHomeValue: text('estimated_home_value'),
+		propertyTypesJson: jsonb('property_types_json').$type<string[] | null>(),
+		sellingSituation: text('selling_situation'),
+		experienceLevel: text('experience_level'),
+		preferredContactStyle: text('preferred_contact_style'),
+		updateDeliveryPreference: text('update_delivery_preference'),
+		updateCadence: text('update_cadence'),
+		responseTimeExpectation: text('response_time_expectation'),
+		successDefinition: text('success_definition'),
+		involvementLevel: text('involvement_level'),
+		homeRelationship: text('home_relationship'),
+		agentSuccessSignalsJson: jsonb('agent_success_signals_json').$type<
+			string[] | null
+		>(),
+		representationPreference: text('representation_preference'),
+		commissionComfort: text('commission_comfort'),
+		matchPrioritiesJson: jsonb('match_priorities_json').$type<
+			string[] | null
+		>(),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 	},
 	(table) => [
-		uniqueIndex('consumer_questionnaires_consumer_id_index').on(
-			table.consumerId,
-		),
+		uniqueIndex('seller_profiles_user_id_index').on(table.userId),
 		foreignKey({
-			columns: [table.consumerId],
-			foreignColumns: [consumers.id],
-			name: 'consumer_questionnaires_consumer_id_fk',
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: 'seller_profiles_user_id_fk',
 		}),
 	],
 )
 
-export const agents = pgTable(
-	'agents',
+export const agentProfiles = pgTable(
+	'agent_profiles',
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		agency: text(),
-		experience: text(),
-		bio: text(),
-		zipCodesJson: jsonb('zip_codes_json').$type<string[] | null>(),
-		servicesJson: jsonb('services_json').$type<string[] | null>(),
+		status: text().$type<ProfileStatus>().default('draft').notNull(),
+		representationSide: text('representation_side'),
+		typicalPriceRange: text('typical_price_range'),
+		bestClientTypesJson: jsonb('best_client_types_json').$type<
+			string[] | null
+		>(),
+		notFitFor: text('not_fit_for'),
+		workingStyle: text('working_style'),
+		dealStressStyle: text('deal_stress_style'),
+		communicationCadence: text('communication_cadence'),
+		quickContactStyle: text('quick_contact_style'),
+		updateDeliveryStyle: text('update_delivery_style'),
+		responseTime: text('response_time'),
+		commissionStyle: text('commission_style'),
+		dualAgencyStyle: text('dual_agency_style'),
+		firstName: text('first_name'),
+		lastName: text('last_name'),
+		brokerageName: text('brokerage_name'),
+		email: text(),
+		phone: text(),
+		businessAddress: text('business_address'),
+		billingAddress: text('billing_address'),
+		licenseNumberState: text('license_number_state'),
+		serviceArea1: text('service_area_1'),
+		serviceArea2: text('service_area_2'),
+		serviceArea3: text('service_area_3'),
+		yearsLicensed: text('years_licensed'),
+		averageTransactions: text('average_transactions'),
+		employmentStatus: text('employment_status'),
+		licenseProof: text('license_proof'),
+		clientFirstTerms: text('client_first_terms'),
+		valueProposition: text('value_proposition'),
+		usePaxWriter: boolean('use_pax_writer').default(true).notNull(),
+		introVideo: text('intro_video'),
+		licenseAttested: boolean('license_attested').default(false).notNull(),
+		eoInsuranceStatus: text('eo_insurance_status'),
 		peacePactSigned: boolean('peace_pact_signed').default(false).notNull(),
+		peacePactSignature: text('peace_pact_signature'),
+		peacePactSignedAt: timestamp('peace_pact_signed_at', {
+			withTimezone: true,
+		}),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 	},
 	(table) => [
-		uniqueIndex('agents_user_id_index').on(table.userId),
+		uniqueIndex('agent_profiles_user_id_index').on(table.userId),
 		foreignKey({
 			columns: [table.userId],
 			foreignColumns: [user.id],
-			name: 'agents_user_id_fk',
-		}),
-	],
-)
-
-export const agentQuestionnaires = pgTable(
-	'agent_questionnaires',
-	{
-		id: text().primaryKey().notNull(),
-		agentId: text('agent_id').notNull(),
-		status: text().$type<QuestionnaireStatus>().notNull(),
-		weightsJson: jsonb('weights_json').$type<CategoryWeights>().notNull(),
-		answersJson: jsonb('answers_json').$type<QuestionnaireAnswers>().notNull(),
-		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
-		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
-	},
-	(table) => [
-		uniqueIndex('agent_questionnaires_agent_id_index').on(table.agentId),
-		foreignKey({
-			columns: [table.agentId],
-			foreignColumns: [agents.id],
-			name: 'agent_questionnaires_agent_id_fk',
+			name: 'agent_profiles_user_id_fk',
 		}),
 	],
 )

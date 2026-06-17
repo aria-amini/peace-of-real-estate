@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth/client'
 
 function GoogleIcon({ className }: { className?: string }) {
 	return (
@@ -51,8 +51,8 @@ export function AuthCard({
 	const resolvedRedirect =
 		redirect && redirect !== '/account' ? redirect : DEFAULT_POST_AUTH_REDIRECT
 	const isSignUp = mode === 'sign-up'
-	const title = isSignUp ? 'Create your account' : 'Welcome Back'
-	const primaryLabel = isSignUp ? 'Create account' : 'Sign in'
+	const title = isSignUp ? 'Create your profile' : 'Welcome Back'
+	const primaryLabel = isSignUp ? 'Create profile' : 'Sign in'
 	const alternateCopy = isSignUp
 		? 'Already have an account?'
 		: "Don't have an account?"
@@ -169,7 +169,7 @@ export function AuthCard({
 						) : (
 							<GoogleIcon className="h-5 w-5" />
 						)}
-						{isSignUp ? 'Sign up with Google' : 'Sign in with Google'}
+						{isSignUp ? 'Create profile with Google' : 'Sign in with Google'}
 					</Button>
 
 					<div className="text-muted-foreground relative py-2 text-center text-xs tracking-[0.2em] uppercase">
@@ -244,7 +244,7 @@ export function AuthCard({
 								{...(redirect ? { search: { redirect } } : {})}
 								className="text-foreground font-medium underline underline-offset-4"
 							>
-								Sign up
+								Create profile
 							</Link>
 						)}
 					</p>
@@ -262,7 +262,7 @@ export function AuthCard({
 			<div className="flex w-full max-w-md flex-col items-center gap-8">
 				<div className="text-center">
 					<div className="text-muted-foreground mb-3 text-sm">
-						{isSignUp ? 'New Account' : 'Authentication'}
+						{isSignUp ? 'New Profile' : 'Authentication'}
 					</div>
 					<h1 className="text-3xl">{title}</h1>
 				</div>

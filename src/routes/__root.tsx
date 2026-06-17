@@ -1,4 +1,4 @@
-import { checkBetaAuthClient, checkBetaAuthServer } from '@/lib/beta-auth'
+import { checkBetaAuthClient, checkBetaAuthServer } from '@/lib/beta-access'
 import type { QueryClient } from '@tanstack/react-query'
 import {
 	HeadContent,

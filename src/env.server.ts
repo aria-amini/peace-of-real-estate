@@ -15,6 +15,9 @@ export const serverEnv = createEnv(
 		AWS_ENDPOINT_URL: z.string().optional(),
 		AWS_ACCESS_KEY_ID: z.string().optional(),
 		AWS_SECRET_ACCESS_KEY: z.string().optional(),
+		AI_BASE_URL: z.string().url().optional(),
+		AI_API_KEY: z.string().optional(),
+		AI_MODEL: z.string().optional(),
 	}),
 )
 

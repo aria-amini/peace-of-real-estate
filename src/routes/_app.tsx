@@ -10,8 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
-import { authClient } from '@/lib/auth-client'
-import { isSignupFlowPath } from '@/lib/signup-flow'
+import { authClient } from '@/lib/auth/client'
 import {
 	createFileRoute,
 	Link,
@@ -21,11 +20,21 @@ import {
 } from '@tanstack/react-router'
 import { ArrowRightLeft, ChevronDown, LogOut, User } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { GetMatchedDialog } from '@/components/get-matched-dialog'
 
 export const Route = createFileRoute('/_app')({
 	component: AppShell,
 })
+
+function getSignupFlowKindFromPath(pathname: string) {
+	if (pathname === '/buyer' || pathname.startsWith('/buyer/')) return 'buyer'
+	if (pathname === '/agent' || pathname.startsWith('/agent/')) return 'agent'
+
+	return null
+}
+
+function isSignupFlowPath(pathname: string) {
+	return pathname === '/signup' || getSignupFlowKindFromPath(pathname) !== null
+}
 
 function AppShell() {
 	const { data: session } = authClient.useSession()
@@ -37,9 +46,13 @@ function AppShell() {
 	const isMarketingHome = !session && currentPath === '/'
 	const shouldConfirmHomeNavigation = !session && isSignupFlowPath(currentPath)
 	const showSidebar =
-		currentPath === '/matches' || currentPath.startsWith('/account')
-	const hideHeader = showSidebar
-	const hideFooter = showSidebar
+		currentPath === '/matches' ||
+		currentPath.startsWith('/account') ||
+		currentPath === '/buyer/preview'
+	const isBuyerFlow =
+		currentPath === '/buyer' || currentPath.startsWith('/buyer/')
+	const hideHeader = showSidebar || isBuyerFlow
+	const hideFooter = showSidebar || isBuyerFlow
 	const userInitials = session?.user.name
 		? session.user.name
 				.split(/\s+/)
@@ -66,7 +79,7 @@ function AppShell() {
 			{!hideHeader && (
 				<>
 					<header
-						className={`${isMarketingHome ? 'bg-card' : 'bg-background border-b'} sticky top-0 z-50 h-(--app-header-height)`}
+						className={`${isMarketingHome ? 'bg-card border-b' : 'bg-background border-b'} sticky top-0 z-50 h-(--app-header-height)`}
 					>
 						<div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-5 lg:px-10">
 							<Link
@@ -79,8 +92,8 @@ function AppShell() {
 									alt="Peace of Real Estate"
 									className="h-8 w-auto shrink-0 md:h-9"
 								/>
-								<span className="font-heading text-sm font-semibold whitespace-nowrap md:text-lg">
-									Peace of Real-Estate
+								<span className="font-heading text-sm font-semibold whitespace-nowrap md:text-base">
+									Peace of Real Estate
 								</span>
 							</Link>
 
@@ -96,14 +109,12 @@ function AppShell() {
 										>
 											Log in
 										</Link>
-										<GetMatchedDialog>
-											<button
-												type="button"
-												className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
-											>
-												Get started
-											</button>
-										</GetMatchedDialog>
+										<Link
+											to="/buyer"
+											className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+										>
+											Sign Up
+										</Link>
 									</>
 								)}
 							</div>
@@ -124,7 +135,7 @@ function AppShell() {
 						</p>
 						<div className="flex gap-6">
 							<Link to="/agent" className="text-muted-foreground text-xs">
-								Agent Login
+								Agent Signup
 							</Link>
 							<Link to="/" className="text-muted-foreground text-xs">
 								Privacy

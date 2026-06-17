@@ -1,9 +1,33 @@
-import { authClient } from '@/lib/auth-client'
-import { Card } from '@/components/ui/card'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import {
+	Crown,
+	ExternalLink,
+	Lock,
+	LogOut,
+	Mail,
+	Search,
+	Shield,
+	Trash2,
+	User,
+} from 'lucide-react'
+
+import { PaywallDialog } from '@/components/paywall-dialog'
+import { SignupDialog } from '@/components/signup-dialog'
+import { Button } from '@/components/ui/button'
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { User, MapPin, Award, FileText } from 'lucide-react'
 import { useAccountSettings } from '@/hooks/use-account-settings'
-import { createFileRoute } from '@tanstack/react-router'
+import { authClient } from '@/lib/auth/client'
+import { isUserPremium } from '@/lib/premium'
 
 export const Route = createFileRoute('/_app/account/')({
 	component: AccountProfile,
@@ -12,94 +36,226 @@ export const Route = createFileRoute('/_app/account/')({
 function AccountProfile() {
 	const { data: session } = authClient.useSession()
 	const { settings, loading } = useAccountSettings()
+	const [showPaywall, setShowPaywall] = useState(false)
+	const { data: premiumStatus } = useQuery({
+		queryKey: ['user-premium'],
+		queryFn: isUserPremium,
+		enabled: Boolean(session),
+	})
 
 	if (loading) {
 		return <div className="flex-1" />
 	}
 
-	const role = settings?.role ?? 'consumer'
-	const agentProfile = settings?.agentProfile ?? {
-		experience: '',
-		zipCodes: '',
-		services: [],
+	const isAnonymous = !session
+	const tierLabel = premiumStatus ? 'Premium' : 'Free'
+	const initials = getInitials(session?.user.name, session?.user.email)
+	const searchSnapshot = [
+		{ label: 'Location', value: settings?.zipCode },
+		{ label: 'Intent', value: settings?.intent },
+		{ label: 'Budget', value: settings?.priceRange },
+		{ label: 'Property Types', value: settings?.propertyType?.join(', ') },
+	]
+
+	const handleSignOut = async () => {
+		await authClient.signOut({
+			fetchOptions: {
+				onSuccess: () => {
+					window.location.assign('/')
+				},
+			},
+		})
 	}
-	const isConsumer = role === 'consumer'
 
 	return (
-		<div className="mx-auto w-full max-w-3xl px-6 py-12 xl:mx-0 xl:ml-[calc((100vw-48rem)/2-var(--sidebar-width))]">
+		<div className="mx-auto w-full max-w-4xl px-6 py-10 xl:mx-0 xl:ml-[calc((100vw-56rem)/2-var(--sidebar-width))]">
 			<div className="mb-6 flex items-center gap-2 md:hidden">
 				<SidebarTrigger />
 				<span className="text-sm font-medium">Account menu</span>
 			</div>
-			<div className="space-y-6">
-				<Card className="rounded-none border bg-transparent p-8 py-8 shadow-none ring-0">
-					<div className="mb-6 flex items-center gap-4">
-						<div className="border-border bg-secondary flex h-12 w-12 items-center justify-center border">
-							<User className="h-6 w-6" />
+
+			<div className="relative space-y-6">
+				<div
+					className={
+						isAnonymous ? 'pointer-events-none blur-sm select-none' : undefined
+					}
+				>
+					<div className="mb-8 flex items-center gap-4">
+						<div className="bg-primary text-primary-foreground flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-base font-semibold">
+							{session?.user.image ? (
+								<img
+									src={session.user.image}
+									alt=""
+									className="size-full object-cover"
+								/>
+							) : (
+								initials
+							)}
 						</div>
-						<div>
-							<div className="text-muted-foreground mb-1 text-sm">Account</div>
-							<h1 className="text-2xl">
-								{session?.user?.name ?? 'Your account'}
+						<div className="min-w-0">
+							<p className="text-muted-foreground text-sm font-medium">
+								Account
+							</p>
+							<h1 className="font-heading truncate text-3xl font-semibold tracking-tight">
+								{session?.user.name ?? 'Your account'}
 							</h1>
-						</div>
-					</div>
-					<div className="grid gap-4 text-sm sm:grid-cols-2">
-						<div>
-							<p className="text-muted-foreground mb-1">Email</p>
-							<p className="font-medium">{session?.user?.email}</p>
-						</div>
-						<div>
-							<p className="text-muted-foreground mb-1">Role</p>
-							<p className="font-medium capitalize">{role}</p>
+							<p className="text-muted-foreground mt-1 truncate text-sm">
+								{session?.user.email ?? 'No email on file'}
+							</p>
 						</div>
 					</div>
 
-					{!isConsumer && (
-						<div className="border-border mt-6 border-t pt-6">
-							<div className="grid gap-4 text-sm sm:grid-cols-2">
+					<div className="grid gap-5">
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<User className="size-4" />
+									Account Details
+								</CardTitle>
+								<CardDescription>
+									Your login identity and account-level information.
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="grid gap-4 text-sm sm:grid-cols-2">
+								<Detail label="Name" value={session?.user.name} />
+								<Detail label="Email" value={session?.user.email} icon={Mail} />
+								<Detail label="Tier" value={tierLabel} icon={Crown} />
+								<Detail
+									label="Login Method"
+									value="Google or email"
+									icon={Shield}
+								/>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Search className="size-4" />
+									Search Snapshot
+								</CardTitle>
+								<CardDescription>
+									Readonly summary of the preferences used to tune matches.
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="grid gap-4 text-sm sm:grid-cols-2">
+								{searchSnapshot.map((item) => (
+									<Detail
+										key={item.label}
+										label={item.label}
+										value={item.value}
+									/>
+								))}
+							</CardContent>
+							<CardFooter className="border-t">
+								<Button asChild variant="outline" size="sm">
+									<Link to="/account/search-preferences">
+										Edit search preferences
+										<ExternalLink className="size-3.5" />
+									</Link>
+								</Button>
+							</CardFooter>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Crown className="size-4" />
+									Plan
+								</CardTitle>
+								<CardDescription>
+									Your current access level for matches and introductions.
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 								<div>
-									<p className="text-muted-foreground mb-1">
-										<Award className="mr-1 inline h-3.5 w-3.5" />
-										Experience
-									</p>
-									<p className="font-medium">
-										{agentProfile.experience || 'Not set'}
-									</p>
-								</div>
-								<div>
-									<p className="text-muted-foreground mb-1">
-										<MapPin className="mr-1 inline h-3.5 w-3.5" />
-										Zip Codes Served
-									</p>
-									<p className="font-medium">
-										{agentProfile.zipCodes || 'Not set'}
+									<div className="text-2xl font-semibold">{tierLabel}</div>
+									<p className="text-muted-foreground mt-1 text-sm">
+										{premiumStatus
+											? 'Premium access is active on this account.'
+											: 'Upgrade to unlock full profiles and richer match insights.'}
 									</p>
 								</div>
-							</div>
-							<div className="mt-4">
-								<p className="text-muted-foreground mb-2 text-sm">
-									<FileText className="mr-1 inline h-3.5 w-3.5" />
-									Services
-								</p>
-								<div className="flex flex-wrap gap-2">
-									{agentProfile.services.length > 0 ? (
-										agentProfile.services.map((s) => (
-											<span key={s} className="border px-3 py-1 text-xs">
-												{s}
-											</span>
-										))
-									) : (
-										<span className="text-muted-foreground text-xs">
-											No services selected
-										</span>
-									)}
-								</div>
-							</div>
-						</div>
-					)}
-				</Card>
+								<Button
+									variant={premiumStatus ? 'outline' : 'default'}
+									onClick={() => setShowPaywall(true)}
+								>
+									{premiumStatus ? 'View plan' : 'Upgrade'}
+								</Button>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle>Account Actions</CardTitle>
+								<CardDescription>
+									Session and account lifecycle controls.
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="flex flex-col gap-3 sm:flex-row">
+								<Button variant="outline" onClick={() => void handleSignOut()}>
+									<LogOut className="size-4" />
+									Sign out
+								</Button>
+								<Button variant="destructive" disabled>
+									<Trash2 className="size-4" />
+									Delete account
+								</Button>
+							</CardContent>
+						</Card>
+					</div>
+				</div>
+
+				{isAnonymous && (
+					<div className="absolute inset-0 flex items-center justify-center">
+						<Card className="mx-6 w-full max-w-md p-6 text-center">
+							<Lock className="text-muted-foreground mx-auto mb-4 h-8 w-8" />
+							<h2 className="mb-2 text-xl font-semibold">
+								Create a profile to continue
+							</h2>
+							<p className="text-muted-foreground mb-6 text-sm">
+								Create a free profile to manage account details, preferences,
+								and matches.
+							</p>
+							<SignupDialog>
+								<Button className="w-full">Create Profile</Button>
+							</SignupDialog>
+						</Card>
+					</div>
+				)}
 			</div>
+
+			<PaywallDialog open={showPaywall} onOpenChange={setShowPaywall} />
 		</div>
 	)
+}
+
+function Detail({
+	label,
+	value,
+	icon: Icon,
+}: {
+	label: string
+	value: string | undefined | null
+	icon?: React.ElementType
+}) {
+	return (
+		<div className="rounded-2xl border p-4">
+			<p className="text-muted-foreground mb-1 flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
+				{Icon ? <Icon className="size-3.5" /> : null}
+				{label}
+			</p>
+			<p className="truncate text-sm font-medium">{value || 'Not set'}</p>
+		</div>
+	)
+}
+
+function getInitials(name?: string | null, email?: string | null) {
+	const source = name?.trim() || email?.split('@')[0] || 'PRE'
+	return source
+		.split(/\s+|[._-]/)
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((part) => part[0]?.toUpperCase() ?? '')
+		.join('')
 }

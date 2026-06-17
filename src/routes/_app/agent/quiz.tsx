@@ -5,8 +5,8 @@ import {
 	getNextUnansweredQuestionIndex,
 	getStoredIntakeDraftForRole,
 	saveStoredIntakeDraftForRole,
-} from '@/lib/intake-draft'
-import { agentQuestionFlow } from '@/lib/questions'
+} from '@/lib/matching/intake-draft'
+import { agentQuestionFlow } from '@/lib/matching/questions'
 
 export const Route = createFileRoute('/_app/agent/quiz')({
 	component: AgentQuiz,
@@ -25,7 +25,13 @@ function AgentQuiz() {
 				draft.answers,
 			)}
 			onAnswersChange={(answers) => {
-				saveStoredIntakeDraftForRole('agent', { answers })
+				const cleaned: Record<string, number | number[] | string> = {}
+				for (const [key, value] of Object.entries(answers)) {
+					if (value !== undefined) {
+						cleaned[key] = value
+					}
+				}
+				saveStoredIntakeDraftForRole('agent', { answers: cleaned })
 			}}
 			completeTo="/agent/profile"
 			completeLabel="Continue to Details"

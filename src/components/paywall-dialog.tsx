@@ -18,7 +18,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import { upgradeToPremium } from '@/lib/auth-guards'
+import { upgradeToPremium } from '@/lib/premium'
 
 export function PaywallDialog({
 	open,

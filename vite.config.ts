@@ -1,8 +1,28 @@
 import { createAppConfig } from '@aamini/config/vite'
 import type { Plugin } from 'vite'
+import type { TestProjectConfiguration } from 'vite-plus'
 import { validateServerEnv } from './src/env.server.ts'
 import { mergeConfig } from 'vite-plus'
 
+type ScreenshotPathData = {
+	arg: string
+	ext: string
+	root: string
+	screenshotDirectory: string
+	testFileDirectory: string
+	testFileName: string
+}
+
+const CENTRAL_SCREENSHOTS_DIR = 'tests/__screenshots__'
+
+function resolveCentralScreenshotPath({
+	arg,
+	ext,
+	root,
+	testFileName,
+}: ScreenshotPathData) {
+	return `${root}/${CENTRAL_SCREENSHOTS_DIR}/${testFileName}/${arg}${ext}`
+}
 function validateServerEnvPlugin(): Plugin {
 	return {
 		name: 'validate-server-env',
@@ -12,9 +32,26 @@ function validateServerEnvPlugin(): Plugin {
 		},
 	}
 }
+
+const browserProjectOverrides = {
+	test: {
+		browser: {
+			expect: {
+				toMatchScreenshot: {
+					resolveScreenshotPath: resolveCentralScreenshotPath,
+				},
+			},
+		},
+	},
+} as unknown as TestProjectConfiguration
+
 const appConfig = createAppConfig({
 	root: import.meta.dirname,
+	projectOverrides: {
+		browser: browserProjectOverrides,
+	},
 })
+
 export default mergeConfig(appConfig, {
 	resolve: {
 		tsconfigPaths: true,
@@ -28,6 +65,9 @@ export default mergeConfig(appConfig, {
 				},
 			},
 		],
+	},
+	staged: {
+		'*': 'vp check --fix',
 	},
 	plugins: [validateServerEnvPlugin()],
 })

@@ -27,6 +27,7 @@
 			"@config": ["./config/index.ts"],
 			"@config/*": ["./config/*"],
 			"@test/*": ["./__mocks__/*"],
+			"@tests/*": ["./tests/*"],
 			"@/*": ["./src/*"]
 		}
 	}
