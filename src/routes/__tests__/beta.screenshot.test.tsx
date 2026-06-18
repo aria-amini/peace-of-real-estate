@@ -1,4 +1,4 @@
-import '@tests/mocks/browser'
+import '@tests/__mocks__/browser'
 
 import { test } from '@config/test/browser'
 
