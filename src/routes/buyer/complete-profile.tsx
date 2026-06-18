@@ -10,7 +10,7 @@ import {
 } from '@/lib/matching/intake-draft'
 import { saveUserSettings } from '@/lib/matching/settings'
 
-export const Route = createFileRoute('/_app/buyer/complete-profile')({
+export const Route = createFileRoute('/buyer/complete-profile')({
 	beforeLoad: async () => {
 		const session = await getCurrentSession()
 		if (!session) {

@@ -3,7 +3,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ConsumerPayment, buyerConfig } from '@/components/consumer-flow-pages'
 import { getCurrentSession } from '@/lib/auth/functions'
 
-export const Route = createFileRoute('/_app/buyer/payment')({
+export const Route = createFileRoute('/buyer/payment')({
 	beforeLoad: async () => {
 		const session = await getCurrentSession()
 		if (!session) {

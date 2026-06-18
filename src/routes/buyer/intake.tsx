@@ -10,7 +10,7 @@ const intakeSearchSchema = z.object({
 	edit: z.boolean().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/_app/buyer/intake')({
+export const Route = createFileRoute('/buyer/intake')({
 	validateSearch: intakeSearchSchema,
 	beforeLoad: async ({ search }) => {
 		const validSteps = ['intro', 'situation', 'quiz'] as const

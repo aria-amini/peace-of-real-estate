@@ -14,7 +14,7 @@ import {
 } from '@/lib/matching/intake-draft'
 import type { AgentProfileData } from '@/lib/matching/settings'
 
-export const Route = createFileRoute('/_app/agent/profile')({
+export const Route = createFileRoute('/agent/profile')({
 	component: AgentProfile,
 })
 

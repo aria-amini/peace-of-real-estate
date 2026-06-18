@@ -8,7 +8,7 @@ import {
 } from '@/lib/matching/intake-draft'
 import { agentQuestionFlow } from '@/lib/matching/questions'
 
-export const Route = createFileRoute('/_app/agent/quiz')({
+export const Route = createFileRoute('/agent/quiz')({
 	component: AgentQuiz,
 })
 

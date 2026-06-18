@@ -20,6 +20,7 @@ import { authClient } from '@/lib/auth/client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { AccountSidebarShell } from '@/components/account-sidebar-shell'
 import { SignupDialog } from '@/components/signup-dialog'
 import { consumerMatches } from '@/components/consumer-flow-pages'
 import { MatchCardModern } from '@/components/match-card-variants'
@@ -104,7 +105,7 @@ function statIcon(label: string) {
 	return Zap
 }
 
-export const Route = createFileRoute('/_app/buyer/preview')({
+export const Route = createFileRoute('/buyer/preview')({
 	beforeLoad: async () => {
 		const session = await getCurrentSession()
 		if (session) {
@@ -117,8 +118,16 @@ export const Route = createFileRoute('/_app/buyer/preview')({
 			throw redirect({ to: '/buyer/intake', search: { step: 'intro' } })
 		}
 	},
-	component: BuyerPreview,
+	component: BuyerPreviewRoute,
 })
+
+function BuyerPreviewRoute() {
+	return (
+		<AccountSidebarShell>
+			<BuyerPreview />
+		</AccountSidebarShell>
+	)
+}
 
 function BuyerPreview() {
 	const { data: session } = authClient.useSession()

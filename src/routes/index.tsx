@@ -4,18 +4,80 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-export const Route = createFileRoute('/_app/')({
+export const Route = createFileRoute('/')({
 	beforeLoad: redirectAuthenticatedUsers,
 	component: LandingPage,
 })
 
 function LandingPage() {
 	return (
-		<>
-			<HeroSection />
-			<HowItWorksSection />
-			<FeaturesSection />
-		</>
+		<div className="flex min-h-dvh flex-col">
+			<LandingHeader />
+			<main className="flex w-full flex-1 flex-col overflow-x-hidden">
+				<HeroSection />
+				<HowItWorksSection />
+				<FeaturesSection />
+			</main>
+			<LandingFooter />
+		</div>
+	)
+}
+
+function LandingHeader() {
+	return (
+		<header className="bg-card sticky top-0 z-50 h-(--app-header-height) border-b">
+			<div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-5 lg:px-10">
+				<Link to="/" className="flex items-center gap-2.5">
+					<img
+						src="/logomark-theme.svg"
+						alt="Peace of Real Estate"
+						className="h-8 w-auto shrink-0 md:h-9"
+					/>
+					<span className="font-heading text-sm font-semibold whitespace-nowrap md:text-base">
+						Peace of Real Estate
+					</span>
+				</Link>
+
+				<div className="flex items-center gap-2">
+					<Link
+						to="/login"
+						search={{ redirect: '/' }}
+						className="hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+					>
+						Log in
+					</Link>
+					<Link
+						to="/buyer"
+						className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
+					>
+						Sign Up
+					</Link>
+				</div>
+			</div>
+		</header>
+	)
+}
+
+function LandingFooter() {
+	return (
+		<footer className="bg-card h-(--app-footer-height) w-full border-t">
+			<div className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-2 px-6 md:flex-row md:justify-between md:gap-3 md:px-10">
+				<p className="text-muted-foreground text-xs">
+					&copy; 2026 Peace of Real Estate. All rights reserved.
+				</p>
+				<div className="flex gap-6">
+					<Link to="/agent" className="text-muted-foreground text-xs">
+						Agent Signup
+					</Link>
+					<Link to="/" className="text-muted-foreground text-xs">
+						Privacy
+					</Link>
+					<Link to="/" className="text-muted-foreground text-xs">
+						Terms
+					</Link>
+				</div>
+			</div>
+		</footer>
 	)
 }
 

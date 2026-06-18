@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
-export const Route = createFileRoute('/_app/agent/compliance')({
+export const Route = createFileRoute('/agent/compliance')({
 	component: AgentCompliance,
 })
 

@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/_app/account/practice-negotiating')({
+export const Route = createFileRoute('/account/practice-negotiating')({
 	component: PracticeNegotiating,
 })
 

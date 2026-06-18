@@ -10,7 +10,7 @@ import {
 	saveStoredIntakeDraftForRole,
 } from '@/lib/matching/intake-draft'
 
-export const Route = createFileRoute('/_app/agent/priorities')({
+export const Route = createFileRoute('/agent/priorities')({
 	component: AgentPriorities,
 })
 

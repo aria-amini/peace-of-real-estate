@@ -29,7 +29,7 @@ import { useAccountSettings } from '@/hooks/use-account-settings'
 import { authClient } from '@/lib/auth/client'
 import { isUserPremium } from '@/lib/premium'
 
-export const Route = createFileRoute('/_app/account/')({
+export const Route = createFileRoute('/account/')({
 	component: AccountProfile,
 })
 

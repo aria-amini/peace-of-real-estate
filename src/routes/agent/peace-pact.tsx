@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-export const Route = createFileRoute('/_app/agent/peace-pact')({
+export const Route = createFileRoute('/agent/peace-pact')({
 	component: AgentPeacePact,
 })
 

@@ -128,11 +128,11 @@ importers:
         version: 8.0.0
     devDependencies:
       '@aamini/config':
-        specifier: 0.0.19
-        version: 0.0.19(3f4bc21de2cec4a596f422301c3b3ec0)
+        specifier: 0.0.20
+        version: 0.0.20(3f4bc21de2cec4a596f422301c3b3ec0)
       '@aamini/lib':
-        specifier: 0.0.19
-        version: 0.0.19
+        specifier: 0.0.20
+        version: 0.0.20
       '@playwright/test':
         specifier: ^1.59.1
         version: 1.60.0
@@ -223,8 +223,8 @@ importers:
 
 packages:
 
-  '@aamini/config@0.0.19':
-    resolution: {integrity: sha512-KmmomTVD7y+fgiLO+bHhCIIMQU1d3BaZYh35/sp1WRR3cls3yxRpH6aJoX87O0jI1vmNTtSEoaRusZaoRLkk6Q==}
+  '@aamini/config@0.0.20':
+    resolution: {integrity: sha512-SiX0X611oakyqZanBomMC4D5+gkm88HT3rieYvKeqNughVtjNNXzMdiZGcLTVOwiGBu1yu7B/3opifONHWdtHQ==}
     peerDependencies:
       '@babel/core': ^7.29.0
       '@playwright/test': ^1.59.1
@@ -254,8 +254,8 @@ packages:
       vite-plus: '*'
       vitest-browser-react: ^2.0.5
 
-  '@aamini/lib@0.0.19':
-    resolution: {integrity: sha512-y16JRWu/UUajdwXEdPkT3n9ikAUxyl4qqUaSo5+e1dtnj/tG4/Nbs8LOXXRWXRhIk19k4g8vlEK2Zy5+G4IW+A==}
+  '@aamini/lib@0.0.20':
+    resolution: {integrity: sha512-M6jUQE4YPqq8ULFysdu9jraSk5/0ycuIYdU64oOkWoRFaLCpKaHa8hGwBk/pH4FnEB/GmxL4XdkdRAadtvTWVA==}
 
   '@adobe/css-tools@4.5.0':
     resolution: {integrity: sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q==}
@@ -6015,7 +6015,7 @@ packages:
 
 snapshots:
 
-  '@aamini/config@0.0.19(3f4bc21de2cec4a596f422301c3b3ec0)':
+  '@aamini/config@0.0.20(3f4bc21de2cec4a596f422301c3b3ec0)':
     dependencies:
       '@babel/core': 7.29.0
       '@playwright/test': 1.60.0
@@ -6045,7 +6045,7 @@ snapshots:
       vite-plus: 0.1.22(@opentelemetry/api@1.9.1)(@types/node@25.9.1)(@vitest/ui@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0))(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0)
       vitest-browser-react: 2.2.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vitest@4.1.7)
 
-  '@aamini/lib@0.0.19':
+  '@aamini/lib@0.0.20':
     dependencies:
       dotenv: 17.4.2
       zod: 4.4.3

@@ -25,6 +25,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { AccountSidebarShell } from '@/components/account-sidebar-shell'
 import type { MatchDetails } from '@/components/match-card-variants'
 import { PaywallDialog } from '@/components/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
@@ -127,7 +128,7 @@ function statIcon(label: string) {
 	return Zap
 }
 
-export const Route = createFileRoute('/_app/matches')({
+export const Route = createFileRoute('/matches')({
 	beforeLoad: async () => {
 		const draft = getStoredConsumerDraftForFlow('buyer')
 		const hasDraftAnswers = Object.keys(draft.answers ?? {}).length > 0
@@ -147,8 +148,16 @@ export const Route = createFileRoute('/_app/matches')({
 			throw redirect({ to: '/buyer/intake', search: { step: 'intro' } })
 		}
 	},
-	component: Matches,
+	component: MatchesRoute,
 })
+
+function MatchesRoute() {
+	return (
+		<AccountSidebarShell>
+			<Matches />
+		</AccountSidebarShell>
+	)
+}
 
 function Matches() {
 	const [showPaywall, setShowPaywall] = useState(false)

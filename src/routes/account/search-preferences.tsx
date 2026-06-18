@@ -24,7 +24,7 @@ import {
 	type UserSettings,
 } from '@/lib/matching/settings'
 
-export const Route = createFileRoute('/_app/account/search-preferences')({
+export const Route = createFileRoute('/account/search-preferences')({
 	component: SearchPreferences,
 })
 

@@ -5,6 +5,6 @@ import {
 	buyerConfig,
 } from '@/components/consumer-flow-pages'
 
-export const Route = createFileRoute('/_app/buyer/priorities')({
+export const Route = createFileRoute('/buyer/priorities')({
 	component: () => <ConsumerPriorities config={buyerConfig} />,
 })

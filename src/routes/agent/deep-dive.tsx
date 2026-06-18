@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_app/agent/deep-dive')({
+export const Route = createFileRoute('/agent/deep-dive')({
 	beforeLoad: () => {
 		throw redirect({ to: '/agent/chat' })
 	},
