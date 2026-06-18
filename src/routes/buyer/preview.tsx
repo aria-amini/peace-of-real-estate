@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
 	Banknote,
 	Clock,
@@ -25,8 +25,16 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from '@/components/ui/sheet'
 import { consumerMatches } from '@/components/consumer-flow-pages'
-import { MatchCardModern } from '@/components/match-card-variants'
+import { AgentPreviewCard } from '@/components/match-card-variants'
 import {
 	buyerMatchingQuestionFlow,
 	buyerQuestionFlow,
@@ -133,6 +141,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export const Route = createFileRoute('/buyer/preview')({
+	ssr: false,
 	beforeLoad: async () => {
 		const session = await getCurrentSession()
 		if (session) {
@@ -150,7 +159,7 @@ export const Route = createFileRoute('/buyer/preview')({
 
 function BuyerPreviewRoute() {
 	return (
-		<div className="bg-primary min-h-dvh">
+		<div className="lg:bg-primary min-h-dvh bg-slate-50">
 			<BuyerPreview />
 		</div>
 	)
@@ -159,6 +168,8 @@ function BuyerPreviewRoute() {
 function BuyerPreview() {
 	const { data: session } = authClient.useSession()
 	const draft = useMemo(() => getStoredConsumerDraftForFlow('buyer'), [])
+	const showMobileSignup = useIsBelowDesktop()
+
 	const stateSvgPath = useMemo(() => {
 		if (!draft.state) return null
 		const fileName = stateNames[draft.state]
@@ -257,33 +268,32 @@ function BuyerPreview() {
 		)
 	}, [draft.experienceLevel])
 
-	const previewMatch = consumerMatches[0]
+	const previewMatches = consumerMatches.slice(0, 3)
 	const locationLabel = draft.state ?? draft.zipCode
 	const experienceLabel = buyerLevelPill?.label ?? 'Buyer'
 	const profileTitle = locationLabel
 		? `${experienceLabel} in ${locationLabel}`
 		: experienceLabel
-	const statusLabel = draft.intent === 'Buy' ? 'Buying' : draft.intent
 
 	if (session) {
 		return null
 	}
 
 	return (
-		<div className="min-h-dvh w-full lg:bg-slate-50">
+		<div className="min-h-dvh w-full bg-slate-50 lg:bg-slate-50">
 			<motion.div
-				initial={{ opacity: 0, y: 16 }}
-				animate={{ opacity: 1, y: 0 }}
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
 				transition={{ duration: 0.45, ease: 'easeOut' }}
 				className="mx-auto grid min-h-dvh w-full max-w-[1440px] lg:grid-cols-[minmax(420px,1fr)_1.4fr]"
 			>
 				{/* Signup panel */}
-				<div className="bg-primary relative order-2 flex flex-col justify-center px-6 py-10 text-white sm:px-10 lg:sticky lg:top-0 lg:order-1 lg:h-dvh lg:px-12 lg:py-16 xl:px-20">
+				<div className="bg-primary relative order-2 hidden flex-col justify-center px-6 py-10 text-white sm:px-10 lg:sticky lg:top-0 lg:order-1 lg:flex lg:h-dvh lg:px-12 lg:py-16 xl:px-20">
 					<div className="mx-auto w-full max-w-md">
-						<div className="mb-8">
+						<div className="mb-3 lg:mb-8">
 							<Link
 								to="/"
-								className="mb-8 inline-flex items-center gap-3 text-lg font-semibold text-white hover:text-white"
+								className="mb-8 hidden items-center gap-3 text-lg font-semibold text-white hover:text-white lg:inline-flex"
 							>
 								<img
 									src="/logomark-light.svg"
@@ -293,77 +303,59 @@ function BuyerPreview() {
 								Peace of Real Estate
 							</Link>
 
-							<h1 className="font-heading text-3xl tracking-tight text-white md:text-4xl">
+							<h1 className="font-heading text-xl tracking-tight text-white lg:text-3xl xl:text-4xl">
 								Create your profile to{' '}
 								<span className="text-accent">unlock</span> your matches
 							</h1>
-							<p className="mt-3 text-base leading-relaxed text-white/70">
+							<p className="mt-1 text-xs leading-relaxed text-white/70 lg:mt-3 lg:text-base">
 								Save your personalized buyer profile, view ranked agent matches,
 								and connect with agents who fit your style.
 							</p>
 						</div>
 
-						<SignupForm />
-
-						<p className="mt-6 text-center text-xs text-white/60">
-							Already have an account?{' '}
-							<Link
-								to="/login"
-								search={{ redirect: '/buyer/complete-profile' }}
-								className="hover:text-accent font-medium text-white underline underline-offset-4"
-							>
-								Log in
-							</Link>
-						</p>
+						<SignupForm idPrefix="desktop-signup" />
 					</div>
 				</div>
 
 				{/* Preview panel */}
-				<div className="order-1 flex flex-col justify-center px-5 py-10 sm:px-8 lg:order-2 lg:px-12 lg:py-16 xl:px-20">
+				<div className="order-1 flex flex-col px-5 pt-8 pb-[calc(12rem+env(safe-area-inset-bottom))] sm:px-8 lg:order-2 lg:justify-center lg:px-12 lg:py-16 xl:px-20">
 					<div className="mx-auto w-full max-w-2xl space-y-6">
 						<div>
 							<span className="text-primary mb-2 inline-block text-xs font-bold tracking-[0.16em] uppercase">
 								Preview
 							</span>
 							<h2 className="font-heading text-3xl tracking-tight text-slate-950 md:text-4xl">
-								Your Buyer Profile
+								Your Profile
 							</h2>
 							<p className="text-muted-foreground mt-2 max-w-md text-base leading-relaxed">
 								Based on your quiz answers.
 							</p>
 						</div>
 
-						<Card className="gap-0 rounded-3xl border-slate-200 bg-white p-0 shadow-sm">
-							<div className="px-5 pt-5 pb-3">
-								<div className="flex items-center gap-4">
-									<div className="bg-primary/8 text-primary flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl">
-										{stateSvgPath ? (
-											<img
-												src={stateSvgPath}
-												alt={`${draft.state} state icon`}
-												className="h-8 w-8 object-contain opacity-85"
-											/>
-										) : draft.zipCode ? (
-											<MapPin className="h-5 w-5" />
-										) : (
-											<User className="h-5 w-5" />
-										)}
-									</div>
-									<div className="min-w-0 flex-1">
-										<h3 className="font-heading text-xl font-bold tracking-tight text-slate-950">
-											{profileTitle}
-										</h3>
-										<p className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
-											{statusLabel ? <span>{statusLabel}</span> : null}
-											{statusLabel ? <span aria-hidden="true">/</span> : null}
-											<span>Profile built from your answers</span>
-										</p>
-									</div>
+						<Card className="gap-0 rounded-2xl border-slate-200 bg-white p-0 shadow-sm">
+							<div className="flex items-center gap-4 px-5 pt-5 pb-4">
+								<div className="bg-primary/8 text-primary flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl">
+									{stateSvgPath ? (
+										<img
+											src={stateSvgPath}
+											alt={`${draft.state} state icon`}
+											className="h-8 w-8 object-contain opacity-85"
+										/>
+									) : draft.zipCode ? (
+										<MapPin className="h-5 w-5" />
+									) : (
+										<User className="h-5 w-5" />
+									)}
+								</div>
+								<div className="min-w-0 flex-1">
+									<h3 className="font-heading text-xl font-bold tracking-tight text-slate-950">
+										{profileTitle}
+									</h3>
 								</div>
 							</div>
 
 							{summaryItems.length > 0 ? (
-								<div className="grid grid-cols-1 gap-4 px-5 pt-3 pb-5 sm:grid-cols-2">
+								<div className="grid grid-cols-1 gap-3 border-t border-slate-100 px-5 pt-4 pb-5 sm:grid-cols-2">
 									{summaryItems.map((item) => {
 										const Icon = statIcon(item.label)
 										return (
@@ -386,24 +378,137 @@ function BuyerPreview() {
 							) : null}
 						</Card>
 
-						{previewMatch ? (
+						{previewMatches.length > 0 ? (
 							<div className="pt-2">
 								<div className="mb-3 px-1">
 									<h3 className="font-heading text-lg font-bold tracking-tight text-slate-950">
-										Your Top Match
+										Your Top Matches
 									</h3>
+									<p className="text-muted-foreground mt-0.5 text-sm">
+										Create an account to unlock full profiles and connect.
+									</p>
 								</div>
-								<MatchCardModern match={previewMatch} locked />
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+									{previewMatches.map((match) => (
+										<AgentPreviewCard key={match.id} match={match} />
+									))}
+								</div>
 							</div>
 						) : null}
 					</div>
 				</div>
 			</motion.div>
+			{showMobileSignup ? <MobileSignupBanner /> : null}
 		</div>
 	)
 }
 
-function SignupForm() {
+function useIsBelowDesktop() {
+	const [isBelowDesktop, setIsBelowDesktop] = useState(false)
+
+	useEffect(() => {
+		const mediaQuery = window.matchMedia('(max-width: 1023px)')
+		const update = () => setIsBelowDesktop(mediaQuery.matches)
+
+		update()
+		mediaQuery.addEventListener('change', update)
+		return () => mediaQuery.removeEventListener('change', update)
+	}, [])
+
+	return isBelowDesktop
+}
+
+function MobileSignupBanner() {
+	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+	const redirect = '/buyer/complete-profile'
+	const callbackURL =
+		typeof window !== 'undefined'
+			? new URL(redirect, window.location.origin).toString()
+			: redirect
+
+	const handleGoogleSignIn = async () => {
+		setIsGoogleLoading(true)
+		try {
+			const { data, error } = await authClient.signIn.social({
+				provider: 'google',
+				callbackURL,
+			})
+			if (error) throw error
+			window.location.assign(data?.url ?? redirect)
+		} catch (error) {
+			if (
+				error &&
+				typeof error === 'object' &&
+				'code' in error &&
+				error.code === 'PROVIDER_NOT_FOUND'
+			) {
+				toast.error(
+					'Google login is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env.development.',
+				)
+			} else {
+				toast.error('Google sign-in failed. Try again.')
+			}
+			console.error('Google sign-in failed', error)
+			setIsGoogleLoading(false)
+		}
+	}
+
+	return (
+		<Sheet>
+			<div className="bg-primary fixed inset-x-0 bottom-0 z-30 rounded-t-3xl px-4 pt-5 pb-[calc(1.75rem+env(safe-area-inset-bottom))] text-white shadow-2xl shadow-slate-950/30 lg:hidden">
+				<div className="mx-auto w-full max-w-md space-y-3">
+					<div>
+						<h2 className="font-heading text-xl leading-tight font-bold text-white">
+							Unlock your matches
+						</h2>
+						<p className="mt-1 text-sm leading-snug text-white/70">
+							Create your profile to view full agent matches.
+						</p>
+					</div>
+					<div className="grid grid-cols-2 gap-2">
+						<SheetTrigger asChild>
+							<Button className="bg-accent text-accent-foreground hover:bg-accent/90 h-11 rounded-xl px-4 text-sm font-semibold">
+								Create account
+							</Button>
+						</SheetTrigger>
+						<Button
+							type="button"
+							onClick={handleGoogleSignIn}
+							disabled={isGoogleLoading}
+							variant="outline"
+							className="h-11 rounded-xl border-white bg-white px-4 text-sm font-semibold text-slate-950 hover:bg-slate-100 hover:text-slate-950"
+							aria-label="Continue with Google"
+						>
+							{isGoogleLoading ? (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							) : (
+								<GoogleIcon className="mr-2 h-5 w-5" />
+							)}
+							Google
+						</Button>
+					</div>
+				</div>
+			</div>
+
+			<SheetContent
+				side="bottom"
+				className="bg-primary max-h-[92dvh] overflow-y-auto rounded-t-3xl border-white/10 px-4 pt-5 pb-[calc(1rem+env(safe-area-inset-bottom))] text-white lg:hidden"
+			>
+				<SheetHeader className="px-0 pt-0 pb-4 text-left">
+					<SheetTitle className="font-heading pr-10 text-2xl tracking-tight text-white">
+						Create your profile
+					</SheetTitle>
+					<SheetDescription className="text-white/70">
+						Save your buyer profile and unlock your ranked agent matches.
+					</SheetDescription>
+				</SheetHeader>
+				<SignupForm idPrefix="mobile-signup" />
+			</SheetContent>
+		</Sheet>
+	)
+}
+
+function SignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
@@ -416,6 +521,9 @@ function SignupForm() {
 		typeof window !== 'undefined'
 			? new URL(redirect, window.location.origin).toString()
 			: redirect
+	const nameId = `${idPrefix}-name`
+	const emailId = `${idPrefix}-email`
+	const passwordId = `${idPrefix}-password`
 
 	const handleGoogleSignIn = async () => {
 		setIsGoogleLoading(true)
@@ -471,34 +579,40 @@ function SignupForm() {
 	}
 
 	return (
-		<div className="space-y-5">
-			<form className="space-y-4" onSubmit={handleSubmit}>
-				<FieldGroup>
+		<div className="space-y-3 lg:space-y-5">
+			<form className="space-y-3 lg:space-y-4" onSubmit={handleSubmit}>
+				<FieldGroup className="gap-2 lg:gap-7">
 					<Field>
-						<FieldLabel htmlFor="name" className="text-white/80">
+						<FieldLabel
+							htmlFor={nameId}
+							className="sr-only lg:not-sr-only lg:text-white/80"
+						>
 							Full name
 						</FieldLabel>
 						<div className="relative">
 							<User className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/50" />
 							<Input
-								id="name"
+								id={nameId}
 								placeholder="Jordan Lee"
 								value={name}
 								onChange={(event) => setName(event.target.value)}
 								disabled={isSubmitting || isGoogleLoading}
 								required
-								className="h-11 rounded-xl border-white/20 bg-white/10 pl-10 text-white placeholder:text-white/40"
+								className="h-9 rounded-xl border-white/20 bg-white/10 pl-10 text-sm text-white placeholder:text-white/40 lg:h-11 lg:text-base"
 							/>
 						</div>
 					</Field>
 					<Field>
-						<FieldLabel htmlFor="email" className="text-white/80">
+						<FieldLabel
+							htmlFor={emailId}
+							className="sr-only lg:not-sr-only lg:text-white/80"
+						>
 							Email address
 						</FieldLabel>
 						<div className="relative">
 							<Mail className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/50" />
 							<Input
-								id="email"
+								id={emailId}
 								type="email"
 								placeholder="you@example.com"
 								value={email}
@@ -506,18 +620,21 @@ function SignupForm() {
 								disabled={isSubmitting || isGoogleLoading}
 								autoComplete="email"
 								required
-								className="h-11 rounded-xl border-white/20 bg-white/10 pl-10 text-white placeholder:text-white/40"
+								className="h-9 rounded-xl border-white/20 bg-white/10 pl-10 text-sm text-white placeholder:text-white/40 lg:h-11 lg:text-base"
 							/>
 						</div>
 					</Field>
 					<Field>
-						<FieldLabel htmlFor="password" className="text-white/80">
+						<FieldLabel
+							htmlFor={passwordId}
+							className="sr-only lg:not-sr-only lg:text-white/80"
+						>
 							Password
 						</FieldLabel>
 						<div className="relative">
 							<Lock className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/50" />
 							<Input
-								id="password"
+								id={passwordId}
 								type="password"
 								placeholder="Choose a password"
 								value={password}
@@ -525,14 +642,14 @@ function SignupForm() {
 								disabled={isSubmitting || isGoogleLoading}
 								autoComplete="new-password"
 								required
-								className="h-11 rounded-xl border-white/20 bg-white/10 pl-10 text-white placeholder:text-white/40"
+								className="h-9 rounded-xl border-white/20 bg-white/10 pl-10 text-sm text-white placeholder:text-white/40 lg:h-11 lg:text-base"
 							/>
 						</div>
 					</Field>
 					<Button
 						type="submit"
 						disabled={isSubmitting || isGoogleLoading}
-						className="bg-accent text-accent-foreground hover:bg-accent/90 h-11 w-full rounded-xl font-semibold"
+						className="bg-accent text-accent-foreground hover:bg-accent/90 h-9 w-full rounded-xl text-sm font-semibold lg:h-11 lg:text-base"
 					>
 						{isSubmitting ? (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -544,7 +661,7 @@ function SignupForm() {
 
 			{googleAvailable ? (
 				<>
-					<div className="relative py-1 text-center text-xs text-white/40">
+					<div className="relative py-0 text-center text-xs text-white/40 lg:py-1">
 						<span className="relative z-10 px-3 text-white/50">or</span>
 						<div className="absolute top-1/2 left-0 h-px w-full bg-white/20" />
 					</div>
@@ -554,7 +671,7 @@ function SignupForm() {
 						onClick={handleGoogleSignIn}
 						disabled={isGoogleLoading || isSubmitting}
 						variant="outline"
-						className="h-11 w-full rounded-xl border-white bg-white font-medium text-slate-950 hover:bg-slate-100 hover:text-slate-950"
+						className="h-9 w-full rounded-xl border-white bg-white text-sm font-medium text-slate-950 hover:bg-slate-100 hover:text-slate-950 lg:h-11 lg:text-base"
 					>
 						{isGoogleLoading ? (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -566,7 +683,7 @@ function SignupForm() {
 				</>
 			) : null}
 
-			<p className="text-center text-xs text-white/50">
+			<p className="text-center text-[10px] leading-snug text-white/50 lg:text-xs">
 				By creating an account, you agree to our{' '}
 				<a
 					href="/terms"
