@@ -15,13 +15,17 @@ type ScreenshotPathData = {
 
 const CENTRAL_SCREENSHOTS_DIR = 'tests/__screenshots__'
 
+function getScreenshotGroupName(testFileName: string) {
+	return testFileName.replace(/\.[^.]+$/, '')
+}
+
 function resolveCentralScreenshotPath({
 	arg,
 	ext,
 	root,
 	testFileName,
 }: ScreenshotPathData) {
-	return `${root}/${CENTRAL_SCREENSHOTS_DIR}/${testFileName}/${arg}${ext}`
+	return `${root}/${CENTRAL_SCREENSHOTS_DIR}/${getScreenshotGroupName(testFileName)}/${arg}${ext}`
 }
 function validateServerEnvPlugin(): Plugin {
 	return {
