@@ -58,7 +58,7 @@ export function WizardShell({
 						to="/"
 						className="flex items-center gap-2.5 opacity-90 transition-opacity hover:opacity-100"
 					>
-						<img src="/logomark-theme.svg" alt="" className="h-8 w-auto" />
+						<img src="/logomark-light.svg" alt="" className="h-8 w-auto" />
 						<span className="font-heading text-base font-semibold">
 							Peace of Real Estate
 						</span>
@@ -116,10 +116,6 @@ export function WizardShell({
 						</ol>
 					</nav>
 				</div>
-
-				<p className="text-primary-foreground/40 text-xs">
-					© 2026 Peace of Real Estate. All rights reserved.
-				</p>
 			</aside>
 
 			{progress ? (
