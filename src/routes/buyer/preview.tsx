@@ -321,7 +321,7 @@ function BuyerPreview() {
 				<div className="order-1 flex flex-col px-5 pt-8 pb-[calc(12rem+env(safe-area-inset-bottom))] sm:px-8 lg:order-2 lg:justify-center lg:px-12 lg:py-16 xl:px-20">
 					<div className="mx-auto w-full max-w-2xl space-y-6">
 						<div>
-							<span className="text-primary mb-2 inline-block text-xs font-bold tracking-[0.16em] uppercase">
+							<span className="mb-2 inline-flex rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-bold tracking-[0.16em] text-amber-900 uppercase">
 								Preview
 							</span>
 							<h2 className="font-heading text-3xl tracking-tight text-slate-950 md:text-4xl">
