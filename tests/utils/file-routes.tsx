@@ -1,4 +1,4 @@
-import '../mocks/browser'
+import '../__mocks__/browser'
 
 import { queryClient as appQueryClient } from '@/lib/query'
 import { expect } from '@config/test/browser'
@@ -11,7 +11,7 @@ import {
 import { page } from 'vite-plus/test/browser'
 import { render, type RenderResult } from 'vitest-browser-react'
 
-import { setMockSession } from '../mocks/browser'
+import { setMockSession } from '../__mocks__/browser'
 
 type RouteTarget =
 	| { path: string; name?: string }

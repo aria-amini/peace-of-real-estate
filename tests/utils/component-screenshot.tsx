@@ -1,4 +1,4 @@
-import '@tests/mocks/browser'
+import '@tests/__mocks__/browser'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
