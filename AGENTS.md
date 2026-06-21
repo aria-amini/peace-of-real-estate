@@ -14,12 +14,11 @@ Core idea:
 
 ## Tech
 
-- Typescript
 - Tanstack Start
 - React, Tailwindcss, Shadcn
 - Drizzle
-- vite, vitest
-- Railway
+- Vite+ (vite-plus/vp): vite, vitest, oxfmt, oxlint
+- Railway hosting
 
 <!--VITE PLUS START-->
 
@@ -33,7 +32,7 @@ Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and
 for information about a specific command.
 
 Docs are local at `node_modules/vite-plus/docs` or online at
-https://viteplus.dev/guide/.
+<https://viteplus.dev/guide/>.
 
 ## Review Checklist
 

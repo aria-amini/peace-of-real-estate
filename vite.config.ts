@@ -68,6 +68,12 @@ export default mergeConfig(appConfig, {
 					'no-console': 'off',
 				},
 			},
+			{
+				files: ['src/env.server.ts'],
+				rules: {
+					'no-console': 'off',
+				},
+			},
 		],
 	},
 	staged: {

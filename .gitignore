@@ -22,6 +22,7 @@ playwright-report/
 .playwright
 .vitest-attachments
 html
+**/*-screenshot-1.png
 
 # Vitest failure screenshots (not baseline snapshots)
 tests/__screenshots__/*-matches-desktop-screenshot-*.png
