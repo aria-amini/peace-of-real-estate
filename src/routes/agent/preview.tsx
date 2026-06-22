@@ -39,16 +39,16 @@ import {
 } from '@/components/ui/sheet'
 import { AgentPreviewCard } from '@/components/match/card'
 import { consumerMatches } from '@/routes/consumer/-components/flow-pages'
-import { createAgentProfileFromDraft } from '@/lib/agent-profile/create-from-draft'
 import {
+	createAgentProfileFromDraft,
 	draftToAgentProfileUpdate,
 	loadAgentDraft,
 	type AgentDraft,
-} from '@/lib/agent-draft-storage'
+} from '@/lib/drafts'
 import { agentQuestionFlow } from '@/lib/matching/questions'
 import { loadAgentProfile } from '@/lib/matching/profile.db'
 import type { AgentProfile } from '@/lib/matching/profile.types'
-import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
+import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
 
 function draftToPreviewProfile(draft: AgentDraft): AgentProfile {
 	const update = draftToAgentProfileUpdate(draft)

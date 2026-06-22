@@ -30,11 +30,11 @@ import { useAccountSettings } from '@/hooks/use-account-settings'
 import { authClient } from '@/lib/auth/client'
 import {
 	clearConsumerDraft,
+	createConsumerProfileFromDraft,
 	loadConsumerDraft,
-} from '@/lib/consumer-draft-storage'
-import { createConsumerProfileFromDraft } from '@/lib/consumer-profile/create-from-draft'
+} from '@/lib/drafts'
 import { isUserPremium } from '@/lib/premium'
-import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
+import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
 
 export const Route = createFileRoute('/consumer/dashboard/')({
 	component: ConsumerDashboard,

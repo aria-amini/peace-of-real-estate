@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { getCurrentSession } from '@/lib/auth/functions'
-import { clearConsumerDraft } from '@/lib/consumer-draft-storage'
+import { clearConsumerDraft } from '@/lib/drafts'
 import {
 	hasCompletedConsumerIntake,
 	loadConsumerProfile,

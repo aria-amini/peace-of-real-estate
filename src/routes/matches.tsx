@@ -38,7 +38,7 @@ import {
 	consumerQuestionFlow,
 } from '@/lib/matching/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile.types'
-import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
+import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
 import { cn } from '@/lib/utils'
 
 const stateNames: Record<string, string> = {

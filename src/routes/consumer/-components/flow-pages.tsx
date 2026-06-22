@@ -75,13 +75,13 @@ import {
 	PRICE_MIN,
 	PRICE_STEP,
 	serializePriceRange,
-} from '@/lib/price-range'
+} from '@/components/flow/price-range-utils'
 import {
 	loadCityCenter,
 	loadCitySuggestions,
 	loadCityZipCodes,
 	loadZipCodeBoundaries,
-} from '@/lib/zip-code-data'
+} from '@/lib/zip-codes'
 
 function StepHeader({
 	stepNumber,
@@ -107,12 +107,12 @@ function StepHeader({
 	)
 }
 
-import type { RepresentationSide } from '@/lib/matching/profile.types'
 import {
 	loadConsumerDraft,
 	saveConsumerDraft,
 	type ConsumerDraft,
-} from '@/lib/consumer-draft-storage'
+} from '@/lib/drafts'
+import type { RepresentationSide } from '@/lib/matching/profile.types'
 import {
 	consumerQuestionFlow,
 	getAnswerSummary,
@@ -131,19 +131,7 @@ function getNextUnansweredQuestionIndex(
 	return nextIndex === -1 ? Math.max(questions.length - 1, 0) : nextIndex
 }
 
-type ConsumerFlowState = {
-	city?: string
-	location?: string
-	state?: string
-	zipCodes?: string[]
-	priceRange?: string
-	timeline?: string
-	propertyTypes?: string[]
-	intent?: RepresentationSide
-	experienceLevel?: string
-	matchPriorities?: string[]
-	answers: Answers
-}
+type ConsumerFlowState = ConsumerDraft
 
 type ConsumerFlowConfig = {
 	basePath: '/consumer'

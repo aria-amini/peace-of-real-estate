@@ -29,11 +29,11 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import {
+	createAgentDeepProfileFromDraft,
 	loadAgentDraft,
 	saveAgentDraft,
 	type AgentDraft,
-} from '@/lib/agent-draft-storage'
-import { createAgentDeepProfileFromDraft } from '@/lib/agent-profile/create-from-draft'
+} from '@/lib/drafts'
 
 const deepProfileSteps: { id: DeepProfileStep; label: string; icon: Icon }[] = [
 	{ id: 'communication', label: 'Communication', icon: ChatCircleIcon },

@@ -33,7 +33,7 @@ import {
 	PRICE_MIN,
 	PRICE_STEP,
 	serializePriceRange,
-} from '@/lib/price-range'
+} from '@/components/flow/price-range-utils'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/consumer/dashboard/search-preferences')({

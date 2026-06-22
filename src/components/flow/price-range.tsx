@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { PRICE_MAX } from '@/lib/price-range'
+import { PRICE_MAX } from '@/components/flow/price-range-utils'
 
 function getMask(digits: string): string {
 	return digits.length > 6 ? '0,000,000' : '000,000'

@@ -22,13 +22,13 @@ import { toast } from 'sonner'
 import { useServerFn } from '@tanstack/react-start'
 
 import { authClient } from '@/lib/auth/client'
-import { createConsumerProfileFromDraft } from '@/lib/consumer-profile/create-from-draft'
 import {
 	clearConsumerDraft,
-	draftToProfileUpdate,
+	createConsumerProfileFromDraft,
+	draftToConsumerProfileUpdate,
 	loadConsumerDraft,
 	type ConsumerDraft,
-} from '@/lib/consumer-draft-storage'
+} from '@/lib/drafts'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -151,16 +151,16 @@ function GoogleIcon({ className }: { className?: string }) {
 	)
 }
 
-import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
+import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
 function draftToPreviewProfile(draft: ConsumerDraft): ConsumerProfile {
-	const update = draftToProfileUpdate(draft)
+	const update = draftToConsumerProfileUpdate(draft)
 	const now = new Date()
 
 	return {
 		id: 'preview',
 		userId: 'preview',
 		status: 'draft',
-		intent: update.intent,
+		intent: update.intent ?? 'buying',
 		createdAt: now,
 		updatedAt: now,
 		location: update.location ?? null,
