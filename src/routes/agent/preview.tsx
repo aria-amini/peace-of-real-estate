@@ -426,7 +426,7 @@ function AgentSignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 	const [googleAvailable, setGoogleAvailable] = useState(true)
 
-	const redirect = '/account'
+	const redirect = '/agent/dashboard'
 	const callbackURL = new URL(redirect, window.location.origin).toString()
 	const nameId = `${idPrefix}-name`
 	const emailId = `${idPrefix}-email`
@@ -478,7 +478,7 @@ function AgentSignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
 				await createProfile({ data: draft })
 			}
 
-			void navigate({ to: '/account' })
+			void navigate({ to: '/agent/dashboard' })
 		} catch (error) {
 			console.error('Signup failed', error)
 			toast.error(
@@ -590,7 +590,7 @@ function AgentSignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
 
 function MobileAgentSignupBanner() {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-	const redirect = '/account'
+	const redirect = '/agent/dashboard'
 	const callbackURL =
 		typeof window !== 'undefined'
 			? new URL(redirect, window.location.origin).toString()

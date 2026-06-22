@@ -36,7 +36,7 @@ import {
 } from '@/lib/price-range'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/account/search-preferences')({
+export const Route = createFileRoute('/consumer/dashboard/search-preferences')({
 	component: SearchPreferences,
 })
 

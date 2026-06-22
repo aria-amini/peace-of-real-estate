@@ -25,7 +25,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { AccountSidebarShell } from '@/components/account-sidebar-shell'
+import { ConsumerSidebarShell } from '@/routes/consumer/dashboard/-shell'
 import type { MatchDetails } from '@/components/match-card-variants'
 import { PaywallDialog } from '@/components/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
@@ -154,9 +154,9 @@ export const Route = createFileRoute('/matches')({
 
 function MatchesRoute() {
 	return (
-		<AccountSidebarShell>
+		<ConsumerSidebarShell>
 			<Matches />
-		</AccountSidebarShell>
+		</ConsumerSidebarShell>
 	)
 }
 

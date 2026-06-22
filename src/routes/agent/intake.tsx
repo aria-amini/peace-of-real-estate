@@ -40,7 +40,7 @@ export const Route = createFileRoute('/agent/intake')({
 				profile?.status === 'enriched' ||
 				profile?.status === 'essentials_submitted'
 			) {
-				throw redirect({ to: '/account' })
+				throw redirect({ to: '/agent/dashboard' })
 			}
 		}
 	},

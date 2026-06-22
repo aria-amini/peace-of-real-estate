@@ -36,11 +36,11 @@ import { createConsumerProfileFromDraft } from '@/lib/consumer-profile/create-fr
 import { isUserPremium } from '@/lib/premium'
 import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
 
-export const Route = createFileRoute('/account/')({
-	component: AccountProfile,
+export const Route = createFileRoute('/consumer/dashboard/')({
+	component: ConsumerDashboard,
 })
 
-function AccountProfile() {
+function ConsumerDashboard() {
 	const queryClient = useQueryClient()
 	const { data: session } = authClient.useSession()
 	const { consumerProfile, loading } = useAccountSettings()
@@ -193,7 +193,7 @@ function AccountProfile() {
 							</CardContent>
 							<CardFooter className="border-t">
 								<Button asChild variant="outline" size="sm">
-									<Link to="/account/search-preferences">
+									<Link to="/consumer/dashboard/search-preferences">
 										Edit search preferences
 										<ExternalLink className="size-3.5" />
 									</Link>

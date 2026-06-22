@@ -611,7 +611,7 @@ export function AgentDeepProfileComplete({
 		setSaving(true)
 		try {
 			await save({ data: state })
-			void navigate({ to: '/account' })
+			void navigate({ to: '/agent/dashboard' })
 		} finally {
 			setSaving(false)
 		}

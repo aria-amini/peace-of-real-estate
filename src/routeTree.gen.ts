@@ -13,15 +13,14 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BetaRouteImport } from './routes/beta'
-import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConsumerIndexRouteImport } from './routes/consumer/index'
 import { Route as AgentIndexRouteImport } from './routes/agent/index'
-import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as ConsumerPrioritiesRouteImport } from './routes/consumer/priorities'
 import { Route as ConsumerPreviewRouteImport } from './routes/consumer/preview'
 import { Route as ConsumerPaymentRouteImport } from './routes/consumer/payment'
 import { Route as ConsumerIntakeRouteImport } from './routes/consumer/intake'
+import { Route as ConsumerDashboardRouteImport } from './routes/consumer/dashboard'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
 import { Route as AgentSubscribeRouteImport } from './routes/agent/subscribe'
@@ -33,14 +32,18 @@ import { Route as AgentPeacePactRouteImport } from './routes/agent/peace-pact'
 import { Route as AgentIntakeRouteImport } from './routes/agent/intake'
 import { Route as AgentDeepProfileRouteImport } from './routes/agent/deep-profile'
 import { Route as AgentDeepDiveRouteImport } from './routes/agent/deep-dive'
+import { Route as AgentDashboardRouteImport } from './routes/agent/dashboard'
 import { Route as AgentComplianceRouteImport } from './routes/agent/compliance'
 import { Route as AgentChatRouteImport } from './routes/agent/chat'
-import { Route as AccountSearchPreferencesRouteImport } from './routes/account/search-preferences'
-import { Route as AccountPracticeNegotiatingRouteImport } from './routes/account/practice-negotiating'
-import { Route as AccountIntroductionsRouteImport } from './routes/account/introductions'
+import { Route as ConsumerDashboardIndexRouteImport } from './routes/consumer/dashboard/index'
+import { Route as AgentDashboardIndexRouteImport } from './routes/agent/dashboard/index'
+import { Route as ConsumerDashboardSearchPreferencesRouteImport } from './routes/consumer/dashboard/search-preferences'
+import { Route as ConsumerDashboardPracticeNegotiatingRouteImport } from './routes/consumer/dashboard/practice-negotiating'
+import { Route as ConsumerDashboardIntroductionsRouteImport } from './routes/consumer/dashboard/introductions'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest/$'
 import { Route as ApiBetaAuthRouteImport } from './routes/api/beta/auth'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AgentDashboardIntroductionsRouteImport } from './routes/agent/dashboard/introductions'
 import { Route as ApiIngestStaticSplatRouteImport } from './routes/api/ingest/static/$'
 
 const SignupRoute = SignupRouteImport.update({
@@ -63,11 +66,6 @@ const BetaRoute = BetaRouteImport.update({
   path: '/beta',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AccountRoute = AccountRouteImport.update({
-  id: '/account',
-  path: '/account',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -82,11 +80,6 @@ const AgentIndexRoute = AgentIndexRouteImport.update({
   id: '/agent/',
   path: '/agent/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AccountIndexRoute = AccountIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AccountRoute,
 } as any)
 const ConsumerPrioritiesRoute = ConsumerPrioritiesRouteImport.update({
   id: '/consumer/priorities',
@@ -106,6 +99,11 @@ const ConsumerPaymentRoute = ConsumerPaymentRouteImport.update({
 const ConsumerIntakeRoute = ConsumerIntakeRouteImport.update({
   id: '/consumer/intake',
   path: '/consumer/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConsumerDashboardRoute = ConsumerDashboardRouteImport.update({
+  id: '/consumer/dashboard',
+  path: '/consumer/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -163,6 +161,11 @@ const AgentDeepDiveRoute = AgentDeepDiveRouteImport.update({
   path: '/agent/deep-dive',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentDashboardRoute = AgentDashboardRouteImport.update({
+  id: '/agent/dashboard',
+  path: '/agent/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentComplianceRoute = AgentComplianceRouteImport.update({
   id: '/agent/compliance',
   path: '/agent/compliance',
@@ -173,23 +176,34 @@ const AgentChatRoute = AgentChatRouteImport.update({
   path: '/agent/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AccountSearchPreferencesRoute =
-  AccountSearchPreferencesRouteImport.update({
+const ConsumerDashboardIndexRoute = ConsumerDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ConsumerDashboardRoute,
+} as any)
+const AgentDashboardIndexRoute = AgentDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AgentDashboardRoute,
+} as any)
+const ConsumerDashboardSearchPreferencesRoute =
+  ConsumerDashboardSearchPreferencesRouteImport.update({
     id: '/search-preferences',
     path: '/search-preferences',
-    getParentRoute: () => AccountRoute,
+    getParentRoute: () => ConsumerDashboardRoute,
   } as any)
-const AccountPracticeNegotiatingRoute =
-  AccountPracticeNegotiatingRouteImport.update({
+const ConsumerDashboardPracticeNegotiatingRoute =
+  ConsumerDashboardPracticeNegotiatingRouteImport.update({
     id: '/practice-negotiating',
     path: '/practice-negotiating',
-    getParentRoute: () => AccountRoute,
+    getParentRoute: () => ConsumerDashboardRoute,
   } as any)
-const AccountIntroductionsRoute = AccountIntroductionsRouteImport.update({
-  id: '/introductions',
-  path: '/introductions',
-  getParentRoute: () => AccountRoute,
-} as any)
+const ConsumerDashboardIntroductionsRoute =
+  ConsumerDashboardIntroductionsRouteImport.update({
+    id: '/introductions',
+    path: '/introductions',
+    getParentRoute: () => ConsumerDashboardRoute,
+  } as any)
 const ApiIngestSplatRoute = ApiIngestSplatRouteImport.update({
   id: '/api/ingest/$',
   path: '/api/ingest/$',
@@ -205,6 +219,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentDashboardIntroductionsRoute =
+  AgentDashboardIntroductionsRouteImport.update({
+    id: '/introductions',
+    path: '/introductions',
+    getParentRoute: () => AgentDashboardRoute,
+  } as any)
 const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
   id: '/api/ingest/static/$',
   path: '/api/ingest/static/$',
@@ -213,16 +233,13 @@ const ApiIngestStaticSplatRoute = ApiIngestStaticSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/account': typeof AccountRouteWithChildren
   '/beta': typeof BetaRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/signup': typeof SignupRoute
-  '/account/introductions': typeof AccountIntroductionsRoute
-  '/account/practice-negotiating': typeof AccountPracticeNegotiatingRoute
-  '/account/search-preferences': typeof AccountSearchPreferencesRoute
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
+  '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/deep-dive': typeof AgentDeepDiveRoute
   '/agent/deep-profile': typeof AgentDeepProfileRoute
   '/agent/intake': typeof AgentIntakeRoute
@@ -234,16 +251,22 @@ export interface FileRoutesByFullPath {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
+  '/consumer/dashboard': typeof ConsumerDashboardRouteWithChildren
   '/consumer/intake': typeof ConsumerIntakeRoute
   '/consumer/payment': typeof ConsumerPaymentRoute
   '/consumer/preview': typeof ConsumerPreviewRoute
   '/consumer/priorities': typeof ConsumerPrioritiesRoute
-  '/account/': typeof AccountIndexRoute
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
+  '/agent/dashboard/introductions': typeof AgentDashboardIntroductionsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
+  '/consumer/dashboard/introductions': typeof ConsumerDashboardIntroductionsRoute
+  '/consumer/dashboard/practice-negotiating': typeof ConsumerDashboardPracticeNegotiatingRoute
+  '/consumer/dashboard/search-preferences': typeof ConsumerDashboardSearchPreferencesRoute
+  '/agent/dashboard/': typeof AgentDashboardIndexRoute
+  '/consumer/dashboard/': typeof ConsumerDashboardIndexRoute
   '/api/ingest/static/$': typeof ApiIngestStaticSplatRoute
 }
 export interface FileRoutesByTo {
@@ -252,9 +275,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/signup': typeof SignupRoute
-  '/account/introductions': typeof AccountIntroductionsRoute
-  '/account/practice-negotiating': typeof AccountPracticeNegotiatingRoute
-  '/account/search-preferences': typeof AccountSearchPreferencesRoute
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
   '/agent/deep-dive': typeof AgentDeepDiveRoute
@@ -272,27 +292,29 @@ export interface FileRoutesByTo {
   '/consumer/payment': typeof ConsumerPaymentRoute
   '/consumer/preview': typeof ConsumerPreviewRoute
   '/consumer/priorities': typeof ConsumerPrioritiesRoute
-  '/account': typeof AccountIndexRoute
   '/agent': typeof AgentIndexRoute
   '/consumer': typeof ConsumerIndexRoute
+  '/agent/dashboard/introductions': typeof AgentDashboardIntroductionsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
+  '/consumer/dashboard/introductions': typeof ConsumerDashboardIntroductionsRoute
+  '/consumer/dashboard/practice-negotiating': typeof ConsumerDashboardPracticeNegotiatingRoute
+  '/consumer/dashboard/search-preferences': typeof ConsumerDashboardSearchPreferencesRoute
+  '/agent/dashboard': typeof AgentDashboardIndexRoute
+  '/consumer/dashboard': typeof ConsumerDashboardIndexRoute
   '/api/ingest/static/$': typeof ApiIngestStaticSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/account': typeof AccountRouteWithChildren
   '/beta': typeof BetaRoute
   '/login': typeof LoginRoute
   '/matches': typeof MatchesRoute
   '/signup': typeof SignupRoute
-  '/account/introductions': typeof AccountIntroductionsRoute
-  '/account/practice-negotiating': typeof AccountPracticeNegotiatingRoute
-  '/account/search-preferences': typeof AccountSearchPreferencesRoute
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
+  '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/agent/deep-dive': typeof AgentDeepDiveRoute
   '/agent/deep-profile': typeof AgentDeepProfileRoute
   '/agent/intake': typeof AgentIntakeRoute
@@ -304,32 +326,35 @@ export interface FileRoutesById {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
+  '/consumer/dashboard': typeof ConsumerDashboardRouteWithChildren
   '/consumer/intake': typeof ConsumerIntakeRoute
   '/consumer/payment': typeof ConsumerPaymentRoute
   '/consumer/preview': typeof ConsumerPreviewRoute
   '/consumer/priorities': typeof ConsumerPrioritiesRoute
-  '/account/': typeof AccountIndexRoute
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
+  '/agent/dashboard/introductions': typeof AgentDashboardIntroductionsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
+  '/consumer/dashboard/introductions': typeof ConsumerDashboardIntroductionsRoute
+  '/consumer/dashboard/practice-negotiating': typeof ConsumerDashboardPracticeNegotiatingRoute
+  '/consumer/dashboard/search-preferences': typeof ConsumerDashboardSearchPreferencesRoute
+  '/agent/dashboard/': typeof AgentDashboardIndexRoute
+  '/consumer/dashboard/': typeof ConsumerDashboardIndexRoute
   '/api/ingest/static/$': typeof ApiIngestStaticSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/account'
     | '/beta'
     | '/login'
     | '/matches'
     | '/signup'
-    | '/account/introductions'
-    | '/account/practice-negotiating'
-    | '/account/search-preferences'
     | '/agent/chat'
     | '/agent/compliance'
+    | '/agent/dashboard'
     | '/agent/deep-dive'
     | '/agent/deep-profile'
     | '/agent/intake'
@@ -341,16 +366,22 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
+    | '/consumer/dashboard'
     | '/consumer/intake'
     | '/consumer/payment'
     | '/consumer/preview'
     | '/consumer/priorities'
-    | '/account/'
     | '/agent/'
     | '/consumer/'
+    | '/agent/dashboard/introductions'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
+    | '/consumer/dashboard/introductions'
+    | '/consumer/dashboard/practice-negotiating'
+    | '/consumer/dashboard/search-preferences'
+    | '/agent/dashboard/'
+    | '/consumer/dashboard/'
     | '/api/ingest/static/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -359,9 +390,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches'
     | '/signup'
-    | '/account/introductions'
-    | '/account/practice-negotiating'
-    | '/account/search-preferences'
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
@@ -379,26 +407,28 @@ export interface FileRouteTypes {
     | '/consumer/payment'
     | '/consumer/preview'
     | '/consumer/priorities'
-    | '/account'
     | '/agent'
     | '/consumer'
+    | '/agent/dashboard/introductions'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
+    | '/consumer/dashboard/introductions'
+    | '/consumer/dashboard/practice-negotiating'
+    | '/consumer/dashboard/search-preferences'
+    | '/agent/dashboard'
+    | '/consumer/dashboard'
     | '/api/ingest/static/$'
   id:
     | '__root__'
     | '/'
-    | '/account'
     | '/beta'
     | '/login'
     | '/matches'
     | '/signup'
-    | '/account/introductions'
-    | '/account/practice-negotiating'
-    | '/account/search-preferences'
     | '/agent/chat'
     | '/agent/compliance'
+    | '/agent/dashboard'
     | '/agent/deep-dive'
     | '/agent/deep-profile'
     | '/agent/intake'
@@ -410,28 +440,34 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
+    | '/consumer/dashboard'
     | '/consumer/intake'
     | '/consumer/payment'
     | '/consumer/preview'
     | '/consumer/priorities'
-    | '/account/'
     | '/agent/'
     | '/consumer/'
+    | '/agent/dashboard/introductions'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
+    | '/consumer/dashboard/introductions'
+    | '/consumer/dashboard/practice-negotiating'
+    | '/consumer/dashboard/search-preferences'
+    | '/agent/dashboard/'
+    | '/consumer/dashboard/'
     | '/api/ingest/static/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRouteWithChildren
   BetaRoute: typeof BetaRoute
   LoginRoute: typeof LoginRoute
   MatchesRoute: typeof MatchesRoute
   SignupRoute: typeof SignupRoute
   AgentChatRoute: typeof AgentChatRoute
   AgentComplianceRoute: typeof AgentComplianceRoute
+  AgentDashboardRoute: typeof AgentDashboardRouteWithChildren
   AgentDeepDiveRoute: typeof AgentDeepDiveRoute
   AgentDeepProfileRoute: typeof AgentDeepProfileRoute
   AgentIntakeRoute: typeof AgentIntakeRoute
@@ -443,6 +479,7 @@ export interface RootRouteChildren {
   AgentSubscribeRoute: typeof AgentSubscribeRoute
   ApiAgentMatchesRoute: typeof ApiAgentMatchesRoute
   ApiHealthRoute: typeof ApiHealthRoute
+  ConsumerDashboardRoute: typeof ConsumerDashboardRouteWithChildren
   ConsumerIntakeRoute: typeof ConsumerIntakeRoute
   ConsumerPaymentRoute: typeof ConsumerPaymentRoute
   ConsumerPreviewRoute: typeof ConsumerPreviewRoute
@@ -485,13 +522,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BetaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/account': {
-      id: '/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof AccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -512,13 +542,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/agent/'
       preLoaderRoute: typeof AgentIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/account/': {
-      id: '/account/'
-      path: '/'
-      fullPath: '/account/'
-      preLoaderRoute: typeof AccountIndexRouteImport
-      parentRoute: typeof AccountRoute
     }
     '/consumer/priorities': {
       id: '/consumer/priorities'
@@ -546,6 +569,13 @@ declare module '@tanstack/react-router' {
       path: '/consumer/intake'
       fullPath: '/consumer/intake'
       preLoaderRoute: typeof ConsumerIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/consumer/dashboard': {
+      id: '/consumer/dashboard'
+      path: '/consumer/dashboard'
+      fullPath: '/consumer/dashboard'
+      preLoaderRoute: typeof ConsumerDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -625,6 +655,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDeepDiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/dashboard': {
+      id: '/agent/dashboard'
+      path: '/agent/dashboard'
+      fullPath: '/agent/dashboard'
+      preLoaderRoute: typeof AgentDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/compliance': {
       id: '/agent/compliance'
       path: '/agent/compliance'
@@ -639,26 +676,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/account/search-preferences': {
-      id: '/account/search-preferences'
+    '/consumer/dashboard/': {
+      id: '/consumer/dashboard/'
+      path: '/'
+      fullPath: '/consumer/dashboard/'
+      preLoaderRoute: typeof ConsumerDashboardIndexRouteImport
+      parentRoute: typeof ConsumerDashboardRoute
+    }
+    '/agent/dashboard/': {
+      id: '/agent/dashboard/'
+      path: '/'
+      fullPath: '/agent/dashboard/'
+      preLoaderRoute: typeof AgentDashboardIndexRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
+    '/consumer/dashboard/search-preferences': {
+      id: '/consumer/dashboard/search-preferences'
       path: '/search-preferences'
-      fullPath: '/account/search-preferences'
-      preLoaderRoute: typeof AccountSearchPreferencesRouteImport
-      parentRoute: typeof AccountRoute
+      fullPath: '/consumer/dashboard/search-preferences'
+      preLoaderRoute: typeof ConsumerDashboardSearchPreferencesRouteImport
+      parentRoute: typeof ConsumerDashboardRoute
     }
-    '/account/practice-negotiating': {
-      id: '/account/practice-negotiating'
+    '/consumer/dashboard/practice-negotiating': {
+      id: '/consumer/dashboard/practice-negotiating'
       path: '/practice-negotiating'
-      fullPath: '/account/practice-negotiating'
-      preLoaderRoute: typeof AccountPracticeNegotiatingRouteImport
-      parentRoute: typeof AccountRoute
+      fullPath: '/consumer/dashboard/practice-negotiating'
+      preLoaderRoute: typeof ConsumerDashboardPracticeNegotiatingRouteImport
+      parentRoute: typeof ConsumerDashboardRoute
     }
-    '/account/introductions': {
-      id: '/account/introductions'
+    '/consumer/dashboard/introductions': {
+      id: '/consumer/dashboard/introductions'
       path: '/introductions'
-      fullPath: '/account/introductions'
-      preLoaderRoute: typeof AccountIntroductionsRouteImport
-      parentRoute: typeof AccountRoute
+      fullPath: '/consumer/dashboard/introductions'
+      preLoaderRoute: typeof ConsumerDashboardIntroductionsRouteImport
+      parentRoute: typeof ConsumerDashboardRoute
     }
     '/api/ingest/$': {
       id: '/api/ingest/$'
@@ -681,6 +732,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/dashboard/introductions': {
+      id: '/agent/dashboard/introductions'
+      path: '/introductions'
+      fullPath: '/agent/dashboard/introductions'
+      preLoaderRoute: typeof AgentDashboardIntroductionsRouteImport
+      parentRoute: typeof AgentDashboardRoute
+    }
     '/api/ingest/static/$': {
       id: '/api/ingest/static/$'
       path: '/api/ingest/static/$'
@@ -691,32 +749,48 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AccountRouteChildren {
-  AccountIntroductionsRoute: typeof AccountIntroductionsRoute
-  AccountPracticeNegotiatingRoute: typeof AccountPracticeNegotiatingRoute
-  AccountSearchPreferencesRoute: typeof AccountSearchPreferencesRoute
-  AccountIndexRoute: typeof AccountIndexRoute
+interface AgentDashboardRouteChildren {
+  AgentDashboardIntroductionsRoute: typeof AgentDashboardIntroductionsRoute
+  AgentDashboardIndexRoute: typeof AgentDashboardIndexRoute
 }
 
-const AccountRouteChildren: AccountRouteChildren = {
-  AccountIntroductionsRoute: AccountIntroductionsRoute,
-  AccountPracticeNegotiatingRoute: AccountPracticeNegotiatingRoute,
-  AccountSearchPreferencesRoute: AccountSearchPreferencesRoute,
-  AccountIndexRoute: AccountIndexRoute,
+const AgentDashboardRouteChildren: AgentDashboardRouteChildren = {
+  AgentDashboardIntroductionsRoute: AgentDashboardIntroductionsRoute,
+  AgentDashboardIndexRoute: AgentDashboardIndexRoute,
 }
 
-const AccountRouteWithChildren =
-  AccountRoute._addFileChildren(AccountRouteChildren)
+const AgentDashboardRouteWithChildren = AgentDashboardRoute._addFileChildren(
+  AgentDashboardRouteChildren,
+)
+
+interface ConsumerDashboardRouteChildren {
+  ConsumerDashboardIntroductionsRoute: typeof ConsumerDashboardIntroductionsRoute
+  ConsumerDashboardPracticeNegotiatingRoute: typeof ConsumerDashboardPracticeNegotiatingRoute
+  ConsumerDashboardSearchPreferencesRoute: typeof ConsumerDashboardSearchPreferencesRoute
+  ConsumerDashboardIndexRoute: typeof ConsumerDashboardIndexRoute
+}
+
+const ConsumerDashboardRouteChildren: ConsumerDashboardRouteChildren = {
+  ConsumerDashboardIntroductionsRoute: ConsumerDashboardIntroductionsRoute,
+  ConsumerDashboardPracticeNegotiatingRoute:
+    ConsumerDashboardPracticeNegotiatingRoute,
+  ConsumerDashboardSearchPreferencesRoute:
+    ConsumerDashboardSearchPreferencesRoute,
+  ConsumerDashboardIndexRoute: ConsumerDashboardIndexRoute,
+}
+
+const ConsumerDashboardRouteWithChildren =
+  ConsumerDashboardRoute._addFileChildren(ConsumerDashboardRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRouteWithChildren,
   BetaRoute: BetaRoute,
   LoginRoute: LoginRoute,
   MatchesRoute: MatchesRoute,
   SignupRoute: SignupRoute,
   AgentChatRoute: AgentChatRoute,
   AgentComplianceRoute: AgentComplianceRoute,
+  AgentDashboardRoute: AgentDashboardRouteWithChildren,
   AgentDeepDiveRoute: AgentDeepDiveRoute,
   AgentDeepProfileRoute: AgentDeepProfileRoute,
   AgentIntakeRoute: AgentIntakeRoute,
@@ -728,6 +802,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentSubscribeRoute: AgentSubscribeRoute,
   ApiAgentMatchesRoute: ApiAgentMatchesRoute,
   ApiHealthRoute: ApiHealthRoute,
+  ConsumerDashboardRoute: ConsumerDashboardRouteWithChildren,
   ConsumerIntakeRoute: ConsumerIntakeRoute,
   ConsumerPaymentRoute: ConsumerPaymentRoute,
   ConsumerPreviewRoute: ConsumerPreviewRoute,

@@ -21,7 +21,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import type { AgentMatchData } from '@/lib/matching/scoring'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/account/introductions')({
+export const Route = createFileRoute('/consumer/dashboard/introductions')({
 	component: Introductions,
 })
 
