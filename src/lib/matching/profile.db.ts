@@ -6,6 +6,7 @@ import { agentProfiles, consumerProfiles } from '@/db/tables'
 import { requireUserId } from '@/lib/auth/functions'
 import type {
 	AgentProfileUpdate,
+	ConsumerProfile,
 	ConsumerProfileUpdate,
 } from '@/lib/matching/profile.types'
 
@@ -103,6 +104,17 @@ const saveAgentProfileServer = createServerFn({ method: 'POST' })
 
 export async function loadConsumerProfile() {
 	return loadConsumerProfileServer()
+}
+
+export function hasCompletedConsumerIntake(
+	profile: ConsumerProfile | null | undefined,
+) {
+	return Boolean(
+		profile?.preferredContactMethod ||
+		profile?.involvementLevel ||
+		profile?.representationPreference ||
+		profile?.commissionComfort,
+	)
 }
 
 export async function saveConsumerProfile(update: ConsumerProfileUpdate) {

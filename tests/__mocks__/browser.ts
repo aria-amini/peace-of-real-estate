@@ -100,6 +100,23 @@ vi.mock('@/lib/matching/matches.server', () => ({
 }))
 
 vi.mock('@/lib/matching/profile.db', () => ({
+	hasCompletedConsumerIntake: (
+		profile:
+			| {
+					preferredContactMethod?: string | null
+					involvementLevel?: string | null
+					representationPreference?: string | null
+					commissionComfort?: string | null
+			  }
+			| null
+			| undefined,
+	) =>
+		Boolean(
+			profile?.preferredContactMethod ||
+			profile?.involvementLevel ||
+			profile?.representationPreference ||
+			profile?.commissionComfort,
+		),
 	loadConsumerProfile: () =>
 		Promise.resolve({
 			id: 'consumer-1',

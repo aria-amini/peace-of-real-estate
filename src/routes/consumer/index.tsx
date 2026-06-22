@@ -1,7 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { getCurrentSession } from '@/lib/auth/functions'
 import { clearConsumerDraft } from '@/lib/consumer-draft-storage'
-import { loadConsumerProfile } from '@/lib/matching/profile.db'
+import {
+	hasCompletedConsumerIntake,
+	loadConsumerProfile,
+} from '@/lib/matching/profile.db'
 
 export const Route = createFileRoute('/consumer/')({
 	beforeLoad: async ({ search }) => {
@@ -11,7 +14,8 @@ export const Route = createFileRoute('/consumer/')({
 			const session = await getCurrentSession()
 			if (session) {
 				const profile = await loadConsumerProfile()
-				if (profile) {
+
+				if (hasCompletedConsumerIntake(profile)) {
 					throw redirect({ to: '/matches' })
 				}
 			}
