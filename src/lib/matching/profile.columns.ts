@@ -1,6 +1,12 @@
 import { text } from 'drizzle-orm/pg-core'
 
-export type ProfileStatus = 'draft' | 'submitted' | 'active'
+export type ProfileStatus =
+	| 'draft'
+	| 'essentials_submitted'
+	| 'active'
+	| 'enriched'
+
+export type DeepProfileStatus = 'not_started' | 'in_progress' | 'complete'
 
 export type RepresentationSide = 'buying' | 'selling' | 'both'
 
@@ -24,17 +30,43 @@ export const consumerProfileColumns = {
 	matchDetails: text('match_details'),
 }
 
-export const agentProfileColumns = {
+export const agentCoreProfileColumns = {
 	representationSide: text('representation_side').$type<RepresentationSide>(),
 	typicalPriceRange: text('typical_price_range'),
 	bestClientTypes: text('best_client_types').array().notNull().default([]),
 	notFitFor: text('not_fit_for'),
-	workingStyle: text('working_style'),
-	dealStressStyle: text('deal_stress_style'),
+}
+
+export const agentSubjectiveProfileColumns = {
 	communicationCadence: text('communication_cadence'),
 	quickContactStyle: text('quick_contact_style'),
 	updateDeliveryStyle: text('update_delivery_style'),
 	responseTime: text('response_time'),
-	commissionStyle: text('commission_style'),
+	transparencyStyle: text('transparency_style'),
+	clientBoundaryStyle: text('client_boundary_style'),
+	negotiationEthic: text('negotiation_ethic'),
 	dualAgencyStyle: text('dual_agency_style'),
+	energyStyle: text('energy_style'),
+	teachingStyle: text('teaching_style'),
+	dealStressStyle: text('deal_stress_style'),
+	decisionMakingStyle: text('decision_making_style'),
+	serviceDepth: text('service_depth'),
+	involvementLevel: text('involvement_level'),
+	representationPreference: text('representation_preference'),
+	matchPriorities: text('match_priorities').array().notNull().default([]),
+}
+
+export const agentNarrativeProfileColumns = {
+	valueProposition: text('value_proposition'),
+	idealClientDescription: text('ideal_client_description'),
+	whyIStarted: text('why_i_started'),
+	typicalDayInDeal: text('typical_day_in_deal'),
+	hardNo: text('hard_no'),
+	valueBeyondTransaction: text('value_beyond_transaction'),
+}
+
+export const agentProfileColumns = {
+	...agentCoreProfileColumns,
+	...agentSubjectiveProfileColumns,
+	...agentNarrativeProfileColumns,
 }

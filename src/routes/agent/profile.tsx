@@ -38,9 +38,7 @@ const emptyProfile: AgentProfileUpdate = {
 	businessAddress: '',
 	billingAddress: '',
 	licenseNumberState: '',
-	serviceArea1: '',
-	serviceArea2: '',
-	serviceArea3: '',
+	serviceAreas: [],
 	yearsLicensed: '',
 	averageTransactions: '',
 	employmentStatus: '',
@@ -56,9 +54,7 @@ function AgentProfile() {
 	const initial = { ...emptyProfile, ...agentProfile }
 	const [formData, setFormData] = useState<AgentProfileUpdate>(initial)
 	const [serviceAreas, setServiceAreas] = useState(
-		[initial.serviceArea1, initial.serviceArea2, initial.serviceArea3]
-			.filter((area): area is string => Boolean(area))
-			.join(', '),
+		(initial.serviceAreas ?? []).join(', '),
 	)
 
 	if (loading) return null
@@ -77,9 +73,7 @@ function AgentProfile() {
 			.filter(Boolean)
 		const update: AgentProfileUpdate = {
 			...formData,
-			serviceArea1: parts[0],
-			serviceArea2: parts[1],
-			serviceArea3: parts[2],
+			serviceAreas: parts,
 		}
 		const ok = await saveAgent(update)
 		if (ok) {

@@ -1,6 +1,12 @@
 import type { agentProfiles, consumerProfiles } from '@/db/tables'
 
-export type ProfileStatus = 'draft' | 'submitted' | 'active'
+export type ProfileStatus =
+	| 'draft'
+	| 'essentials_submitted'
+	| 'active'
+	| 'enriched'
+
+export type DeepProfileStatus = 'not_started' | 'in_progress' | 'complete'
 
 export type ProfileRole = 'consumer' | 'agent'
 

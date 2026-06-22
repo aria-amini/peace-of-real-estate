@@ -15,6 +15,7 @@ import {
 	agentProfileColumns,
 	consumerProfileColumns,
 	sharedProfileColumns,
+	type DeepProfileStatus,
 } from '@/lib/matching/profile.columns'
 
 type EntitlementKey = 'consumer_lifetime_premium' | 'agent_subscription'
@@ -158,7 +159,7 @@ export const consumerProfiles = pgTable(
 		}),
 		check(
 			'consumer_profiles_status_check',
-			sql`${table.status} in ('draft', 'submitted', 'active')`,
+			sql`${table.status} in ('draft', 'essentials_submitted', 'active', 'enriched')`,
 		),
 		check(
 			'consumer_profiles_intent_check',
@@ -182,15 +183,19 @@ export const agentProfiles = pgTable(
 		businessAddress: text('business_address'),
 		billingAddress: text('billing_address'),
 		licenseNumberState: text('license_number_state'),
-		serviceArea1: text('service_area_1'),
-		serviceArea2: text('service_area_2'),
-		serviceArea3: text('service_area_3'),
+		serviceAreas: text('service_areas').array().notNull().default([]),
 		yearsLicensed: text('years_licensed'),
 		averageTransactions: text('average_transactions'),
 		employmentStatus: text('employment_status'),
 		licenseProof: text('license_proof'),
 		clientFirstTerms: text('client_first_terms'),
-		valueProposition: text('value_proposition'),
+		deepProfileStatus: text('deep_profile_status')
+			.$type<DeepProfileStatus>()
+			.default('not_started')
+			.notNull(),
+		deepProfileCompletedAt: timestamp('deep_profile_completed_at', {
+			withTimezone: true,
+		}),
 		usePaxWriter: boolean('use_pax_writer').default(true).notNull(),
 		licenseAttested: boolean('license_attested').default(false).notNull(),
 		eoInsuranceStatus: text('eo_insurance_status'),
@@ -211,7 +216,11 @@ export const agentProfiles = pgTable(
 		}),
 		check(
 			'agent_profiles_status_check',
-			sql`${table.status} in ('draft', 'submitted', 'active')`,
+			sql`${table.status} in ('draft', 'essentials_submitted', 'active', 'enriched')`,
+		),
+		check(
+			'agent_profiles_deep_profile_status_check',
+			sql`${table.deepProfileStatus} in ('not_started', 'in_progress', 'complete')`,
 		),
 		check(
 			'agent_profiles_representation_side_check',

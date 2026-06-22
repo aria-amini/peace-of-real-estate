@@ -28,8 +28,10 @@ import { Route as AgentSubscribeRouteImport } from './routes/agent/subscribe'
 import { Route as AgentQuizRouteImport } from './routes/agent/quiz'
 import { Route as AgentProfileRouteImport } from './routes/agent/profile'
 import { Route as AgentPrioritiesRouteImport } from './routes/agent/priorities'
+import { Route as AgentPreviewRouteImport } from './routes/agent/preview'
 import { Route as AgentPeacePactRouteImport } from './routes/agent/peace-pact'
 import { Route as AgentIntakeRouteImport } from './routes/agent/intake'
+import { Route as AgentDeepProfileRouteImport } from './routes/agent/deep-profile'
 import { Route as AgentDeepDiveRouteImport } from './routes/agent/deep-dive'
 import { Route as AgentComplianceRouteImport } from './routes/agent/compliance'
 import { Route as AgentChatRouteImport } from './routes/agent/chat'
@@ -136,6 +138,11 @@ const AgentPrioritiesRoute = AgentPrioritiesRouteImport.update({
   path: '/agent/priorities',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentPreviewRoute = AgentPreviewRouteImport.update({
+  id: '/agent/preview',
+  path: '/agent/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentPeacePactRoute = AgentPeacePactRouteImport.update({
   id: '/agent/peace-pact',
   path: '/agent/peace-pact',
@@ -144,6 +151,11 @@ const AgentPeacePactRoute = AgentPeacePactRouteImport.update({
 const AgentIntakeRoute = AgentIntakeRouteImport.update({
   id: '/agent/intake',
   path: '/agent/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentDeepProfileRoute = AgentDeepProfileRouteImport.update({
+  id: '/agent/deep-profile',
+  path: '/agent/deep-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentDeepDiveRoute = AgentDeepDiveRouteImport.update({
@@ -212,8 +224,10 @@ export interface FileRoutesByFullPath {
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
   '/agent/deep-dive': typeof AgentDeepDiveRoute
+  '/agent/deep-profile': typeof AgentDeepProfileRoute
   '/agent/intake': typeof AgentIntakeRoute
   '/agent/peace-pact': typeof AgentPeacePactRoute
+  '/agent/preview': typeof AgentPreviewRoute
   '/agent/priorities': typeof AgentPrioritiesRoute
   '/agent/profile': typeof AgentProfileRoute
   '/agent/quiz': typeof AgentQuizRoute
@@ -244,8 +258,10 @@ export interface FileRoutesByTo {
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
   '/agent/deep-dive': typeof AgentDeepDiveRoute
+  '/agent/deep-profile': typeof AgentDeepProfileRoute
   '/agent/intake': typeof AgentIntakeRoute
   '/agent/peace-pact': typeof AgentPeacePactRoute
+  '/agent/preview': typeof AgentPreviewRoute
   '/agent/priorities': typeof AgentPrioritiesRoute
   '/agent/profile': typeof AgentProfileRoute
   '/agent/quiz': typeof AgentQuizRoute
@@ -278,8 +294,10 @@ export interface FileRoutesById {
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
   '/agent/deep-dive': typeof AgentDeepDiveRoute
+  '/agent/deep-profile': typeof AgentDeepProfileRoute
   '/agent/intake': typeof AgentIntakeRoute
   '/agent/peace-pact': typeof AgentPeacePactRoute
+  '/agent/preview': typeof AgentPreviewRoute
   '/agent/priorities': typeof AgentPrioritiesRoute
   '/agent/profile': typeof AgentProfileRoute
   '/agent/quiz': typeof AgentQuizRoute
@@ -313,8 +331,10 @@ export interface FileRouteTypes {
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
+    | '/agent/deep-profile'
     | '/agent/intake'
     | '/agent/peace-pact'
+    | '/agent/preview'
     | '/agent/priorities'
     | '/agent/profile'
     | '/agent/quiz'
@@ -345,8 +365,10 @@ export interface FileRouteTypes {
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
+    | '/agent/deep-profile'
     | '/agent/intake'
     | '/agent/peace-pact'
+    | '/agent/preview'
     | '/agent/priorities'
     | '/agent/profile'
     | '/agent/quiz'
@@ -378,8 +400,10 @@ export interface FileRouteTypes {
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
+    | '/agent/deep-profile'
     | '/agent/intake'
     | '/agent/peace-pact'
+    | '/agent/preview'
     | '/agent/priorities'
     | '/agent/profile'
     | '/agent/quiz'
@@ -409,8 +433,10 @@ export interface RootRouteChildren {
   AgentChatRoute: typeof AgentChatRoute
   AgentComplianceRoute: typeof AgentComplianceRoute
   AgentDeepDiveRoute: typeof AgentDeepDiveRoute
+  AgentDeepProfileRoute: typeof AgentDeepProfileRoute
   AgentIntakeRoute: typeof AgentIntakeRoute
   AgentPeacePactRoute: typeof AgentPeacePactRoute
+  AgentPreviewRoute: typeof AgentPreviewRoute
   AgentPrioritiesRoute: typeof AgentPrioritiesRoute
   AgentProfileRoute: typeof AgentProfileRoute
   AgentQuizRoute: typeof AgentQuizRoute
@@ -564,6 +590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentPrioritiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/preview': {
+      id: '/agent/preview'
+      path: '/agent/preview'
+      fullPath: '/agent/preview'
+      preLoaderRoute: typeof AgentPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/peace-pact': {
       id: '/agent/peace-pact'
       path: '/agent/peace-pact'
@@ -576,6 +609,13 @@ declare module '@tanstack/react-router' {
       path: '/agent/intake'
       fullPath: '/agent/intake'
       preLoaderRoute: typeof AgentIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/deep-profile': {
+      id: '/agent/deep-profile'
+      path: '/agent/deep-profile'
+      fullPath: '/agent/deep-profile'
+      preLoaderRoute: typeof AgentDeepProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent/deep-dive': {
@@ -678,8 +718,10 @@ const rootRouteChildren: RootRouteChildren = {
   AgentChatRoute: AgentChatRoute,
   AgentComplianceRoute: AgentComplianceRoute,
   AgentDeepDiveRoute: AgentDeepDiveRoute,
+  AgentDeepProfileRoute: AgentDeepProfileRoute,
   AgentIntakeRoute: AgentIntakeRoute,
   AgentPeacePactRoute: AgentPeacePactRoute,
+  AgentPreviewRoute: AgentPreviewRoute,
   AgentPrioritiesRoute: AgentPrioritiesRoute,
   AgentProfileRoute: AgentProfileRoute,
   AgentQuizRoute: AgentQuizRoute,

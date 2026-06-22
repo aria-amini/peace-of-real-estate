@@ -7,6 +7,7 @@ import {
 	account,
 	userEntitlements,
 } from '../src/db/tables'
+import type { DeepProfileStatus } from '../src/lib/matching/profile.types'
 
 const FIRST_NAMES = [
 	'James',
@@ -793,9 +794,9 @@ function pickEmployment(archetype: AgentArchetype): string {
 function statusFromProfile(
 	peaceSigned: boolean,
 	score: number,
-): 'draft' | 'submitted' | 'active' {
-	if (peaceSigned && score > 0.6) return 'active'
-	if (score > 0.3) return 'submitted'
+): 'draft' | 'active' | 'enriched' {
+	if (peaceSigned && score > 0.7) return 'enriched'
+	if (peaceSigned && score > 0.4) return 'active'
 	return 'draft'
 }
 
@@ -816,14 +817,22 @@ function generatePersona(archetype: AgentArchetype, r: number) {
 			.sort(() => r - 0.5)
 			.slice(0, randInt(2, archetype.clientTypes.length)),
 		notFitFor: archetype.notFitFor,
-		workingStyle: archetype.workingStyle,
 		dealStressStyle: archetype.dealStressStyle,
 		communicationCadence: archetype.communicationCadence,
 		quickContactStyle: archetype.quickContactStyle,
 		updateDeliveryStyle: archetype.updateDeliveryStyle,
 		responseTime: archetype.responseTime,
-		commissionStyle: archetype.commissionStyle,
 		dualAgencyStyle: archetype.dualAgencyStyle,
+		energyStyle: 'calm',
+		teachingStyle: 'onRequest',
+		decisionMakingStyle: 'data',
+		transparencyStyle: 'upfront',
+		clientBoundaryStyle: 'gentle',
+		negotiationEthic: 'winWin',
+		serviceDepth: 'standard',
+		involvementLevel: 'keyDetails',
+		representationPreference: 'exclusive',
+		matchPriorities: ['communicationCadence', 'responseTime'],
 		yearsLicensed: approxLabel(YEARS_LABELS, years),
 		averageTransactions: approxLabel(TRANSACTION_LABELS, avgTrans),
 		employmentStatus: pickEmployment(archetype),
@@ -832,6 +841,12 @@ function generatePersona(archetype: AgentArchetype, r: number) {
 		peacePactSigned: peacePact,
 		usePaxWriter,
 		status: statusFromProfile(peacePact, completionScore),
+		deepProfileStatus:
+			statusFromProfile(peacePact, completionScore) === 'enriched'
+				? 'complete'
+				: statusFromProfile(peacePact, completionScore) === 'active'
+					? 'in_progress'
+					: 'not_started',
 	}
 }
 
@@ -937,14 +952,31 @@ async function populateDb(count: number) {
 			typicalPriceRange: persona.typicalPriceRange,
 			bestClientTypes: persona.bestClientTypes,
 			notFitFor: persona.notFitFor,
-			workingStyle: persona.workingStyle,
 			dealStressStyle: persona.dealStressStyle,
 			communicationCadence: persona.communicationCadence,
 			quickContactStyle: persona.quickContactStyle,
 			updateDeliveryStyle: persona.updateDeliveryStyle,
 			responseTime: persona.responseTime,
-			commissionStyle: persona.commissionStyle,
 			dualAgencyStyle: persona.dualAgencyStyle,
+			energyStyle: persona.energyStyle,
+			teachingStyle: persona.teachingStyle,
+			decisionMakingStyle: persona.decisionMakingStyle,
+			transparencyStyle: persona.transparencyStyle,
+			clientBoundaryStyle: persona.clientBoundaryStyle,
+			negotiationEthic: persona.negotiationEthic,
+			serviceDepth: persona.serviceDepth,
+			involvementLevel: persona.involvementLevel,
+			representationPreference: persona.representationPreference,
+			matchPriorities: persona.matchPriorities,
+			deepProfileStatus: persona.deepProfileStatus as DeepProfileStatus,
+			deepProfileCompletedAt:
+				persona.deepProfileStatus === 'complete' ? now : null,
+			valueProposition: persona.valueProposition,
+			idealClientDescription: null,
+			whyIStarted: null,
+			typicalDayInDeal: null,
+			hardNo: null,
+			valueBeyondTransaction: null,
 			firstName,
 			lastName,
 			brokerageName: pickBrokerage(archetype),
@@ -953,15 +985,12 @@ async function populateDb(count: number) {
 			businessAddress: buildAddress(location),
 			billingAddress: buildAddress(location),
 			licenseNumberState: `LIC-${randInt(100000, 999999)}-${location.state}`,
-			serviceArea1: location.zips[0] ?? null,
-			serviceArea2: location.zips[1] ?? null,
-			serviceArea3: location.zips[2] ?? null,
+			serviceAreas: location.zips.slice(0, 3),
 			yearsLicensed: persona.yearsLicensed,
 			averageTransactions: persona.averageTransactions,
 			employmentStatus: persona.employmentStatus,
 			licenseProof: null,
 			clientFirstTerms: null,
-			valueProposition: persona.valueProposition,
 			usePaxWriter: persona.usePaxWriter,
 			licenseAttested: true,
 			eoInsuranceStatus: persona.eoInsuranceStatus,

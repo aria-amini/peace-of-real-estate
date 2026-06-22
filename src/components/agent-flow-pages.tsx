@@ -1,35 +1,30 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import {
 	BriefcaseIcon,
 	ChartLineIcon,
-	CurrencyDollarIcon,
 	MapPinIcon,
-	QuestionIcon,
+	ScrollIcon,
+	ShieldCheckIcon,
+	UserIcon,
 	UsersIcon,
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
-import * as zipcodes from 'zipcodes'
+import { useQuery } from '@tanstack/react-query'
+import type { FeatureCollection } from 'geojson'
 import { ArrowRight, Check, ChevronsUpDown, TriangleAlert } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import {
-	AnimatedStatusIcon,
 	AnimatedStepCard,
 	FlowIntakeProgress,
 	StepProgressHeader,
 } from '@/components/flow-shared'
+import { PriceInput } from '@/components/price-input'
 import { QuestionFlow } from '@/components/question-flow'
 import { WizardShell } from '@/components/wizard-shell'
+import { ZipCodeMap } from '@/components/zip-code-map'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog'
 import {
 	Command,
 	CommandEmpty,
@@ -39,10 +34,23 @@ import {
 	CommandList,
 } from '@/components/ui/command'
 import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import {
 	loadAgentDraft,
@@ -59,163 +67,60 @@ import {
 	type Question,
 	type QuestionFlow as MatchingQuestionFlow,
 } from '@/lib/matching/questions'
+import {
+	DEFAULT_PRICE_RANGE,
+	formatPriceCompact,
+	formatPriceRange,
+	parsePriceRange,
+	PRICE_MAX,
+	PRICE_MIN,
+	PRICE_STEP,
+	serializePriceRange,
+} from '@/lib/price-range'
+import {
+	loadCityCenter,
+	loadCitySuggestions,
+	loadZipCodeBoundaries,
+} from '@/lib/zip-code-data'
 
 const SKIPPED_ANSWER = '__skipped__'
 
-type AgentFlowStep = 'intro' | 'situation' | 'quiz'
+type AgentFlowStep =
+	| 'welcome'
+	| 'identity'
+	| 'market'
+	| 'compliance'
+	| 'peacePact'
 
 const agentFlowSteps: { id: AgentFlowStep; label: string; icon: Icon }[] = [
-	{ id: 'intro', label: 'Market', icon: MapPinIcon },
-	{ id: 'situation', label: 'Experience', icon: BriefcaseIcon },
-	{ id: 'quiz', label: 'Style', icon: UsersIcon },
+	{ id: 'welcome', label: 'Start', icon: UserIcon },
+	{ id: 'identity', label: 'Identity', icon: UserIcon },
+	{ id: 'market', label: 'Market', icon: MapPinIcon },
+	{ id: 'compliance', label: 'Compliance', icon: ShieldCheckIcon },
+	{ id: 'peacePact', label: 'Peace Pact', icon: ScrollIcon },
 ]
 
-const stepOrder: AgentFlowStep[] = ['intro', 'situation', 'quiz']
+const stepOrder: AgentFlowStep[] = [
+	'welcome',
+	'identity',
+	'market',
+	'compliance',
+	'peacePact',
+]
 
-type AgentFlowState = {
-	serviceArea1?: string
-	serviceArea2?: string
-	serviceArea3?: string
-	typicalPriceRange?: string
-	representationSide?: RepresentationSide
-	bestClientTypes?: string[]
-	yearsLicensed?: string
-	averageTransactions?: string
-	matchPriorities?: string[]
-	answers: Answers
+function parseCityState(
+	location: string,
+): { city: string; state: string } | undefined {
+	const [cityName, rest] = location.split(',').map((part) => part.trim())
+	if (!cityName || !rest) return undefined
+	const state = rest.split(/\s+/)[0]
+	if (!state || state.length !== 2) return undefined
+	return { city: cityName, state: state.toUpperCase() }
 }
 
-type AgentFlowConfig = {
-	basePath: '/agent'
-	label: 'Agent'
-	areaPrompt: string
-	situationPrompt: string
-	intentOptions: RepresentationSide[]
-	experiencePrompt: string
-	experienceOptions: string[]
-	volumePrompt: string
-	volumeOptions: { slug: string; label: string }[]
-	pricePrompt: string
-	priceOptions: { slug: string; label: string }[]
-	clientPrompt: string
-	clientOptions: string[]
-	questionFlow: MatchingQuestionFlow
-	accent: 'navy' | 'amber'
+function isValidZipCode(zipCode: string) {
+	return /^\d{5}$/.test(zipCode)
 }
-
-const zipCodeLocations = Object.values(zipcodes.codes).filter(
-	(location) => location.country === 'US',
-)
-
-const usStateCodes = new Set([
-	'AL',
-	'AK',
-	'AZ',
-	'AR',
-	'CA',
-	'CO',
-	'CT',
-	'DE',
-	'DC',
-	'FL',
-	'GA',
-	'HI',
-	'ID',
-	'IL',
-	'IN',
-	'IA',
-	'KS',
-	'KY',
-	'LA',
-	'ME',
-	'MD',
-	'MA',
-	'MI',
-	'MN',
-	'MS',
-	'MO',
-	'MT',
-	'NE',
-	'NV',
-	'NH',
-	'NJ',
-	'NM',
-	'NY',
-	'NC',
-	'ND',
-	'OH',
-	'OK',
-	'OR',
-	'PA',
-	'RI',
-	'SC',
-	'SD',
-	'TN',
-	'TX',
-	'UT',
-	'VT',
-	'VA',
-	'WA',
-	'WV',
-	'WI',
-	'WY',
-])
-
-const stateLocations = Object.entries(zipcodes.states.full)
-	.filter(([, state]) => usStateCodes.has(state))
-	.map(([name, state]) => ({
-		name: name.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase()),
-		state,
-	}))
-
-function formatZipCodeLocation(location: (typeof zipCodeLocations)[number]) {
-	return `${location.city}, ${location.state} ${location.zip}`
-}
-
-function getLocationSuggestions(query: string) {
-	const normalizedQuery = query.trim().toLowerCase()
-	if (normalizedQuery.length < 2) return []
-
-	const suggestions: string[] = []
-	const seen = new Set<string>()
-	const addSuggestion = (suggestion: string) => {
-		if (seen.has(suggestion)) return
-		seen.add(suggestion)
-		suggestions.push(suggestion)
-	}
-
-	for (const location of stateLocations) {
-		if (
-			location.name.toLowerCase().includes(normalizedQuery) ||
-			location.state.toLowerCase().includes(normalizedQuery)
-		) {
-			addSuggestion(`${location.name}, ${location.state}`)
-		}
-	}
-
-	for (const location of zipCodeLocations) {
-		const label = formatZipCodeLocation(location)
-		if (
-			location.zip.startsWith(normalizedQuery) ||
-			location.city.toLowerCase().includes(normalizedQuery) ||
-			location.state.toLowerCase() === normalizedQuery ||
-			label.toLowerCase().includes(normalizedQuery)
-		) {
-			addSuggestion(label)
-		}
-
-		if (suggestions.length >= 8) break
-	}
-
-	return suggestions
-}
-
-const priceOptions = [
-	{ slug: 'under400k', label: 'Under $400k' },
-	{ slug: '400kTo750k', label: '$400k to $750k' },
-	{ slug: '750kTo1_5m', label: '$750k to $1.5M' },
-	{ slug: '1_5mPlus', label: '$1.5M and above' },
-] as const
 
 const yearsLicensedOptions = [
 	{ slug: '0-2', label: '0-2 years' },
@@ -238,16 +143,7 @@ const bestClientTypesQuestion = agentQuestionFlow.questions.find(
 export const agentConfig = {
 	basePath: '/agent',
 	label: 'Agent',
-	areaPrompt: 'City, State, or ZIP code',
-	situationPrompt: 'Which side do you primarily represent?',
-	intentOptions: ['buying', 'selling'] as RepresentationSide[],
-	experiencePrompt: 'How long have you been licensed?',
-	experienceOptions: yearsLicensedOptions.map((option) => option.slug),
-	volumePrompt: 'How many transactions do you close per year?',
-	volumeOptions: [...averageTransactionsOptions],
-	pricePrompt: 'What is your typical price range?',
-	priceOptions: [...priceOptions],
-	clientPrompt: 'Where do you do your best work?',
+	intentOptions: ['buying', 'selling', 'both'] as RepresentationSide[],
 	clientOptions: questionOptionSlugs(bestClientTypesQuestion),
 	questionFlow: {
 		...agentQuestionFlow,
@@ -261,21 +157,21 @@ export const agentConfig = {
 		),
 	},
 	accent: 'amber',
-} satisfies AgentFlowConfig
+} satisfies {
+	basePath: '/agent'
+	label: string
+	intentOptions: RepresentationSide[]
+	clientOptions: string[]
+	questionFlow: MatchingQuestionFlow
+	accent: 'amber'
+}
 
 function getNextUnansweredQuestionIndex(
 	questions: Question[],
 	answers: Answers,
 ) {
 	const nextIndex = questions.findIndex((q) => answers[q.id] === undefined)
-
 	return nextIndex === -1 ? Math.max(questions.length - 1, 0) : nextIndex
-}
-
-function getServiceAreas(state: AgentFlowState): string[] {
-	return [state.serviceArea1, state.serviceArea2, state.serviceArea3].filter(
-		(area): area is string => Boolean(area),
-	)
 }
 
 function getRepresentationIcon(side: RepresentationSide): Icon {
@@ -290,347 +186,286 @@ function getRepresentationLabel(side: RepresentationSide) {
 	return 'Both'
 }
 
-function getExperienceLevel(slug: string) {
-	if (slug === '0-2') return 1
-	if (slug === '3-5') return 2
-	if (slug === '6-10') return 3
-	if (slug === '10+') return 4
-	return 1
+function StepHeader({
+	stepNumber,
+	totalSteps,
+	title,
+	icon: Icon,
+}: {
+	stepNumber: number
+	totalSteps: number
+	title: string
+	icon?: Icon
+}) {
+	return (
+		<div className="space-y-1">
+			<p className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+				Step {stepNumber} of {totalSteps}
+			</p>
+			<p className="text-muted-foreground flex items-center gap-1.5 text-sm font-medium">
+				{Icon ? <Icon className="h-4 w-4" weight="duotone" /> : null}
+				{title}
+			</p>
+		</div>
+	)
 }
 
-export function AgentIntro({
-	config,
+export function AgentWelcome({ onContinue }: { onContinue: () => void }) {
+	return (
+		<AnimatedStepCard stepKey="welcome" direction={1}>
+			<Card size="sm" className="shadow-sm">
+				<CardContent className="space-y-8">
+					<div className="space-y-2 text-center">
+						<h2 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+							Let's build your agent profile
+						</h2>
+						<p className="text-muted-foreground text-sm leading-relaxed">
+							A few essentials first, then the deeper stuff that helps consumers
+							choose you.
+						</p>
+					</div>
+
+					<div className="space-y-3">
+						{agentFlowSteps.slice(1, -1).map((step) => (
+							<div
+								key={step.id}
+								className="flex items-center gap-3 rounded-xl border p-4"
+							>
+								<step.icon className="text-primary h-5 w-5" weight="duotone" />
+								<div>
+									<p className="text-sm font-semibold">{step.label}</p>
+								</div>
+							</div>
+						))}
+					</div>
+
+					<Button
+						onClick={onContinue}
+						size="lg"
+						className="w-full gap-2 rounded-4xl px-8"
+					>
+						Start
+						<ArrowRight className="h-4 w-4" />
+					</Button>
+				</CardContent>
+			</Card>
+		</AnimatedStepCard>
+	)
+}
+
+export function AgentIdentity({
 	state,
 	direction,
 	onUpdate,
 	onContinue,
 }: {
-	config: AgentFlowConfig
-	state: AgentFlowState
+	state: AgentDraft
 	direction: number
-	onUpdate: (patch: Partial<AgentFlowState>) => void
+	onUpdate: (patch: Partial<AgentDraft>) => void
 	onContinue: () => void
 }) {
-	const [serviceAreas, setServiceAreas] = useState<string[]>(() =>
-		getServiceAreas(state),
+	const [firstName, setFirstName] = useState(state.firstName ?? '')
+	const [lastName, setLastName] = useState(state.lastName ?? '')
+	const [brokerageName, setBrokerageName] = useState(state.brokerageName ?? '')
+	const [email, setEmail] = useState(state.email ?? '')
+	const [phone, setPhone] = useState(state.phone ?? '')
+	const [businessAddress, setBusinessAddress] = useState(
+		state.businessAddress ?? '',
 	)
-	const [locationQuery, setLocationQuery] = useState('')
-	const [locationOpen, setLocationOpen] = useState(false)
-	const [priceIndex, setPriceIndex] = useState(() => {
-		const storedIndex = config.priceOptions.findIndex(
-			(option) => option.slug === state.typicalPriceRange,
-		)
-		return storedIndex >= 0 ? storedIndex : undefined
-	})
-	const [representationSide, setRepresentationSide] = useState<
-		RepresentationSide | ''
-	>(state.representationSide ?? '')
-	const [hasTriedContinue, setHasTriedContinue] = useState(false)
+	const [licenseNumberState, setLicenseNumberState] = useState(
+		state.licenseNumberState ?? '',
+	)
+	const [licenseProof, setLicenseProof] = useState(state.licenseProof ?? '')
+	const [yearsLicensed, setYearsLicensed] = useState(state.yearsLicensed ?? '')
+	const [averageTransactions, setAverageTransactions] = useState(
+		state.averageTransactions ?? '',
+	)
+	const [employmentStatus, setEmploymentStatus] = useState(
+		state.employmentStatus ?? '',
+	)
 
-	const typicalPriceRange =
-		priceIndex !== undefined ? config.priceOptions[priceIndex]?.slug : undefined
-	const marketComplete = serviceAreas.length > 0
-	const priceComplete = typicalPriceRange !== undefined
-	const sideComplete = representationSide.length > 0
-	const canContinue = marketComplete && priceComplete && sideComplete
-	const locationSuggestions = getLocationSuggestions(locationQuery)
-	const showMarketError = hasTriedContinue && !marketComplete
-	const showPriceError = hasTriedContinue && !priceComplete
-	const showSideError = hasTriedContinue && !sideComplete
-	const maxServiceAreas = 3
-
-	const addServiceArea = (area: string) => {
-		const trimmed = area.trim()
-		if (!trimmed || serviceAreas.includes(trimmed)) return
-		if (serviceAreas.length >= maxServiceAreas) return
-		setServiceAreas((current) => [...current, trimmed])
-		setLocationQuery('')
-	}
-
-	const removeServiceArea = (area: string) => {
-		setServiceAreas((current) => current.filter((item) => item !== area))
-	}
+	const canContinue =
+		firstName.trim().length > 0 &&
+		lastName.trim().length > 0 &&
+		brokerageName.trim().length > 0 &&
+		licenseNumberState.trim().length > 0
 
 	const handleContinue = () => {
-		if (
-			!marketComplete ||
-			!priceComplete ||
-			!sideComplete ||
-			!representationSide ||
-			!typicalPriceRange
-		) {
-			setHasTriedContinue(true)
-			return
-		}
-
+		if (!canContinue) return
 		onUpdate({
-			serviceArea1: serviceAreas[0],
-			serviceArea2: serviceAreas[1],
-			serviceArea3: serviceAreas[2],
-			typicalPriceRange,
-			representationSide,
-		} as Partial<AgentFlowState>)
+			firstName,
+			lastName,
+			brokerageName,
+			email,
+			phone,
+			businessAddress,
+			licenseNumberState,
+			licenseProof,
+			yearsLicensed,
+			averageTransactions,
+			employmentStatus,
+		})
 		onContinue()
 	}
 
+	const fillDebugData = () => {
+		setFirstName('Alex')
+		setLastName('Morgan')
+		setBrokerageName('PRE Realty Group')
+		setEmail('alex.morgan@example.com')
+		setPhone('555-123-4567')
+		setBusinessAddress('123 Main St, Austin, TX 78701')
+		setLicenseNumberState('TX-12345678')
+		setLicenseProof('https://license.example.com/alex-morgan')
+		setYearsLicensed('6-10')
+		setAverageTransactions('16-30')
+		setEmploymentStatus('Full time')
+	}
+
 	return (
-		<AnimatedStepCard stepKey="intro" direction={direction}>
+		<AnimatedStepCard stepKey="identity" direction={direction}>
 			<Card size="sm" className="shadow-sm">
-				<CardContent className="space-y-8">
-					<div className="space-y-2">
-						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-							Step 1 of 3
-						</p>
-						<h2 className="font-heading flex items-center gap-2 text-xl font-semibold tracking-tight">
-							<MapPinIcon className="h-5 w-5" />
-							Your Market
-						</h2>
-					</div>
-
-					{/* Service areas */}
-					<div className="space-y-3">
-						<div
-							className={cn(
-								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
-								showMarketError
-									? 'text-destructive'
-									: marketComplete
-										? 'text-primary'
-										: 'text-foreground',
-							)}
-						>
-							<AnimatedStatusIcon complete={marketComplete} icon={MapPinIcon} />
-							Service areas
-						</div>
-
-						<div className="flex flex-wrap gap-2">
-							{serviceAreas.map((area) => (
-								<button
-									key={area}
-									type="button"
-									onClick={() => removeServiceArea(area)}
-									className="bg-primary/[0.06] text-primary border-primary/30 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium"
-								>
-									{area}
-									<span className="text-primary/70">×</span>
-								</button>
-							))}
-							{serviceAreas.length < maxServiceAreas ? (
-								<Popover
-									open={locationOpen}
-									onOpenChange={(open) => {
-										if (!open) setLocationQuery('')
-										setLocationOpen(open)
-									}}
-								>
-									<PopoverTrigger asChild>
-										<Button
-											variant="outline"
-											aria-expanded={locationOpen}
-											className="h-10 rounded-full px-4 text-sm"
-										>
-											{config.areaPrompt}
-											<ChevronsUpDown className="text-muted-foreground ml-2 h-4 w-4 shrink-0" />
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent
-										align="start"
-										className="w-(--radix-popover-trigger-width) min-w-[260px] p-0"
-									>
-										<Command shouldFilter={false}>
-											<CommandInput
-												value={locationQuery}
-												onValueChange={setLocationQuery}
-												placeholder="Search city, state, or ZIP..."
-											/>
-											<CommandList>
-												<CommandEmpty>
-													No suggestions. You can still use what you typed.
-												</CommandEmpty>
-												<CommandGroup>
-													{locationSuggestions.map((suggestion) => (
-														<CommandItem
-															key={suggestion}
-															value={suggestion}
-															onSelect={(value) => {
-																addServiceArea(value)
-																setLocationOpen(false)
-															}}
-														>
-															{suggestion}
-														</CommandItem>
-													))}
-												</CommandGroup>
-											</CommandList>
-										</Command>
-									</PopoverContent>
-								</Popover>
-							) : null}
-						</div>
-						{showMarketError ? (
-							<p className="text-destructive text-xs">
-								Add at least one service area.
-							</p>
+				<CardContent className="space-y-6">
+					<div className="flex items-start justify-between gap-4">
+						<StepHeader
+							stepNumber={1}
+							totalSteps={5}
+							title="Identity"
+							icon={UserIcon}
+						/>
+						{import.meta.env.DEV ? (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={fillDebugData}
+								className="shrink-0"
+							>
+								Fill test data
+							</Button>
 						) : null}
 					</div>
 
-					{/* Price range & Representation side */}
-					<div className="grid gap-6 sm:grid-cols-2">
-						{/* Price range */}
-						<div className="space-y-3">
-							<div
-								className={cn(
-									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
-									showPriceError
-										? 'text-destructive'
-										: priceComplete
-											? 'text-primary'
-											: 'text-foreground',
-								)}
+					<div className="grid gap-4 sm:grid-cols-2">
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							First name
+							<Input
+								value={firstName}
+								onChange={(event) => setFirstName(event.target.value)}
+								placeholder="Jane"
+							/>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							Last name
+							<Input
+								value={lastName}
+								onChange={(event) => setLastName(event.target.value)}
+								placeholder="Doe"
+							/>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							Brokerage name
+							<Input
+								value={brokerageName}
+								onChange={(event) => setBrokerageName(event.target.value)}
+							/>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							Email
+							<Input
+								type="email"
+								value={email}
+								onChange={(event) => setEmail(event.target.value)}
+							/>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							Phone
+							<Input
+								type="tel"
+								value={phone}
+								onChange={(event) => setPhone(event.target.value)}
+							/>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							License number & state
+							<Input
+								value={licenseNumberState}
+								onChange={(event) => setLicenseNumberState(event.target.value)}
+								placeholder="CA-DRE-01234567"
+							/>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase sm:col-span-2">
+							Business address
+							<Input
+								value={businessAddress}
+								onChange={(event) => setBusinessAddress(event.target.value)}
+							/>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							Years licensed
+							<select
+								value={yearsLicensed}
+								onChange={(event) => setYearsLicensed(event.target.value)}
+								className="h-10 w-full rounded-md border px-3"
 							>
-								<AnimatedStatusIcon
-									complete={priceComplete}
-									icon={CurrencyDollarIcon}
-								/>
-								Price range
-							</div>
-							<div className="grid grid-cols-1 gap-2.5">
-								{config.priceOptions.map((option, index) => {
-									const isSelected = priceIndex === index
-
-									return (
-										<button
-											key={option.slug}
-											type="button"
-											onClick={() => setPriceIndex(index)}
-											className={cn(
-												'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
-												isSelected
-													? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
-													: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
-											)}
-											aria-pressed={isSelected}
-										>
-											<span
-												className={cn(
-													'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors',
-													isSelected
-														? 'border-primary bg-transparent'
-														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
-												)}
-											>
-												{isSelected ? (
-													<span className="bg-primary h-2 w-2 rounded-full" />
-												) : null}
-											</span>
-											{option.label}
-										</button>
-									)
-								})}
-							</div>
-							{showPriceError ? (
-								<p className="text-destructive text-xs">
-									Choose a typical price range.
-								</p>
-							) : null}
-						</div>
-
-						{/* Representation side */}
-						<div className="space-y-3">
-							<div
-								className={cn(
-									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
-									showSideError
-										? 'text-destructive'
-										: sideComplete
-											? 'text-primary'
-											: 'text-foreground',
-								)}
+								<option value="">Select...</option>
+								{yearsLicensedOptions.map((option) => (
+									<option key={option.slug} value={option.slug}>
+										{option.label}
+									</option>
+								))}
+							</select>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							Avg transactions / year
+							<select
+								value={averageTransactions}
+								onChange={(event) => setAverageTransactions(event.target.value)}
+								className="h-10 w-full rounded-md border px-3"
 							>
-								<AnimatedStatusIcon
-									complete={sideComplete}
-									icon={BriefcaseIcon}
-								/>
-								Side
-							</div>
-							<div className="grid grid-cols-1 gap-2.5">
-								{config.intentOptions.map((option) => {
-									const isSelected = representationSide === option
-									const SideIcon = getRepresentationIcon(option)
-									const label = getRepresentationLabel(option)
-
-									return (
-										<button
-											key={option}
-											type="button"
-											onClick={() => setRepresentationSide(option)}
-											className={cn(
-												'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
-												isSelected
-													? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
-													: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
-											)}
-											aria-pressed={isSelected}
-										>
-											<span
-												className={cn(
-													'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors',
-													isSelected
-														? 'border-primary bg-transparent'
-														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
-												)}
-											>
-												{isSelected ? (
-													<span className="bg-primary h-2 w-2 rounded-full" />
-												) : null}
-											</span>
-											<SideIcon
-												className={cn(
-													'h-5 w-5 shrink-0',
-													isSelected
-														? 'text-primary'
-														: 'text-muted-foreground group-hover:text-primary',
-												)}
-												weight="duotone"
-											/>
-											{label}
-										</button>
-									)
-								})}
-							</div>
-							{showSideError ? (
-								<p className="text-destructive text-xs">
-									Choose a representation side.
-								</p>
-							) : null}
-						</div>
+								<option value="">Select...</option>
+								{averageTransactionsOptions.map((option) => (
+									<option key={option.slug} value={option.slug}>
+										{option.label}
+									</option>
+								))}
+							</select>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							Full / part time
+							<select
+								value={employmentStatus}
+								onChange={(event) => setEmploymentStatus(event.target.value)}
+								className="h-10 w-full rounded-md border px-3"
+							>
+								<option value="">Select...</option>
+								<option value="Full time">Full time</option>
+								<option value="Part time">Part time</option>
+							</select>
+						</Label>
+						<Label className="flex-col items-start gap-2 text-xs font-semibold tracking-wide uppercase">
+							License proof URL / note
+							<Input
+								value={licenseProof}
+								onChange={(event) => setLicenseProof(event.target.value)}
+							/>
+						</Label>
 					</div>
 
-					<div className="space-y-4">
-						<StepProgressHeader
-							stepNumber={1}
-							totalSteps={3}
-							title="Your Market"
-							titleIcon={MapPinIcon}
-							items={[marketComplete, priceComplete, sideComplete]}
-							showTitle={false}
-						/>
-						<div className="flex justify-center">
-							<Button
-								onClick={handleContinue}
-								disabled={!canContinue}
-								size="lg"
-								className={cn(
-									'gap-2 rounded-xl px-8 transition-all duration-300',
-									canContinue
-										? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
-										: 'bg-muted text-muted-foreground',
-								)}
-							>
-								Continue
-								<ArrowRight className="h-4 w-4" />
-							</Button>
-						</div>
+					<div>
+						<Button
+							onClick={handleContinue}
+							disabled={!canContinue}
+							size="lg"
+							className={cn(
+								'w-full gap-2 rounded-4xl px-8 transition-all duration-300',
+								canContinue
+									? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+									: 'bg-muted text-muted-foreground',
+							)}
+						>
+							Continue
+							<ArrowRight className="h-4 w-4" />
+						</Button>
 					</div>
 				</CardContent>
 			</Card>
@@ -638,49 +473,103 @@ export function AgentIntro({
 	)
 }
 
-export function AgentSituation({
-	config,
+export function AgentMarket({
 	state,
 	direction,
 	onUpdate,
 	onContinue,
 }: {
-	config: AgentFlowConfig
-	state: AgentFlowState
+	state: AgentDraft
 	direction: number
-	onUpdate: (patch: Partial<AgentFlowState>) => void
+	onUpdate: (patch: Partial<AgentDraft>) => void
 	onContinue: () => void
 }) {
+	const rawInitialLocation = state.city ?? ''
+	const [committedLocation, setCommittedLocation] = useState(rawInitialLocation)
+	const [locationQuery, setLocationQuery] = useState(rawInitialLocation)
+	const [locationOpen, setLocationOpen] = useState(false)
+	const [selectedZipCodes, setSelectedZipCodes] = useState<string[]>(
+		state.zipCodes ?? [],
+	)
+	const [manualZipCode, setManualZipCode] = useState('')
+	const [hasTriedContinue, setHasTriedContinue] = useState(false)
+
+	const initialRange = parsePriceRange(state.typicalPriceRange)
+	const [priceRange, setPriceRange] = useState(initialRange)
+	const [representationSide, setRepresentationSide] = useState<
+		RepresentationSide | ''
+	>(state.representationSide ?? '')
 	const [bestClientTypes, setBestClientTypes] = useState<string[]>(
 		state.bestClientTypes ?? [],
 	)
-	const [yearsLicensedIndex, setYearsLicensedIndex] = useState(() => {
-		const storedIndex = yearsLicensedOptions.findIndex(
-			(option) => option.slug === state.yearsLicensed,
-		)
-		return storedIndex >= 0 ? storedIndex : undefined
-	})
-	const [averageTransactionsIndex, setAverageTransactionsIndex] = useState(
-		() => {
-			const storedIndex = averageTransactionsOptions.findIndex(
-				(option) => option.slug === state.averageTransactions,
-			)
-			return storedIndex >= 0 ? storedIndex : undefined
-		},
-	)
 
-	const yearsLicensed =
-		yearsLicensedIndex !== undefined
-			? yearsLicensedOptions[yearsLicensedIndex]?.slug
-			: undefined
-	const averageTransactions =
-		averageTransactionsIndex !== undefined
-			? averageTransactionsOptions[averageTransactionsIndex]?.slug
-			: undefined
+	const marketComplete = committedLocation.trim().length >= 2
+	const priceComplete =
+		priceRange.min >= PRICE_MIN && priceRange.max <= PRICE_MAX
+	const sideComplete = representationSide.length > 0
 	const clientsComplete = bestClientTypes.length > 0
-	const yearsComplete = yearsLicensed !== undefined
-	const volumeComplete = averageTransactions !== undefined
-	const canContinue = clientsComplete && yearsComplete && volumeComplete
+	const canContinue =
+		marketComplete && priceComplete && sideComplete && clientsComplete
+	const showMarketError = hasTriedContinue && !marketComplete
+	const cityState = parseCityState(committedLocation)
+
+	const { data: locationSuggestions = [] } = useQuery({
+		queryKey: ['city-suggestions', locationQuery],
+		queryFn: () => loadCitySuggestions(locationQuery),
+		enabled: locationQuery.trim().length >= 0,
+		staleTime: 1000 * 60 * 60,
+	})
+
+	const { data: boundaries } = useQuery({
+		queryKey: ['zip-code-boundaries', committedLocation],
+		queryFn: async () => {
+			if (!cityState) {
+				return {
+					type: 'FeatureCollection',
+					features: [],
+				} satisfies FeatureCollection
+			}
+			return loadZipCodeBoundaries(cityState)
+		},
+		enabled: marketComplete && Boolean(cityState),
+		staleTime: 1000 * 60 * 60,
+	})
+
+	const { data: centerForCity } = useQuery({
+		queryKey: ['city-center', committedLocation],
+		queryFn: async () => {
+			if (!cityState) return undefined
+			return loadCityCenter(cityState)
+		},
+		enabled: marketComplete && Boolean(cityState),
+		staleTime: 1000 * 60 * 60,
+	})
+
+	const toggleZipCode = (zipCode: string) => {
+		setSelectedZipCodes((current) =>
+			current.includes(zipCode)
+				? current.filter((item) => item !== zipCode)
+				: [...current, zipCode],
+		)
+	}
+
+	const addManualZipCode = () => {
+		const zipCode = manualZipCode.trim()
+		if (!marketComplete || !isValidZipCode(zipCode)) return
+		setSelectedZipCodes((current) =>
+			current.includes(zipCode) ? current : [...current, zipCode],
+		)
+		setManualZipCode('')
+	}
+
+	const selectCity = (city: string) => {
+		setCommittedLocation(city)
+		setLocationQuery(city)
+		setSelectedZipCodes((current) =>
+			city === committedLocation ? current : [],
+		)
+		setLocationOpen(false)
+	}
 
 	const toggleClientType = (option: string) => {
 		setBestClientTypes((current) =>
@@ -691,50 +580,295 @@ export function AgentSituation({
 	}
 
 	const handleContinue = () => {
-		if (!canContinue) return
+		if (!canContinue) {
+			setHasTriedContinue(true)
+			return
+		}
+
+		const derivedState = cityState?.state
 		onUpdate({
+			city: committedLocation,
+			...(derivedState ? { state: derivedState } : {}),
+			zipCodes: selectedZipCodes,
+			serviceAreas:
+				selectedZipCodes.length > 0 ? selectedZipCodes : [committedLocation],
+			typicalPriceRange: serializePriceRange(priceRange),
+			representationSide: representationSide as RepresentationSide,
 			bestClientTypes,
-			yearsLicensed,
-			averageTransactions,
 		})
 		onContinue()
 	}
 
 	return (
-		<AnimatedStepCard stepKey="situation" direction={direction}>
+		<AnimatedStepCard stepKey="market" direction={direction}>
 			<Card size="sm" className="shadow-sm">
-				<CardContent className="space-y-8">
-					<div className="space-y-2">
-						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-							Step 2 of 3
-						</p>
-						<h2 className="font-heading text-xl font-semibold tracking-tight">
-							Your experience
-						</h2>
-					</div>
+				<CardContent className="space-y-6">
+					<StepHeader
+						stepNumber={2}
+						totalSteps={5}
+						title="Market"
+						icon={MapPinIcon}
+					/>
 
-					{/* Best client types */}
 					<div className="space-y-3">
 						<div
 							className={cn(
-								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground transition-colors',
-								clientsComplete ? 'text-primary' : 'text-foreground',
+								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase leading-none',
+								showMarketError
+									? 'text-destructive'
+									: marketComplete
+										? 'text-primary'
+										: 'text-muted-foreground',
 							)}
 						>
-							<AnimatedStatusIcon complete={clientsComplete} icon={UsersIcon} />
-							{config.clientPrompt}
+							Primary market
 						</div>
-						<div className="grid grid-cols-1 gap-2.5">
-							{config.clientOptions.map((option) => {
-								const isSelected = bestClientTypes.includes(option)
+						<Popover
+							open={locationOpen}
+							onOpenChange={(open) => {
+								setLocationQuery(open ? '' : committedLocation)
+								setLocationOpen(open)
+							}}
+						>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									aria-expanded={locationOpen}
+									className={cn(
+										'h-12 w-full justify-between rounded-2xl px-4 text-left text-base font-semibold transition sm:h-14 sm:text-lg',
+										marketComplete
+											? 'border-primary/60 bg-background text-foreground shadow-sm hover:bg-primary/[0.04]'
+											: 'border-primary/25 bg-background text-foreground shadow-sm hover:border-primary/50 hover:bg-background',
+									)}
+								>
+									<span
+										className={cn(
+											!committedLocation && 'text-muted-foreground',
+											'truncate',
+										)}
+									>
+										{committedLocation || 'Search for your city'}
+									</span>
+									<ChevronsUpDown className="text-muted-foreground h-4 w-4 shrink-0" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								align="start"
+								className="w-(--radix-popover-trigger-width) min-w-[260px] p-0"
+							>
+								<Command shouldFilter={false}>
+									<CommandInput
+										value={locationQuery}
+										onValueChange={setLocationQuery}
+										placeholder="Search city..."
+									/>
+									<CommandList>
+										<CommandEmpty>
+											No matching cities. Try a nearby market.
+										</CommandEmpty>
+										<CommandGroup
+											heading={
+												locationQuery.trim().length < 2
+													? 'Top US cities'
+													: 'City matches'
+											}
+										>
+											{locationSuggestions.map((suggestion) => (
+												<CommandItem
+													key={suggestion}
+													value={suggestion}
+													onSelect={selectCity}
+												>
+													<Check
+														className={cn(
+															committedLocation === suggestion
+																? 'opacity-100'
+																: 'opacity-0',
+														)}
+													/>
+													{suggestion}
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
+						{showMarketError ? (
+							<p className="text-destructive text-xs">Enter a city.</p>
+						) : null}
+					</div>
 
+					{marketComplete ? (
+						<div className="space-y-3">
+							<div className="bg-muted/50 relative flex flex-1 items-center rounded-2xl border px-3">
+								<input
+									value={manualZipCode}
+									onChange={(event) => setManualZipCode(event.target.value)}
+									placeholder="Add ZIP code"
+									inputMode="numeric"
+									maxLength={5}
+									className="h-11 w-full bg-transparent text-sm font-semibold outline-none"
+								/>
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									onClick={addManualZipCode}
+									disabled={!isValidZipCode(manualZipCode.trim())}
+									className="h-8 rounded-xl px-3 text-xs"
+								>
+									Add
+								</Button>
+							</div>
+							{selectedZipCodes.length > 0 ? (
+								<div className="flex flex-wrap gap-1.5">
+									{selectedZipCodes.map((zipCode) => {
+										const isSelected = selectedZipCodes.includes(zipCode)
+										return (
+											<button
+												key={zipCode}
+												type="button"
+												onClick={() => toggleZipCode(zipCode)}
+												className={cn(
+													'resize-none rounded-full border px-2 py-0.5 text-[10px] font-semibold transition',
+													isSelected
+														? 'border-primary bg-primary text-primary-foreground shadow-sm'
+														: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground',
+												)}
+												aria-pressed={isSelected}
+											>
+												{zipCode}
+											</button>
+										)
+									})}
+								</div>
+							) : null}
+							<div className="bg-muted/30 border-border overflow-hidden rounded-2xl border p-3">
+								{!centerForCity ? (
+									<Skeleton className="h-64 rounded-2xl" />
+								) : (
+									<ZipCodeMap
+										boundaries={
+											boundaries ?? {
+												type: 'FeatureCollection',
+												features: [],
+											}
+										}
+										selectedZipCodes={selectedZipCodes}
+										center={centerForCity}
+										readOnly
+										className="h-64"
+									/>
+								)}
+							</div>
+						</div>
+					) : null}
+
+					<div className="space-y-5 border-t pt-5">
+						<div className="flex items-center justify-between gap-3">
+							<p className="text-sm font-semibold">Typical price range</p>
+							<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap">
+								{formatPriceRange(priceRange)}
+							</span>
+						</div>
+						<div className="grid grid-cols-2 gap-3">
+							<PriceInput
+								id="agent-price-min"
+								label="Low"
+								value={priceRange.min}
+								onChange={(nextMin) =>
+									setPriceRange((current) => ({
+										...current,
+										min: Math.min(nextMin, current.max),
+									}))
+								}
+							/>
+							<PriceInput
+								id="agent-price-max"
+								label="High"
+								value={priceRange.max}
+								onChange={(nextMax) =>
+									setPriceRange((current) => ({
+										...current,
+										max: Math.max(nextMax, current.min),
+									}))
+								}
+							/>
+						</div>
+						<Slider
+							value={[priceRange.min, priceRange.max]}
+							min={PRICE_MIN}
+							max={PRICE_MAX}
+							step={PRICE_STEP}
+							onValueChange={([nextMin, nextMax]) => {
+								setPriceRange({
+									min: nextMin ?? DEFAULT_PRICE_RANGE.min,
+									max: nextMax ?? DEFAULT_PRICE_RANGE.max,
+								})
+							}}
+						/>
+						<div className="relative h-4">
+							{[0, 500_000, 1_000_000, 1_500_000, 2_000_000].map((value) => {
+								const percent = (value / PRICE_MAX) * 100
+								return (
+									<div
+										key={value}
+										className="absolute top-0 flex -translate-x-1/2 flex-col items-center gap-0.5"
+										style={{ left: `${percent}%` }}
+									>
+										<span className="bg-muted-foreground/30 h-1 w-px rounded-full" />
+										<span className="text-muted-foreground text-[10px] font-medium">
+											{formatPriceCompact(value)}
+										</span>
+									</div>
+								)
+							})}
+						</div>
+					</div>
+
+					<div className="space-y-3">
+						<p className="text-sm font-semibold">Representation side</p>
+						<div className="grid grid-cols-3 gap-3">
+							{agentConfig.intentOptions.map((option) => {
+								const isSelected = representationSide === option
+								const SideIcon = getRepresentationIcon(option)
+								const label = getRepresentationLabel(option)
+								return (
+									<button
+										key={option}
+										type="button"
+										onClick={() => setRepresentationSide(option)}
+										className={cn(
+											'group flex items-center gap-2 rounded-full border px-4 py-3 text-left text-sm font-semibold transition',
+											isSelected
+												? 'border-primary bg-primary text-primary-foreground shadow-sm'
+												: 'border-border bg-card text-foreground hover:border-primary/50 hover:bg-background',
+										)}
+										aria-pressed={isSelected}
+									>
+										<SideIcon className="h-4 w-4 shrink-0" weight="duotone" />
+										<span className="min-w-0 truncate">{label}</span>
+									</button>
+								)
+							})}
+						</div>
+					</div>
+
+					<div className="space-y-3">
+						<p className="text-sm font-semibold">
+							Where do you do your best work?
+						</p>
+						<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+							{agentConfig.clientOptions.map((option) => {
+								const isSelected = bestClientTypes.includes(option)
 								return (
 									<button
 										key={option}
 										type="button"
 										onClick={() => toggleClientType(option)}
 										className={cn(
-											'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
+											'group flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition',
 											isSelected
 												? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
 												: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
@@ -760,160 +894,34 @@ export function AgentSituation({
 						</div>
 					</div>
 
-					{/* Years licensed & Volume */}
-					<div className="grid gap-6 sm:grid-cols-2">
-						{/* Years licensed */}
-						<div className="space-y-3">
-							<div
-								className={cn(
-									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground transition-colors',
-									yearsComplete ? 'text-primary' : 'text-foreground',
-								)}
-							>
-								<AnimatedStatusIcon
-									complete={yearsComplete}
-									icon={QuestionIcon}
-								/>
-								{config.experiencePrompt}
-							</div>
-							<div className="grid grid-cols-1 gap-2.5">
-								{yearsLicensedOptions.map((option, index) => {
-									const isSelected = yearsLicensedIndex === index
-									const level = getExperienceLevel(option.slug)
+					<StepProgressHeader
+						stepNumber={2}
+						totalSteps={5}
+						title="Market"
+						items={[
+							marketComplete,
+							priceComplete,
+							sideComplete,
+							clientsComplete,
+						]}
+						showTitle={false}
+					/>
 
-									return (
-										<button
-											key={option.slug}
-											type="button"
-											onClick={() => setYearsLicensedIndex(index)}
-											className={cn(
-												'group relative flex flex-col items-start gap-2.5 rounded-xl border p-4 text-left transition',
-												isSelected
-													? 'border-primary/30 bg-secondary shadow-sm'
-													: 'border-border bg-card hover:border-primary/30 hover:shadow-sm',
-											)}
-											aria-pressed={isSelected}
-										>
-											<span
-												className={cn(
-													'absolute top-3 right-3 flex h-4 w-4 items-center justify-center rounded-full border transition-colors',
-													isSelected
-														? 'border-primary/40 bg-white text-primary'
-														: 'border-muted-foreground/25 bg-muted/30',
-												)}
-											>
-												<Check
-													className={cn(
-														'h-2.5 w-2.5 transition-opacity',
-														isSelected ? 'opacity-100' : 'opacity-0',
-													)}
-												/>
-											</span>
-											<span
-												className={cn(
-													'flex h-9 w-9 items-end justify-center gap-0.5 rounded-lg border pb-1.5 transition-colors',
-													isSelected
-														? 'border-primary/20 bg-white text-primary'
-														: 'border-border bg-muted text-muted-foreground group-hover:border-primary/20 group-hover:text-primary',
-												)}
-											>
-												{[1, 2, 3, 4].map((bar) => (
-													<span
-														key={bar}
-														className={cn(
-															'w-1 rounded-full',
-															bar === 1 && 'h-2',
-															bar === 2 && 'h-3',
-															bar === 3 && 'h-4',
-															bar === 4 && 'h-5',
-															bar <= level ? 'bg-current' : 'bg-current/25',
-														)}
-													/>
-												))}
-											</span>
-											<span className="text-foreground text-sm leading-snug font-medium">
-												{option.label}
-											</span>
-										</button>
-									)
-								})}
-							</div>
-						</div>
-
-						{/* Average transactions */}
-						<div className="space-y-3">
-							<div
-								className={cn(
-									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground transition-colors',
-									volumeComplete ? 'text-primary' : 'text-foreground',
-								)}
-							>
-								<AnimatedStatusIcon
-									complete={volumeComplete}
-									icon={ChartLineIcon}
-								/>
-								{config.volumePrompt}
-							</div>
-							<div className="grid grid-cols-1 gap-2.5">
-								{averageTransactionsOptions.map((option, index) => {
-									const isSelected = averageTransactionsIndex === index
-
-									return (
-										<button
-											key={option.slug}
-											type="button"
-											onClick={() => setAverageTransactionsIndex(index)}
-											className={cn(
-												'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
-												isSelected
-													? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
-													: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
-											)}
-											aria-pressed={isSelected}
-										>
-											<span
-												className={cn(
-													'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors',
-													isSelected
-														? 'border-primary bg-transparent'
-														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
-												)}
-											>
-												{isSelected ? (
-													<span className="bg-primary h-2 w-2 rounded-full" />
-												) : null}
-											</span>
-											{option.label}
-										</button>
-									)
-								})}
-							</div>
-						</div>
-					</div>
-
-					<div className="space-y-4">
-						<StepProgressHeader
-							stepNumber={2}
-							totalSteps={3}
-							title="Your experience"
-							items={[clientsComplete, yearsComplete, volumeComplete]}
-							showTitle={false}
-						/>
-						<div className="flex justify-center">
-							<Button
-								onClick={handleContinue}
-								disabled={!canContinue}
-								size="lg"
-								className={cn(
-									'rounded-xl px-8 transition-all duration-300',
-									canContinue
-										? 'shadow-md hover:shadow-lg'
-										: 'bg-muted text-muted-foreground',
-								)}
-							>
-								Continue
-							</Button>
-						</div>
+					<div>
+						<Button
+							onClick={handleContinue}
+							disabled={!canContinue}
+							size="lg"
+							className={cn(
+								'w-full gap-2 rounded-4xl px-8 transition-all duration-300',
+								canContinue
+									? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+									: 'bg-muted text-muted-foreground',
+							)}
+						>
+							Continue
+							<ArrowRight className="h-4 w-4" />
+						</Button>
 					</div>
 				</CardContent>
 			</Card>
@@ -921,58 +929,203 @@ export function AgentSituation({
 	)
 }
 
-export function AgentQuiz({
-	config,
+export function AgentCompliance({
 	state,
 	direction,
 	onUpdate,
-	onComplete,
+	onContinue,
 }: {
-	config: AgentFlowConfig
-	state: AgentFlowState
+	state: AgentDraft
 	direction: number
-	onUpdate: (patch: Partial<AgentFlowState>) => void
-	onComplete: () => void
+	onUpdate: (patch: Partial<AgentDraft>) => void
+	onContinue: () => void
 }) {
-	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() =>
-		getNextUnansweredQuestionIndex(
-			config.questionFlow.questions,
-			state.answers,
-		),
+	const [licenseAttested, setLicenseAttested] = useState(
+		state.licenseAttested ?? false,
 	)
+	const [eoInsuranceStatus, setEoInsuranceStatus] = useState(
+		state.eoInsuranceStatus ?? '',
+	)
+	const canContinue = licenseAttested && eoInsuranceStatus.length > 0
+
+	const handleContinue = () => {
+		if (!canContinue) return
+		onUpdate({ licenseAttested, eoInsuranceStatus })
+		onContinue()
+	}
 
 	return (
-		<AnimatedStepCard stepKey="quiz" direction={direction}>
+		<AnimatedStepCard stepKey="compliance" direction={direction}>
 			<Card size="sm" className="shadow-sm">
 				<CardContent className="space-y-6">
-					<StepProgressHeader
+					<StepHeader
 						stepNumber={3}
-						totalSteps={3}
-						title="Your style"
-						activeIndex={currentQuestionIndex}
-						items={config.questionFlow.questions.map(
-							(q) =>
-								state.answers[q.id] !== undefined &&
-								state.answers[q.id] !== SKIPPED_ANSWER,
-						)}
+						totalSteps={5}
+						title="Compliance"
+						icon={ShieldCheckIcon}
 					/>
-					<QuestionFlow
-						questions={config.questionFlow.questions}
-						titleVisibility="sr-only"
-						mode="single-question"
-						title="Step 3: Your Style"
-						wrapper="wizard"
-						answers={state.answers}
-						currentQuestionIndex={currentQuestionIndex}
-						onAnswersChange={(nextAnswers) =>
-							onUpdate({ answers: nextAnswers })
-						}
-						onQuestionIndexChange={setCurrentQuestionIndex}
-						onComplete={onComplete}
-						completeTo="/agent/profile"
-						completeLabel="Continue"
-						navigateOnComplete={false}
+
+					<Label className="flex items-start gap-3 border p-5 text-sm leading-relaxed">
+						<input
+							type="checkbox"
+							checked={licenseAttested}
+							onChange={(event) => setLicenseAttested(event.target.checked)}
+							className="mt-1"
+						/>
+						<span>
+							I confirm that my real estate license is currently active and in
+							good standing in all states where I am licensed, that there are no
+							pending or active disciplinary actions, complaints, or
+							investigations, and that I have not previously had a real estate
+							license suspended, revoked, or subject to formal disciplinary
+							action.
+						</span>
+					</Label>
+
+					<div className="space-y-3">
+						<p className="text-sm font-semibold">
+							Errors and Omissions (E&O) Insurance
+						</p>
+						<RadioGroup
+							value={eoInsuranceStatus}
+							onValueChange={setEoInsuranceStatus}
+							className="space-y-2"
+						>
+							{[
+								'Yes, I carry my own E&O policy',
+								'Yes, I am covered through my brokerage',
+								'No',
+							].map((option) => (
+								<Label
+									key={option}
+									className="flex items-center gap-3 border p-4 text-sm"
+								>
+									<RadioGroupItem value={option} />
+									{option}
+								</Label>
+							))}
+						</RadioGroup>
+					</div>
+
+					<div>
+						<Button
+							onClick={handleContinue}
+							disabled={!canContinue}
+							size="lg"
+							className={cn(
+								'w-full gap-2 rounded-4xl px-8 transition-all duration-300',
+								canContinue
+									? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+									: 'bg-muted text-muted-foreground',
+							)}
+						>
+							Continue
+							<ArrowRight className="h-4 w-4" />
+						</Button>
+					</div>
+				</CardContent>
+			</Card>
+		</AnimatedStepCard>
+	)
+}
+
+export function AgentPeacePact({
+	state,
+	direction,
+	onUpdate,
+	onContinue,
+}: {
+	state: AgentDraft
+	direction: number
+	onUpdate: (patch: Partial<AgentDraft>) => void
+	onContinue: () => void
+}) {
+	const [agreed, setAgreed] = useState(state.peacePactSigned ?? false)
+	const [signature, setSignature] = useState(state.peacePactSignature ?? '')
+	const canContinue = agreed && signature.trim().length > 2
+
+	const handleContinue = () => {
+		if (!canContinue) return
+		onUpdate({
+			peacePactSigned: true,
+			peacePactSignature: signature,
+		})
+		onContinue()
+	}
+
+	return (
+		<AnimatedStepCard stepKey="peacePact" direction={direction}>
+			<Card size="sm" className="shadow-sm">
+				<CardContent className="space-y-6">
+					<StepHeader
+						stepNumber={4}
+						totalSteps={5}
+						title="Peace Pact"
+						icon={ScrollIcon}
 					/>
+
+					<Card className="max-h-80 overflow-y-auto rounded-2xl border bg-transparent p-5 text-sm leading-relaxed shadow-none ring-0">
+						<h2 className="mb-4 text-xl font-semibold">THE PEACE PACT</h2>
+						<p>
+							This Commitment reinforces ethical, transparent, and
+							consumer-first real estate practices consistent with the NAR Code
+							of Ethics, particularly Article 1.
+						</p>
+						<p className="mt-4">
+							I commit to protecting and promoting my client's interests with
+							loyalty, care, and diligence while treating all parties honestly
+							and fairly.
+						</p>
+						<p className="mt-4">
+							I affirm that buyers and sellers retain the right to make their
+							own decisions, negotiate compensation freely, and decline any term
+							or service that does not align with their goals.
+						</p>
+						<p className="mt-4">
+							I will not steer buyers toward or away from properties based on
+							compensation, and I will explain representation, services, and
+							compensation options clearly before and during any agency
+							relationship.
+						</p>
+					</Card>
+
+					<Label className="flex items-start gap-3 text-sm leading-relaxed">
+						<input
+							type="checkbox"
+							checked={agreed}
+							onChange={(event) => setAgreed(event.target.checked)}
+							className="mt-1"
+						/>
+						<span>
+							I agree to uphold the Peace Pact in alignment with the NAR Code of
+							Ethics and applicable regulations.
+						</span>
+					</Label>
+
+					<Label className="flex-col items-start gap-2 text-sm font-medium">
+						Agent Signature (type full name)
+						<Input
+							value={signature}
+							onChange={(event) => setSignature(event.target.value)}
+						/>
+					</Label>
+
+					<div>
+						<Button
+							onClick={handleContinue}
+							disabled={!canContinue}
+							size="lg"
+							className={cn(
+								'w-full gap-2 rounded-4xl px-8 transition-all duration-300',
+								canContinue
+									? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+									: 'bg-muted text-muted-foreground',
+							)}
+						>
+							Sign & continue
+							<ArrowRight className="h-4 w-4" />
+						</Button>
+					</div>
 				</CardContent>
 			</Card>
 		</AnimatedStepCard>
@@ -980,22 +1133,19 @@ export function AgentQuiz({
 }
 
 export function AgentPriorities({
-	config,
 	state,
 	onUpdate,
 }: {
-	config: AgentFlowConfig
-	state: AgentFlowState
-	onUpdate: (patch: Partial<AgentFlowState>) => void
+	state: AgentDraft
+	onUpdate: (patch: Partial<AgentDraft>) => void
 }) {
 	const [selectedPriorities, setSelectedPriorities] = useState<string[]>(
 		state.matchPriorities ?? [],
 	)
-	const canContinue = selectedPriorities.length > 0
 
-	const answeredQuestions = config.questionFlow.questions.filter(
+	const answeredQuestions = agentConfig.questionFlow.questions.filter(
 		(q) =>
-			state.answers[q.id] !== undefined &&
+			state.answers?.[q.id] !== undefined &&
 			state.answers[q.id] !== SKIPPED_ANSWER,
 	)
 	const maxSelections = 2
@@ -1064,7 +1214,7 @@ export function AgentPriorities({
 										{question.title}
 									</p>
 									<p className="text-sm font-medium">
-										{getAnswerSummary(question, state.answers[question.id]!)}
+										{getAnswerSummary(question, state.answers?.[question.id])}
 									</p>
 								</div>
 								{isSelected ? (
@@ -1078,24 +1228,13 @@ export function AgentPriorities({
 				</div>
 
 				<div className="flex justify-end">
-					{canContinue ? (
-						<Button asChild>
-							<Link
-								to="/agent/profile"
-								onClick={() => {
-									onUpdate({ matchPriorities: selectedPriorities })
-								}}
-							>
-								Continue to profile
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						</Button>
-					) : (
-						<Button disabled>
-							Continue to profile
-							<ArrowRight className="h-4 w-4" />
-						</Button>
-					)}
+					<Button
+						onClick={() => onUpdate({ matchPriorities: selectedPriorities })}
+						disabled={selectedPriorities.length === 0}
+					>
+						Save priorities
+						<ArrowRight className="h-4 w-4" />
+					</Button>
 				</div>
 			</CardContent>
 		</Card>
@@ -1138,41 +1277,33 @@ function AgentLeaveDialog({
 }
 
 export function AgentIntake({
-	config,
 	step,
 	reset = false,
 }: {
-	config: AgentFlowConfig
 	step: AgentFlowStep
 	reset?: boolean
 }) {
 	const navigate = useNavigate()
 	const currentIndex = stepOrder.indexOf(step)
-	const [state, setState] = useState<AgentFlowState>(() => {
-		if (reset) return { answers: {} }
-		const draft = loadAgentDraft()
-		return draft ? { ...draft } : { answers: {} }
+	const [state, setState] = useState<AgentDraft>(() => {
+		if (reset) return {}
+		return loadAgentDraft() ?? {}
 	})
 	const [direction, setDirection] = useState(1)
+	const [showLeaveDialog, setShowLeaveDialog] = useState(false)
 	const previousIndexRef = useRef(currentIndex)
+
 	const hasDraft =
-		Object.keys(state.answers).length > 0 ||
-		state.serviceArea1 !== undefined ||
+		state.firstName !== undefined ||
+		state.city !== undefined ||
 		state.representationSide !== undefined
 
-	const [showLeaveDialog, setShowLeaveDialog] = useState(false)
-
-	const updateState = (patch: Partial<AgentFlowState>) => {
+	const updateState = (patch: Partial<AgentDraft>) => {
 		setState((current) => {
 			const next = { ...current, ...patch }
-			saveAgentDraft(next as AgentDraft)
+			saveAgentDraft(next)
 			return next
 		})
-	}
-
-	const handleComplete = () => {
-		saveAgentDraft(state as AgentDraft)
-		void navigate({ to: '/agent/priorities' })
 	}
 
 	const handleHomeClick = () => {
@@ -1190,21 +1321,31 @@ export function AgentIntake({
 
 	const goToStep = (nextStep: AgentFlowStep) => {
 		void navigate({
-			to: `${config.basePath}/intake`,
+			to: '/agent/intake',
 			search: { step: nextStep },
 		})
 	}
 
-	const progress = (() => {
-		switch (step) {
-			case 'intro':
-				return <FlowIntakeProgress steps={agentFlowSteps} current="intro" />
-			case 'situation':
-				return <FlowIntakeProgress steps={agentFlowSteps} current="situation" />
-			case 'quiz':
-				return <FlowIntakeProgress steps={agentFlowSteps} current="quiz" />
-		}
-	})()
+	const completedStepIds = agentFlowSteps
+		.filter((s) => {
+			switch (s.id) {
+				case 'identity':
+					return Boolean(state.firstName && state.lastName)
+				case 'market':
+					return Boolean(
+						state.city && state.typicalPriceRange && state.representationSide,
+					)
+				case 'compliance':
+					return Boolean(state.licenseAttested && state.eoInsuranceStatus)
+				case 'peacePact':
+					return Boolean(state.peacePactSigned)
+				default:
+					return false
+			}
+		})
+		.map((s) => s.id)
+
+	const progress = <FlowIntakeProgress steps={agentFlowSteps} current={step} />
 
 	return (
 		<>
@@ -1213,30 +1354,38 @@ export function AgentIntake({
 				currentStepId={step}
 				progress={progress}
 				onHomeClick={handleHomeClick}
+				onStepClick={(nextStep) => goToStep(nextStep as AgentFlowStep)}
+				completedStepIds={completedStepIds}
 			>
-				{step === 'intro' ? (
-					<AgentIntro
-						config={config}
+				{step === 'welcome' ? (
+					<AgentWelcome onContinue={() => goToStep('identity')} />
+				) : step === 'identity' ? (
+					<AgentIdentity
 						state={state}
 						direction={direction}
 						onUpdate={updateState}
-						onContinue={() => goToStep('situation')}
+						onContinue={() => goToStep('market')}
 					/>
-				) : step === 'situation' ? (
-					<AgentSituation
-						config={config}
+				) : step === 'market' ? (
+					<AgentMarket
 						state={state}
 						direction={direction}
 						onUpdate={updateState}
-						onContinue={() => goToStep('quiz')}
+						onContinue={() => goToStep('compliance')}
+					/>
+				) : step === 'compliance' ? (
+					<AgentCompliance
+						state={state}
+						direction={direction}
+						onUpdate={updateState}
+						onContinue={() => goToStep('peacePact')}
 					/>
 				) : (
-					<AgentQuiz
-						config={config}
+					<AgentPeacePact
 						state={state}
 						direction={direction}
 						onUpdate={updateState}
-						onComplete={handleComplete}
+						onContinue={() => void navigate({ to: '/agent/preview' })}
 					/>
 				)}
 			</WizardShell>
@@ -1251,5 +1400,63 @@ export function AgentIntake({
 				}}
 			/>
 		</>
+	)
+}
+
+// Re-export deep-profile helpers from the legacy question flow for backwards
+// compatibility until the deep-profile route fully replaces them.
+export function AgentQuiz({
+	state,
+	direction,
+	onUpdate,
+	onComplete,
+}: {
+	state: AgentDraft
+	direction: number
+	onUpdate: (patch: Partial<AgentDraft>) => void
+	onComplete: () => void
+}) {
+	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() =>
+		getNextUnansweredQuestionIndex(
+			agentConfig.questionFlow.questions,
+			state.answers ?? {},
+		),
+	)
+
+	return (
+		<AnimatedStepCard stepKey="quiz" direction={direction}>
+			<Card size="sm" className="shadow-sm">
+				<CardContent className="space-y-6">
+					<StepProgressHeader
+						stepNumber={3}
+						totalSteps={3}
+						title="Your style"
+						activeIndex={currentQuestionIndex}
+						items={agentConfig.questionFlow.questions.map(
+							(q) =>
+								state.answers?.[q.id] !== undefined &&
+								state.answers[q.id] !== SKIPPED_ANSWER,
+						)}
+					/>
+					<QuestionFlow
+						questions={agentConfig.questionFlow.questions}
+						titleVisibility="sr-only"
+						mode="single-question"
+						title="Step 3: Your Style"
+						wrapper="wizard"
+						answers={state.answers ?? {}}
+						currentQuestionIndex={currentQuestionIndex}
+						onAnswersChange={(nextAnswers) =>
+							onUpdate({ answers: nextAnswers })
+						}
+						onQuestionIndexChange={setCurrentQuestionIndex}
+						onComplete={onComplete}
+						completeTo="/agent/profile"
+						completeLabel="Continue"
+						navigateOnComplete={false}
+					/>
+				</CardContent>
+			</Card>
+		</AnimatedStepCard>
 	)
 }

@@ -25,8 +25,8 @@ export async function listAgentMatches(): Promise<AgentMatchData[]> {
 		.innerJoin(user, eq(agentProfiles.userId, user.id))
 		.where(
 			or(
-				eq(agentProfiles.status, 'submitted'),
 				eq(agentProfiles.status, 'active'),
+				eq(agentProfiles.status, 'enriched'),
 			),
 		)
 
@@ -47,11 +47,7 @@ export async function listAgentMatches(): Promise<AgentMatchData[]> {
 				name: row.user.name,
 				role: 'agent' as const,
 				location: 'Austin, TX',
-				zipCodes: [
-					row.agent.serviceArea1,
-					row.agent.serviceArea2,
-					row.agent.serviceArea3,
-				].filter((area): area is string => Boolean(area)),
+				zipCodes: row.agent.serviceAreas,
 				fitScore: score.fitScore,
 				status: 'new' as const,
 				date: 'Just now',
