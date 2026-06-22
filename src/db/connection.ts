@@ -1,11 +1,11 @@
-import { serverEnv } from '@/env.server'
+import { env } from '@/env'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
 export function getDb() {
 	return drizzle({
 		client: new Pool({
-			connectionString: serverEnv.DATABASE_URL,
+			connectionString: env.DATABASE_URL,
 		}),
 	})
 }

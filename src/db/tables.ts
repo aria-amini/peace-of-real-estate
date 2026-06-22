@@ -1,15 +1,21 @@
 import {
 	boolean,
+	check,
 	foreignKey,
 	index,
-	jsonb,
 	pgTable,
 	text,
 	timestamp,
 	uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
-type ProfileStatus = 'draft' | 'submitted' | 'active'
+import { sql } from 'drizzle-orm'
+
+import {
+	agentProfileColumns,
+	consumerProfileColumns,
+	sharedProfileColumns,
+} from '@/lib/matching/profile.columns'
 
 type EntitlementKey = 'consumer_lifetime_premium' | 'agent_subscription'
 
@@ -133,81 +139,31 @@ export const verification = pgTable(
 	],
 )
 
-export const buyerProfiles = pgTable(
-	'buyer_profiles',
+export const consumerProfiles = pgTable(
+	'consumer_profiles',
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		status: text().$type<ProfileStatus>().default('draft').notNull(),
-		location: text(),
-		priceRange: text('price_range'),
-		propertyTypesJson: jsonb('property_types_json').$type<string[] | null>(),
-		intent: text(),
-		experienceLevel: text('experience_level'),
-		preferredContactMethod: text('preferred_contact_method'),
-		updateDeliveryPreference: text('update_delivery_preference'),
-		responseTimeExpectation: text('response_time_expectation'),
-		agentRolePreference: text('agent_role_preference'),
-		involvementLevel: text('involvement_level'),
-		decisionStyle: text('decision_style'),
-		toughLossPreference: text('tough_loss_preference'),
-		agentNonNegotiablesJson: jsonb('agent_non_negotiables_json').$type<
-			string[] | null
-		>(),
-		representationPreference: text('representation_preference'),
-		commissionComfort: text('commission_comfort'),
-		matchPrioritiesJson: jsonb('match_priorities_json').$type<
-			string[] | null
-		>(),
+		...sharedProfileColumns,
+		...consumerProfileColumns,
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 	},
 	(table) => [
-		uniqueIndex('buyer_profiles_user_id_index').on(table.userId),
+		uniqueIndex('consumer_profiles_user_id_index').on(table.userId),
 		foreignKey({
 			columns: [table.userId],
 			foreignColumns: [user.id],
-			name: 'buyer_profiles_user_id_fk',
+			name: 'consumer_profiles_user_id_fk',
 		}),
-	],
-)
-
-export const sellerProfiles = pgTable(
-	'seller_profiles',
-	{
-		id: text().primaryKey().notNull(),
-		userId: text('user_id').notNull(),
-		status: text().$type<ProfileStatus>().default('draft').notNull(),
-		location: text(),
-		estimatedHomeValue: text('estimated_home_value'),
-		propertyTypesJson: jsonb('property_types_json').$type<string[] | null>(),
-		sellingSituation: text('selling_situation'),
-		experienceLevel: text('experience_level'),
-		preferredContactStyle: text('preferred_contact_style'),
-		updateDeliveryPreference: text('update_delivery_preference'),
-		updateCadence: text('update_cadence'),
-		responseTimeExpectation: text('response_time_expectation'),
-		successDefinition: text('success_definition'),
-		involvementLevel: text('involvement_level'),
-		homeRelationship: text('home_relationship'),
-		agentSuccessSignalsJson: jsonb('agent_success_signals_json').$type<
-			string[] | null
-		>(),
-		representationPreference: text('representation_preference'),
-		commissionComfort: text('commission_comfort'),
-		matchPrioritiesJson: jsonb('match_priorities_json').$type<
-			string[] | null
-		>(),
-		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
-		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
-	},
-	(table) => [
-		uniqueIndex('seller_profiles_user_id_index').on(table.userId),
-		foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.id],
-			name: 'seller_profiles_user_id_fk',
-		}),
+		check(
+			'consumer_profiles_status_check',
+			sql`${table.status} in ('draft', 'submitted', 'active')`,
+		),
+		check(
+			'consumer_profiles_intent_check',
+			sql`${table.intent} in ('buying', 'selling', 'both')`,
+		),
 	],
 )
 
@@ -216,21 +172,8 @@ export const agentProfiles = pgTable(
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		status: text().$type<ProfileStatus>().default('draft').notNull(),
-		representationSide: text('representation_side'),
-		typicalPriceRange: text('typical_price_range'),
-		bestClientTypesJson: jsonb('best_client_types_json').$type<
-			string[] | null
-		>(),
-		notFitFor: text('not_fit_for'),
-		workingStyle: text('working_style'),
-		dealStressStyle: text('deal_stress_style'),
-		communicationCadence: text('communication_cadence'),
-		quickContactStyle: text('quick_contact_style'),
-		updateDeliveryStyle: text('update_delivery_style'),
-		responseTime: text('response_time'),
-		commissionStyle: text('commission_style'),
-		dualAgencyStyle: text('dual_agency_style'),
+		...sharedProfileColumns,
+		...agentProfileColumns,
 		firstName: text('first_name'),
 		lastName: text('last_name'),
 		brokerageName: text('brokerage_name'),
@@ -267,5 +210,13 @@ export const agentProfiles = pgTable(
 			foreignColumns: [user.id],
 			name: 'agent_profiles_user_id_fk',
 		}),
+		check(
+			'agent_profiles_status_check',
+			sql`${table.status} in ('draft', 'submitted', 'active')`,
+		),
+		check(
+			'agent_profiles_representation_side_check',
+			sql`${table.representationSide} is null or ${table.representationSide} in ('buying', 'selling', 'both')`,
+		),
 	],
 )

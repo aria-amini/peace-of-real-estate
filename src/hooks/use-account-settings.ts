@@ -1,90 +1,92 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+
+import type {
+	AgentProfileUpdate,
+	ConsumerProfileUpdate,
+} from '@/lib/matching/profile.types'
 import {
-	getUserSettings,
-	getDefaultSettings,
-	saveUserSettings,
-	updateAnswers,
-	updateAgentProfile,
-	type UserSettings,
-	type QuestionnaireAnswers,
-} from '@/lib/matching/settings'
-import {
-	clearStoredIntakeDraft,
-	getStoredIntakeDraft,
-} from '@/lib/matching/intake-draft'
+	loadAgentProfile,
+	loadConsumerProfile,
+	saveAgentProfile,
+	saveConsumerProfile,
+} from '@/lib/matching/profile.db'
+
+const consumerProfileKey = ['consumer-profile']
+const agentProfileKey = ['agent-profile']
 
 export function useAccountSettings() {
-	const [settings, setSettings] = useState<UserSettings | null>(null)
-	const [loading, setLoading] = useState(true)
+	const queryClient = useQueryClient()
 
-	useEffect(() => {
-		void (async () => {
-			const draft = getStoredIntakeDraft()
-			try {
-				if (draft) {
-					await saveUserSettings(draft)
-					clearStoredIntakeDraft()
-				}
-				const storedSettings = await getUserSettings()
-				setSettings(storedSettings ?? draft ?? getDefaultSettings())
-			} catch {
-				setSettings(draft ?? getDefaultSettings())
-			} finally {
-				setLoading(false)
-			}
-		})()
-	}, [])
+	const consumerQuery = useQuery({
+		queryKey: consumerProfileKey,
+		queryFn: loadConsumerProfile,
+	})
 
-	const showSaveToast = useCallback(
-		(status: 'saved' | 'error', message?: string) => {
-			if (status === 'saved') {
-				toast.success('Changes saved successfully')
-			} else {
-				toast.error(message ?? 'Error saving. Try again.')
-			}
+	const agentQuery = useQuery({
+		queryKey: agentProfileKey,
+		queryFn: loadAgentProfile,
+	})
+
+	const showSaveToast = (status: 'saved' | 'error', message?: string) => {
+		if (status === 'saved') {
+			toast.success('Changes saved successfully')
+		} else {
+			toast.error(message ?? 'Error saving. Try again.')
+		}
+	}
+
+	const saveConsumerMutation = useMutation<
+		void,
+		Error,
+		ConsumerProfileUpdate,
+		unknown
+	>({
+		mutationFn: saveConsumerProfile,
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: consumerProfileKey })
+			showSaveToast('saved')
 		},
-		[],
-	)
+		onError: () => showSaveToast('error', 'Save failed. Please try again.'),
+	})
 
-	const handleAnswersUpdate = useCallback(
-		async (answers: QuestionnaireAnswers) => {
-			try {
-				await updateAnswers(answers)
-				setSettings((prev) => (prev ? { ...prev, answers } : prev))
-				showSaveToast('saved')
-				return true
-			} catch {
-				showSaveToast('error', 'Save failed. Please try again.')
-				return false
-			}
+	const saveAgentMutation = useMutation<
+		void,
+		Error,
+		AgentProfileUpdate,
+		unknown
+	>({
+		mutationFn: saveAgentProfile,
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: agentProfileKey })
+			showSaveToast('saved')
 		},
-		[showSaveToast],
-	)
+		onError: () => showSaveToast('error', 'Save failed. Please try again.'),
+	})
 
-	const handleAgentProfileUpdate = useCallback(
-		async (profile: {
-			experience: string
-			zipCodes: string
-			services: string[]
-		}) => {
-			try {
-				await updateAgentProfile(profile)
-				setSettings((prev) =>
-					prev ? { ...prev, agentProfile: profile } : prev,
-				)
-				showSaveToast('saved')
-			} catch {
-				showSaveToast('error')
-			}
-		},
-		[showSaveToast],
-	)
+	const saveConsumer = async (update: ConsumerProfileUpdate) => {
+		try {
+			await saveConsumerMutation.mutateAsync(update)
+			return true
+		} catch {
+			return false
+		}
+	}
+
+	const saveAgent = async (update: AgentProfileUpdate) => {
+		try {
+			await saveAgentMutation.mutateAsync(update)
+			return true
+		} catch {
+			return false
+		}
+	}
 
 	return {
-		settings,
-		loading,
-		handleAnswersUpdate,
-		handleAgentProfileUpdate,
+		consumerProfile: consumerQuery.data ?? null,
+		agentProfile: agentQuery.data ?? null,
+		loading: consumerQuery.isLoading || agentQuery.isLoading,
+		saveConsumer,
+		saveAgent,
 	}
 }

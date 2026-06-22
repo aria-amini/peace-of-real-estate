@@ -1,6 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
 	Banknote,
 	Clock,
@@ -19,8 +19,16 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { useServerFn } from '@tanstack/react-start'
 
 import { authClient } from '@/lib/auth/client'
+import { createConsumerProfileFromDraft } from '@/lib/consumer-profile/create-from-draft'
+import {
+	clearConsumerDraft,
+	draftToProfileUpdate,
+	loadConsumerDraft,
+	type ConsumerDraft,
+} from '@/lib/consumer-draft-storage'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -35,13 +43,16 @@ import {
 } from '@/components/ui/sheet'
 import { consumerMatches } from '@/components/consumer-flow-pages'
 import { AgentPreviewCard } from '@/components/match-card-variants'
-import {
-	buyerMatchingQuestionFlow,
-	buyerQuestionFlow,
-} from '@/lib/matching/questions'
-import { getAnswerSummary } from '@/lib/matching/settings'
-import { getStoredConsumerDraftForFlow } from '@/lib/matching/intake-draft'
 import { getCurrentSession } from '@/lib/auth/functions'
+import {
+	consumerQuestionFlow,
+	getAnswerSummary,
+	propertyTypeOptions,
+	type AnswerValue,
+	type Answers,
+} from '@/lib/matching/questions'
+import { loadConsumerProfile } from '@/lib/matching/profile.db'
+import type { ConsumerProfile } from '@/lib/matching/profile.types'
 
 const stateNames: Record<string, string> = {
 	AL: 'Alabama',
@@ -140,19 +151,57 @@ function GoogleIcon({ className }: { className?: string }) {
 	)
 }
 
-export const Route = createFileRoute('/buyer/preview')({
+const priceRangeLabels: Record<string, string> = {
+	under400k: 'Under $400k',
+	'400kTo750k': '$400k to $750k',
+	'750kTo1_5m': '$750k to $1.5M',
+	'1_5mPlus': '$1.5M and above',
+}
+
+function draftToPreviewProfile(draft: ConsumerDraft): ConsumerProfile {
+	const update = draftToProfileUpdate(draft)
+	const now = new Date()
+
+	return {
+		id: 'preview',
+		userId: 'preview',
+		status: 'draft',
+		intent: update.intent,
+		createdAt: now,
+		updatedAt: now,
+		location: update.location ?? null,
+		state: update.state ?? null,
+		priceRange: update.priceRange ?? null,
+		estimatedHomeValue: null,
+		propertyTypes: update.propertyTypes ?? null,
+		experienceLevel: update.experienceLevel ?? null,
+		preferredContactMethod: update.preferredContactMethod ?? null,
+		involvementLevel: update.involvementLevel ?? null,
+		representationPreference: update.representationPreference ?? null,
+		commissionComfort: update.commissionComfort ?? null,
+		matchPriorities: update.matchPriorities ?? null,
+		matchDetails: null,
+	}
+}
+
+export const Route = createFileRoute('/consumer/preview')({
 	ssr: false,
 	beforeLoad: async () => {
 		const session = await getCurrentSession()
+
 		if (session) {
-			throw redirect({ to: '/matches' })
+			const profile = await loadConsumerProfile()
+			if (profile) {
+				return { profile }
+			}
 		}
 
-		const draft = getStoredConsumerDraftForFlow('buyer')
-		const hasAnswers = Object.keys(draft.answers ?? {}).length > 0
-		if (!hasAnswers) {
-			throw redirect({ to: '/buyer/intake', search: { step: 'intro' } })
+		const draft = loadConsumerDraft()
+		if (draft) {
+			return { profile: draftToPreviewProfile(draft) }
 		}
+
+		throw redirect({ to: '/consumer/intake', search: { step: 'intro' } })
 	},
 	component: BuyerPreviewRoute,
 })
@@ -165,119 +214,110 @@ function BuyerPreviewRoute() {
 	)
 }
 
+function getStateSvgPath(state?: string) {
+	if (!state) return undefined
+	const fileName = stateNames[state]
+	return fileName ? `/states/${fileName}.svg` : undefined
+}
+
+const answerLabelOverrides: Record<string, string> = {
+	preferredContactMethod: 'Communication',
+	involvementLevel: 'Involvement',
+	representationPreference: 'Exclusivity',
+	commissionComfort: 'Negotiation',
+}
+
+const experienceLevelPills: Record<
+	string,
+	{ label: string; className: string }
+> = {
+	firstTime: {
+		label: 'First-time buyer',
+		className: 'bg-sky-100 text-sky-950 ring-sky-200/80',
+	},
+	experienced: {
+		label: 'Experienced buyer',
+		className: 'bg-indigo-100 text-indigo-950 ring-indigo-200/80',
+	},
+	veryExperienced: {
+		label: 'Expert buyer',
+		className: 'bg-emerald-100 text-emerald-950 ring-emerald-200/80',
+	},
+}
+
+function getProfileStats(profile: ConsumerProfile) {
+	const stats: { label: string; value: string }[] = []
+
+	if (profile.priceRange) {
+		stats.push({
+			label: 'Budget',
+			value: priceRangeLabels[profile.priceRange] ?? profile.priceRange,
+		})
+	}
+
+	if (profile.propertyTypes && profile.propertyTypes.length > 0) {
+		stats.push({
+			label: 'Home Type',
+			value: profile.propertyTypes
+				.map(
+					(type) =>
+						(propertyTypeOptions as Record<string, string>)[type] ?? type,
+				)
+				.join(', '),
+		})
+	}
+
+	const answers: Answers = {
+		...(profile.preferredContactMethod
+			? { preferredContactMethod: profile.preferredContactMethod }
+			: {}),
+		...(profile.involvementLevel
+			? { involvementLevel: profile.involvementLevel }
+			: {}),
+		...(profile.representationPreference
+			? { representationPreference: profile.representationPreference }
+			: {}),
+		...(profile.commissionComfort
+			? { commissionComfort: profile.commissionComfort }
+			: {}),
+		...(profile.experienceLevel
+			? { experienceLevel: profile.experienceLevel }
+			: {}),
+	}
+
+	for (const [id, value] of Object.entries(answers)) {
+		if (value === '__skipped__') continue
+		const question = consumerQuestionFlow.questions.find((q) => q.id === id)
+		if (!question) continue
+		stats.push({
+			label: answerLabelOverrides[id] ?? question.title,
+			value: getAnswerSummary(question, value as AnswerValue),
+		})
+	}
+
+	return stats
+}
+
+function getExperienceLabel(experienceLevel?: string) {
+	if (!experienceLevel) return { label: 'Buyer' }
+	return experienceLevelPills[experienceLevel] ?? { label: experienceLevel }
+}
+
 function BuyerPreview() {
-	const { data: session } = authClient.useSession()
-	const draft = useMemo(() => getStoredConsumerDraftForFlow('buyer'), [])
+	const { profile } = Route.useRouteContext()
 	const showMobileSignup = useIsBelowDesktop()
 
-	const stateSvgPath = useMemo(() => {
-		if (!draft.state) return null
-		const fileName = stateNames[draft.state]
-		if (!fileName) return null
-		return `/states/${fileName}.svg`
-	}, [draft.state])
-	const allQuestions = useMemo(
-		() => [
-			...buyerQuestionFlow.questions,
-			...buyerMatchingQuestionFlow.questions,
-		],
-		[],
-	)
-	const questionsById = useMemo(
-		() => new Map(allQuestions.map((q) => [q.id, q])),
-		[allQuestions],
-	)
-	const summaryItems = useMemo(() => {
-		const answers = draft.answers ?? {}
-		const hiddenPreviewQuestionIds = new Set([
-			'B.1',
-			'B.3',
-			'B.4',
-			'B.8',
-			'B.9',
-		])
-		const labelOverrides: Record<string, string> = {
-			'B.6': 'Communication',
-			'B.11': 'Involvement',
-			'B.12': 'Exclusivity',
-			'B.14': 'Negotiation',
-		}
-		const propertyTypeMap: Record<string, string> = {
-			'Single-Family': 'Single family home',
-			'Condo/Townhome': 'Condo or townhome',
-			'Multi-family': 'Multi-family home',
-			Land: 'Land',
-		}
-
-		const profileStats = [
-			draft.priceRange ? { label: 'Budget', value: draft.priceRange } : null,
-			draft.propertyType?.length
-				? {
-						label: 'Home Type',
-						value: draft.propertyType
-							.map((type) => propertyTypeMap[type] ?? type)
-							.join(', '),
-					}
-				: null,
-		].filter((item): item is { label: string; value: string } => item !== null)
-
-		const preferenceStats = Object.entries(answers)
-			.filter(
-				([id, value]) =>
-					value !== '__skipped__' && !hiddenPreviewQuestionIds.has(id),
-			)
-			.map(([id, value]) => {
-				const question = questionsById.get(id)
-				if (!question) return null
-				return {
-					label: labelOverrides[id] ?? question.prompt,
-					value: getAnswerSummary(
-						question,
-						value as number | number[] | string,
-					),
-				}
-			})
-			.filter((item): item is { label: string; value: string } => item !== null)
-
-		return [...profileStats, ...preferenceStats]
-	}, [draft.answers, draft.priceRange, draft.propertyType, questionsById])
-
-	const buyerLevelPill = useMemo(() => {
-		if (!draft.experienceLevel) return null
-
-		const levels: Record<string, { label: string; className: string }> = {
-			'First-time client': {
-				label: 'First-time buyer',
-				className: 'bg-sky-100 text-sky-950 ring-sky-200/80',
-			},
-			"I've done this before": {
-				label: 'Experienced buyer',
-				className: 'bg-indigo-100 text-indigo-950 ring-indigo-200/80',
-			},
-			"I'm very experienced": {
-				label: 'Expert buyer',
-				className: 'bg-emerald-100 text-emerald-950 ring-emerald-200/80',
-			},
-		}
-
-		return (
-			levels[draft.experienceLevel] ?? {
-				label: draft.experienceLevel,
-				className: 'bg-white/14 text-white ring-white/20',
-			}
-		)
-	}, [draft.experienceLevel])
+	const stateSvgPath = getStateSvgPath(profile.state ?? undefined)
+	const summaryItems = getProfileStats(profile)
 
 	const previewMatches = consumerMatches.slice(0, 3)
-	const locationLabel = draft.state ?? draft.zipCode
-	const experienceLabel = buyerLevelPill?.label ?? 'Buyer'
+	const locationLabel = profile.state ?? profile.location
+	const experienceLabel = getExperienceLabel(
+		profile.experienceLevel ?? undefined,
+	).label
 	const profileTitle = locationLabel
 		? `${experienceLabel} in ${locationLabel}`
 		: experienceLabel
-
-	if (session) {
-		return null
-	}
 
 	return (
 		<div className="min-h-dvh w-full bg-slate-50 lg:bg-slate-50">
@@ -308,8 +348,8 @@ function BuyerPreview() {
 								<span className="text-accent">unlock</span> your matches
 							</h1>
 							<p className="mt-1 text-xs leading-relaxed text-white/70 lg:mt-3 lg:text-base">
-								Save your personalized buyer profile, view ranked agent matches,
-								and connect with agents who fit your style.
+								Save your personalized consumer profile, view ranked agent
+								matches, and connect with agents who fit your style.
 							</p>
 						</div>
 
@@ -338,10 +378,10 @@ function BuyerPreview() {
 									{stateSvgPath ? (
 										<img
 											src={stateSvgPath}
-											alt={`${draft.state} state icon`}
+											alt={`${profile.state} state icon`}
 											className="h-8 w-8 object-contain opacity-85"
 										/>
-									) : draft.zipCode ? (
+									) : profile.location ? (
 										<MapPin className="h-5 w-5" />
 									) : (
 										<User className="h-5 w-5" />
@@ -420,7 +460,7 @@ function useIsBelowDesktop() {
 
 function MobileSignupBanner() {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-	const redirect = '/buyer/complete-profile'
+	const redirect = '/consumer/complete-profile'
 	const callbackURL =
 		typeof window !== 'undefined'
 			? new URL(redirect, window.location.origin).toString()
@@ -499,7 +539,7 @@ function MobileSignupBanner() {
 						Create your profile
 					</SheetTitle>
 					<SheetDescription className="text-white/70">
-						Save your buyer profile and unlock your ranked agent matches.
+						Save your consumer profile and unlock your ranked agent matches.
 					</SheetDescription>
 				</SheetHeader>
 				<SignupForm idPrefix="mobile-signup" />
@@ -509,6 +549,8 @@ function MobileSignupBanner() {
 }
 
 function SignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
+	const navigate = useNavigate()
+	const createProfile = useServerFn(createConsumerProfileFromDraft)
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
@@ -516,11 +558,8 @@ function SignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 	const [googleAvailable, setGoogleAvailable] = useState(true)
 
-	const redirect = '/buyer/complete-profile'
-	const callbackURL =
-		typeof window !== 'undefined'
-			? new URL(redirect, window.location.origin).toString()
-			: redirect
+	const redirect = '/consumer/complete-profile'
+	const callbackURL = new URL(redirect, window.location.origin).toString()
 	const nameId = `${idPrefix}-name`
 	const emailId = `${idPrefix}-email`
 	const passwordId = `${idPrefix}-password`
@@ -563,10 +602,16 @@ function SignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
 				name: name.trim(),
 				email: email.trim(),
 				password,
-				callbackURL,
 			})
 			if (error) throw error
-			window.location.assign(redirect)
+
+			const draft = loadConsumerDraft()
+			if (draft) {
+				await createProfile({ data: draft })
+				clearConsumerDraft()
+			}
+
+			await navigate({ to: '/matches' })
 		} catch (error) {
 			const message =
 				error && typeof error === 'object' && 'message' in error

@@ -1,36 +1,33 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import {
-	getStoredIntakeDraftForRole,
-	saveStoredIntakeDraftForRole,
-} from '@/lib/matching/intake-draft'
+import { useAccountSettings } from '@/hooks/use-account-settings'
 
 export const Route = createFileRoute('/agent/chat')({
 	component: AgentChat,
 })
 
 function AgentChat() {
-	const draft = getStoredIntakeDraftForRole('agent')
-	const [description, setDescription] = useState(
-		draft.agentProfile?.valueProposition ?? '',
+	const { agentProfile, loading, saveAgent } = useAccountSettings()
+	const navigate = useNavigate()
+	const [valueProposition, setValueProposition] = useState(
+		agentProfile?.valueProposition ?? '',
 	)
-	const canFinish = description.trim().length > 0
 
-	const saveDescription = () => {
-		saveStoredIntakeDraftForRole('agent', {
-			agentProfile: {
-				...draft.agentProfile,
-				experience: draft.agentProfile?.experience ?? '',
-				zipCodes: draft.agentProfile?.zipCodes ?? '',
-				services: draft.agentProfile?.services ?? [],
-				valueProposition: description.trim(),
-			},
-		})
+	if (loading) return null
+
+	const canFinish = valueProposition.trim().length > 0
+
+	const handleFinish = async () => {
+		if (!canFinish) return
+		const ok = await saveAgent({ valueProposition: valueProposition.trim() })
+		if (ok) {
+			await navigate({ to: '/agent/subscribe' })
+		}
 	}
 
 	return (
@@ -51,26 +48,17 @@ function AgentChat() {
 				</p>
 			</div>
 			<Textarea
-				value={description}
-				onChange={(event) => setDescription(event.target.value)}
+				value={valueProposition}
+				onChange={(event) => setValueProposition(event.target.value)}
 				rows={7}
 				placeholder="Example: I help first-time buyers feel calm and informed by setting clear expectations, explaining tradeoffs plainly, and keeping communication steady from search to closing."
 				className="mt-8"
 			/>
 			<div className="mt-10 flex justify-end">
-				{canFinish ? (
-					<Button asChild>
-						<Link to="/agent/subscribe" onClick={saveDescription}>
-							Finish Profile
-							<ArrowRight className="h-4 w-4" />
-						</Link>
-					</Button>
-				) : (
-					<Button disabled>
-						Finish Profile
-						<ArrowRight className="h-4 w-4" />
-					</Button>
-				)}
+				<Button onClick={handleFinish} disabled={!canFinish}>
+					Finish Profile
+					<ArrowRight className="h-4 w-4" />
+				</Button>
 			</div>
 		</FlowPageShell>
 	)

@@ -52,32 +52,101 @@ vi.mock('@/routes/__root', async () => {
 	}
 })
 
-vi.mock('@/lib/matching/matches', () => ({
-	getAgentMatches: () =>
-		Promise.resolve([
-			{
-				id: 'agent-1',
-				name: 'Sarah Chen',
-				role: 'agent',
-				location: 'Austin, TX',
-				zipCodes: ['78701'],
-				fitScore: 96,
-				status: 'new',
-				date: '2026-04-21',
-				experience: '12 years',
-				agency: 'Horizon Realty Group',
-				specialties: ['First-time buyers', 'Luxury homes'],
-				about: 'Known for patient guidance and transparent communication.',
-				scores: {
-					'Working Style': 4.9,
-					Communication: 4.7,
-					Transparency: 4.8,
-					Fit: 4.9,
-				},
-				isTopMatch: true,
-			},
-		]),
+const mockMatches = [
+	{
+		id: 'agent-1',
+		name: 'Sarah Chen',
+		role: 'agent',
+		location: 'Austin, TX',
+		zipCodes: ['78701'],
+		fitScore: 96,
+		status: 'new',
+		date: '2026-04-21',
+		experience: '12 years',
+		agency: 'Horizon Realty Group',
+		specialties: ['First-time buyers', 'Luxury homes'],
+		about: 'Known for patient guidance and transparent communication.',
+		scores: {
+			'Working Style': 4.9,
+			Communication: 4.7,
+			Transparency: 4.8,
+			Fit: 4.9,
+		},
+		isTopMatch: true,
+	},
+]
+
+vi.stubGlobal(
+	'fetch',
+	vi.fn(async (input: RequestInfo | URL) => {
+		const url =
+			typeof input === 'string'
+				? input
+				: input instanceof URL
+					? input.toString()
+					: input.url
+		if (url.includes('/api/agent-matches')) {
+			return new Response(JSON.stringify(mockMatches), {
+				status: 200,
+				headers: { 'Content-Type': 'application/json' },
+			})
+		}
+		return new Response(null, { status: 404 })
+	}),
+)
+
+vi.mock('@/lib/matching/matches.server', () => ({
+	listAgentMatches: () => Promise.resolve(mockMatches),
 }))
+
+vi.mock('@/lib/matching/profile.db', () => ({
+	loadConsumerProfile: () =>
+		Promise.resolve({
+			id: 'consumer-1',
+			userId: 'user-1',
+			status: 'draft',
+			intent: 'buying',
+			location: 'Austin, TX',
+			state: 'TX',
+			priceRange: '400kTo750k',
+			propertyTypes: ['singleFamily'],
+			experienceLevel: 'firstTime',
+			preferredContactMethod: 'text',
+			involvementLevel: 'veryInvolved',
+			representationPreference: 'exclusive',
+			commissionComfort: 'explain',
+			matchPriorities: null,
+			matchDetails: null,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		}),
+	saveConsumerProfile: () => Promise.resolve(),
+	loadAgentProfile: () => Promise.resolve(null),
+	saveAgentProfile: () => Promise.resolve(),
+}))
+
+vi.mock('@/lib/matching/questions', async () => {
+	const actual = await vi.importActual<
+		typeof import('@/lib/matching/questions')
+	>('@/lib/matching/questions')
+	return {
+		...actual,
+		getAnswerSummary: (
+			question: { options?: Record<string, string> },
+			answer: unknown,
+		) => {
+			if (typeof answer === 'string')
+				return question.options?.[answer] ?? 'Not answered'
+			if (Array.isArray(answer)) {
+				return answer
+					.map((index) => question.options?.[index])
+					.filter(Boolean)
+					.join(', ')
+			}
+			return typeof answer === 'string' ? answer : 'Not answered'
+		},
+	}
+})
 
 vi.mock('@/components/wavy-background', () => ({
 	WavyBackground: () => null,

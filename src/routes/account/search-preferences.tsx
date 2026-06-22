@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { createFileRoute } from '@tanstack/react-router'
 import { Check, Home, MapPin, SlidersHorizontal } from 'lucide-react'
@@ -17,80 +17,180 @@ import { Input } from '@/components/ui/input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Textarea } from '@/components/ui/textarea'
 import { useAccountSettings } from '@/hooks/use-account-settings'
+import type {
+	ConsumerProfile,
+	ConsumerProfileUpdate,
+	RepresentationSide,
+} from '@/lib/matching/profile.types'
 import { cn } from '@/lib/utils'
-import {
-	getDefaultSettings,
-	saveUserSettings,
-	type UserSettings,
-} from '@/lib/matching/settings'
 
 export const Route = createFileRoute('/account/search-preferences')({
 	component: SearchPreferences,
 })
 
-const intentOptions = ['Buy', 'Sell', 'Buy then Sell']
+const intentOptions: RepresentationSide[] = ['buying', 'selling', 'both']
+
 const priceOptions = [
 	'Under $400k',
 	'$400k to $750k',
 	'$750k to $1.5M',
 	'$1.5M and above',
 ]
+
+const priceSlugMap: Record<string, string> = {
+	'Under $400k': 'under400k',
+	'$400k to $750k': '400kTo750k',
+	'$750k to $1.5M': '750kTo1_5m',
+	'$1.5M and above': '1_5mPlus',
+}
+
+const reversePriceSlugMap: Record<string, string> = Object.fromEntries(
+	Object.entries(priceSlugMap).map(([label, slug]) => [slug, label]),
+)
+
 const propertyOptions = [
 	'Single-Family',
 	'Condo/Townhome',
 	'Multi-family',
 	'Land',
 ]
+
+const propertySlugMap: Record<string, string> = {
+	'Single-Family': 'singleFamily',
+	'Condo/Townhome': 'condoTownhome',
+	'Multi-family': 'multiFamily',
+	Land: 'land',
+}
+
+const reversePropertySlugMap: Record<string, string> = Object.fromEntries(
+	Object.entries(propertySlugMap).map(([label, slug]) => [slug, label]),
+)
+
 const experienceOptions = [
 	'First-time client',
 	"I've done this before",
 	"I'm very experienced",
 ]
+
+const experienceSlugMap: Record<string, string> = {
+	'First-time client': 'firstTime',
+	"I've done this before": 'experienced',
+	"I'm very experienced": 'veryExperienced',
+}
+
+const reverseExperienceSlugMap: Record<string, string> = Object.fromEntries(
+	Object.entries(experienceSlugMap).map(([label, slug]) => [slug, label]),
+)
+
 const priorityOptions = [
 	'Communication style',
-	'Negotiation approach',
-	'Local expertise',
 	'Availability',
+	'Negotiation approach',
 	'Transparency',
+	'Local expertise',
 	'Client education',
 ]
 
+const prioritySlugMap: Record<string, string> = {
+	'Communication style': 'preferredContactMethod',
+	Availability: 'involvementLevel',
+	'Negotiation approach': 'commissionComfort',
+	Transparency: 'representationPreference',
+	'Local expertise': 'state',
+	'Client education': 'experienceLevel',
+}
+
+const reversePrioritySlugMap: Record<string, string> = Object.fromEntries(
+	Object.entries(prioritySlugMap).map(([label, slug]) => [slug, label]),
+)
+
+type FormState = {
+	location: string | undefined
+	state: string | undefined
+	intent: RepresentationSide | undefined
+	priceRange: string | undefined
+	propertyTypes: string[]
+	experienceLevel: string | undefined
+	matchPriorities: string[]
+	matchDetails: string | undefined
+}
+
+function profileToForm(profile: Partial<ConsumerProfile>): FormState {
+	return {
+		location: profile.location ?? undefined,
+		state: profile.state ?? undefined,
+		intent: profile.intent ?? undefined,
+		priceRange: profile.priceRange
+			? (reversePriceSlugMap[profile.priceRange] ?? profile.priceRange)
+			: undefined,
+		propertyTypes: (profile.propertyTypes ?? [])
+			.map((slug) => reversePropertySlugMap[slug] ?? slug)
+			.filter(Boolean),
+		experienceLevel: profile.experienceLevel
+			? (reverseExperienceSlugMap[profile.experienceLevel] ??
+				profile.experienceLevel)
+			: undefined,
+		matchPriorities: (profile.matchPriorities ?? [])
+			.map((slug) => reversePrioritySlugMap[slug] ?? slug)
+			.filter(Boolean),
+		matchDetails: profile.matchDetails ?? undefined,
+	}
+}
+
+function formToUpdate(form: FormState): ConsumerProfileUpdate {
+	const update: ConsumerProfileUpdate = {}
+
+	if (form.location !== undefined) update.location = form.location
+	if (form.state !== undefined) update.state = form.state
+	if (form.intent !== undefined) update.intent = form.intent
+	if (form.priceRange !== undefined) {
+		update.priceRange = priceSlugMap[form.priceRange]
+	}
+
+	const propertyTypes = form.propertyTypes
+		.map((label) => propertySlugMap[label])
+		.filter((value): value is string => Boolean(value))
+	if (propertyTypes.length > 0) update.propertyTypes = propertyTypes
+
+	if (form.experienceLevel !== undefined) {
+		update.experienceLevel = experienceSlugMap[form.experienceLevel]
+	}
+
+	const matchPriorities = form.matchPriorities
+		.map((label) => prioritySlugMap[label])
+		.filter((value): value is string => Boolean(value))
+	if (matchPriorities.length > 0) update.matchPriorities = matchPriorities
+
+	if (form.matchDetails !== undefined) update.matchDetails = form.matchDetails
+
+	return update
+}
+
 function SearchPreferences() {
-	const { settings, loading } = useAccountSettings()
-	const [form, setForm] = useState<UserSettings>(() => getDefaultSettings())
+	const { consumerProfile, loading, saveConsumer } = useAccountSettings()
+	const [form, setForm] = useState<FormState>(() =>
+		profileToForm(consumerProfile ?? {}),
+	)
 	const [isSaving, setIsSaving] = useState(false)
-	const [hasLoadedSettings, setHasLoadedSettings] = useState(false)
 
-	useEffect(() => {
-		if (!loading && settings && !hasLoadedSettings) {
-			setForm(settings)
-			setHasLoadedSettings(true)
-		}
-	}, [hasLoadedSettings, loading, settings])
+	if (loading) {
+		return <div className="flex-1" />
+	}
 
-	const updateForm = (patch: Partial<UserSettings>) => {
+	const updateForm = (patch: Partial<FormState>) => {
 		setForm((current) => ({ ...current, ...patch }))
 	}
 
 	const handleSave = async () => {
 		setIsSaving(true)
 		try {
-			await saveUserSettings({
-				...form,
-				role: form.role ?? 'consumer',
-				flowKind: form.flowKind ?? 'buyer',
-				answers: form.answers ?? {},
-			})
+			await saveConsumer(formToUpdate(form))
 			toast.success('Search preferences saved')
 		} catch {
 			toast.error('Could not save preferences. Try again.')
 		} finally {
 			setIsSaving(false)
 		}
-	}
-
-	if (loading) {
-		return <div className="flex-1" />
 	}
 
 	return (
@@ -137,9 +237,9 @@ function SearchPreferences() {
 							</label>
 							<Input
 								id="search-location"
-								value={form.zipCode ?? ''}
+								value={form.location ?? ''}
 								onChange={(event) =>
-									updateForm({ zipCode: event.target.value })
+									updateForm({ location: event.target.value })
 								}
 								placeholder="Austin, TX 78701"
 								className="h-11"
@@ -150,7 +250,9 @@ function SearchPreferences() {
 							label="Intent"
 							options={intentOptions}
 							value={form.intent}
-							onChange={(intent) => updateForm({ intent })}
+							onChange={(intent) =>
+								updateForm({ intent: intent as RepresentationSide })
+							}
 						/>
 
 						<OptionGroup
@@ -180,8 +282,8 @@ function SearchPreferences() {
 									value: option,
 									label: option,
 								}))}
-								selected={form.propertyType ?? []}
-								onChange={(propertyType) => updateForm({ propertyType })}
+								selected={form.propertyTypes}
+								onChange={(propertyTypes) => updateForm({ propertyTypes })}
 							/>
 						</div>
 
@@ -209,7 +311,7 @@ function SearchPreferences() {
 									value: option,
 									label: option,
 								}))}
-								selected={form.matchPriorities ?? []}
+								selected={form.matchPriorities}
 								onChange={(matchPriorities) => updateForm({ matchPriorities })}
 								maxSelections={3}
 							/>

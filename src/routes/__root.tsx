@@ -48,9 +48,8 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootComponent() {
-	const analyticsEnabled =
-		import.meta.env.MODE === 'production' &&
-		import.meta.env.VITE_PUBLIC_POSTHOG_KEY
+	const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
+	const analyticsEnabled = import.meta.env.MODE === 'production' && posthogKey
 	const content = <Outlet />
 
 	return (
@@ -61,7 +60,7 @@ function RootComponent() {
 			<body className="min-h-dvh min-w-80">
 				{analyticsEnabled ? (
 					<PostHogProvider
-						apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+						apiKey={posthogKey}
 						options={{
 							api_host: '/api/ingest',
 							ui_host: 'https://us.posthog.com',

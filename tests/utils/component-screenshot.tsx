@@ -79,14 +79,14 @@ export async function expectComponentScreenshot(
 	const Component = options.component
 	const componentRoute = createRoute({
 		getParentRoute: () => rootRoute,
-		path: '/buyer/intake',
+		path: '/consumer/intake',
 		component: Component as RouteComponent,
 	})
 
 	const routeTree = rootRoute.addChildren([indexRoute, componentRoute])
 	const router = createRouter({
 		routeTree,
-		history: createMemoryHistory({ initialEntries: ['/buyer/intake'] }),
+		history: createMemoryHistory({ initialEntries: ['/consumer/intake'] }),
 		context: { queryClient },
 		scrollRestoration: false,
 		defaultPreloadStaleTime: 0,

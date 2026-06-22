@@ -1,24 +1,38 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, Briefcase, CheckCircle2, Shield } from 'lucide-react'
 import { useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-	getStoredIntakeDraftForRole,
-	saveStoredIntakeDraftForRole,
-} from '@/lib/matching/intake-draft'
+import { useAccountSettings } from '@/hooks/use-account-settings'
+import type { RepresentationSide } from '@/lib/matching/profile.types'
 
 export const Route = createFileRoute('/agent/priorities')({
 	component: AgentPriorities,
 })
 
+const representationOptions: { value: RepresentationSide; label: string }[] = [
+	{ value: 'buying', label: 'Buyer representation' },
+	{ value: 'selling', label: 'Seller representation' },
+]
+
 function AgentPriorities() {
-	const draft = getStoredIntakeDraftForRole('agent')
-	const [representation, setRepresentation] = useState(
-		draft.agentRepresentation ?? '',
-	)
+	const { agentProfile, loading, saveAgent } = useAccountSettings()
+	const navigate = useNavigate()
+	const [representationSide, setRepresentationSide] = useState<
+		RepresentationSide | ''
+	>(agentProfile?.representationSide ?? '')
+
+	if (loading) return null
+
+	const handleContinue = async () => {
+		if (!representationSide) return
+		const ok = await saveAgent({ representationSide })
+		if (ok) {
+			await navigate({ to: '/agent/quiz' })
+		}
+	}
 
 	return (
 		<FlowPageShell
@@ -35,16 +49,18 @@ function AgentPriorities() {
 			</p>
 
 			<div className="mt-8 grid gap-3 sm:grid-cols-2">
-				{['Buyer representation', 'Seller representation'].map((option) => (
+				{representationOptions.map((option) => (
 					<Button
-						key={option}
+						key={option.value}
 						type="button"
-						onClick={() => setRepresentation(option)}
-						variant={representation === option ? 'default' : 'outline'}
+						onClick={() => setRepresentationSide(option.value)}
+						variant={
+							representationSide === option.value ? 'default' : 'outline'
+						}
 						className="h-auto justify-start whitespace-normal"
 					>
 						<Briefcase className="h-4 w-4" />
-						{option}
+						{option.label}
 					</Button>
 				))}
 			</div>
@@ -72,26 +88,10 @@ function AgentPriorities() {
 			</Card>
 
 			<div className="mt-10 flex justify-end">
-				{representation ? (
-					<Button asChild>
-						<Link
-							to="/agent/quiz"
-							onClick={() =>
-								saveStoredIntakeDraftForRole('agent', {
-									agentRepresentation: representation,
-								})
-							}
-						>
-							I'm in — build my profile
-							<ArrowRight className="h-4 w-4" />
-						</Link>
-					</Button>
-				) : (
-					<Button disabled>
-						I'm in — build my profile
-						<ArrowRight className="h-4 w-4" />
-					</Button>
-				)}
+				<Button onClick={handleContinue} disabled={!representationSide}>
+					I'm in — build my profile
+					<ArrowRight className="h-4 w-4" />
+				</Button>
 			</div>
 			<p className="text-muted-foreground mt-4 text-center text-xs">
 				No payment required until you're ready to go live.

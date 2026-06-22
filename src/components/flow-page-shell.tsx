@@ -5,15 +5,15 @@ import { Card, CardContent } from '@/components/ui/card'
 
 type FlowPageShellProps = {
 	title: string
-	subtitle?: string
+	subtitle?: string | undefined
 	icon: LucideIcon
-	iconClassName?: string
+	iconClassName?: string | undefined
 	children: ReactNode
 	card?: boolean
 	headerInsideCard?: boolean
 	titleVisibility?: 'visible' | 'sr-only'
 	roleLabel?: string | undefined
-	progress?: ReactNode
+	progress?: ReactNode | undefined
 }
 
 export function FlowPageShell({

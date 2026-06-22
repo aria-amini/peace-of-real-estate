@@ -35,7 +35,7 @@ export const Route = createFileRoute('/account/')({
 
 function AccountProfile() {
 	const { data: session } = authClient.useSession()
-	const { settings, loading } = useAccountSettings()
+	const { consumerProfile, loading } = useAccountSettings()
 	const [showPaywall, setShowPaywall] = useState(false)
 	const { data: premiumStatus } = useQuery({
 		queryKey: ['user-premium'],
@@ -51,10 +51,13 @@ function AccountProfile() {
 	const tierLabel = premiumStatus ? 'Premium' : 'Free'
 	const initials = getInitials(session?.user.name, session?.user.email)
 	const searchSnapshot = [
-		{ label: 'Location', value: settings?.zipCode },
-		{ label: 'Intent', value: settings?.intent },
-		{ label: 'Budget', value: settings?.priceRange },
-		{ label: 'Property Types', value: settings?.propertyType?.join(', ') },
+		{ label: 'Location', value: consumerProfile?.location },
+		{ label: 'Intent', value: consumerProfile?.intent },
+		{ label: 'Budget', value: consumerProfile?.priceRange },
+		{
+			label: 'Property Types',
+			value: consumerProfile?.propertyTypes?.join(', '),
+		},
 	]
 
 	const handleSignOut = async () => {

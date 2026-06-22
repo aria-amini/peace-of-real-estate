@@ -1,6 +1,6 @@
 import { getDb } from '@/db/connection'
 import { account, session, user, verification } from '@/db/tables'
-import { serverEnv } from '@/env.server'
+import { env, isProductionRuntime } from '@/env'
 
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { createAuthMiddleware } from 'better-auth/api'
@@ -23,6 +23,12 @@ function toAuthBaseURL(baseURL: string) {
 	}
 
 	return url.toString()
+}
+
+function isLoopbackURL(url: string) {
+	const host = new URL(url).hostname
+
+	return host === 'localhost' || host === '127.0.0.1'
 }
 
 function resolveForwardedOrigin(request: Request) {
@@ -102,11 +108,15 @@ function forwardedHostOAuthShim() {
 
 export function getAuth() {
 	if (!authInstance) {
-		const betterAuthUrl = serverEnv.BETTER_AUTH_URL
-		const betterAuthSecret = serverEnv.BETTER_AUTH_SECRET
-		const oAuthProxySecret = serverEnv.OAUTH_PROXY_SECRET ?? betterAuthSecret
-		const googleClientId = serverEnv.GOOGLE_CLIENT_ID
-		const googleClientSecret = serverEnv.GOOGLE_CLIENT_SECRET
+		const betterAuthUrl = env.BETTER_AUTH_URL
+		const betterAuthSecret = env.BETTER_AUTH_SECRET
+		const oAuthProxySecret = env.OAUTH_PROXY_SECRET ?? betterAuthSecret
+		const googleClientId = env.GOOGLE_CLIENT_ID
+		const googleClientSecret = env.GOOGLE_CLIENT_SECRET
+		const localAuthEnabled =
+			!isProductionRuntime() ||
+			(betterAuthUrl ? isLoopbackURL(betterAuthUrl) : false)
+		const localHosts = localAuthEnabled ? ['127.0.0.1:*', 'localhost:*'] : []
 
 		const productionAppOrigin = betterAuthUrl
 			? new URL(betterAuthUrl).origin
@@ -114,8 +124,7 @@ export function getAuth() {
 
 		const authBaseURL = {
 			allowedHosts: [
-				'127.0.0.1:*',
-				'localhost:*',
+				...localHosts,
 				'peace-of-real-estate-production.up.railway.app',
 				'peace-of-real-estate-*.up.railway.app',
 				'peace-of-real-estate-projects-*.up.railway.app',
@@ -123,7 +132,7 @@ export function getAuth() {
 			protocol: 'auto' as const,
 			fallback:
 				(betterAuthUrl ? toAuthBaseURL(betterAuthUrl) : undefined) ??
-				'http://localhost:3000/api/auth',
+				(localAuthEnabled ? 'http://localhost:3000/api/auth' : undefined),
 		}
 		const trustedOrigins = [
 			'http://127.0.0.1:*',

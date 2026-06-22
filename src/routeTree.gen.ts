@@ -15,14 +15,14 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as BetaRouteImport } from './routes/beta'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BuyerIndexRouteImport } from './routes/buyer/index'
+import { Route as ConsumerIndexRouteImport } from './routes/consumer/index'
 import { Route as AgentIndexRouteImport } from './routes/agent/index'
 import { Route as AccountIndexRouteImport } from './routes/account/index'
-import { Route as BuyerPrioritiesRouteImport } from './routes/buyer/priorities'
-import { Route as BuyerPreviewRouteImport } from './routes/buyer/preview'
-import { Route as BuyerPaymentRouteImport } from './routes/buyer/payment'
-import { Route as BuyerIntakeRouteImport } from './routes/buyer/intake'
-import { Route as BuyerCompleteProfileRouteImport } from './routes/buyer/complete-profile'
+import { Route as ConsumerPrioritiesRouteImport } from './routes/consumer/priorities'
+import { Route as ConsumerPreviewRouteImport } from './routes/consumer/preview'
+import { Route as ConsumerPaymentRouteImport } from './routes/consumer/payment'
+import { Route as ConsumerIntakeRouteImport } from './routes/consumer/intake'
+import { Route as ConsumerCompleteProfileRouteImport } from './routes/consumer/complete-profile'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
 import { Route as AgentSubscribeRouteImport } from './routes/agent/subscribe'
@@ -71,9 +71,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuyerIndexRoute = BuyerIndexRouteImport.update({
-  id: '/buyer/',
-  path: '/buyer/',
+const ConsumerIndexRoute = ConsumerIndexRouteImport.update({
+  id: '/consumer/',
+  path: '/consumer/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentIndexRoute = AgentIndexRouteImport.update({
@@ -86,29 +86,29 @@ const AccountIndexRoute = AccountIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AccountRoute,
 } as any)
-const BuyerPrioritiesRoute = BuyerPrioritiesRouteImport.update({
-  id: '/buyer/priorities',
-  path: '/buyer/priorities',
+const ConsumerPrioritiesRoute = ConsumerPrioritiesRouteImport.update({
+  id: '/consumer/priorities',
+  path: '/consumer/priorities',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuyerPreviewRoute = BuyerPreviewRouteImport.update({
-  id: '/buyer/preview',
-  path: '/buyer/preview',
+const ConsumerPreviewRoute = ConsumerPreviewRouteImport.update({
+  id: '/consumer/preview',
+  path: '/consumer/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuyerPaymentRoute = BuyerPaymentRouteImport.update({
-  id: '/buyer/payment',
-  path: '/buyer/payment',
+const ConsumerPaymentRoute = ConsumerPaymentRouteImport.update({
+  id: '/consumer/payment',
+  path: '/consumer/payment',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuyerIntakeRoute = BuyerIntakeRouteImport.update({
-  id: '/buyer/intake',
-  path: '/buyer/intake',
+const ConsumerIntakeRoute = ConsumerIntakeRouteImport.update({
+  id: '/consumer/intake',
+  path: '/consumer/intake',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuyerCompleteProfileRoute = BuyerCompleteProfileRouteImport.update({
-  id: '/buyer/complete-profile',
-  path: '/buyer/complete-profile',
+const ConsumerCompleteProfileRoute = ConsumerCompleteProfileRouteImport.update({
+  id: '/consumer/complete-profile',
+  path: '/consumer/complete-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -219,14 +219,14 @@ export interface FileRoutesByFullPath {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
-  '/buyer/complete-profile': typeof BuyerCompleteProfileRoute
-  '/buyer/intake': typeof BuyerIntakeRoute
-  '/buyer/payment': typeof BuyerPaymentRoute
-  '/buyer/preview': typeof BuyerPreviewRoute
-  '/buyer/priorities': typeof BuyerPrioritiesRoute
+  '/consumer/complete-profile': typeof ConsumerCompleteProfileRoute
+  '/consumer/intake': typeof ConsumerIntakeRoute
+  '/consumer/payment': typeof ConsumerPaymentRoute
+  '/consumer/preview': typeof ConsumerPreviewRoute
+  '/consumer/priorities': typeof ConsumerPrioritiesRoute
   '/account/': typeof AccountIndexRoute
   '/agent/': typeof AgentIndexRoute
-  '/buyer/': typeof BuyerIndexRoute
+  '/consumer/': typeof ConsumerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -251,14 +251,14 @@ export interface FileRoutesByTo {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
-  '/buyer/complete-profile': typeof BuyerCompleteProfileRoute
-  '/buyer/intake': typeof BuyerIntakeRoute
-  '/buyer/payment': typeof BuyerPaymentRoute
-  '/buyer/preview': typeof BuyerPreviewRoute
-  '/buyer/priorities': typeof BuyerPrioritiesRoute
+  '/consumer/complete-profile': typeof ConsumerCompleteProfileRoute
+  '/consumer/intake': typeof ConsumerIntakeRoute
+  '/consumer/payment': typeof ConsumerPaymentRoute
+  '/consumer/preview': typeof ConsumerPreviewRoute
+  '/consumer/priorities': typeof ConsumerPrioritiesRoute
   '/account': typeof AccountIndexRoute
   '/agent': typeof AgentIndexRoute
-  '/buyer': typeof BuyerIndexRoute
+  '/consumer': typeof ConsumerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -285,14 +285,14 @@ export interface FileRoutesById {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
-  '/buyer/complete-profile': typeof BuyerCompleteProfileRoute
-  '/buyer/intake': typeof BuyerIntakeRoute
-  '/buyer/payment': typeof BuyerPaymentRoute
-  '/buyer/preview': typeof BuyerPreviewRoute
-  '/buyer/priorities': typeof BuyerPrioritiesRoute
+  '/consumer/complete-profile': typeof ConsumerCompleteProfileRoute
+  '/consumer/intake': typeof ConsumerIntakeRoute
+  '/consumer/payment': typeof ConsumerPaymentRoute
+  '/consumer/preview': typeof ConsumerPreviewRoute
+  '/consumer/priorities': typeof ConsumerPrioritiesRoute
   '/account/': typeof AccountIndexRoute
   '/agent/': typeof AgentIndexRoute
-  '/buyer/': typeof BuyerIndexRoute
+  '/consumer/': typeof ConsumerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
@@ -320,14 +320,14 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
-    | '/buyer/complete-profile'
-    | '/buyer/intake'
-    | '/buyer/payment'
-    | '/buyer/preview'
-    | '/buyer/priorities'
+    | '/consumer/complete-profile'
+    | '/consumer/intake'
+    | '/consumer/payment'
+    | '/consumer/preview'
+    | '/consumer/priorities'
     | '/account/'
     | '/agent/'
-    | '/buyer/'
+    | '/consumer/'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -352,14 +352,14 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
-    | '/buyer/complete-profile'
-    | '/buyer/intake'
-    | '/buyer/payment'
-    | '/buyer/preview'
-    | '/buyer/priorities'
+    | '/consumer/complete-profile'
+    | '/consumer/intake'
+    | '/consumer/payment'
+    | '/consumer/preview'
+    | '/consumer/priorities'
     | '/account'
     | '/agent'
-    | '/buyer'
+    | '/consumer'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -385,14 +385,14 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
-    | '/buyer/complete-profile'
-    | '/buyer/intake'
-    | '/buyer/payment'
-    | '/buyer/preview'
-    | '/buyer/priorities'
+    | '/consumer/complete-profile'
+    | '/consumer/intake'
+    | '/consumer/payment'
+    | '/consumer/preview'
+    | '/consumer/priorities'
     | '/account/'
     | '/agent/'
-    | '/buyer/'
+    | '/consumer/'
     | '/api/auth/$'
     | '/api/beta/auth'
     | '/api/ingest/$'
@@ -416,13 +416,13 @@ export interface RootRouteChildren {
   AgentSubscribeRoute: typeof AgentSubscribeRoute
   ApiAgentMatchesRoute: typeof ApiAgentMatchesRoute
   ApiHealthRoute: typeof ApiHealthRoute
-  BuyerCompleteProfileRoute: typeof BuyerCompleteProfileRoute
-  BuyerIntakeRoute: typeof BuyerIntakeRoute
-  BuyerPaymentRoute: typeof BuyerPaymentRoute
-  BuyerPreviewRoute: typeof BuyerPreviewRoute
-  BuyerPrioritiesRoute: typeof BuyerPrioritiesRoute
+  ConsumerCompleteProfileRoute: typeof ConsumerCompleteProfileRoute
+  ConsumerIntakeRoute: typeof ConsumerIntakeRoute
+  ConsumerPaymentRoute: typeof ConsumerPaymentRoute
+  ConsumerPreviewRoute: typeof ConsumerPreviewRoute
+  ConsumerPrioritiesRoute: typeof ConsumerPrioritiesRoute
   AgentIndexRoute: typeof AgentIndexRoute
-  BuyerIndexRoute: typeof BuyerIndexRoute
+  ConsumerIndexRoute: typeof ConsumerIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiBetaAuthRoute: typeof ApiBetaAuthRoute
   ApiIngestSplatRoute: typeof ApiIngestSplatRoute
@@ -473,11 +473,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/buyer/': {
-      id: '/buyer/'
-      path: '/buyer'
-      fullPath: '/buyer/'
-      preLoaderRoute: typeof BuyerIndexRouteImport
+    '/consumer/': {
+      id: '/consumer/'
+      path: '/consumer'
+      fullPath: '/consumer/'
+      preLoaderRoute: typeof ConsumerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent/': {
@@ -494,39 +494,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountIndexRouteImport
       parentRoute: typeof AccountRoute
     }
-    '/buyer/priorities': {
-      id: '/buyer/priorities'
-      path: '/buyer/priorities'
-      fullPath: '/buyer/priorities'
-      preLoaderRoute: typeof BuyerPrioritiesRouteImport
+    '/consumer/priorities': {
+      id: '/consumer/priorities'
+      path: '/consumer/priorities'
+      fullPath: '/consumer/priorities'
+      preLoaderRoute: typeof ConsumerPrioritiesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/buyer/preview': {
-      id: '/buyer/preview'
-      path: '/buyer/preview'
-      fullPath: '/buyer/preview'
-      preLoaderRoute: typeof BuyerPreviewRouteImport
+    '/consumer/preview': {
+      id: '/consumer/preview'
+      path: '/consumer/preview'
+      fullPath: '/consumer/preview'
+      preLoaderRoute: typeof ConsumerPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/buyer/payment': {
-      id: '/buyer/payment'
-      path: '/buyer/payment'
-      fullPath: '/buyer/payment'
-      preLoaderRoute: typeof BuyerPaymentRouteImport
+    '/consumer/payment': {
+      id: '/consumer/payment'
+      path: '/consumer/payment'
+      fullPath: '/consumer/payment'
+      preLoaderRoute: typeof ConsumerPaymentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/buyer/intake': {
-      id: '/buyer/intake'
-      path: '/buyer/intake'
-      fullPath: '/buyer/intake'
-      preLoaderRoute: typeof BuyerIntakeRouteImport
+    '/consumer/intake': {
+      id: '/consumer/intake'
+      path: '/consumer/intake'
+      fullPath: '/consumer/intake'
+      preLoaderRoute: typeof ConsumerIntakeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/buyer/complete-profile': {
-      id: '/buyer/complete-profile'
-      path: '/buyer/complete-profile'
-      fullPath: '/buyer/complete-profile'
-      preLoaderRoute: typeof BuyerCompleteProfileRouteImport
+    '/consumer/complete-profile': {
+      id: '/consumer/complete-profile'
+      path: '/consumer/complete-profile'
+      fullPath: '/consumer/complete-profile'
+      preLoaderRoute: typeof ConsumerCompleteProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -685,13 +685,13 @@ const rootRouteChildren: RootRouteChildren = {
   AgentSubscribeRoute: AgentSubscribeRoute,
   ApiAgentMatchesRoute: ApiAgentMatchesRoute,
   ApiHealthRoute: ApiHealthRoute,
-  BuyerCompleteProfileRoute: BuyerCompleteProfileRoute,
-  BuyerIntakeRoute: BuyerIntakeRoute,
-  BuyerPaymentRoute: BuyerPaymentRoute,
-  BuyerPreviewRoute: BuyerPreviewRoute,
-  BuyerPrioritiesRoute: BuyerPrioritiesRoute,
+  ConsumerCompleteProfileRoute: ConsumerCompleteProfileRoute,
+  ConsumerIntakeRoute: ConsumerIntakeRoute,
+  ConsumerPaymentRoute: ConsumerPaymentRoute,
+  ConsumerPreviewRoute: ConsumerPreviewRoute,
+  ConsumerPrioritiesRoute: ConsumerPrioritiesRoute,
   AgentIndexRoute: AgentIndexRoute,
-  BuyerIndexRoute: BuyerIndexRoute,
+  ConsumerIndexRoute: ConsumerIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiBetaAuthRoute: ApiBetaAuthRoute,
   ApiIngestSplatRoute: ApiIngestSplatRoute,

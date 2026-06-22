@@ -54,7 +54,7 @@ export function AccountSidebar() {
 	const currentPath = router.location.pathname
 	const { data: session } = authClient.useSession()
 	const isAuthenticated = Boolean(session)
-	const showPremiumCard = currentPath !== '/buyer/preview'
+	const showPremiumCard = true
 	const [showPaywall, setShowPaywall] = useState(false)
 	const [showSupport, setShowSupport] = useState(false)
 	const { data: premiumStatus } = useQuery({

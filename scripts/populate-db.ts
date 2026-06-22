@@ -1,10 +1,8 @@
-import 'dotenv/config'
 import { getDb } from '../src/db/connection'
 import {
 	user,
 	agentProfiles,
-	buyerProfiles,
-	sellerProfiles,
+	consumerProfiles,
 	session,
 	account,
 	userEntitlements,
@@ -377,7 +375,7 @@ const CITIES = [
 ]
 
 type AgentArchetype = {
-	representationSide: 'buyer' | 'seller' | 'both'
+	representationSide: 'buying' | 'selling' | 'both'
 	priceTier: 'entry' | 'mid' | 'premium' | 'luxury' | 'investor'
 	clientTypes: string[]
 	notFitFor: string | null
@@ -443,7 +441,7 @@ function approxLabel(map: Record<number, string>, value: number): string {
 const ARCHETYPES: AgentArchetype[] = [
 	// 1. First-Time Buyer Specialist
 	{
-		representationSide: 'buyer',
+		representationSide: 'buying',
 		priceTier: 'entry',
 		clientTypes: ['First-time Buyers', 'Sellers', 'Relocation'],
 		notFitFor:
@@ -470,7 +468,7 @@ const ARCHETYPES: AgentArchetype[] = [
 	},
 	// 2. Seller Marketing Expert
 	{
-		representationSide: 'seller',
+		representationSide: 'selling',
 		priceTier: 'mid',
 		clientTypes: ['Sellers', 'Staging', 'Marketing'],
 		notFitFor: 'I do not represent buyers in multiple-offer situations.',
@@ -550,7 +548,7 @@ const ARCHETYPES: AgentArchetype[] = [
 	},
 	// 5. New Construction Insider
 	{
-		representationSide: 'buyer',
+		representationSide: 'buying',
 		priceTier: 'mid',
 		clientTypes: ['New Construction', 'Buyers', 'Land'],
 		notFitFor: 'I do not work with existing home resales or short sales.',
@@ -654,7 +652,7 @@ const ARCHETYPES: AgentArchetype[] = [
 	},
 	// 9. Boutique Buyer-Only Agent
 	{
-		representationSide: 'buyer',
+		representationSide: 'buying',
 		priceTier: 'premium',
 		clientTypes: ['Buyers', 'Luxury', 'Relocation'],
 		notFitFor:
@@ -681,7 +679,7 @@ const ARCHETYPES: AgentArchetype[] = [
 	},
 	// 10. Property Management & Landlord Specialist
 	{
-		representationSide: 'seller',
+		representationSide: 'selling',
 		priceTier: 'investor',
 		clientTypes: ['Property Management', 'Investors', 'Commercial'],
 		notFitFor:
@@ -708,7 +706,7 @@ const ARCHETYPES: AgentArchetype[] = [
 	},
 	// 11. Senior & Downsizing Specialist
 	{
-		representationSide: 'seller',
+		representationSide: 'selling',
 		priceTier: 'mid',
 		clientTypes: ['Seniors', 'Sellers', 'Staging'],
 		notFitFor: 'I do not work with first-time buyers or young families.',
@@ -814,7 +812,7 @@ function generatePersona(archetype: AgentArchetype, r: number) {
 	return {
 		representationSide: archetype.representationSide,
 		typicalPriceRange: pickPrice(archetype),
-		bestClientTypesJson: [...archetype.clientTypes]
+		bestClientTypes: [...archetype.clientTypes]
 			.sort(() => r - 0.5)
 			.slice(0, randInt(2, archetype.clientTypes.length)),
 		notFitFor: archetype.notFitFor,
@@ -896,8 +894,7 @@ async function populateDb(count: number) {
 		}
 	}
 
-	await db.delete(buyerProfiles)
-	await db.delete(sellerProfiles)
+	await db.delete(consumerProfiles)
 	await db.delete(agentProfiles)
 	await db.delete(session)
 	await db.delete(account)
@@ -938,7 +935,7 @@ async function populateDb(count: number) {
 			status: persona.status,
 			representationSide: persona.representationSide,
 			typicalPriceRange: persona.typicalPriceRange,
-			bestClientTypesJson: persona.bestClientTypesJson,
+			bestClientTypes: persona.bestClientTypes,
 			notFitFor: persona.notFitFor,
 			workingStyle: persona.workingStyle,
 			dealStressStyle: persona.dealStressStyle,
