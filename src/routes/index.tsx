@@ -100,13 +100,21 @@ function HeroSection() {
 						authentic agent simultaneously.
 					</p>
 
-					<div className="flex flex-wrap gap-4 pt-2">
+					<div className="flex flex-wrap items-center gap-4 pt-2">
 						<Button
 							size="lg"
 							className="h-16 cursor-pointer rounded-2xl px-12 text-xl font-bold shadow-lg"
 							asChild
 						>
 							<Link to="/consumer">Find Your Agent</Link>
+						</Button>
+						<Button
+							variant="ghost"
+							size="lg"
+							className="text-muted-foreground hover:text-foreground h-16 rounded-2xl px-6 text-base font-medium"
+							asChild
+						>
+							<Link to="/agent">I’m an Agent</Link>
 						</Button>
 					</div>
 				</div>

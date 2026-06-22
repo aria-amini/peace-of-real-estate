@@ -29,6 +29,7 @@ import { Route as AgentQuizRouteImport } from './routes/agent/quiz'
 import { Route as AgentProfileRouteImport } from './routes/agent/profile'
 import { Route as AgentPrioritiesRouteImport } from './routes/agent/priorities'
 import { Route as AgentPeacePactRouteImport } from './routes/agent/peace-pact'
+import { Route as AgentIntakeRouteImport } from './routes/agent/intake'
 import { Route as AgentDeepDiveRouteImport } from './routes/agent/deep-dive'
 import { Route as AgentComplianceRouteImport } from './routes/agent/compliance'
 import { Route as AgentChatRouteImport } from './routes/agent/chat'
@@ -140,6 +141,11 @@ const AgentPeacePactRoute = AgentPeacePactRouteImport.update({
   path: '/agent/peace-pact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentIntakeRoute = AgentIntakeRouteImport.update({
+  id: '/agent/intake',
+  path: '/agent/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentDeepDiveRoute = AgentDeepDiveRouteImport.update({
   id: '/agent/deep-dive',
   path: '/agent/deep-dive',
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
   '/agent/deep-dive': typeof AgentDeepDiveRoute
+  '/agent/intake': typeof AgentIntakeRoute
   '/agent/peace-pact': typeof AgentPeacePactRoute
   '/agent/priorities': typeof AgentPrioritiesRoute
   '/agent/profile': typeof AgentProfileRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
   '/agent/deep-dive': typeof AgentDeepDiveRoute
+  '/agent/intake': typeof AgentIntakeRoute
   '/agent/peace-pact': typeof AgentPeacePactRoute
   '/agent/priorities': typeof AgentPrioritiesRoute
   '/agent/profile': typeof AgentProfileRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/agent/chat': typeof AgentChatRoute
   '/agent/compliance': typeof AgentComplianceRoute
   '/agent/deep-dive': typeof AgentDeepDiveRoute
+  '/agent/intake': typeof AgentIntakeRoute
   '/agent/peace-pact': typeof AgentPeacePactRoute
   '/agent/priorities': typeof AgentPrioritiesRoute
   '/agent/profile': typeof AgentProfileRoute
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
+    | '/agent/intake'
     | '/agent/peace-pact'
     | '/agent/priorities'
     | '/agent/profile'
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
+    | '/agent/intake'
     | '/agent/peace-pact'
     | '/agent/priorities'
     | '/agent/profile'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/agent/chat'
     | '/agent/compliance'
     | '/agent/deep-dive'
+    | '/agent/intake'
     | '/agent/peace-pact'
     | '/agent/priorities'
     | '/agent/profile'
@@ -397,6 +409,7 @@ export interface RootRouteChildren {
   AgentChatRoute: typeof AgentChatRoute
   AgentComplianceRoute: typeof AgentComplianceRoute
   AgentDeepDiveRoute: typeof AgentDeepDiveRoute
+  AgentIntakeRoute: typeof AgentIntakeRoute
   AgentPeacePactRoute: typeof AgentPeacePactRoute
   AgentPrioritiesRoute: typeof AgentPrioritiesRoute
   AgentProfileRoute: typeof AgentProfileRoute
@@ -558,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentPeacePactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/intake': {
+      id: '/agent/intake'
+      path: '/agent/intake'
+      fullPath: '/agent/intake'
+      preLoaderRoute: typeof AgentIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/deep-dive': {
       id: '/agent/deep-dive'
       path: '/agent/deep-dive'
@@ -658,6 +678,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentChatRoute: AgentChatRoute,
   AgentComplianceRoute: AgentComplianceRoute,
   AgentDeepDiveRoute: AgentDeepDiveRoute,
+  AgentIntakeRoute: AgentIntakeRoute,
   AgentPeacePactRoute: AgentPeacePactRoute,
   AgentPrioritiesRoute: AgentPrioritiesRoute,
   AgentProfileRoute: AgentProfileRoute,
