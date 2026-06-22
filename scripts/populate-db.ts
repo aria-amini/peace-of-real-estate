@@ -963,7 +963,6 @@ async function populateDb(count: number) {
 			clientFirstTerms: null,
 			valueProposition: persona.valueProposition,
 			usePaxWriter: persona.usePaxWriter,
-			introVideo: null,
 			licenseAttested: true,
 			eoInsuranceStatus: persona.eoInsuranceStatus,
 			peacePactSigned: persona.peacePactSigned,
