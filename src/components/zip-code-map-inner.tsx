@@ -222,7 +222,7 @@ export function ZipCodeMapInner({
 		[onToggleZipCode],
 	)
 
-	const interactiveLayerIds = readOnly ? undefined : ['zip-fill']
+	const interactiveLayerIds = ['zip-fill']
 
 	const mapCallbacks = useMemo(() => {
 		if (readOnly) {
@@ -267,7 +267,7 @@ export function ZipCodeMapInner({
 				doubleClickZoom={false}
 				touchZoomRotate={false}
 				keyboard={false}
-				{...(readOnly ? {} : { interactiveLayerIds })}
+				{...(readOnly ? { interactiveLayerIds: [] } : { interactiveLayerIds })}
 				{...mapCallbacks}
 				onLoad={() => setMapLoaded(true)}
 				style={{ width: '100%', height: '100%' }}
