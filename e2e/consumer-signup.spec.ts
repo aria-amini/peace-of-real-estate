@@ -40,17 +40,23 @@ async function unlockBeta(page: Page) {
 
 async function completeIntake(page: Page) {
 	await page.goto('/consumer/intake?reset=true')
-	await expect(
-		page.getByRole('heading', { name: 'Your Location' }),
-	).toBeVisible()
+	await expect(page.getByRole('heading', { name: 'Your Home' })).toBeVisible()
 
-	await page.getByRole('button', { name: /Austin, TX/i }).click()
+	await page.getByRole('button', { name: /Location/i }).click()
+	await page
+		.getByPlaceholder('Search city, state, or ZIP...')
+		.fill('Austin, TX')
+	await page.getByRole('option', { name: 'Austin, TX' }).first().click()
+
+	await page.getByRole('button', { name: /Under \$400k/i }).click()
+	await page.getByRole('button', { name: /Single-Family/i }).click()
 	await page.getByRole('button', { name: /Continue/i }).click()
 
-	await expect(page.getByRole('heading', { name: 'Your Home' })).toBeVisible()
+	await expect(
+		page.getByRole('heading', { name: 'Your Situation' }),
+	).toBeVisible()
 	await page.getByRole('button', { name: /Buy/i }).click()
-	await page.getByRole('button', { name: /Single-Family/i }).click()
-	await page.getByRole('button', { name: /30-60 days/i }).click()
+	await page.getByRole('button', { name: /First-time client/i }).click()
 	await page.getByRole('button', { name: /Continue/i }).click()
 
 	await expect(

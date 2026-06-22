@@ -9,7 +9,6 @@ export type ConsumerDraft = {
 	priceRange?: string
 	propertyTypes?: string[]
 	intent?: RepresentationSide
-	deadline?: string
 	experienceLevel?: string
 	matchPriorities?: string[]
 	answers: Answers
