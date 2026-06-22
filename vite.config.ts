@@ -1,5 +1,4 @@
 import { createAppConfig } from '@aamini/config/vite'
-import { varlockVitePlugin } from '@varlock/vite-integration'
 import type { TestProjectConfiguration } from 'vite-plus'
 import { mergeConfig } from 'vite-plus'
 
@@ -57,16 +56,13 @@ export default mergeConfig(appConfig, {
 					'no-console': 'off',
 				},
 			},
-			{
-				files: ['src/env.server.ts'],
-				rules: {
-					'no-console': 'off',
-				},
-			},
 		],
+	},
+	nitro: {
+		plugins: ['src/plugins/validate-env.ts'],
 	},
 	staged: {
 		'*': 'vp check --fix',
 	},
-	plugins: [varlockVitePlugin({ ssrInjectMode: 'resolved-env' })],
+	plugins: [],
 })

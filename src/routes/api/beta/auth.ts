@@ -1,4 +1,4 @@
-import { env } from '@/env'
+import { serverEnv as env } from '@/env.server'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/api/beta/auth')({

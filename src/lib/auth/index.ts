@@ -1,6 +1,6 @@
 import { getDb } from '@/db/connection'
 import { account, session, user, verification } from '@/db/tables'
-import { env } from '@/env'
+import { serverEnv as env } from '@/env.server'
 
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { createAuthMiddleware } from 'better-auth/api'
