@@ -22,7 +22,6 @@ import { Route as ConsumerPrioritiesRouteImport } from './routes/consumer/priori
 import { Route as ConsumerPreviewRouteImport } from './routes/consumer/preview'
 import { Route as ConsumerPaymentRouteImport } from './routes/consumer/payment'
 import { Route as ConsumerIntakeRouteImport } from './routes/consumer/intake'
-import { Route as ConsumerCompleteProfileRouteImport } from './routes/consumer/complete-profile'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
 import { Route as AgentSubscribeRouteImport } from './routes/agent/subscribe'
@@ -104,11 +103,6 @@ const ConsumerPaymentRoute = ConsumerPaymentRouteImport.update({
 const ConsumerIntakeRoute = ConsumerIntakeRouteImport.update({
   id: '/consumer/intake',
   path: '/consumer/intake',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConsumerCompleteProfileRoute = ConsumerCompleteProfileRouteImport.update({
-  id: '/consumer/complete-profile',
-  path: '/consumer/complete-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -219,7 +213,6 @@ export interface FileRoutesByFullPath {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
-  '/consumer/complete-profile': typeof ConsumerCompleteProfileRoute
   '/consumer/intake': typeof ConsumerIntakeRoute
   '/consumer/payment': typeof ConsumerPaymentRoute
   '/consumer/preview': typeof ConsumerPreviewRoute
@@ -251,7 +244,6 @@ export interface FileRoutesByTo {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
-  '/consumer/complete-profile': typeof ConsumerCompleteProfileRoute
   '/consumer/intake': typeof ConsumerIntakeRoute
   '/consumer/payment': typeof ConsumerPaymentRoute
   '/consumer/preview': typeof ConsumerPreviewRoute
@@ -285,7 +277,6 @@ export interface FileRoutesById {
   '/agent/subscribe': typeof AgentSubscribeRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/api/health': typeof ApiHealthRoute
-  '/consumer/complete-profile': typeof ConsumerCompleteProfileRoute
   '/consumer/intake': typeof ConsumerIntakeRoute
   '/consumer/payment': typeof ConsumerPaymentRoute
   '/consumer/preview': typeof ConsumerPreviewRoute
@@ -320,7 +311,6 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
-    | '/consumer/complete-profile'
     | '/consumer/intake'
     | '/consumer/payment'
     | '/consumer/preview'
@@ -352,7 +342,6 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
-    | '/consumer/complete-profile'
     | '/consumer/intake'
     | '/consumer/payment'
     | '/consumer/preview'
@@ -385,7 +374,6 @@ export interface FileRouteTypes {
     | '/agent/subscribe'
     | '/api/agent-matches'
     | '/api/health'
-    | '/consumer/complete-profile'
     | '/consumer/intake'
     | '/consumer/payment'
     | '/consumer/preview'
@@ -416,7 +404,6 @@ export interface RootRouteChildren {
   AgentSubscribeRoute: typeof AgentSubscribeRoute
   ApiAgentMatchesRoute: typeof ApiAgentMatchesRoute
   ApiHealthRoute: typeof ApiHealthRoute
-  ConsumerCompleteProfileRoute: typeof ConsumerCompleteProfileRoute
   ConsumerIntakeRoute: typeof ConsumerIntakeRoute
   ConsumerPaymentRoute: typeof ConsumerPaymentRoute
   ConsumerPreviewRoute: typeof ConsumerPreviewRoute
@@ -520,13 +507,6 @@ declare module '@tanstack/react-router' {
       path: '/consumer/intake'
       fullPath: '/consumer/intake'
       preLoaderRoute: typeof ConsumerIntakeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/consumer/complete-profile': {
-      id: '/consumer/complete-profile'
-      path: '/consumer/complete-profile'
-      fullPath: '/consumer/complete-profile'
-      preLoaderRoute: typeof ConsumerCompleteProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -685,7 +665,6 @@ const rootRouteChildren: RootRouteChildren = {
   AgentSubscribeRoute: AgentSubscribeRoute,
   ApiAgentMatchesRoute: ApiAgentMatchesRoute,
   ApiHealthRoute: ApiHealthRoute,
-  ConsumerCompleteProfileRoute: ConsumerCompleteProfileRoute,
   ConsumerIntakeRoute: ConsumerIntakeRoute,
   ConsumerPaymentRoute: ConsumerPaymentRoute,
   ConsumerPreviewRoute: ConsumerPreviewRoute,

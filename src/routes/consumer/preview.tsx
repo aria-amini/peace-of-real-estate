@@ -460,7 +460,7 @@ function useIsBelowDesktop() {
 
 function MobileSignupBanner() {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-	const redirect = '/consumer/complete-profile'
+	const redirect = '/account'
 	const callbackURL =
 		typeof window !== 'undefined'
 			? new URL(redirect, window.location.origin).toString()
@@ -558,7 +558,7 @@ function SignupForm({ idPrefix = 'signup' }: { idPrefix?: string }) {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 	const [googleAvailable, setGoogleAvailable] = useState(true)
 
-	const redirect = '/consumer/complete-profile'
+	const redirect = '/account'
 	const callbackURL = new URL(redirect, window.location.origin).toString()
 	const nameId = `${idPrefix}-name`
 	const emailId = `${idPrefix}-email`

@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useServerFn } from '@tanstack/react-start'
 import {
 	Crown,
 	ExternalLink,
@@ -27,6 +28,11 @@ import {
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useAccountSettings } from '@/hooks/use-account-settings'
 import { authClient } from '@/lib/auth/client'
+import {
+	clearConsumerDraft,
+	loadConsumerDraft,
+} from '@/lib/consumer-draft-storage'
+import { createConsumerProfileFromDraft } from '@/lib/consumer-profile/create-from-draft'
 import { isUserPremium } from '@/lib/premium'
 
 export const Route = createFileRoute('/account/')({
@@ -34,14 +40,43 @@ export const Route = createFileRoute('/account/')({
 })
 
 function AccountProfile() {
+	const queryClient = useQueryClient()
 	const { data: session } = authClient.useSession()
 	const { consumerProfile, loading } = useAccountSettings()
+	const createProfile = useServerFn(createConsumerProfileFromDraft)
+	const draftCompletionStarted = useRef(false)
 	const [showPaywall, setShowPaywall] = useState(false)
 	const { data: premiumStatus } = useQuery({
 		queryKey: ['user-premium'],
 		queryFn: isUserPremium,
 		enabled: Boolean(session),
 	})
+
+	useEffect(() => {
+		if (!session || draftCompletionStarted.current) {
+			return
+		}
+
+		const draft = loadConsumerDraft()
+		if (!draft) {
+			return
+		}
+
+		draftCompletionStarted.current = true
+
+		async function completeDraft() {
+			try {
+				await createProfile({ data: draft })
+				clearConsumerDraft()
+				await queryClient.invalidateQueries({ queryKey: ['consumer-profile'] })
+			} catch (error) {
+				console.error('Unable to complete consumer profile', error)
+				draftCompletionStarted.current = false
+			}
+		}
+
+		void completeDraft()
+	}, [createProfile, queryClient, session])
 
 	if (loading) {
 		return <div className="flex-1" />
