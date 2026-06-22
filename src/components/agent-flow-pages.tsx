@@ -64,10 +64,10 @@ const SKIPPED_ANSWER = '__skipped__'
 
 type AgentFlowStep = 'intro' | 'situation' | 'quiz'
 
-const agentFlowSteps: { id: AgentFlowStep; label: string }[] = [
-	{ id: 'intro', label: 'Market' },
-	{ id: 'situation', label: 'Experience' },
-	{ id: 'quiz', label: 'Style' },
+const agentFlowSteps: { id: AgentFlowStep; label: string; icon: Icon }[] = [
+	{ id: 'intro', label: 'Market', icon: MapPinIcon },
+	{ id: 'situation', label: 'Experience', icon: BriefcaseIcon },
+	{ id: 'quiz', label: 'Style', icon: UsersIcon },
 ]
 
 const stepOrder: AgentFlowStep[] = ['intro', 'situation', 'quiz']
