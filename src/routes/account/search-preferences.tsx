@@ -14,7 +14,9 @@ import {
 } from '@/components/ui/card'
 import { ChipSelect } from '@/components/ui/chip-select'
 import { Input } from '@/components/ui/input'
+import { PriceInput } from '@/components/price-input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { useAccountSettings } from '@/hooks/use-account-settings'
 import type {
@@ -22,6 +24,16 @@ import type {
 	ConsumerProfileUpdate,
 	RepresentationSide,
 } from '@/lib/matching/profile.types'
+import {
+	DEFAULT_PRICE_RANGE,
+	formatPriceCompact,
+	formatPriceRange,
+	parsePriceRange,
+	PRICE_MAX,
+	PRICE_MIN,
+	PRICE_STEP,
+	serializePriceRange,
+} from '@/lib/price-range'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/account/search-preferences')({
@@ -29,24 +41,6 @@ export const Route = createFileRoute('/account/search-preferences')({
 })
 
 const intentOptions: RepresentationSide[] = ['buying', 'selling', 'both']
-
-const priceOptions = [
-	'Under $400k',
-	'$400k to $750k',
-	'$750k to $1.5M',
-	'$1.5M and above',
-]
-
-const priceSlugMap: Record<string, string> = {
-	'Under $400k': 'under400k',
-	'$400k to $750k': '400kTo750k',
-	'$750k to $1.5M': '750kTo1_5m',
-	'$1.5M and above': '1_5mPlus',
-}
-
-const reversePriceSlugMap: Record<string, string> = Object.fromEntries(
-	Object.entries(priceSlugMap).map(([label, slug]) => [slug, label]),
-)
 
 const propertyOptions = [
 	'Single-Family',
@@ -121,7 +115,7 @@ function profileToForm(profile: Partial<ConsumerProfile>): FormState {
 		state: profile.state ?? undefined,
 		intent: profile.intent ?? undefined,
 		priceRange: profile.priceRange
-			? (reversePriceSlugMap[profile.priceRange] ?? profile.priceRange)
+			? serializePriceRange(parsePriceRange(profile.priceRange))
 			: undefined,
 		propertyTypes: (profile.propertyTypes ?? [])
 			.map((slug) => reversePropertySlugMap[slug] ?? slug)
@@ -144,7 +138,7 @@ function formToUpdate(form: FormState): ConsumerProfileUpdate {
 	if (form.state !== undefined) update.state = form.state
 	if (form.intent !== undefined) update.intent = form.intent
 	if (form.priceRange !== undefined) {
-		update.priceRange = priceSlugMap[form.priceRange]
+		update.priceRange = serializePriceRange(parsePriceRange(form.priceRange))
 	}
 
 	const propertyTypes = form.propertyTypes
@@ -255,9 +249,7 @@ function SearchPreferences() {
 							}
 						/>
 
-						<OptionGroup
-							label="Budget"
-							options={priceOptions}
+						<BudgetRangeField
 							value={form.priceRange}
 							onChange={(priceRange) => updateForm({ priceRange })}
 						/>
@@ -344,6 +336,79 @@ function SearchPreferences() {
 						</Button>
 					</CardFooter>
 				</Card>
+			</div>
+		</div>
+	)
+}
+
+function BudgetRangeField({
+	value,
+	onChange,
+}: {
+	value: string | undefined
+	onChange: (value: string) => void
+}) {
+	const range = parsePriceRange(value)
+	const setRange = (next: { min: number; max: number }) => {
+		onChange(serializePriceRange(next))
+	}
+
+	return (
+		<div className="space-y-3">
+			<div className="flex items-center justify-between gap-3">
+				<div className="text-sm font-medium">Budget</div>
+				<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap">
+					{formatPriceRange(range)}
+				</span>
+			</div>
+
+			<div className="grid grid-cols-2 gap-3">
+				<PriceInput
+					id="budget-min"
+					label="Low"
+					value={range.min}
+					onChange={(nextMin) =>
+						setRange({ ...range, min: Math.min(nextMin, range.max) })
+					}
+				/>
+				<PriceInput
+					id="budget-max"
+					label="High"
+					value={range.max}
+					onChange={(nextMax) =>
+						setRange({ ...range, max: Math.max(nextMax, range.min) })
+					}
+				/>
+			</div>
+
+			<Slider
+				value={[range.min, range.max]}
+				min={PRICE_MIN}
+				max={PRICE_MAX}
+				step={PRICE_STEP}
+				onValueChange={([nextMin, nextMax]) =>
+					setRange({
+						min: nextMin ?? DEFAULT_PRICE_RANGE.min,
+						max: nextMax ?? DEFAULT_PRICE_RANGE.max,
+					})
+				}
+			/>
+			<div className="relative h-4">
+				{[0, 500_000, 1_000_000, 1_500_000, 2_000_000].map((tick) => {
+					const percent = (tick / PRICE_MAX) * 100
+					return (
+						<div
+							key={tick}
+							className="absolute top-0 flex -translate-x-1/2 flex-col items-center gap-0.5"
+							style={{ left: `${percent}%` }}
+						>
+							<span className="bg-muted-foreground/30 h-1 w-px rounded-full" />
+							<span className="text-muted-foreground text-[10px] font-medium">
+								{formatPriceCompact(tick)}
+							</span>
+						</div>
+					)
+				})}
 			</div>
 		</div>
 	)

@@ -5,14 +5,13 @@ import {
 	BuildingApartmentIcon,
 	BuildingIcon,
 	ClockIcon,
-	CurrencyDollarIcon,
 	HouseLineIcon,
 	MapPinIcon,
 	QuestionIcon,
 	TagIcon,
+	UserIcon,
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
-import * as zipcodes from 'zipcodes'
 import {
 	ArrowRight,
 	Check,
@@ -24,15 +23,14 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import {
-	AnimatedStatusIcon,
-	AnimatedStepCard,
-	FlowIntakeProgress,
-	StepProgressHeader,
-} from '@/components/flow-shared'
+import { useQuery } from '@tanstack/react-query'
+import type { FeatureCollection } from 'geojson'
+
 import { FlowPageShell } from '@/components/flow-page-shell'
+import { PriceInput } from '@/components/price-input'
 import { QuestionFlow } from '@/components/question-flow'
 import { WizardShell } from '@/components/wizard-shell'
+import { ZipCodeMap } from '@/components/zip-code-map'
 import type { MatchDetails } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -59,8 +57,117 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import { upgradeToPremium } from '@/lib/premium'
+import {
+	DEFAULT_PRICE_RANGE,
+	formatPriceCompact,
+	formatPriceRange,
+	parsePriceRange,
+	PRICE_MAX,
+	PRICE_MIN,
+	PRICE_STEP,
+	serializePriceRange,
+} from '@/lib/price-range'
+import {
+	loadCityCenter,
+	loadCitySuggestions,
+	loadCityZipCodes,
+	loadZipCodeBoundaries,
+} from '@/lib/zip-code-data'
+
+function StepProgressHeader({
+	stepNumber,
+	totalSteps,
+	title,
+	items,
+	activeIndex,
+	titleIcon: TitleIcon,
+	showTitle = true,
+}: {
+	stepNumber: number
+	totalSteps: number
+	title: string
+	items: boolean[]
+	activeIndex?: number
+	titleIcon?: Icon
+	showTitle?: boolean
+}) {
+	const completedCount = items.filter(Boolean).length
+	const total = items.length
+	const isComplete = completedCount === total
+
+	return (
+		<div className="space-y-2">
+			{showTitle && (
+				<div className="flex items-center justify-between gap-3">
+					<div>
+						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+							Step {stepNumber} of {totalSteps}
+						</p>
+						<h2 className="font-heading flex items-center gap-2 text-xl font-semibold tracking-tight">
+							{TitleIcon && <TitleIcon className="h-5 w-5" />}
+							{title}
+						</h2>
+					</div>
+				</div>
+			)}
+			<div className="flex flex-col items-center gap-1.5">
+				<div className="flex items-center gap-2.5">
+					{Array.from({ length: total }).map((_, index) => {
+						const isActive = activeIndex === index
+						const isCompleted = index < completedCount
+						return (
+							<div
+								key={index}
+								className={cn(
+									'h-2.5 w-2.5 rounded-full transition-all duration-300',
+									isCompleted ? 'bg-primary' : 'bg-muted',
+									isActive &&
+										'ring-primary ring-2 ring-offset-2 ring-offset-background scale-110',
+								)}
+							/>
+						)
+					})}
+				</div>
+				<span
+					className={cn(
+						'text-xs font-bold transition-colors',
+						isComplete ? 'text-primary' : 'text-muted-foreground',
+					)}
+				>
+					{Math.max(completedCount, 1)} of {total}
+				</span>
+			</div>
+		</div>
+	)
+}
+
+function StepHeader({
+	stepNumber,
+	totalSteps,
+	title,
+	icon: Icon,
+}: {
+	stepNumber: number
+	totalSteps: number
+	title: string
+	icon?: Icon
+}) {
+	return (
+		<div className="space-y-1">
+			<p className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+				Step {stepNumber} of {totalSteps}
+			</p>
+			<p className="text-muted-foreground flex items-center gap-1.5 text-sm font-medium">
+				{Icon ? <Icon className="h-4 w-4" weight="duotone" /> : null}
+				{title}
+			</p>
+		</div>
+	)
+}
 
 import type { RepresentationSide } from '@/lib/matching/profile.types'
 import {
@@ -72,8 +179,6 @@ import {
 	consumerQuestionFlow,
 	getAnswerSummary,
 	propertyTypeOptions,
-	questionOptionLabel,
-	questionOptionSlugs,
 	type Answers,
 	type Question,
 	type QuestionFlow as MatchingQuestionFlow,
@@ -89,9 +194,12 @@ function getNextUnansweredQuestionIndex(
 }
 
 type ConsumerFlowState = {
+	city?: string
 	location?: string
 	state?: string
+	zipCodes?: string[]
 	priceRange?: string
+	timeline?: string
 	propertyTypes?: string[]
 	intent?: RepresentationSide
 	experienceLevel?: string
@@ -102,166 +210,194 @@ type ConsumerFlowState = {
 type ConsumerFlowConfig = {
 	basePath: '/consumer'
 	label: 'Consumer'
-	areaPrompt: string
-	situationPrompt: string
 	intentOptions: RepresentationSide[]
-	experiencePrompt: string
-	experienceOptions: string[]
-	pricePrompt: string
-	priceOptions: { slug: string; label: string }[]
+	timelineOptions: { slug: string; label: string }[]
 	propertyPrompt: string
 	propertyOptions: string[]
 	questionFlow: MatchingQuestionFlow
 	accent: 'navy' | 'amber'
 }
 
-type ConsumerFlowStep = 'intro' | 'situation' | 'quiz'
+type ConsumerFlowStep = 'intro' | 'intent' | 'home' | 'quiz'
 const SKIPPED_ANSWER = '__skipped__'
 
-const consumerFlowSteps: { id: ConsumerFlowStep; label: string }[] = [
-	{ id: 'intro', label: 'Home' },
-	{ id: 'situation', label: 'Situation' },
-	{ id: 'quiz', label: 'Preferences' },
-]
+const consumerFlowSteps: { id: ConsumerFlowStep; label: string; icon: Icon }[] =
+	[
+		{ id: 'intro', label: 'Situation', icon: ClockIcon },
+		{ id: 'intent', label: 'Location', icon: MapPinIcon },
+		{ id: 'home', label: 'Home', icon: HouseLineIcon },
+		{ id: 'quiz', label: 'Preferences', icon: UserIcon },
+	]
 
-const stepOrder: ConsumerFlowStep[] = ['intro', 'situation', 'quiz']
+const stepOrder: ConsumerFlowStep[] = ['intro', 'intent', 'home', 'quiz']
 
-const zipCodeLocations = Object.values(zipcodes.codes).filter(
-	(location) => location.country === 'US',
-)
-
-const usStateCodes = new Set([
-	'AL',
-	'AK',
-	'AZ',
-	'AR',
-	'CA',
-	'CO',
-	'CT',
-	'DE',
-	'DC',
-	'FL',
-	'GA',
-	'HI',
-	'ID',
-	'IL',
-	'IN',
-	'IA',
-	'KS',
-	'KY',
-	'LA',
-	'ME',
-	'MD',
-	'MA',
-	'MI',
-	'MN',
-	'MS',
-	'MO',
-	'MT',
-	'NE',
-	'NV',
-	'NH',
-	'NJ',
-	'NM',
-	'NY',
-	'NC',
-	'ND',
-	'OH',
-	'OK',
-	'OR',
-	'PA',
-	'RI',
-	'SC',
-	'SD',
-	'TN',
-	'TX',
-	'UT',
-	'VT',
-	'VA',
-	'WA',
-	'WV',
-	'WI',
-	'WY',
-])
-
-const stateLocations = Object.entries(zipcodes.states.full)
-	.filter(([, state]) => usStateCodes.has(state))
-	.map(([name, state]) => ({
-		name: name.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase()),
-		state,
-	}))
-
-function formatZipCodeLocation(location: (typeof zipCodeLocations)[number]) {
-	return `${location.city}, ${location.state} ${location.zip}`
+const cardVariants = {
+	enter: (direction: number) => ({
+		y: direction > 0 ? '100%' : '-40%',
+		opacity: 0,
+		scale: 0.96,
+	}),
+	center: {
+		y: 0,
+		opacity: 1,
+		scale: 1,
+	},
+	exit: (direction: number) => ({
+		y: direction > 0 ? '-40%' : '60%',
+		opacity: 0,
+		scale: 0.96,
+	}),
 }
 
-function getLocationSuggestions(query: string) {
-	const normalizedQuery = query.trim().toLowerCase()
-	if (normalizedQuery.length < 2) return []
-
-	const suggestions: string[] = []
-	const seen = new Set<string>()
-	const addSuggestion = (suggestion: string) => {
-		if (seen.has(suggestion)) return
-		seen.add(suggestion)
-		suggestions.push(suggestion)
-	}
-
-	for (const location of stateLocations) {
-		if (
-			location.name.toLowerCase().includes(normalizedQuery) ||
-			location.state.toLowerCase().includes(normalizedQuery)
-		) {
-			addSuggestion(`${location.name}, ${location.state}`)
-		}
-	}
-
-	for (const location of zipCodeLocations) {
-		const label = formatZipCodeLocation(location)
-		if (
-			location.zip.startsWith(normalizedQuery) ||
-			location.city.toLowerCase().includes(normalizedQuery) ||
-			location.state.toLowerCase() === normalizedQuery ||
-			label.toLowerCase().includes(normalizedQuery)
-		) {
-			addSuggestion(label)
-		}
-
-		if (suggestions.length >= 8) break
-	}
-
-	return suggestions
+function AnimatedStepCard({
+	children,
+	stepKey,
+	direction,
+}: {
+	children: React.ReactNode
+	stepKey: string
+	direction: number
+}) {
+	return (
+		<div className="relative overflow-hidden">
+			<AnimatePresence mode="wait" custom={direction}>
+				<motion.div
+					key={stepKey}
+					custom={direction}
+					variants={cardVariants}
+					initial="enter"
+					animate="center"
+					exit="exit"
+					transition={{
+						y: { type: 'spring', stiffness: 320, damping: 30 },
+						opacity: { duration: 0.25 },
+						scale: { duration: 0.25 },
+					}}
+				>
+					{children}
+				</motion.div>
+			</AnimatePresence>
+		</div>
+	)
 }
 
-const priceOptions = [
-	{ slug: 'under400k', label: 'Under $400k' },
-	{ slug: '400kTo750k', label: '$400k to $750k' },
-	{ slug: '750kTo1_5m', label: '$750k to $1.5M' },
-	{ slug: '1_5mPlus', label: '$1.5M and above' },
+function ConsumerIntakeProgress({
+	current,
+	currentStepProgress = 1,
+}: {
+	current: ConsumerFlowStep
+	currentStepProgress?: number
+}) {
+	const currentIndex = consumerFlowSteps.findIndex(
+		(step) => step.id === current,
+	)
+	const clampedCurrentStepProgress = Math.min(
+		Math.max(currentStepProgress, 0),
+		1,
+	)
+
+	return (
+		<div
+			className="grid gap-3"
+			style={{
+				gridTemplateColumns: `repeat(${consumerFlowSteps.length}, 1fr)`,
+			}}
+			aria-label={`Step ${currentIndex + 1} of ${consumerFlowSteps.length}`}
+		>
+			{consumerFlowSteps.map((step, index) => {
+				const isCurrent = index === currentIndex
+				const isComplete = index < currentIndex
+				const fillPercent = isComplete
+					? 100
+					: isCurrent
+						? clampedCurrentStepProgress * 100
+						: 0
+
+				return (
+					<div
+						key={step.id}
+						className={cn(
+							'space-y-2 transition-opacity',
+							isCurrent || isComplete ? 'opacity-100' : 'opacity-45',
+						)}
+					>
+						<div className="bg-muted-foreground/15 h-1.5 overflow-hidden rounded-full">
+							<div
+								className={cn(
+									'h-full origin-left rounded-full transition-all duration-700 ease-out',
+									isComplete ? 'bg-primary/70' : 'bg-primary',
+								)}
+								style={{ width: `${fillPercent}%` }}
+							/>
+						</div>
+						<p
+							className={cn(
+								'flex items-center gap-1.5 text-[10px] font-semibold tracking-wide uppercase transition-colors',
+								isCurrent
+									? 'text-primary'
+									: isComplete
+										? 'text-primary/75'
+										: 'text-muted-foreground',
+							)}
+						>
+							<span
+								className={cn(
+									'flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold',
+									isCurrent
+										? 'bg-primary text-primary-foreground'
+										: isComplete
+											? 'bg-primary/15 text-primary'
+											: 'bg-muted text-muted-foreground',
+								)}
+							>
+								{index + 1}
+							</span>
+							<span>{step.label}</span>
+						</p>
+					</div>
+				)
+			})}
+		</div>
+	)
+}
+function parseCityState(
+	location: string,
+): { city: string; state: string } | undefined {
+	const [cityName, rest] = location.split(',').map((part) => part.trim())
+	if (!cityName || !rest) return undefined
+	const state = rest.split(/\s+/)[0]
+	if (!state || state.length !== 2) return undefined
+	return { city: cityName, state: state.toUpperCase() }
+}
+
+function isValidZipCode(zipCode: string) {
+	return /^\d{5}$/.test(zipCode)
+}
+
+const timelineOptions = [
+	{ slug: 'exploring', label: 'Just exploring' },
+	{ slug: '1month', label: '1 month' },
+	{ slug: '2months', label: '2 months' },
+	{ slug: '3months', label: '3 months' },
+	{ slug: '4months', label: '4 months' },
+	{ slug: '5months', label: '5 months' },
+	{ slug: '6months', label: '6 months' },
+	{ slug: '7months', label: '7 months' },
+	{ slug: '8months', label: '8 months' },
+	{ slug: '9months', label: '9 months' },
+	{ slug: '10months', label: '10 months' },
+	{ slug: '11months', label: '11 months' },
+	{ slug: '12monthsPlus', label: '12+ months' },
 ] as const
-
-const experienceQuestion = consumerQuestionFlow.questions.find(
-	(q) => q.id === 'experienceLevel',
-)!
 
 export const consumerConfig = {
 	basePath: '/consumer',
 	label: 'Consumer',
-	areaPrompt: 'City, State, or ZIP code',
-	situationPrompt: 'What do you want to do?',
 	intentOptions: ['buying', 'selling', 'both'],
-	experiencePrompt: 'What is your experience level?',
-	experienceOptions: questionOptionSlugs(experienceQuestion),
-	pricePrompt: 'What price range are you considering?',
-	priceOptions: [...priceOptions],
+	timelineOptions: [...timelineOptions],
 	propertyPrompt: 'What type of home are you looking for?',
 	propertyOptions: Object.keys(propertyTypeOptions),
-	questionFlow: {
-		...consumerQuestionFlow,
-		questions: consumerQuestionFlow.questions.filter(
-			(q) => q.id !== 'experienceLevel',
-		),
-	},
+	questionFlow: consumerQuestionFlow,
 	accent: 'navy',
 } satisfies ConsumerFlowConfig
 
@@ -358,37 +494,8 @@ function getIntentLabel(intent: RepresentationSide) {
 	return 'Buy then Sell'
 }
 
-function getExperienceLevel(slug: string) {
-	if (slug === 'firstTime') return 1
-	if (slug === 'experienced') return 2
-	if (slug === 'veryExperienced') return 3
-	return 1
-}
-
-function deriveStateFromLocation(location: string): string | undefined {
-	const trimmed = location.trim()
-	if (!trimmed) return undefined
-
-	// Direct 5-digit ZIP lookup
-	const zipMatch = trimmed.match(/\b(\d{5})\b/)
-	if (zipMatch) {
-		const record = zipcodes.lookup(zipMatch[1] as string)
-		if (record?.state) return record.state
-	}
-
-	// "City, ST" or "ST"
-	const parts = trimmed.split(',').map((s) => s.trim())
-	const lastPart = parts.at(-1)
-	if (lastPart) {
-		const normalized = zipcodes.states.normalize(lastPart)
-		if (normalized) return normalized
-	}
-
-	return undefined
-}
-
-export function ConsumerIntro({
-	config,
+export function ConsumerLocation({
+	config: _config,
 	state,
 	direction,
 	onUpdate,
@@ -400,97 +507,148 @@ export function ConsumerIntro({
 	onUpdate: (patch: Partial<ConsumerFlowState>) => void
 	onContinue: () => void
 }) {
+	const rawInitialLocation = state.city ?? state.location ?? ''
+	const normalizedInitialLocation = (() => {
+		const parsed = parseCityState(rawInitialLocation)
+		return parsed ? `${parsed.city}, ${parsed.state}` : rawInitialLocation
+	})()
 	const [committedLocation, setCommittedLocation] = useState(
-		state.location ?? '',
+		normalizedInitialLocation,
 	)
-	const [locationQuery, setLocationQuery] = useState(state.location ?? '')
-	const [locationEdited, setLocationEdited] = useState(false)
+	const [locationQuery, setLocationQuery] = useState(normalizedInitialLocation)
 	const [locationOpen, setLocationOpen] = useState(false)
-	const [hasTriedContinue, setHasTriedContinue] = useState(false)
-	const [priceIndex, setPriceIndex] = useState(() => {
-		const storedIndex = config.priceOptions.findIndex(
-			(option) => option.slug === state.priceRange,
-		)
-		return storedIndex >= 0 ? storedIndex : undefined
-	})
-	const [propertyTypes, setPropertyTypes] = useState<string[]>(
-		state.propertyTypes ?? [],
+	const [selectedZipCodes, setSelectedZipCodes] = useState<string[]>(
+		state.zipCodes ?? [],
 	)
-	const priceRange =
-		priceIndex !== undefined ? config.priceOptions[priceIndex]?.slug : undefined
+	const [manualZipCode, setManualZipCode] = useState('')
+	const [hasTriedContinue, setHasTriedContinue] = useState(false)
 	const marketComplete = committedLocation.trim().length >= 2
-	const priceComplete = priceRange !== undefined
-	const propertyComplete = propertyTypes.length > 0
-	const effectiveLocation = (
-		locationEdited ? locationQuery : committedLocation
-	).trim()
-	const canContinue =
-		effectiveLocation.length >= 2 && priceComplete && propertyComplete
-	const locationSuggestions = getLocationSuggestions(locationQuery)
+	const canContinue = marketComplete
 	const showMarketError = hasTriedContinue && !marketComplete
-	const showPriceError = hasTriedContinue && !priceComplete
-	const showPropertyError = hasTriedContinue && !propertyComplete
+	const cityState = parseCityState(committedLocation)
+
+	const { data: locationSuggestions = [] } = useQuery({
+		queryKey: ['city-suggestions', locationQuery],
+		queryFn: () => loadCitySuggestions(locationQuery),
+		enabled: locationQuery.trim().length >= 0,
+		staleTime: 1000 * 60 * 60,
+	})
+
+	const { data: _cityZipCodes = [] } = useQuery({
+		queryKey: ['city-zip-codes', committedLocation],
+		queryFn: async () => {
+			if (!cityState) return []
+			return loadCityZipCodes(cityState)
+		},
+		enabled: marketComplete && Boolean(cityState),
+		staleTime: 1000 * 60 * 60,
+	})
+
+	const displayZipCodes = selectedZipCodes
+
+	const { data: boundaries } = useQuery({
+		queryKey: ['zip-code-boundaries', committedLocation],
+		queryFn: async () => {
+			if (!cityState) {
+				return {
+					type: 'FeatureCollection',
+					features: [],
+				} satisfies FeatureCollection
+			}
+			return loadZipCodeBoundaries(cityState)
+		},
+		enabled: marketComplete && Boolean(cityState),
+		staleTime: 1000 * 60 * 60,
+	})
+
+	const { data: centerForCity } = useQuery({
+		queryKey: ['city-center', committedLocation],
+		queryFn: async () => {
+			if (!cityState) return undefined
+			return loadCityCenter(cityState)
+		},
+		enabled: marketComplete && Boolean(cityState),
+		staleTime: 1000 * 60 * 60,
+	})
+
+	const toggleZipCode = (zipCode: string) => {
+		setSelectedZipCodes((current) =>
+			current.includes(zipCode)
+				? current.filter((item) => item !== zipCode)
+				: [...current, zipCode],
+		)
+	}
+
+	const addManualZipCode = () => {
+		const zipCode = manualZipCode.trim()
+		if (!marketComplete || !isValidZipCode(zipCode)) return
+		setSelectedZipCodes((current) =>
+			current.includes(zipCode) ? current : [...current, zipCode],
+		)
+		setManualZipCode('')
+	}
+
+	const selectCity = (city: string) => {
+		setCommittedLocation(city)
+		setLocationQuery(city)
+		setSelectedZipCodes((current) =>
+			city === committedLocation ? current : [],
+		)
+		setLocationOpen(false)
+	}
 
 	const handleContinue = () => {
-		const finalLocation = (
-			locationEdited ? locationQuery : committedLocation
-		).trim()
+		const finalLocation = committedLocation.trim()
 		const finalMarketComplete = finalLocation.length >= 2
-		const finalCanContinue =
-			finalMarketComplete && priceComplete && propertyComplete
 
-		if (!finalCanContinue) {
+		if (!finalMarketComplete) {
 			setHasTriedContinue(true)
 			return
 		}
 
-		const derivedState = deriveStateFromLocation(finalLocation)
+		const derivedState = cityState?.state
+		const location =
+			selectedZipCodes.length > 0
+				? `${finalLocation} (${selectedZipCodes.join(', ')})`
+				: finalLocation
 
 		onUpdate({
-			location: finalLocation,
+			city: finalLocation,
+			location,
 			...(derivedState ? { state: derivedState } : {}),
-			priceRange,
-			propertyTypes,
+			zipCodes: selectedZipCodes,
 		})
 		onContinue()
 	}
 
 	return (
-		<AnimatedStepCard stepKey="intro" direction={direction}>
+		<AnimatedStepCard stepKey="intent" direction={direction}>
 			<Card size="sm" className="shadow-sm">
-				<CardContent className="space-y-8">
-					<div className="space-y-2">
-						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-							Step 1 of 3
-						</p>
-						<h2 className="font-heading flex items-center gap-2 text-xl font-semibold tracking-tight">
-							<HouseLineIcon className="h-5 w-5" />
-							Your Home
-						</h2>
-					</div>
+				<CardContent className="space-y-6">
+					<StepHeader
+						stepNumber={2}
+						totalSteps={4}
+						title="Location"
+						icon={MapPinIcon}
+					/>
 
-					{/* Location */}
 					<div className="space-y-3">
 						<div
 							className={cn(
-								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
+								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase leading-none',
 								showMarketError
 									? 'text-destructive'
 									: marketComplete
 										? 'text-primary'
-										: 'text-foreground',
+										: 'text-muted-foreground',
 							)}
 						>
-							<AnimatedStatusIcon complete={marketComplete} icon={MapPinIcon} />
-							Location
+							City
 						</div>
 						<Popover
 							open={locationOpen}
 							onOpenChange={(open) => {
-								if (!open) {
-									setCommittedLocation(locationQuery)
-									setLocationEdited(false)
-								}
+								setLocationQuery(open ? '' : committedLocation)
 								setLocationOpen(open)
 							}}
 						>
@@ -500,10 +658,10 @@ export function ConsumerIntro({
 									variant="outline"
 									aria-expanded={locationOpen}
 									className={cn(
-										'h-14 w-full justify-between rounded-xl px-4 text-left text-base font-medium transition',
+										'h-12 w-full justify-between rounded-2xl px-4 text-left text-base font-semibold transition sm:h-14 sm:text-lg',
 										marketComplete
-											? 'border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.06]'
-											: 'border-border bg-card hover:bg-muted/30',
+											? 'border-primary/60 bg-background text-foreground shadow-sm hover:bg-primary/[0.04]'
+											: 'border-primary/25 bg-background text-foreground shadow-sm hover:border-primary/50 hover:bg-background',
 									)}
 								>
 									<span
@@ -512,7 +670,7 @@ export function ConsumerIntro({
 											'truncate',
 										)}
 									>
-										{committedLocation || config.areaPrompt}
+										{committedLocation || 'Search for your city'}
 									</span>
 									<ChevronsUpDown className="text-muted-foreground h-4 w-4 shrink-0" />
 								</Button>
@@ -524,27 +682,25 @@ export function ConsumerIntro({
 								<Command shouldFilter={false}>
 									<CommandInput
 										value={locationQuery}
-										onValueChange={(value) => {
-											setLocationQuery(value)
-											setLocationEdited(true)
-										}}
-										placeholder="Search city, state, or ZIP..."
+										onValueChange={setLocationQuery}
+										placeholder="Search city..."
 									/>
 									<CommandList>
 										<CommandEmpty>
-											No suggestions. You can still use what you typed.
+											No matching cities. Try a nearby market.
 										</CommandEmpty>
-										<CommandGroup>
+										<CommandGroup
+											heading={
+												locationQuery.trim().length < 2
+													? 'Top US cities'
+													: 'City matches'
+											}
+										>
 											{locationSuggestions.map((suggestion) => (
 												<CommandItem
 													key={suggestion}
 													value={suggestion}
-													onSelect={(value) => {
-														setCommittedLocation(value)
-														setLocationQuery(value)
-														setLocationEdited(false)
-														setLocationOpen(false)
-													}}
+													onSelect={selectCity}
 												>
 													<Check
 														className={cn(
@@ -562,178 +718,106 @@ export function ConsumerIntro({
 							</PopoverContent>
 						</Popover>
 						{showMarketError ? (
-							<p className="text-destructive text-xs">
-								Enter a city, state, or ZIP.
-							</p>
+							<p className="text-destructive text-xs">Enter a city.</p>
 						) : null}
 					</div>
 
-					{/* Budget & Home type */}
-					<div className="grid gap-6 sm:grid-cols-2">
-						{/* Budget */}
-						<div className="space-y-3">
-							<div
-								className={cn(
-									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
-									showPriceError
-										? 'text-destructive'
-										: priceComplete
-											? 'text-primary'
-											: 'text-foreground',
-								)}
-							>
-								<AnimatedStatusIcon
-									complete={priceComplete}
-									icon={CurrencyDollarIcon}
-								/>
-								Budget
-							</div>
-							<div className="grid grid-cols-1 gap-2.5">
-								{config.priceOptions.map((option, index) => {
-									const isSelected = priceIndex === index
-
-									return (
-										<button
-											key={option.slug}
+					<div className="space-y-3">
+						{marketComplete ? (
+							<div className="space-y-3">
+								<div className="flex items-center gap-2">
+									<div className="bg-muted/50 relative flex flex-1 items-center rounded-2xl border px-3">
+										<input
+											value={manualZipCode}
+											onChange={(event) => setManualZipCode(event.target.value)}
+											placeholder="Add ZIP code"
+											inputMode="numeric"
+											maxLength={5}
+											className="h-11 w-full bg-transparent text-sm font-semibold outline-none"
+										/>
+										<Button
 											type="button"
-											onClick={() => setPriceIndex(index)}
-											className={cn(
-												'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
-												isSelected
-													? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
-													: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
-											)}
-											aria-pressed={isSelected}
+											variant="ghost"
+											size="sm"
+											onClick={addManualZipCode}
+											disabled={!isValidZipCode(manualZipCode.trim())}
+											className="h-8 rounded-xl px-3 text-xs"
 										>
-											<span
-												className={cn(
-													'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors',
-													isSelected
-														? 'border-primary bg-transparent'
-														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
-												)}
-											>
-												{isSelected ? (
-													<span className="bg-primary h-2 w-2 rounded-full" />
-												) : null}
-											</span>
-											{option.label}
-										</button>
-									)
-								})}
-							</div>
-							{showPriceError ? (
-								<p className="text-destructive text-xs">
-									Choose a price range.
-								</p>
-							) : null}
-						</div>
-
-						{/* Home type */}
-						<div className="space-y-3">
-							<div
-								className={cn(
-									'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground',
-									showPropertyError
-										? 'text-destructive'
-										: propertyComplete
-											? 'text-primary'
-											: 'text-foreground',
-								)}
-							>
-								<AnimatedStatusIcon
-									complete={propertyComplete}
-									icon={HouseLineIcon}
-								/>
-								Home type
-							</div>
-							<div className="grid grid-cols-1 gap-2.5">
-								{config.propertyOptions.map((option) => {
-									const isSelected = propertyTypes.includes(option)
-									const PropertyIcon = getPropertyIcon(option)
-
-									return (
-										<button
-											key={option}
-											type="button"
-											onClick={() => {
-												setPropertyTypes((current) =>
-													current.includes(option)
-														? current.filter((item) => item !== option)
-														: [...current, option],
-												)
-											}}
-											className={cn(
-												'group flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition',
-												isSelected
-													? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
-													: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:shadow-sm',
-											)}
-											aria-pressed={isSelected}
-										>
-											<span
-												className={cn(
-													'flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
-													isSelected
-														? 'border-primary bg-transparent'
-														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
-												)}
-											>
-												{isSelected ? (
-													<Check className="text-primary h-3 w-3" />
-												) : null}
-											</span>
-											<PropertyIcon
-												className={cn(
-													'h-5 w-5 shrink-0',
-													isSelected
-														? 'text-primary'
-														: 'text-muted-foreground group-hover:text-primary',
-												)}
-												weight="duotone"
-											/>
-											{
-												propertyTypeOptions[
-													option as keyof typeof propertyTypeOptions
-												]
+											Add
+										</Button>
+									</div>
+								</div>
+								{displayZipCodes.length > 0 ? (
+									<div className="flex flex-wrap gap-1.5">
+										{displayZipCodes.map((zipCode) => {
+											const isSelected = selectedZipCodes.includes(zipCode)
+											return (
+												<button
+													key={zipCode}
+													type="button"
+													onClick={() => toggleZipCode(zipCode)}
+													className={cn(
+														'resize-none rounded-full border px-2 py-0.5 text-[10px] font-semibold transition',
+														isSelected
+															? 'border-primary bg-primary text-primary-foreground shadow-sm'
+															: 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground',
+													)}
+													aria-pressed={isSelected}
+												>
+													{zipCode}
+												</button>
+											)
+										})}
+									</div>
+								) : null}
+								<div className="bg-muted/30 border-border overflow-hidden rounded-2xl border p-3">
+									{!centerForCity ? (
+										<Skeleton className="h-80 rounded-2xl" />
+									) : (
+										<ZipCodeMap
+											boundaries={
+												boundaries ?? {
+													type: 'FeatureCollection',
+													features: [],
+												}
 											}
-										</button>
-									)
-								})}
+											selectedZipCodes={selectedZipCodes}
+											center={centerForCity}
+											readOnly
+											className="h-80"
+										/>
+									)}
+								</div>
 							</div>
-							{showPropertyError ? (
-								<p className="text-destructive text-xs">
-									Choose at least one property type.
-								</p>
-							) : null}
-						</div>
+						) : (
+							<div className="flex min-h-64 flex-col items-center justify-center gap-2 text-center">
+								<MapPinIcon className="text-muted-foreground/60 h-8 w-8" />
+								<div>
+									<p className="font-semibold">Pick a city to unlock the map</p>
+									<p className="text-muted-foreground mt-1 max-w-sm text-sm">
+										The ZIP code map and manual ZIP entry will appear here after
+										you choose a city.
+									</p>
+								</div>
+							</div>
+						)}
 					</div>
 
-					<div className="space-y-4">
-						<StepProgressHeader
-							stepNumber={1}
-							totalSteps={3}
-							title="Your Home"
-							titleIcon={HouseLineIcon}
-							items={[marketComplete, priceComplete, propertyComplete]}
-							showTitle={false}
-						/>
-						<div className="flex justify-center">
-							<Button
-								onClick={handleContinue}
-								disabled={!canContinue}
-								size="lg"
-								className={cn(
-									'gap-2 rounded-xl px-8 transition-all duration-300',
-									canContinue
-										? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
-										: 'bg-muted text-muted-foreground',
-								)}
-							>
-								Continue
-								<ArrowRight className="h-4 w-4" />
-							</Button>
-						</div>
+					<div>
+						<Button
+							onClick={handleContinue}
+							disabled={!canContinue}
+							size="lg"
+							className={cn(
+								'w-full gap-2 rounded-4xl px-8 transition-all duration-300',
+								canContinue
+									? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+									: 'bg-muted text-muted-foreground',
+							)}
+						>
+							Continue
+							<ArrowRight className="h-4 w-4" />
+						</Button>
 					</div>
 				</CardContent>
 			</Card>
@@ -757,185 +841,350 @@ export function ConsumerSituation({
 	const [intent, setIntent] = useState<RepresentationSide | ''>(
 		state.intent ?? '',
 	)
-	const [experienceLevel, setExperienceLevel] = useState(
-		state.experienceLevel ?? '',
+	const [hasDeadline, setHasDeadline] = useState(
+		state.timeline ? state.timeline !== 'exploring' : false,
 	)
-	const canContinue = intent.length > 0 && experienceLevel.length > 0
+	const deadlineOptions = config.timelineOptions.filter(
+		(option) => option.slug !== 'exploring',
+	)
+	const [deadlineIndex, setDeadlineIndex] = useState(() => {
+		if (!state.timeline || state.timeline === 'exploring') return 0
+		const index = deadlineOptions.findIndex(
+			(option) => option.slug === state.timeline,
+		)
+		return Math.max(index, 0)
+	})
+	const timeline = hasDeadline
+		? deadlineOptions[deadlineIndex]!.slug
+		: 'exploring'
+	const intentComplete = intent.length > 0
+	const canContinue = intentComplete
 
 	const handleContinue = () => {
 		if (!canContinue || !intent) return
+		onUpdate({ intent, timeline })
+		onContinue()
+	}
+
+	return (
+		<AnimatedStepCard stepKey="intent" direction={direction}>
+			<Card size="sm" className="shadow-sm">
+				<CardContent className="space-y-6">
+					<StepHeader
+						stepNumber={1}
+						totalSteps={4}
+						title="Situation"
+						icon={ClockIcon}
+					/>
+
+					<div className="space-y-5">
+						<div className="space-y-3">
+							<h3 className="font-heading text-base font-semibold tracking-tight">
+								Your move
+							</h3>
+
+							<div className="grid gap-3 sm:grid-cols-3">
+								{config.intentOptions.map((option) => {
+									const isSelected = intent === option
+									const IntentIcon = getIntentIcon(option)
+									const label = getIntentLabel(option)
+
+									return (
+										<button
+											key={option}
+											type="button"
+											onClick={() => setIntent(option)}
+											className={cn(
+												'group flex items-center gap-3 rounded-full border px-5 py-3 text-left text-base font-semibold transition',
+												isSelected
+													? 'border-primary bg-primary text-primary-foreground shadow-sm'
+													: 'border-border bg-card text-foreground hover:border-primary/50 hover:bg-background',
+											)}
+											aria-pressed={isSelected}
+										>
+											<IntentIcon
+												className={cn(
+													'h-5 w-5 shrink-0',
+													isSelected
+														? 'text-primary-foreground'
+														: 'text-muted-foreground',
+												)}
+												weight="duotone"
+											/>
+											<span className="min-w-0 truncate">{label}</span>
+										</button>
+									)
+								})}
+							</div>
+						</div>
+
+						<div className="space-y-4">
+							<h3 className="font-heading text-base font-semibold tracking-tight">
+								Timeline
+							</h3>
+							<div className="flex flex-wrap gap-4">
+								<label className="flex cursor-pointer items-center gap-2">
+									<input
+										type="radio"
+										name="timeline-mode"
+										checked={!hasDeadline}
+										onChange={() => setHasDeadline(false)}
+										className="border-border text-primary focus:ring-ring h-4 w-4"
+									/>
+									<span className="text-sm font-semibold">Just exploring</span>
+								</label>
+								<label className="flex cursor-pointer items-center gap-2">
+									<input
+										type="radio"
+										name="timeline-mode"
+										checked={hasDeadline}
+										onChange={() => setHasDeadline(true)}
+										className="border-border text-primary focus:ring-ring h-4 w-4"
+									/>
+									<span className="text-sm font-semibold">
+										I have a deadline
+									</span>
+								</label>
+							</div>
+
+							<div
+								className={cn(
+									'space-y-3 transition-opacity',
+									hasDeadline ? 'opacity-100' : 'hidden',
+								)}
+							>
+								<div className="flex items-center justify-between">
+									<span className="text-sm font-semibold">
+										When do you need to move?
+									</span>
+									<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold">
+										{deadlineOptions[deadlineIndex]!.label}
+									</span>
+								</div>
+								<div className="space-y-1">
+									<Slider
+										value={[deadlineIndex]}
+										min={0}
+										max={deadlineOptions.length - 1}
+										step={1}
+										onValueChange={([index]) => setDeadlineIndex(index ?? 0)}
+										disabled={!hasDeadline}
+									/>
+									<div className="text-muted-foreground flex justify-between px-1">
+										{deadlineOptions.map((option, index) => (
+											<span
+												key={option.slug}
+												className={cn(
+													'h-2 w-0.5 rounded-full transition-colors',
+													index === deadlineIndex && hasDeadline
+														? 'bg-primary'
+														: 'bg-muted',
+												)}
+											/>
+										))}
+									</div>
+								</div>
+								<div className="text-muted-foreground flex justify-between text-xs font-medium">
+									<span>{deadlineOptions[0]!.label}</span>
+									<span>
+										{deadlineOptions[deadlineOptions.length - 1]!.label}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div>
+						<Button
+							onClick={handleContinue}
+							disabled={!canContinue}
+							size="lg"
+							className={cn(
+								'w-full gap-2 rounded-4xl px-8 py-6 text-base transition-all duration-300',
+								canContinue
+									? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+									: 'bg-muted text-muted-foreground',
+							)}
+						>
+							Continue
+							<ArrowRight className="h-5 w-5" />
+						</Button>
+					</div>
+				</CardContent>
+			</Card>
+		</AnimatedStepCard>
+	)
+}
+
+export function ConsumerHome({
+	config,
+	state,
+	direction,
+	onUpdate,
+	onContinue,
+}: {
+	config: ConsumerFlowConfig
+	state: ConsumerFlowState
+	direction: number
+	onUpdate: (patch: Partial<ConsumerFlowState>) => void
+	onContinue: () => void
+}) {
+	const initialRange = parsePriceRange(state.priceRange)
+	const [priceRange, setPriceRange] = useState<{
+		min: number
+		max: number
+	}>(initialRange)
+	const [propertyTypes, setPropertyTypes] = useState<string[]>(
+		state.propertyTypes ?? [],
+	)
+	const priceComplete =
+		priceRange.min >= PRICE_MIN && priceRange.max <= PRICE_MAX
+	const propertyComplete = propertyTypes.length > 0
+	const canContinue = priceComplete && propertyComplete
+
+	const handleContinue = () => {
+		if (!canContinue) return
 		onUpdate({
-			intent,
-			experienceLevel,
+			priceRange: serializePriceRange(priceRange),
+			propertyTypes,
 		})
 		onContinue()
 	}
 
 	return (
-		<AnimatedStepCard stepKey="situation" direction={direction}>
+		<AnimatedStepCard stepKey="home" direction={direction}>
 			<Card size="sm" className="shadow-sm">
-				<CardContent className="space-y-8">
-					<div className="space-y-2">
-						<p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-							Step 2 of 3
-						</p>
-						<h2 className="font-heading text-xl font-semibold tracking-tight">
-							Your situation
-						</h2>
-					</div>
+				<CardContent className="space-y-6">
+					<StepHeader
+						stepNumber={3}
+						totalSteps={4}
+						title="Home"
+						icon={HouseLineIcon}
+					/>
 
-					{/* Intent */}
-					<div className="space-y-3">
-						<div
-							className={cn(
-								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground transition-colors',
-								intent.length > 0 ? 'text-primary' : 'text-foreground',
-							)}
-						>
-							<AnimatedStatusIcon
-								complete={intent.length > 0}
-								icon={ClockIcon}
-							/>
-							{config.situationPrompt}
-						</div>
-						<div className="grid gap-3 sm:grid-cols-3">
-							{config.intentOptions.map((option) => {
-								const isSelected = intent === option
-								const IntentIcon = getIntentIcon(option)
-								const label = getIntentLabel(option)
-
-								return (
-									<button
-										key={option}
-										type="button"
-										onClick={() => setIntent(option)}
-										className={cn(
-											'group relative flex flex-col items-start gap-2.5 rounded-xl border p-4 text-left transition',
-											isSelected
-												? 'border-primary/30 bg-secondary shadow-sm'
-												: 'border-border bg-card hover:border-primary/30 hover:shadow-sm',
-										)}
-										aria-pressed={isSelected}
-									>
-										<span
+					<div className="grid gap-6 md:grid-cols-[1fr_1.5fr]">
+						<div className="space-y-3">
+							<p className="text-sm font-semibold">Home type</p>
+							<div className="flex flex-col gap-2">
+								{config.propertyOptions.map((option) => {
+									const isSelected = propertyTypes.includes(option)
+									const PropertyIcon = getPropertyIcon(option)
+									return (
+										<button
+											key={option}
+											type="button"
+											onClick={() => {
+												setPropertyTypes((current) =>
+													current.includes(option)
+														? current.filter((item) => item !== option)
+														: [...current, option],
+												)
+											}}
 											className={cn(
-												'absolute top-3 right-3 flex h-4 w-4 items-center justify-center rounded-full border transition-colors',
+												'group flex items-center gap-3 rounded-full border px-4 py-3 text-left text-sm font-semibold transition',
 												isSelected
-													? 'border-primary/40 bg-white text-primary'
-													: 'border-muted-foreground/25 bg-muted/30',
+													? 'border-primary/55 bg-primary/[0.06] text-foreground shadow-sm'
+													: 'border-border/80 bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground hover:shadow-sm',
 											)}
+											aria-pressed={isSelected}
 										>
-											<Check
+											<span
 												className={cn(
-													'h-2.5 w-2.5 transition-opacity',
-													isSelected ? 'opacity-100' : 'opacity-0',
+													'flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
+													isSelected
+														? 'border-primary bg-transparent'
+														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
 												)}
+											>
+												{isSelected ? (
+													<Check className="text-primary h-3 w-3" />
+												) : null}
+											</span>
+											<PropertyIcon
+												className="h-5 w-5 shrink-0"
+												weight="duotone"
 											/>
-										</span>
-										<span
-											className={cn(
-												'flex h-9 w-9 items-center justify-center rounded-lg border transition-colors',
-												isSelected
-													? 'border-primary/20 bg-white text-primary'
-													: 'border-border bg-muted text-muted-foreground group-hover:border-primary/20 group-hover:text-primary',
-											)}
-										>
-											<IntentIcon className="h-5 w-5" weight="duotone" />
-										</span>
-										<span className="text-foreground text-sm leading-snug font-medium">
-											{label}
-										</span>
-									</button>
-								)
-							})}
+											{
+												propertyTypeOptions[
+													option as keyof typeof propertyTypeOptions
+												]
+											}
+										</button>
+									)
+								})}
+							</div>
 						</div>
-					</div>
 
-					{/* Experience */}
-					<div className="space-y-3">
-						<div
-							className={cn(
-								'flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-foreground transition-colors',
-								experienceLevel.length > 0 ? 'text-primary' : 'text-foreground',
-							)}
-						>
-							<AnimatedStatusIcon
-								complete={experienceLevel.length > 0}
-								icon={QuestionIcon}
+						<div className="space-y-5">
+							<div className="flex items-center justify-between gap-3">
+								<p className="text-sm font-semibold">
+									{state.intent === 'selling'
+										? 'Estimated value'
+										: 'Target price'}
+								</p>
+								<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap">
+									{formatPriceRange(priceRange)}
+								</span>
+							</div>
+
+							<div className="grid grid-cols-2 gap-3">
+								<PriceInput
+									id="price-min"
+									label="Low"
+									value={priceRange.min}
+									onChange={(nextMin) =>
+										setPriceRange((current) => ({
+											...current,
+											min: Math.min(nextMin, current.max),
+										}))
+									}
+								/>
+								<PriceInput
+									id="price-max"
+									label="High"
+									value={priceRange.max}
+									onChange={(nextMax) =>
+										setPriceRange((current) => ({
+											...current,
+											max: Math.max(nextMax, current.min),
+										}))
+									}
+								/>
+							</div>
+
+							<Slider
+								value={[priceRange.min, priceRange.max]}
+								min={PRICE_MIN}
+								max={PRICE_MAX}
+								step={PRICE_STEP}
+								onValueChange={([nextMin, nextMax]) => {
+									setPriceRange({
+										min: nextMin ?? DEFAULT_PRICE_RANGE.min,
+										max: nextMax ?? DEFAULT_PRICE_RANGE.max,
+									})
+								}}
 							/>
-							{config.experiencePrompt}
-						</div>
-						<div className="grid gap-3 sm:grid-cols-3">
-							{config.experienceOptions.map((option) => {
-								const isSelected = experienceLevel === option
-								const level = getExperienceLevel(option)
-
-								return (
-									<button
-										key={option}
-										type="button"
-										onClick={() => setExperienceLevel(option)}
-										className={cn(
-											'group relative flex flex-col items-start gap-2.5 rounded-xl border p-4 text-left transition',
-											isSelected
-												? 'border-primary/30 bg-secondary shadow-sm'
-												: 'border-border bg-card hover:border-primary/30 hover:shadow-sm',
-										)}
-										aria-pressed={isSelected}
-									>
-										<span
-											className={cn(
-												'absolute top-3 right-3 flex h-4 w-4 items-center justify-center rounded-full border transition-colors',
-												isSelected
-													? 'border-primary/40 bg-white text-primary'
-													: 'border-muted-foreground/25 bg-muted/30',
-											)}
+							<div className="relative h-4">
+								{[0, 500_000, 1_000_000, 1_500_000, 2_000_000].map((value) => {
+									const percent = (value / PRICE_MAX) * 100
+									return (
+										<div
+											key={value}
+											className="absolute top-0 flex -translate-x-1/2 flex-col items-center gap-0.5"
+											style={{ left: `${percent}%` }}
 										>
-											<Check
-												className={cn(
-													'h-2.5 w-2.5 transition-opacity',
-													isSelected ? 'opacity-100' : 'opacity-0',
-												)}
-											/>
-										</span>
-										<span
-											className={cn(
-												'flex h-9 w-9 items-end justify-center gap-0.5 rounded-lg border pb-1.5 transition-colors',
-												isSelected
-													? 'border-primary/20 bg-white text-primary'
-													: 'border-border bg-muted text-muted-foreground group-hover:border-primary/20 group-hover:text-primary',
-											)}
-										>
-											{[1, 2, 3].map((bar) => (
-												<span
-													key={bar}
-													className={cn(
-														'w-1 rounded-full',
-														bar === 1 && 'h-2',
-														bar === 2 && 'h-3',
-														bar === 3 && 'h-4',
-														bar <= level ? 'bg-current' : 'bg-current/25',
-													)}
-												/>
-											))}
-										</span>
-										<span className="text-foreground text-sm leading-snug font-medium">
-											{questionOptionLabel(experienceQuestion, option)}
-										</span>
-									</button>
-								)
-							})}
+											<span className="bg-muted-foreground/30 h-1 w-px rounded-full" />
+											<span className="text-muted-foreground text-[10px] font-medium">
+												{formatPriceCompact(value)}
+											</span>
+										</div>
+									)
+								})}
+							</div>
 						</div>
 					</div>
 
-					<div className="space-y-4">
-						<StepProgressHeader
-							stepNumber={2}
-							totalSteps={3}
-							title="Your situation"
-							items={[intent.length > 0, experienceLevel.length > 0]}
-							showTitle={false}
-						/>
+					<div className="border-t pt-4">
 						<div className="flex justify-center">
 							<Button
 								onClick={handleContinue}
@@ -958,7 +1207,7 @@ export function ConsumerSituation({
 	)
 }
 
-export function ConsumerQuiz({
+export function ConsumerAgentPreferences({
 	config,
 	state,
 	direction,
@@ -982,22 +1231,29 @@ export function ConsumerQuiz({
 		<AnimatedStepCard stepKey="quiz" direction={direction}>
 			<Card size="sm" className="shadow-sm">
 				<CardContent className="space-y-6">
+					<StepHeader
+						stepNumber={4}
+						totalSteps={4}
+						title="Preferences"
+						icon={UserIcon}
+					/>
 					<StepProgressHeader
-						stepNumber={3}
-						totalSteps={3}
-						title="Your preferences"
+						stepNumber={4}
+						totalSteps={4}
+						title="Preferences"
 						activeIndex={currentQuestionIndex}
 						items={config.questionFlow.questions.map(
 							(q) =>
 								state.answers[q.id] !== undefined &&
 								state.answers[q.id] !== SKIPPED_ANSWER,
 						)}
+						showTitle={false}
 					/>
 					<QuestionFlow
 						questions={config.questionFlow.questions}
 						titleVisibility="sr-only"
 						mode="single-question"
-						title="Step 3: Your Agent"
+						title="Step 3: Your Match"
 						wrapper="wizard"
 						answers={state.answers}
 						currentQuestionIndex={currentQuestionIndex}
@@ -1055,10 +1311,12 @@ export function ConsumerIntake({
 	config,
 	step,
 	reset = false,
+	edit = false,
 }: {
 	config: ConsumerFlowConfig
 	step: ConsumerFlowStep
 	reset?: boolean
+	edit?: boolean
 }) {
 	const navigate = useNavigate()
 	const currentIndex = stepOrder.indexOf(step)
@@ -1104,18 +1362,43 @@ export function ConsumerIntake({
 	const goToStep = (nextStep: ConsumerFlowStep) => {
 		void navigate({
 			to: `${config.basePath}/intake`,
-			search: { step: nextStep },
+			search: { step: nextStep, edit: edit || undefined },
 		})
 	}
+
+	const completedStepIds = consumerFlowSteps
+		.filter((step) => {
+			switch (step.id) {
+				case 'intro':
+					return Boolean(state.location ?? state.city)
+				case 'intent':
+					return Boolean(state.intent)
+				case 'home':
+					return (
+						Boolean(state.priceRange) &&
+						Array.isArray(state.propertyTypes) &&
+						state.propertyTypes.length > 0
+					)
+				case 'quiz':
+					return config.questionFlow.questions.every(
+						(q) =>
+							state.answers[q.id] !== undefined &&
+							state.answers[q.id] !== SKIPPED_ANSWER,
+					)
+				default:
+					return false
+			}
+		})
+		.map((step) => step.id)
 
 	const progress = (() => {
 		switch (step) {
 			case 'intro':
-				return <FlowIntakeProgress steps={consumerFlowSteps} current="intro" />
-			case 'situation':
-				return (
-					<FlowIntakeProgress steps={consumerFlowSteps} current="situation" />
-				)
+				return <ConsumerIntakeProgress current="intro" />
+			case 'intent':
+				return <ConsumerIntakeProgress current="intent" />
+			case 'home':
+				return <ConsumerIntakeProgress current="home" />
 			case 'quiz':
 				return <FlowIntakeProgress steps={consumerFlowSteps} current="quiz" />
 		}
@@ -1128,17 +1411,27 @@ export function ConsumerIntake({
 				currentStepId={step}
 				progress={progress}
 				onHomeClick={handleHomeClick}
+				onStepClick={(nextStep) => goToStep(nextStep as ConsumerFlowStep)}
+				completedStepIds={completedStepIds}
 			>
 				{step === 'intro' ? (
-					<ConsumerIntro
+					<ConsumerSituation
 						config={config}
 						state={state}
 						direction={direction}
 						onUpdate={updateState}
-						onContinue={() => goToStep('situation')}
+						onContinue={() => goToStep('intent')}
 					/>
-				) : step === 'situation' ? (
-					<ConsumerSituation
+				) : step === 'intent' ? (
+					<ConsumerLocation
+						config={config}
+						state={state}
+						direction={direction}
+						onUpdate={updateState}
+						onContinue={() => goToStep('home')}
+					/>
+				) : step === 'home' ? (
+					<ConsumerHome
 						config={config}
 						state={state}
 						direction={direction}
@@ -1146,7 +1439,7 @@ export function ConsumerIntake({
 						onContinue={() => goToStep('quiz')}
 					/>
 				) : (
-					<ConsumerQuiz
+					<ConsumerAgentPreferences
 						config={config}
 						state={state}
 						direction={direction}

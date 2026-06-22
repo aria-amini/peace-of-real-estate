@@ -151,13 +151,7 @@ function GoogleIcon({ className }: { className?: string }) {
 	)
 }
 
-const priceRangeLabels: Record<string, string> = {
-	under400k: 'Under $400k',
-	'400kTo750k': '$400k to $750k',
-	'750kTo1_5m': '$750k to $1.5M',
-	'1_5mPlus': '$1.5M and above',
-}
-
+import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
 function draftToPreviewProfile(draft: ConsumerDraft): ConsumerProfile {
 	const update = draftToProfileUpdate(draft)
 	const now = new Date()
@@ -251,7 +245,7 @@ function getProfileStats(profile: ConsumerProfile) {
 	if (profile.priceRange) {
 		stats.push({
 			label: 'Budget',
-			value: priceRangeLabels[profile.priceRange] ?? profile.priceRange,
+			value: formatPriceRange(parsePriceRange(profile.priceRange)),
 		})
 	}
 

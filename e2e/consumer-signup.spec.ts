@@ -40,24 +40,30 @@ async function unlockBeta(page: Page) {
 
 async function completeIntake(page: Page) {
 	await page.goto('/consumer/intake?reset=true')
-	await expect(page.getByRole('heading', { name: 'Your Home' })).toBeVisible()
+	await expect(
+		page.getByRole('heading', { name: 'Where are you looking?' }),
+	).toBeVisible()
 
-	await page.getByRole('button', { name: /Location/i }).click()
-	await page
-		.getByPlaceholder('Search city, state, or ZIP...')
-		.fill('Austin, TX')
+	await page.getByRole('button', { name: /Search city/i }).click()
+	await page.getByPlaceholder('Search city...').fill('Austin, TX')
 	await page.getByRole('option', { name: 'Austin, TX' }).first().click()
+	await page.getByRole('button', { name: '78701' }).click()
+	await page.getByRole('button', { name: /Continue/i }).click()
 
-	await page.getByRole('button', { name: /Under \$400k/i }).click()
+	await expect(page.getByRole('heading', { name: 'Your Intent' })).toBeVisible()
+	await page.getByRole('button', { name: /^Buy$/i }).click()
+	await page.getByRole('button', { name: /0-3 months/i }).click()
+	await page.getByRole('button', { name: /Continue/i }).click()
+
+	await expect(page.getByRole('heading', { name: 'Your Home' })).toBeVisible()
+	await page.getByRole('slider').press('ArrowRight')
 	await page.getByRole('button', { name: /Single-Family/i }).click()
 	await page.getByRole('button', { name: /Continue/i }).click()
 
 	await expect(
-		page.getByRole('heading', { name: 'Your Situation' }),
+		page.getByText('How familiar does this process feel?'),
 	).toBeVisible()
-	await page.getByRole('button', { name: /Buy/i }).click()
-	await page.getByRole('button', { name: /First-time client/i }).click()
-	await page.getByRole('button', { name: /Continue/i }).click()
+	await page.getByRole('button', { name: /First time/i }).click()
 
 	await expect(
 		page.getByText('Preferred method of communication?'),

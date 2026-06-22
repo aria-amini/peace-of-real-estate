@@ -1,3 +1,4 @@
+import type { Icon } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
@@ -6,6 +7,7 @@ import { cn } from '@/lib/utils'
 type WizardStep = {
 	id: string
 	label: string
+	icon: Icon
 	description?: string
 }
 
@@ -15,30 +17,36 @@ type WizardShellProps = {
 	progress?: ReactNode
 	children: ReactNode
 	onHomeClick?: () => void
+	onStepClick?: (stepId: string) => void
+	completedStepIds?: string[]
 }
 
 function StepDot({
 	isComplete,
 	isCurrent,
+	index,
 }: {
 	isComplete: boolean
 	isCurrent: boolean
+	index: number
 }) {
 	return (
-		<div className="relative z-10 flex h-2.5 w-2.5 shrink-0 items-center justify-center">
+		<div className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center">
 			{isCurrent ? (
-				<span className="bg-gold/40 absolute h-4 w-4 animate-ping rounded-full" />
+				<span className="bg-gold/40 absolute h-9 w-9 animate-ping rounded-full" />
 			) : null}
 			<div
 				className={cn(
-					'relative h-full w-full rounded-full transition-all duration-300',
-					isComplete
-						? 'bg-gold'
-						: isCurrent
-							? 'bg-primary-foreground shadow-[0_0_8px_2px_rgba(212,175,55,0.55)]'
-							: 'bg-primary-foreground/25',
+					'relative flex h-full w-full items-center justify-center rounded-full transition-all duration-300',
+					isCurrent
+						? 'bg-primary-foreground text-primary shadow-[0_0_8px_2px_rgba(212,175,55,0.55)]'
+						: isComplete
+							? 'bg-gold text-primary'
+							: 'bg-primary-foreground/25 text-primary-foreground',
 				)}
-			/>
+			>
+				<span className="text-[10px] font-bold">{index + 1}</span>
+			</div>
 		</div>
 	)
 }
@@ -49,6 +57,8 @@ export function WizardShell({
 	progress,
 	children,
 	onHomeClick,
+	onStepClick,
+	completedStepIds,
 }: WizardShellProps) {
 	const currentIndex = steps.findIndex((step) => step.id === currentStepId)
 
@@ -86,26 +96,35 @@ export function WizardShell({
 						<ol>
 							{steps.map((step, index) => {
 								const isCurrent = index === currentIndex
-								const isComplete = index < currentIndex
-								const isUpcoming = index > currentIndex
+								const isCompleteByPosition = index < currentIndex
+								const isCompleteByData =
+									completedStepIds?.includes(step.id) ?? false
+								const isComplete =
+									(isCompleteByData || isCompleteByPosition) && !isCurrent
+								const isUpcoming = !isCurrent && !isComplete
 								const isLast = index === steps.length - 1
+								const isClickable = onStepClick !== undefined && isComplete
 
-								return (
-									<li
-										key={step.id}
-										className={cn(
-											'grid grid-cols-[auto_1fr] gap-3 rounded-xl px-3 py-3 transition-colors',
-											isCurrent && 'bg-white/10',
-											isComplete && 'opacity-90',
-											isUpcoming && 'opacity-55',
-										)}
-									>
+								const stepClassName = cn(
+									'grid grid-cols-[auto_1fr] gap-3 rounded-xl px-3 py-3 transition-colors',
+									isCurrent && 'bg-white/10',
+									isComplete && 'opacity-90',
+									isUpcoming && 'opacity-55',
+									isClickable && 'hover:bg-white/5',
+								)
+
+								const stepContent = (
+									<>
 										<div className="relative flex flex-col items-center">
-											<StepDot isComplete={isComplete} isCurrent={isCurrent} />
+											<StepDot
+												isComplete={isComplete}
+												isCurrent={isCurrent}
+												index={index}
+											/>
 											{!isLast && (
 												<div
 													className={cn(
-														'absolute top-[0.3125rem] left-1/2 h-[calc(100%+0.75rem)] w-0.5 -translate-x-1/2',
+														'absolute top-[0.875rem] left-1/2 h-[calc(100%+0.75rem)] w-0.5 -translate-x-1/2',
 														isComplete ? 'bg-gold' : 'bg-primary-foreground/40',
 													)}
 												/>
@@ -120,6 +139,15 @@ export function WizardShell({
 														: 'text-primary-foreground/90',
 												)}
 											>
+												<step.icon
+													className={cn(
+														'-mt-0.5 mr-1.5 inline-block h-4 w-4',
+														isCurrent
+															? 'text-white'
+															: 'text-primary-foreground/80',
+													)}
+													weight="duotone"
+												/>
 												{step.label}
 											</p>
 											{step.description ? (
@@ -128,6 +156,27 @@ export function WizardShell({
 												</p>
 											) : null}
 										</div>
+									</>
+								)
+
+								return (
+									<li key={step.id}>
+										{isClickable ? (
+											<button
+												type="button"
+												onClick={() => onStepClick(step.id)}
+												className={cn(stepClassName, 'w-full text-left')}
+											>
+												{stepContent}
+											</button>
+										) : (
+											<div
+												className={stepClassName}
+												aria-current={isCurrent ? 'step' : undefined}
+											>
+												{stepContent}
+											</div>
+										)}
 									</li>
 								)
 							})}

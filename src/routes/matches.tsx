@@ -38,6 +38,7 @@ import {
 	consumerQuestionFlow,
 } from '@/lib/matching/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile.types'
+import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
 import { cn } from '@/lib/utils'
 
 const stateNames: Record<string, string> = {
@@ -420,7 +421,12 @@ function getPreferenceSummaryItems(
 
 	const profileItems = [
 		profile.location ? { label: 'Location', value: profile.location } : null,
-		profile.priceRange ? { label: 'Budget', value: profile.priceRange } : null,
+		profile.priceRange
+			? {
+					label: 'Budget',
+					value: formatPriceRange(parsePriceRange(profile.priceRange)),
+				}
+			: null,
 		profile.propertyTypes?.length
 			? {
 					label: 'Home Type',

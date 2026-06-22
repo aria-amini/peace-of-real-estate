@@ -34,6 +34,7 @@ import {
 } from '@/lib/consumer-draft-storage'
 import { createConsumerProfileFromDraft } from '@/lib/consumer-profile/create-from-draft'
 import { isUserPremium } from '@/lib/premium'
+import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
 
 export const Route = createFileRoute('/account/')({
 	component: AccountProfile,
@@ -88,7 +89,12 @@ function AccountProfile() {
 	const searchSnapshot = [
 		{ label: 'Location', value: consumerProfile?.location },
 		{ label: 'Intent', value: consumerProfile?.intent },
-		{ label: 'Budget', value: consumerProfile?.priceRange },
+		{
+			label: 'Budget',
+			value: consumerProfile?.priceRange
+				? formatPriceRange(parsePriceRange(consumerProfile.priceRange))
+				: undefined,
+		},
 		{
 			label: 'Property Types',
 			value: consumerProfile?.propertyTypes?.join(', '),

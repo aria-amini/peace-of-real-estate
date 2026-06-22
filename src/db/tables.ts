@@ -219,3 +219,39 @@ export const agentProfiles = pgTable(
 		),
 	],
 )
+
+export const cities = pgTable(
+	'cities',
+	{
+		id: text().primaryKey().notNull(),
+		city: text().notNull(),
+		state: text().notNull(),
+		centerLat: text('center_lat').notNull(),
+		centerLng: text('center_lng').notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+	},
+	(table) => [
+		uniqueIndex('cities_city_state_index').on(table.city, table.state),
+		index('cities_state_index').on(table.state),
+	],
+)
+
+export const cityZips = pgTable(
+	'city_zips',
+	{
+		id: text().primaryKey().notNull(),
+		city: text().notNull(),
+		state: text().notNull(),
+		zip: text().notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+	},
+	(table) => [
+		index('city_zips_city_state_index').on(table.city, table.state),
+		uniqueIndex('city_zips_city_state_zip_index').on(
+			table.city,
+			table.state,
+			table.zip,
+		),
+		index('city_zips_zip_index').on(table.zip),
+	],
+)

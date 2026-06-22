@@ -4,9 +4,12 @@ import type { AnswerValue, Answers } from '@/lib/matching/questions'
 const STORAGE_KEY = 'pre-consumer-draft'
 
 export type ConsumerDraft = {
+	city?: string
 	location?: string
 	state?: string
+	zipCodes?: string[]
 	priceRange?: string
+	timeline?: string
 	propertyTypes?: string[]
 	intent?: RepresentationSide
 	experienceLevel?: string
@@ -59,7 +62,7 @@ export function clearConsumerDraft() {
 
 export function draftToProfileUpdate(draft: ConsumerDraft) {
 	return {
-		location: draft.location,
+		location: draft.location ?? draft.city,
 		state: draft.state,
 		priceRange: draft.priceRange,
 		propertyTypes: draft.propertyTypes,

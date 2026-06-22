@@ -1,3 +1,4 @@
+import { priceRangeOverlaps } from '@/lib/price-range'
 import type {
 	AgentProfile,
 	ConsumerProfile,
@@ -119,7 +120,7 @@ function priceRangeMatch(
 	consumerRange: string | null | undefined,
 	agentRange: string | null | undefined,
 ): boolean {
-	return Boolean(consumerRange && agentRange && consumerRange === agentRange)
+	return priceRangeOverlaps(consumerRange, agentRange)
 }
 
 function stateLocationMatch(

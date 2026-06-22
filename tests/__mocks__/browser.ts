@@ -125,7 +125,7 @@ vi.mock('@/lib/matching/profile.db', () => ({
 			intent: 'buying',
 			location: 'Austin, TX',
 			state: 'TX',
-			priceRange: '400kTo750k',
+			priceRange: '400000-750000',
 			propertyTypes: ['singleFamily'],
 			experienceLevel: 'firstTime',
 			preferredContactMethod: 'text',

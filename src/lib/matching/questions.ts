@@ -48,11 +48,11 @@ export const consumerQuestions = [
 	},
 	{
 		id: 'experienceLevel',
-		title: 'What is your experience level with real estate transactions?',
+		title: 'How familiar does this process feel?',
 		options: {
-			firstTime: 'First-time client',
-			experienced: "I've done this before",
-			veryExperienced: "I'm very experienced",
+			firstTime: "First time; I'll want guidance",
+			experienced: "I've done this before, but want help staying on track",
+			veryExperienced: 'I know the process and want a strong operator',
 		},
 	},
 ] as const satisfies Question[]

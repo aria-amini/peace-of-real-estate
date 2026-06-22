@@ -13,7 +13,10 @@ import {
 } from '@/lib/matching/profile.db'
 
 const intakeSearchSchema = z.object({
-	step: z.enum(['intro', 'situation', 'quiz']).default('intro').catch('intro'),
+	step: z
+		.enum(['intro', 'intent', 'home', 'quiz'])
+		.default('intro')
+		.catch('intro'),
 	edit: z.boolean().optional().catch(undefined),
 	reset: z.boolean().optional().catch(undefined),
 })
@@ -21,7 +24,7 @@ const intakeSearchSchema = z.object({
 export const Route = createFileRoute('/consumer/intake')({
 	validateSearch: intakeSearchSchema,
 	beforeLoad: async ({ search }) => {
-		const validSteps = ['intro', 'situation', 'quiz'] as const
+		const validSteps = ['intro', 'intent', 'home', 'quiz'] as const
 		if (!validSteps.includes(search.step)) {
 			throw redirect({ to: '/consumer/intake', search: { step: 'intro' } })
 		}
@@ -51,6 +54,7 @@ function IntakeRoute() {
 			config={consumerConfig}
 			step={search.step}
 			reset={search.reset ?? false}
+			edit={search.edit ?? false}
 		/>
 	)
 }
