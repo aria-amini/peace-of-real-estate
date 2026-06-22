@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, User } from 'lucide-react'
 import { useState } from 'react'
 
@@ -8,11 +8,8 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import {
-	getStoredIntakeDraftForRole,
-	saveStoredIntakeDraftForRole,
-} from '@/lib/matching/intake-draft'
-import type { AgentProfileData } from '@/lib/matching/settings'
+import { useAccountSettings } from '@/hooks/use-account-settings'
+import type { AgentProfileUpdate } from '@/lib/matching/profile.types'
 
 export const Route = createFileRoute('/agent/profile')({
 	component: AgentProfile,
@@ -27,16 +24,13 @@ const textFields = [
 	['businessAddress', 'Business address'],
 	['billingAddress', 'Billing address'],
 	['licenseNumberState', 'License number & state'],
-	['serviceArea1', 'Service area 1'],
-	['serviceArea2', 'Service area 2'],
-	['serviceArea3', 'Service area 3'],
 	['yearsLicensed', 'Years licensed'],
 	['averageTransactions', 'Avg transactions / year (last 3 years)'],
 	['licenseProof', 'Proof of current license URL or note'],
 	['introVideo', 'Short introduction video link'],
 ] as const
 
-const emptyProfile = {
+const emptyProfile: AgentProfileUpdate = {
 	firstName: '',
 	lastName: '',
 	brokerageName: '',
@@ -56,26 +50,43 @@ const emptyProfile = {
 	valueProposition: '',
 	usePaxWriter: true,
 	introVideo: '',
-	experience: '',
-	zipCodes: '',
-	services: [],
-} satisfies AgentProfileData
+}
 
 function AgentProfile() {
-	const [formData, setFormData] = useState<AgentProfileData>(() => ({
-		...emptyProfile,
-		...getStoredIntakeDraftForRole('agent').agentProfile,
-	}))
+	const { agentProfile, loading, saveAgent } = useAccountSettings()
+	const navigate = useNavigate()
+	const initial = { ...emptyProfile, ...agentProfile }
+	const [formData, setFormData] = useState<AgentProfileUpdate>(initial)
+	const [serviceAreas, setServiceAreas] = useState(
+		[initial.serviceArea1, initial.serviceArea2, initial.serviceArea3]
+			.filter((area): area is string => Boolean(area))
+			.join(', '),
+	)
+
+	if (loading) return null
 
 	const updateField = (
-		field: keyof AgentProfileData,
+		field: keyof AgentProfileUpdate,
 		value: string | boolean,
 	) => {
 		setFormData((prev) => ({ ...prev, [field]: value }))
 	}
 
-	const saveProfile = () => {
-		saveStoredIntakeDraftForRole('agent', { agentProfile: formData })
+	const handleContinue = async () => {
+		const parts = serviceAreas
+			.split(',')
+			.map((area) => area.trim())
+			.filter(Boolean)
+		const update: AgentProfileUpdate = {
+			...formData,
+			serviceArea1: parts[0],
+			serviceArea2: parts[1],
+			serviceArea3: parts[2],
+		}
+		const ok = await saveAgent(update)
+		if (ok) {
+			await navigate({ to: '/agent/compliance' })
+		}
 	}
 
 	return (
@@ -106,6 +117,15 @@ function AgentProfile() {
 						/>
 					</Label>
 				))}
+				<Label className="text-muted-foreground flex-col items-start gap-2 text-xs font-medium tracking-[0.14em] uppercase sm:col-span-2">
+					Service areas
+					<Input
+						value={serviceAreas}
+						onChange={(event) => setServiceAreas(event.target.value)}
+						placeholder="Area 1, Area 2, Area 3"
+						className="tracking-normal normal-case"
+					/>
+				</Label>
 			</div>
 
 			<Label className="text-muted-foreground mt-6 flex-col items-start gap-2 text-xs font-medium tracking-[0.14em] uppercase">
@@ -168,11 +188,9 @@ function AgentProfile() {
 			</Card>
 
 			<div className="mt-10 flex justify-end">
-				<Button asChild>
-					<Link to="/agent/compliance" onClick={saveProfile}>
-						Continue to Compliance Checklist
-						<ArrowRight className="h-4 w-4" />
-					</Link>
+				<Button onClick={handleContinue}>
+					Continue to Compliance Checklist
+					<ArrowRight className="h-4 w-4" />
 				</Button>
 			</div>
 		</FlowPageShell>

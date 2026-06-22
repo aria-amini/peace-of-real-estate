@@ -14,6 +14,7 @@ type WizardShellProps = {
 	currentStepId: string
 	progress?: ReactNode
 	children: ReactNode
+	onHomeClick?: () => void
 }
 
 function StepDot({
@@ -47,22 +48,39 @@ export function WizardShell({
 	currentStepId,
 	progress,
 	children,
+	onHomeClick,
 }: WizardShellProps) {
 	const currentIndex = steps.findIndex((step) => step.id === currentStepId)
+
+	const homeContent = (
+		<>
+			<img src="/logomark-light.svg" alt="" className="h-8 w-auto" />
+			<span className="font-heading text-base font-semibold">
+				Peace of Real Estate
+			</span>
+		</>
+	)
 
 	return (
 		<div className="flex flex-1 flex-col lg:grid lg:grid-cols-[16rem_1fr] xl:grid-cols-[18rem_1fr]">
 			<aside className="bg-primary text-primary-foreground hidden flex-col justify-between px-7 py-10 lg:sticky lg:top-0 lg:flex lg:min-h-dvh">
 				<div>
-					<Link
-						to="/"
-						className="flex items-center gap-2.5 opacity-90 transition-opacity hover:opacity-100"
-					>
-						<img src="/logomark-light.svg" alt="" className="h-8 w-auto" />
-						<span className="font-heading text-base font-semibold">
-							Peace of Real Estate
-						</span>
-					</Link>
+					{onHomeClick ? (
+						<button
+							type="button"
+							onClick={onHomeClick}
+							className="flex items-center gap-2.5 opacity-90 transition-opacity hover:opacity-100"
+						>
+							{homeContent}
+						</button>
+					) : (
+						<Link
+							to="/"
+							className="flex items-center gap-2.5 opacity-90 transition-opacity hover:opacity-100"
+						>
+							{homeContent}
+						</Link>
+					)}
 
 					<nav className="mt-10" aria-label="Setup steps">
 						<ol>

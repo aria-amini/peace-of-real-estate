@@ -1,14 +1,13 @@
 import { AuthCard } from '@/components/auth-card'
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { redirectAuthenticatedUsers } from '@/lib/auth/functions'
+import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 export const Route = createFileRoute('/login')({
 	validateSearch: z.object({
 		redirect: z.string().optional(),
 	}),
-	beforeLoad: async () => {
-		throw redirect({ to: '/matches' })
-	},
+	beforeLoad: redirectAuthenticatedUsers,
 	component: LoginRoute,
 })
 

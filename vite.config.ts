@@ -1,7 +1,6 @@
 import { createAppConfig } from '@aamini/config/vite'
-import type { Plugin } from 'vite'
+import { varlockVitePlugin } from '@varlock/vite-integration'
 import type { TestProjectConfiguration } from 'vite-plus'
-import { validateServerEnv } from './src/env.server.ts'
 import { mergeConfig } from 'vite-plus'
 
 type ScreenshotPathData = {
@@ -27,16 +26,6 @@ function resolveCentralScreenshotPath({
 }: ScreenshotPathData) {
 	return `${root}/${CENTRAL_SCREENSHOTS_DIR}/${getScreenshotGroupName(testFileName)}/${arg}${ext}`
 }
-function validateServerEnvPlugin(): Plugin {
-	return {
-		name: 'validate-server-env',
-		apply: 'build',
-		buildStart() {
-			validateServerEnv()
-		},
-	}
-}
-
 const browserProjectOverrides = {
 	test: {
 		browser: {
@@ -68,10 +57,16 @@ export default mergeConfig(appConfig, {
 					'no-console': 'off',
 				},
 			},
+			{
+				files: ['src/env.server.ts'],
+				rules: {
+					'no-console': 'off',
+				},
+			},
 		],
 	},
 	staged: {
 		'*': 'vp check --fix',
 	},
-	plugins: [validateServerEnvPlugin()],
+	plugins: [varlockVitePlugin({ ssrInjectMode: 'resolved-env' })],
 })

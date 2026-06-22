@@ -47,7 +47,7 @@ function LandingHeader() {
 						Log in
 					</Link>
 					<Link
-						to="/buyer"
+						to="/consumer"
 						className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
 					>
 						Sign Up
@@ -106,7 +106,7 @@ function HeroSection() {
 							className="h-16 cursor-pointer rounded-2xl px-12 text-xl font-bold shadow-lg"
 							asChild
 						>
-							<Link to="/buyer">Find Your Agent</Link>
+							<Link to="/consumer">Find Your Agent</Link>
 						</Button>
 					</div>
 				</div>

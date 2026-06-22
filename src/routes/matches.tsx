@@ -19,7 +19,7 @@ import {
 	Users,
 	Zap,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
@@ -29,15 +29,15 @@ import { AccountSidebarShell } from '@/components/account-sidebar-shell'
 import type { MatchDetails } from '@/components/match-card-variants'
 import { PaywallDialog } from '@/components/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
-import { getAgentMatches } from '@/lib/matching/matches'
+import type { AgentMatchData } from '@/lib/matching/scoring'
 import { isUserPremium } from '@/lib/premium'
-import { getStoredConsumerDraftForFlow } from '@/lib/matching/intake-draft'
 import { getCurrentSession } from '@/lib/auth/functions'
-import { getAnswerSummary, getUserSettings } from '@/lib/matching/settings'
+import { loadConsumerProfile } from '@/lib/matching/profile.db'
 import {
-	buyerMatchingQuestionFlow,
-	buyerQuestionFlow,
+	getAnswerSummary,
+	consumerQuestionFlow,
 } from '@/lib/matching/questions'
+import type { ConsumerProfile } from '@/lib/matching/profile.types'
 import { cn } from '@/lib/utils'
 
 const stateNames: Record<string, string> = {
@@ -130,22 +130,22 @@ function statIcon(label: string) {
 
 export const Route = createFileRoute('/matches')({
 	beforeLoad: async () => {
-		const draft = getStoredConsumerDraftForFlow('buyer')
-		const hasDraftAnswers = Object.keys(draft.answers ?? {}).length > 0
 		const session = await getCurrentSession()
 
 		if (!session) {
-			if (!hasDraftAnswers) {
-				throw redirect({ to: '/buyer/intake', search: { step: 'intro' } })
-			}
-			throw redirect({ to: '/buyer/preview' })
+			throw redirect({ to: '/consumer/intake', search: { step: 'intro' } })
 		}
 
-		const userSettings = await getUserSettings()
-		const hasSavedAnswers = Object.keys(userSettings?.answers ?? {}).length > 0
+		const consumerProfile = await loadConsumerProfile().catch(() => null)
+		const hasSavedAnswers = Boolean(
+			consumerProfile?.preferredContactMethod ||
+			consumerProfile?.involvementLevel ||
+			consumerProfile?.representationPreference ||
+			consumerProfile?.commissionComfort,
+		)
 
-		if (!hasDraftAnswers && !hasSavedAnswers) {
-			throw redirect({ to: '/buyer/intake', search: { step: 'intro' } })
+		if (!hasSavedAnswers) {
+			throw redirect({ to: '/consumer/intake', search: { step: 'intro' } })
 		}
 	},
 	component: MatchesRoute,
@@ -163,7 +163,6 @@ function Matches() {
 	const [showPaywall, setShowPaywall] = useState(false)
 	const [selectedMatchIds, setSelectedMatchIds] = useState<string[]>([])
 	const { data: session } = authClient.useSession()
-	const draft = useMemo(() => getStoredConsumerDraftForFlow('buyer'), [])
 
 	const { data: premiumStatus, refetch: refetchPremium } = useQuery({
 		queryKey: ['user-premium'],
@@ -173,17 +172,21 @@ function Matches() {
 
 	const { data: matches = [], isLoading } = useQuery({
 		queryKey: ['agent-matches'],
-		queryFn: getAgentMatches,
+		queryFn: async () => {
+			const response = await fetch('/api/agent-matches')
+			if (!response.ok) {
+				throw new Error(`Failed to load agent matches: ${response.status}`)
+			}
+			return response.json() as Promise<AgentMatchData[]>
+		},
 	})
-	const { data: userSettings } = useQuery({
-		queryKey: ['user-settings'],
-		queryFn: getUserSettings,
+	const { data: consumerProfile } = useQuery({
+		queryKey: ['consumer-profile'],
+		queryFn: loadConsumerProfile,
 	})
 	const stateCode = resolveStateCode(
-		draft.state,
-		userSettings?.state,
-		draft.zipCode,
-		userSettings?.zipCode,
+		consumerProfile?.state ?? undefined,
+		consumerProfile?.location ?? undefined,
 	)
 
 	const handleUpgrade = () => {
@@ -241,7 +244,7 @@ function Matches() {
 
 			<div className="mx-auto mb-6 max-w-4xl space-y-3">
 				<PreferencesSummaryCard
-					settings={userSettings}
+					settings={consumerProfile}
 					name={session?.user?.name}
 					state={stateCode}
 				/>
@@ -300,11 +303,11 @@ function PreferencesSummaryCard({
 	name,
 	state,
 }: {
-	settings: Awaited<ReturnType<typeof getUserSettings>> | undefined
+	settings: ConsumerProfile | null | undefined
 	name?: string | null | undefined
 	state?: string | undefined
 }) {
-	const items = useMemo(() => getPreferenceSummaryItems(settings), [settings])
+	const items = getPreferenceSummaryItems(settings)
 	const stateSvgFile = state ? stateNames[state] : null
 
 	return (
@@ -356,7 +359,7 @@ function PreferencesSummaryCard({
 				</div>
 
 				<Button asChild variant="outline" size="sm" className="shrink-0">
-					<Link to="/buyer/intake" search={{ step: 'quiz', edit: true }}>
+					<Link to="/consumer/intake" search={{ step: 'quiz', edit: true }}>
 						<Pencil className="mr-1 h-3.5 w-3.5" />
 						Edit Preferences
 					</Link>
@@ -402,43 +405,45 @@ function MatchListHeader({
 }
 
 function getPreferenceSummaryItems(
-	settings: Awaited<ReturnType<typeof getUserSettings>> | undefined,
+	profile: ConsumerProfile | null | undefined,
 ) {
-	const answers = settings?.answers ?? {}
-	const questions = [
-		...buyerQuestionFlow.questions,
-		...buyerMatchingQuestionFlow.questions,
-	]
-	const questionsById = new Map(
-		questions.map((question) => [question.id, question]),
-	)
+	if (!profile) return []
+
+	const questions = consumerQuestionFlow.questions
+	const questionsById = new Map(questions.map((q) => [q.id, q]))
 	const labelOverrides: Record<string, string> = {
-		'B.6': 'Communication',
-		'B.11': 'Involvement',
-		'B.12': 'Exclusivity',
-		'B.14': 'Negotiation',
+		preferredContactMethod: 'Communication',
+		involvementLevel: 'Involvement',
+		representationPreference: 'Exclusivity',
+		commissionComfort: 'Negotiation',
 	}
+
 	const profileItems = [
-		settings?.zipCode ? { label: 'Location', value: settings.zipCode } : null,
-		settings?.priceRange
-			? { label: 'Budget', value: settings.priceRange }
-			: null,
-		settings?.propertyType?.length
+		profile.location ? { label: 'Location', value: profile.location } : null,
+		profile.priceRange ? { label: 'Budget', value: profile.priceRange } : null,
+		profile.propertyTypes?.length
 			? {
 					label: 'Home Type',
-					value: settings.propertyType.join(', '),
+					value: profile.propertyTypes.join(', '),
 				}
 			: null,
 	]
 
-	const answerItems = ['B.6', 'B.11', 'B.12', 'B.14']
+	const answerItems = [
+		'preferredContactMethod',
+		'involvementLevel',
+		'representationPreference',
+		'commissionComfort',
+	]
 		.map((id) => {
 			const question = questionsById.get(id)
-			const answer = answers[id]
-			if (!question || answer === undefined || answer === '__skipped__')
-				return null
+			const answer = profile[id as keyof ConsumerProfile] as
+				| string
+				| string[]
+				| undefined
+			if (!question || answer === undefined || answer === '') return null
 			return {
-				label: labelOverrides[id] ?? question.prompt,
+				label: labelOverrides[id] ?? question.title,
 				value: getAnswerSummary(question, answer),
 			}
 		})

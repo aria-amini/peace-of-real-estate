@@ -7,7 +7,6 @@ import {
 	ClockIcon,
 	CurrencyDollarIcon,
 	HouseLineIcon,
-	MagnifyingGlassIcon,
 	MapPinIcon,
 	QuestionIcon,
 	TagIcon,
@@ -21,18 +20,15 @@ import {
 	ChevronsUpDown,
 	CreditCard,
 	ListChecks,
-	Trophy,
+	TriangleAlert,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow-page-shell'
 import { QuestionFlow } from '@/components/question-flow'
 import { WizardShell } from '@/components/wizard-shell'
-import {
-	MatchCardModern,
-	type MatchDetails,
-} from '@/components/match-card-variants'
+import type { MatchDetails } from '@/components/match-card-variants'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -43,6 +39,14 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -58,6 +62,7 @@ function StepProgressHeader({
 	totalSteps,
 	title,
 	items,
+	activeIndex,
 	titleIcon: TitleIcon,
 	showTitle = true,
 }: {
@@ -65,6 +70,7 @@ function StepProgressHeader({
 	totalSteps: number
 	title: string
 	items: boolean[]
+	activeIndex?: number
 	titleIcon?: Icon
 	showTitle?: boolean
 }) {
@@ -89,15 +95,21 @@ function StepProgressHeader({
 			)}
 			<div className="flex flex-col items-center gap-1.5">
 				<div className="flex items-center gap-2.5">
-					{Array.from({ length: total }).map((_, index) => (
-						<div
-							key={index}
-							className={cn(
-								'h-2.5 w-2.5 rounded-full transition-colors duration-500',
-								index < completedCount ? 'bg-primary' : 'bg-muted',
-							)}
-						/>
-					))}
+					{Array.from({ length: total }).map((_, index) => {
+						const isActive = activeIndex === index
+						const isCompleted = index < completedCount
+						return (
+							<div
+								key={index}
+								className={cn(
+									'h-2.5 w-2.5 rounded-full transition-all duration-300',
+									isCompleted ? 'bg-primary' : 'bg-muted',
+									isActive &&
+										'ring-primary ring-2 ring-offset-2 ring-offset-background scale-110',
+								)}
+							/>
+						)
+					})}
 				</div>
 				<span
 					className={cn(
@@ -105,7 +117,7 @@ function StepProgressHeader({
 						isComplete ? 'text-primary' : 'text-muted-foreground',
 					)}
 				>
-					{completedCount} of {total}
+					{Math.max(completedCount, 1)} of {total}
 				</span>
 			</div>
 		</div>
@@ -149,29 +161,53 @@ function AnimatedStatusIcon({
 		</span>
 	)
 }
+import type { RepresentationSide } from '@/lib/matching/profile.types'
 import {
-	getNextUnansweredQuestionIndex,
-	getStoredConsumerDraftForFlow,
-	saveStoredConsumerDraftForFlow,
-} from '@/lib/matching/intake-draft'
+	loadConsumerDraft,
+	saveConsumerDraft,
+	type ConsumerDraft,
+} from '@/lib/consumer-draft-storage'
 import {
-	buyerMatchingQuestionFlow,
+	consumerQuestionFlow,
+	getAnswerSummary,
+	propertyTypeOptions,
+	questionOptionLabel,
+	questionOptionSlugs,
+	type Answers,
+	type Question,
 	type QuestionFlow as MatchingQuestionFlow,
 } from '@/lib/matching/questions'
-import type { ConsumerFlowKind } from '@/lib/matching/settings'
-import { getAnswerSummary } from '@/lib/matching/settings'
+
+function getNextUnansweredQuestionIndex(
+	questions: Question[],
+	answers: Answers,
+) {
+	const nextIndex = questions.findIndex((q) => answers[q.id] === undefined)
+
+	return nextIndex === -1 ? Math.max(questions.length - 1, 0) : nextIndex
+}
+
+type ConsumerFlowState = {
+	location?: string
+	state?: string
+	priceRange?: string
+	propertyTypes?: string[]
+	intent?: RepresentationSide
+	experienceLevel?: string
+	matchPriorities?: string[]
+	answers: Answers
+}
 
 type ConsumerFlowConfig = {
-	kind: ConsumerFlowKind
-	basePath: '/buyer'
-	label: 'Buyer'
+	basePath: '/consumer'
+	label: 'Consumer'
 	areaPrompt: string
 	situationPrompt: string
-	intentOptions: string[]
+	intentOptions: RepresentationSide[]
 	experiencePrompt: string
 	experienceOptions: string[]
 	pricePrompt: string
-	priceOptions: string[]
+	priceOptions: { slug: string; label: string }[]
 	propertyPrompt: string
 	propertyOptions: string[]
 	questionFlow: MatchingQuestionFlow
@@ -422,29 +458,35 @@ function getLocationSuggestions(query: string) {
 	return suggestions
 }
 
-export const buyerConfig = {
-	kind: 'buyer',
-	basePath: '/buyer',
-	label: 'Buyer',
+const priceOptions = [
+	{ slug: 'under400k', label: 'Under $400k' },
+	{ slug: '400kTo750k', label: '$400k to $750k' },
+	{ slug: '750kTo1_5m', label: '$750k to $1.5M' },
+	{ slug: '1_5mPlus', label: '$1.5M and above' },
+] as const
+
+const experienceQuestion = consumerQuestionFlow.questions.find(
+	(q) => q.id === 'experienceLevel',
+)!
+
+export const consumerConfig = {
+	basePath: '/consumer',
+	label: 'Consumer',
 	areaPrompt: 'City, State, or ZIP code',
 	situationPrompt: 'What do you want to do?',
-	intentOptions: ['Buy', 'Sell', 'Buy then Sell'],
+	intentOptions: ['buying', 'selling', 'both'],
 	experiencePrompt: 'What is your experience level?',
-	experienceOptions: [
-		'First-time client',
-		"I've done this before",
-		"I'm very experienced",
-	],
+	experienceOptions: questionOptionSlugs(experienceQuestion),
 	pricePrompt: 'What price range are you considering?',
-	priceOptions: [
-		'Under $400k',
-		'$400k to $750k',
-		'$750k to $1.5M',
-		'$1.5M and above',
-	],
+	priceOptions: [...priceOptions],
 	propertyPrompt: 'What type of home are you looking for?',
-	propertyOptions: ['Single-Family', 'Condo/Townhome', 'Multi-family', 'Land'],
-	questionFlow: buyerMatchingQuestionFlow,
+	propertyOptions: Object.keys(propertyTypeOptions),
+	questionFlow: {
+		...consumerQuestionFlow,
+		questions: consumerQuestionFlow.questions.filter(
+			(q) => q.id !== 'experienceLevel',
+		),
+	},
 	accent: 'navy',
 } satisfies ConsumerFlowConfig
 
@@ -520,33 +562,31 @@ export const consumerMatches: MatchDetails[] = [
 	},
 ]
 
-function getPropertyIcon(option: string): Icon {
-	if (option.includes('Single-Family')) return HouseLineIcon
-	if (option.includes('Condo')) return BuildingIcon
-	if (option.includes('Land')) return BarnIcon
-	if (option.includes('Multi-family')) return BuildingApartmentIcon
+function getPropertyIcon(slug: string): Icon {
+	if (slug === 'singleFamily') return HouseLineIcon
+	if (slug === 'condoTownhome') return BuildingIcon
+	if (slug === 'land') return BarnIcon
+	if (slug === 'multiFamily') return BuildingApartmentIcon
 	return QuestionIcon
 }
 
-function getIntentIcon(option: string): Icon {
-	const text = option.toLowerCase()
-	if (
-		text.includes('swap') ||
-		text.includes('buying') ||
-		text.includes('then sell')
-	)
-		return ArrowsLeftRightIcon
-	if (text.includes('sell')) return TagIcon
-	if (text === 'buy') return HouseLineIcon
-	if (text.includes('explore')) return MagnifyingGlassIcon
+function getIntentIcon(intent: RepresentationSide): Icon {
+	if (intent === 'buying') return HouseLineIcon
+	if (intent === 'selling') return TagIcon
+	if (intent === 'both') return ArrowsLeftRightIcon
 	return QuestionIcon
 }
 
-function getExperienceLevel(option: string) {
-	const text = option.toLowerCase()
-	if (text.includes('first-time')) return 1
-	if (text.includes('done this') || text.includes('sold before')) return 2
-	if (text.includes('experienced')) return 3
+function getIntentLabel(intent: RepresentationSide) {
+	if (intent === 'buying') return 'Buy'
+	if (intent === 'selling') return 'Sell'
+	return 'Buy then Sell'
+}
+
+function getExperienceLevel(slug: string) {
+	if (slug === 'firstTime') return 1
+	if (slug === 'experienced') return 2
+	if (slug === 'veryExperienced') return 3
 	return 1
 }
 
@@ -574,33 +614,38 @@ function deriveStateFromLocation(location: string): string | undefined {
 
 export function ConsumerIntro({
 	config,
+	state,
 	direction,
+	onUpdate,
 	onContinue,
 }: {
 	config: ConsumerFlowConfig
+	state: ConsumerFlowState
 	direction: number
+	onUpdate: (patch: Partial<ConsumerFlowState>) => void
 	onContinue: () => void
 }) {
-	const draft = getStoredConsumerDraftForFlow(config.kind)
 	const [committedLocation, setCommittedLocation] = useState(
-		draft.zipCode ?? '',
+		state.location ?? '',
 	)
-	const [locationQuery, setLocationQuery] = useState(draft.zipCode ?? '')
+	const [locationQuery, setLocationQuery] = useState(state.location ?? '')
 	const [locationEdited, setLocationEdited] = useState(false)
 	const [locationOpen, setLocationOpen] = useState(false)
 	const [hasTriedContinue, setHasTriedContinue] = useState(false)
 	const [priceIndex, setPriceIndex] = useState(() => {
-		const storedIndex = config.priceOptions.indexOf(draft.priceRange ?? '')
+		const storedIndex = config.priceOptions.findIndex(
+			(option) => option.slug === state.priceRange,
+		)
 		return storedIndex >= 0 ? storedIndex : undefined
 	})
-	const [propertyType, setPropertyType] = useState<string[]>(
-		draft.propertyType ?? [],
+	const [propertyTypes, setPropertyTypes] = useState<string[]>(
+		state.propertyTypes ?? [],
 	)
 	const priceRange =
-		priceIndex !== undefined ? config.priceOptions[priceIndex] : undefined
+		priceIndex !== undefined ? config.priceOptions[priceIndex]?.slug : undefined
 	const marketComplete = committedLocation.trim().length >= 2
 	const priceComplete = priceRange !== undefined
-	const propertyComplete = propertyType.length > 0
+	const propertyComplete = propertyTypes.length > 0
 	const effectiveLocation = (
 		locationEdited ? locationQuery : committedLocation
 	).trim()
@@ -610,10 +655,6 @@ export function ConsumerIntro({
 	const showMarketError = hasTriedContinue && !marketComplete
 	const showPriceError = hasTriedContinue && !priceComplete
 	const showPropertyError = hasTriedContinue && !propertyComplete
-
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'intro' })
-	}, [config.kind])
 
 	const handleContinue = () => {
 		const finalLocation = (
@@ -628,14 +669,13 @@ export function ConsumerIntro({
 			return
 		}
 
-		const state = deriveStateFromLocation(finalLocation)
+		const derivedState = deriveStateFromLocation(finalLocation)
 
-		saveStoredConsumerDraftForFlow(config.kind, {
-			zipCode: finalLocation,
-			...(state ? { state } : {}),
-			priceRange: priceRange!,
-			propertyType,
-			lastCompletedStage: 'intro',
+		onUpdate({
+			location: finalLocation,
+			...(derivedState ? { state: derivedState } : {}),
+			priceRange,
+			propertyTypes,
 		})
 		onContinue()
 	}
@@ -681,7 +721,7 @@ export function ConsumerIntro({
 						>
 							<PopoverTrigger asChild>
 								<Button
-									id={`${config.kind}-location`}
+									id="consumer-location"
 									variant="outline"
 									aria-expanded={locationOpen}
 									className={cn(
@@ -771,7 +811,7 @@ export function ConsumerIntro({
 									complete={priceComplete}
 									icon={CurrencyDollarIcon}
 								/>
-								{config.kind === 'buyer' ? 'Budget' : 'Value'}
+								Budget
 							</div>
 							<div className="grid grid-cols-1 gap-2.5">
 								{config.priceOptions.map((option, index) => {
@@ -779,7 +819,7 @@ export function ConsumerIntro({
 
 									return (
 										<button
-											key={option}
+											key={option.slug}
 											type="button"
 											onClick={() => setPriceIndex(index)}
 											className={cn(
@@ -802,7 +842,7 @@ export function ConsumerIntro({
 													<span className="bg-primary h-2 w-2 rounded-full" />
 												) : null}
 											</span>
-											{option}
+											{option.label}
 										</button>
 									)
 								})}
@@ -834,7 +874,7 @@ export function ConsumerIntro({
 							</div>
 							<div className="grid grid-cols-1 gap-2.5">
 								{config.propertyOptions.map((option) => {
-									const isSelected = propertyType.includes(option)
+									const isSelected = propertyTypes.includes(option)
 									const PropertyIcon = getPropertyIcon(option)
 
 									return (
@@ -842,7 +882,7 @@ export function ConsumerIntro({
 											key={option}
 											type="button"
 											onClick={() => {
-												setPropertyType((current) =>
+												setPropertyTypes((current) =>
 													current.includes(option)
 														? current.filter((item) => item !== option)
 														: [...current, option],
@@ -877,7 +917,11 @@ export function ConsumerIntro({
 												)}
 												weight="duotone"
 											/>
-											{option}
+											{
+												propertyTypeOptions[
+													option as keyof typeof propertyTypeOptions
+												]
+											}
 										</button>
 									)
 								})}
@@ -924,30 +968,30 @@ export function ConsumerIntro({
 
 export function ConsumerSituation({
 	config,
+	state,
 	direction,
+	onUpdate,
 	onContinue,
 }: {
 	config: ConsumerFlowConfig
+	state: ConsumerFlowState
 	direction: number
+	onUpdate: (patch: Partial<ConsumerFlowState>) => void
 	onContinue: () => void
 }) {
-	const draft = getStoredConsumerDraftForFlow(config.kind)
-	const [intent, setIntent] = useState(draft.intent ?? '')
+	const [intent, setIntent] = useState<RepresentationSide | ''>(
+		state.intent ?? '',
+	)
 	const [experienceLevel, setExperienceLevel] = useState(
-		draft.experienceLevel ?? '',
+		state.experienceLevel ?? '',
 	)
 	const canContinue = intent.length > 0 && experienceLevel.length > 0
 
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'situation' })
-	}, [config.kind])
-
 	const handleContinue = () => {
-		if (!canContinue) return
-		saveStoredConsumerDraftForFlow(config.kind, {
+		if (!canContinue || !intent) return
+		onUpdate({
 			intent,
 			experienceLevel,
-			lastCompletedStage: 'situation',
 		})
 		onContinue()
 	}
@@ -983,6 +1027,7 @@ export function ConsumerSituation({
 							{config.intentOptions.map((option) => {
 								const isSelected = intent === option
 								const IntentIcon = getIntentIcon(option)
+								const label = getIntentLabel(option)
 
 								return (
 									<button
@@ -1023,7 +1068,7 @@ export function ConsumerSituation({
 											<IntentIcon className="h-5 w-5" weight="duotone" />
 										</span>
 										<span className="text-foreground text-sm leading-snug font-medium">
-											{option}
+											{label}
 										</span>
 									</button>
 								)
@@ -1100,7 +1145,7 @@ export function ConsumerSituation({
 											))}
 										</span>
 										<span className="text-foreground text-sm leading-snug font-medium">
-											{option}
+											{questionOptionLabel(experienceQuestion, option)}
 										</span>
 									</button>
 								)
@@ -1140,19 +1185,23 @@ export function ConsumerSituation({
 
 export function ConsumerQuiz({
 	config,
+	state,
 	direction,
+	onUpdate,
 	onComplete,
 }: {
 	config: ConsumerFlowConfig
+	state: ConsumerFlowState
 	direction: number
+	onUpdate: (patch: Partial<ConsumerFlowState>) => void
 	onComplete: () => void
 }) {
-	const draft = getStoredConsumerDraftForFlow(config.kind)
-	const [answers, setAnswers] = useState(draft.answers)
-
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'quiz' })
-	}, [config.kind])
+	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() =>
+		getNextUnansweredQuestionIndex(
+			config.questionFlow.questions,
+			state.answers,
+		),
+	)
 
 	return (
 		<AnimatedStepCard stepKey="quiz" direction={direction}>
@@ -1162,9 +1211,11 @@ export function ConsumerQuiz({
 						stepNumber={3}
 						totalSteps={3}
 						title="Your preferences"
+						activeIndex={currentQuestionIndex}
 						items={config.questionFlow.questions.map(
 							(q) =>
-								answers[q.id] !== undefined && answers[q.id] !== SKIPPED_ANSWER,
+								state.answers[q.id] !== undefined &&
+								state.answers[q.id] !== SKIPPED_ANSWER,
 						)}
 					/>
 					<QuestionFlow
@@ -1173,30 +1224,16 @@ export function ConsumerQuiz({
 						mode="single-question"
 						title="Step 3: Your Agent"
 						wrapper="wizard"
-						initialAnswers={draft.answers}
-						initialQuestionIndex={getNextUnansweredQuestionIndex(
-							config.questionFlow.questions,
-							draft.answers,
-						)}
-						onAnswersChange={(nextAnswers) => {
-							const cleaned: Record<string, number | number[] | string> = {}
-							for (const [key, value] of Object.entries(nextAnswers)) {
-								if (value !== undefined) {
-									cleaned[key] = value
-								}
-							}
-							setAnswers(cleaned)
-							saveStoredConsumerDraftForFlow(config.kind, { answers: cleaned })
-						}}
-						onComplete={() => {
-							saveStoredConsumerDraftForFlow(config.kind, {
-								lastCompletedStage: 'preview',
-								currentStage: 'preview',
-							})
-							onComplete()
-						}}
-						completeTo="/buyer/preview"
+						answers={state.answers}
+						currentQuestionIndex={currentQuestionIndex}
+						onAnswersChange={(nextAnswers) =>
+							onUpdate({ answers: nextAnswers })
+						}
+						onQuestionIndexChange={setCurrentQuestionIndex}
+						onComplete={onComplete}
+						completeTo="/consumer/preview"
 						completeLabel="Continue"
+						navigateOnComplete={false}
 					/>
 				</CardContent>
 			</Card>
@@ -1204,17 +1241,85 @@ export function ConsumerQuiz({
 	)
 }
 
+function ConsumerLeaveDialog({
+	open,
+	onOpenChange,
+	onConfirm,
+}: {
+	open: boolean
+	onOpenChange: (open: boolean) => void
+	onConfirm: () => void
+}) {
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent showCloseButton={false}>
+				<DialogHeader>
+					<DialogTitle className="flex items-center gap-2">
+						<TriangleAlert className="text-destructive h-5 w-5" />
+						Leave this page?
+					</DialogTitle>
+					<DialogDescription>
+						Your answers are saved in this browser, but you will leave the quiz.
+						You can come back and continue any time.
+					</DialogDescription>
+				</DialogHeader>
+				<DialogFooter>
+					<Button variant="outline" onClick={() => onOpenChange(false)}>
+						Keep going
+					</Button>
+					<Button variant="destructive" onClick={onConfirm}>
+						Leave
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	)
+}
+
 export function ConsumerIntake({
 	config,
 	step,
+	reset = false,
 }: {
 	config: ConsumerFlowConfig
 	step: ConsumerFlowStep
+	reset?: boolean
 }) {
 	const navigate = useNavigate()
 	const currentIndex = stepOrder.indexOf(step)
+	const [state, setState] = useState<ConsumerFlowState>(() => {
+		if (reset) return { answers: {} }
+		const draft = loadConsumerDraft()
+		return draft ? { ...draft } : { answers: {} }
+	})
 	const [direction, setDirection] = useState(1)
+	const [showLeaveDialog, setShowLeaveDialog] = useState(false)
 	const previousIndexRef = useRef(currentIndex)
+	const hasDraft =
+		Object.keys(state.answers).length > 0 ||
+		state.location !== undefined ||
+		state.intent !== undefined
+
+	const updateState = (patch: Partial<ConsumerFlowState>) => {
+		setState((current) => {
+			const next = { ...current, ...patch }
+			saveConsumerDraft(next as ConsumerDraft)
+			return next
+		})
+	}
+
+	const handleComplete = () => {
+		saveConsumerDraft(state as ConsumerDraft)
+		void navigate({ to: '/consumer/preview' })
+	}
+
+	const handleHomeClick = () => {
+		if (hasDraft) {
+			setShowLeaveDialog(true)
+			return
+		}
+		void navigate({ to: '/' })
+	}
 
 	useEffect(() => {
 		setDirection(currentIndex >= previousIndexRef.current ? 1 : -1)
@@ -1228,7 +1333,7 @@ export function ConsumerIntake({
 		})
 	}
 
-	const progress = useMemo(() => {
+	const progress = (() => {
 		switch (step) {
 			case 'intro':
 				return <ConsumerIntakeProgress current="intro" />
@@ -1237,56 +1342,76 @@ export function ConsumerIntake({
 			case 'quiz':
 				return <ConsumerIntakeProgress current="quiz" />
 		}
-	}, [step])
+	})()
 
 	return (
-		<WizardShell
-			steps={consumerFlowSteps}
-			currentStepId={step}
-			progress={progress}
-		>
-			{step === 'intro' ? (
-				<ConsumerIntro
-					config={config}
-					direction={direction}
-					onContinue={() => goToStep('situation')}
-				/>
-			) : step === 'situation' ? (
-				<ConsumerSituation
-					config={config}
-					direction={direction}
-					onContinue={() => goToStep('quiz')}
-				/>
-			) : (
-				<ConsumerQuiz
-					config={config}
-					direction={direction}
-					onComplete={() => {}}
-				/>
-			)}
-		</WizardShell>
+		<>
+			<WizardShell
+				steps={consumerFlowSteps}
+				currentStepId={step}
+				progress={progress}
+				onHomeClick={handleHomeClick}
+			>
+				{step === 'intro' ? (
+					<ConsumerIntro
+						config={config}
+						state={state}
+						direction={direction}
+						onUpdate={updateState}
+						onContinue={() => goToStep('situation')}
+					/>
+				) : step === 'situation' ? (
+					<ConsumerSituation
+						config={config}
+						state={state}
+						direction={direction}
+						onUpdate={updateState}
+						onContinue={() => goToStep('quiz')}
+					/>
+				) : (
+					<ConsumerQuiz
+						config={config}
+						state={state}
+						direction={direction}
+						onUpdate={updateState}
+						onComplete={handleComplete}
+					/>
+				)}
+			</WizardShell>
+			<ConsumerLeaveDialog
+				open={showLeaveDialog}
+				onConfirm={() => {
+					setShowLeaveDialog(false)
+					void navigate({ to: '/' })
+				}}
+				onOpenChange={(open) => {
+					if (!open) setShowLeaveDialog(false)
+				}}
+			/>
+		</>
 	)
 }
 
-export function ConsumerPriorities({ config }: { config: ConsumerFlowConfig }) {
-	const draft = getStoredConsumerDraftForFlow(config.kind)
+export function ConsumerPriorities({
+	config,
+	state,
+	onUpdate,
+}: {
+	config: ConsumerFlowConfig
+	state: ConsumerFlowState
+	onUpdate: (patch: Partial<ConsumerFlowState>) => void
+}) {
 	const [selectedPriorities, setSelectedPriorities] = useState<string[]>(
-		draft.matchPriorities ?? [],
+		state.matchPriorities ?? [],
 	)
 	const canContinue = selectedPriorities.length > 0
 
-	const answeredQuestions = config.questionFlow.questions
-		.filter(
-			(q) =>
-				draft.answers[q.id] !== undefined &&
-				draft.answers[q.id] !== SKIPPED_ANSWER,
-		)
-		.sort((a, b) => a.number - b.number)
+	const answeredQuestions = config.questionFlow.questions.filter(
+		(q) =>
+			state.answers[q.id] !== undefined &&
+			state.answers[q.id] !== SKIPPED_ANSWER,
+	)
 	const maxSelections = 2
-
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'priorities' })
-	}, [config.kind])
 
 	const togglePriority = (questionId: string) => {
 		setSelectedPriorities((current) => {
@@ -1307,19 +1432,18 @@ export function ConsumerPriorities({ config }: { config: ConsumerFlowConfig }) {
 		>
 			<div className="space-y-4">
 				<div className="space-y-2">
-					{answeredQuestions.map((q) => {
-						const questionId = q.id
-						const isSelected = selectedPriorities.includes(questionId)
-						const rank = selectedPriorities.indexOf(questionId) + 1
+					{answeredQuestions.map((question) => {
+						const isSelected = selectedPriorities.includes(question.id)
+						const rank = selectedPriorities.indexOf(question.id) + 1
 						const atLimit =
 							!isSelected && selectedPriorities.length >= maxSelections
 
 						return (
 							<button
-								key={questionId}
+								key={question.id}
 								type="button"
 								disabled={atLimit}
-								onClick={() => togglePriority(questionId)}
+								onClick={() => togglePriority(question.id)}
 								className={cn(
 									'flex w-full items-start gap-2.5 rounded-lg border px-3 py-2.5 text-left transition',
 									isSelected
@@ -1341,9 +1465,11 @@ export function ConsumerPriorities({ config }: { config: ConsumerFlowConfig }) {
 									{isSelected ? <Check className="h-3.5 w-3.5" /> : null}
 								</div>
 								<div className="min-w-0 flex-1 space-y-0.5">
-									<p className="text-muted-foreground text-xs">{q.prompt}</p>
+									<p className="text-muted-foreground text-xs">
+										{question.title}
+									</p>
 									<p className="text-sm font-medium">
-										{getAnswerSummary(q, draft.answers[questionId]!)}
+										{getAnswerSummary(question, state.answers[question.id]!)}
 									</p>
 								</div>
 								{isSelected ? (
@@ -1363,10 +1489,7 @@ export function ConsumerPriorities({ config }: { config: ConsumerFlowConfig }) {
 						<Link
 							to="/matches"
 							onClick={() => {
-								saveStoredConsumerDraftForFlow(config.kind, {
-									matchPriorities: selectedPriorities,
-									lastCompletedStage: 'priorities',
-								})
+								onUpdate({ matchPriorities: selectedPriorities })
 							}}
 						>
 							Preview my match
@@ -1384,21 +1507,9 @@ export function ConsumerPriorities({ config }: { config: ConsumerFlowConfig }) {
 	)
 }
 
-export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
+export function ConsumerPayment() {
 	const [isProcessing, setIsProcessing] = useState(false)
 	const [isComplete, setIsComplete] = useState(false)
-
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'payment' })
-	}, [config.kind])
-
-	useEffect(() => {
-		if (isComplete) {
-			saveStoredConsumerDraftForFlow(config.kind, {
-				lastCompletedStage: 'payment',
-			})
-		}
-	}, [isComplete, config.kind])
 
 	const handlePayment = () => {
 		setIsProcessing(true)
@@ -1512,31 +1623,6 @@ export function ConsumerPayment({ config }: { config: ConsumerFlowConfig }) {
 				<p className="text-muted-foreground text-center text-xs">
 					This is a demo payment. No real charges will be made.
 				</p>
-			</div>
-		</FlowPageShell>
-	)
-}
-
-export function ConsumerResults({ config }: { config: ConsumerFlowConfig }) {
-	useEffect(() => {
-		saveStoredConsumerDraftForFlow(config.kind, { currentStage: 'results' })
-	}, [config.kind])
-
-	return (
-		<FlowPageShell title="Results" icon={Trophy}>
-			<p className="text-muted-foreground mb-6 text-center text-sm leading-relaxed">
-				Real agents ranked by fit — not by who paid the most to get your contact
-				info. You can select up to 3 agents total.
-			</p>
-			<div className="space-y-4">
-				{consumerMatches.map((match) => (
-					<MatchCardModern
-						key={match.id}
-						match={match}
-						showScoreBreakdown
-						actionLabel="Select Agent"
-					/>
-				))}
 			</div>
 		</FlowPageShell>
 	)
