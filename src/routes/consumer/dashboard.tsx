@@ -1,4 +1,4 @@
-import { ConsumerSidebarShell } from './dashboard/-shell'
+import { ConsumerSidebarShell } from './dashboard/-components/shell'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/consumer/dashboard')({

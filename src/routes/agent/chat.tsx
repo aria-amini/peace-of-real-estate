@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 
-import { FlowPageShell } from '@/components/flow-page-shell'
+import { FlowPageShell } from '@/components/flow/page-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useAccountSettings } from '@/hooks/use-account-settings'

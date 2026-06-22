@@ -13,7 +13,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import { FlowPageShell } from '@/components/flow-page-shell'
+import { FlowPageShell } from '@/components/flow/page-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useQuizKeyboard } from '@/hooks/use-quiz-keyboard'

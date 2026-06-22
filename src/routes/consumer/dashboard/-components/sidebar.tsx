@@ -1,16 +1,6 @@
-import { useState, type ElementType } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import {
-	HelpCircle,
-	Home,
-	LogOut,
-	MessageSquare,
-	ShieldCheck,
-	Sparkles,
-	User,
-} from 'lucide-react'
-
+import { useState } from 'react'
 import { authClient } from '@/lib/auth/client'
 import { Button } from '@/components/ui/button'
 import { isUserPremium } from '@/lib/premium'
@@ -24,7 +14,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { PaywallDialog } from '@/components/paywall-dialog'
+import { PaywallDialog } from '@/components/auth/paywall-dialog'
 import { Textarea } from '@/components/ui/textarea'
 import {
 	Sidebar,
@@ -38,11 +28,20 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { SignupDialog } from '@/components/signup-dialog'
+import { SignupDialog } from '@/components/auth/signup-dialog'
+import {
+	ArrowRightLeft,
+	HelpCircle,
+	LogOut,
+	MessageSquare,
+	Search,
+	Sparkles,
+	Users,
+} from 'lucide-react'
 
 type SidebarItem = {
 	label: string
-	icon: ElementType
+	icon: React.ElementType
 	href?: string
 	external?: string
 	onClick?: () => void
@@ -50,11 +49,12 @@ type SidebarItem = {
 	locked?: boolean
 }
 
-export function AgentSidebar() {
+export function ConsumerSidebar() {
 	const router = useRouterState()
 	const currentPath = router.location.pathname
 	const { data: session } = authClient.useSession()
 	const isAuthenticated = Boolean(session)
+	const showPremiumCard = true
 	const [showPaywall, setShowPaywall] = useState(false)
 	const [showSupport, setShowSupport] = useState(false)
 	const { data: premiumStatus } = useQuery({
@@ -63,7 +63,7 @@ export function AgentSidebar() {
 		enabled: isAuthenticated,
 	})
 	const profileName = session?.user.name?.trim() || 'Your profile'
-	const profileEmail = session?.user.email || 'Agent dashboard'
+	const profileEmail = session?.user.email || 'Create a profile to save matches'
 	const tierLabel = premiumStatus ? 'Premium' : 'Free'
 	const profileImage = session?.user.image
 	const profileInitials = getInitials(session?.user.name, session?.user.email)
@@ -84,18 +84,18 @@ export function AgentSidebar() {
 		})
 	}
 
-	const mainItems: SidebarItem[] = [
-		{ label: 'Dashboard', icon: Home, href: '/agent/dashboard' },
+	const agentItems: SidebarItem[] = [
+		{ label: 'Matches', icon: Users, href: '/matches' },
 		{
 			label: 'Introductions',
-			icon: MessageSquare,
-			href: '/agent/dashboard/introductions',
+			icon: ArrowRightLeft,
+			href: '/consumer/dashboard/introductions',
 		},
-	]
-
-	const profileItems: SidebarItem[] = [
-		{ label: 'Profile', icon: User, href: '/agent/deep-profile' },
-		{ label: 'Compliance', icon: ShieldCheck, href: '/agent/compliance' },
+		{
+			label: 'Search Preferences',
+			icon: Search,
+			href: '/consumer/dashboard/search-preferences',
+		},
 	]
 
 	const aiItems: SidebarItem[] = [
@@ -167,7 +167,7 @@ export function AgentSidebar() {
 			<Sidebar>
 				<SidebarHeader className="px-2 py-2">
 					<Link
-						to={isAuthenticated ? '/agent/dashboard' : '/login'}
+						to={isAuthenticated ? '/consumer/dashboard' : '/login'}
 						className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex h-12 w-full items-center gap-2 overflow-hidden rounded-lg px-2.5 text-left text-sm transition-colors"
 					>
 						<div
@@ -200,16 +200,9 @@ export function AgentSidebar() {
 				</SidebarHeader>
 				<SidebarContent>
 					<SidebarGroup>
-						<SidebarGroupLabel>Business</SidebarGroupLabel>
+						<SidebarGroupLabel>Agents</SidebarGroupLabel>
 						<SidebarGroupContent>
-							<SidebarMenu>{mainItems.map(renderItem)}</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
-
-					<SidebarGroup>
-						<SidebarGroupLabel>Profile</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>{profileItems.map(renderItem)}</SidebarMenu>
+							<SidebarMenu>{agentItems.map(renderItem)}</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>
 
@@ -227,24 +220,28 @@ export function AgentSidebar() {
 				</SidebarContent>
 
 				<SidebarFooter className="gap-3">
-					<button
-						type="button"
-						disabled={!isAuthenticated}
-						onClick={() => setShowPaywall(true)}
-						className="bg-card text-card-foreground hover:border-primary/50 hover:bg-card/95 group mx-2 rounded-xl border-2 p-3 text-left shadow-sm transition hover:shadow-md disabled:pointer-events-none disabled:opacity-50"
-					>
-						<div className="mb-2 flex items-center gap-2">
-							<span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
-								<Sparkles className="size-3.5" />
+					{showPremiumCard ? (
+						<button
+							type="button"
+							disabled={!isAuthenticated}
+							onClick={() => setShowPaywall(true)}
+							className="bg-card text-card-foreground hover:border-primary/50 hover:bg-card/95 group mx-2 rounded-xl border-2 p-3 text-left shadow-sm transition hover:shadow-md disabled:pointer-events-none disabled:opacity-50"
+						>
+							<div className="mb-2 flex items-center gap-2">
+								<span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
+									<Sparkles className="size-3.5" />
+								</span>
+								<span className="text-sm font-medium">Upgrade</span>
+							</div>
+							<p className="text-muted-foreground mb-2 text-xs leading-snug">
+								Unlock full agent profiles, saved preferences, and better match
+								insights.
+							</p>
+							<span className="text-primary text-xs font-medium">
+								See plans
 							</span>
-							<span className="text-sm font-medium">Agent plan</span>
-						</div>
-						<p className="text-muted-foreground mb-2 text-xs leading-snug">
-							Unlock full consumer insights, priority placement, and more
-							introductions.
-						</p>
-						<span className="text-primary text-xs font-medium">See plans</span>
-					</button>
+						</button>
+					) : null}
 
 					<SidebarMenu>
 						<SidebarMenuItem>

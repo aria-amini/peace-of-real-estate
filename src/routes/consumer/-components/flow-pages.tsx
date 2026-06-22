@@ -26,17 +26,17 @@ import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import type { FeatureCollection } from 'geojson'
 
-import { FlowPageShell } from '@/components/flow-page-shell'
+import { FlowPageShell } from '@/components/flow/page-shell'
 import {
 	AnimatedStepCard,
 	FlowIntakeProgress,
 	StepProgressHeader,
-} from '@/components/flow-shared'
-import { PriceInput } from '@/components/price-input'
-import { QuestionFlow } from '@/components/question-flow'
-import { WizardShell } from '@/components/wizard-shell'
-import { ZipCodeMap } from '@/components/zip-code-map'
-import type { MatchDetails } from '@/components/match-card-variants'
+} from '@/components/flow/shared'
+import { PriceInput } from '@/components/flow/price-range'
+import { QuestionFlow } from '@/components/flow/question-flow'
+import { WizardShell } from '@/components/flow/wizard-shell'
+import { ZipCodeSelector } from '@/components/maps'
+import type { MatchDetails } from '@/components/match/card'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -583,7 +583,7 @@ export function ConsumerLocation({
 									{!centerForCity ? (
 										<Skeleton className="h-80 rounded-2xl" />
 									) : (
-										<ZipCodeMap
+										<ZipCodeSelector
 											boundaries={
 												boundaries ?? {
 													type: 'FeatureCollection',

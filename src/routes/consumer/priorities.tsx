@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import {
-	ConsumerPriorities,
-	consumerConfig,
-} from '@/components/consumer-flow-pages'
+import { ConsumerPriorities, consumerConfig } from './-components/flow-pages'
 
 export const Route = createFileRoute('/consumer/priorities')({
 	component: PrioritiesRoute,

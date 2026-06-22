@@ -10,9 +10,10 @@ import type {
 import type { Feature, FeatureCollection } from 'geojson'
 import type { StyleSpecification } from 'maplibre-gl'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-export type ZipCodeMapProps = {
+export type ZipCodeSelectorProps = {
 	boundaries: FeatureCollection
 	selectedZipCodes: string[]
 	onToggleZipCode?: ((zipCode: string) => void) | undefined
@@ -110,14 +111,27 @@ function getBounds(features: FeatureCollection['features']): BBox | undefined {
 	return bounds
 }
 
-export function ZipCodeMapInner({
+function ZipCodeMapSkeleton({ className }: { className?: string | undefined }) {
+	return (
+		<div
+			className={cn(
+				'relative min-h-64 overflow-hidden rounded-2xl border',
+				className,
+			)}
+		>
+			<Skeleton className="absolute inset-0" />
+		</div>
+	)
+}
+
+function ZipCodeMap({
 	boundaries,
 	selectedZipCodes,
 	onToggleZipCode,
 	center,
 	readOnly,
 	className,
-}: ZipCodeMapProps) {
+}: ZipCodeSelectorProps) {
 	const mapRef = useRef<MapRef>(null)
 	const [mapLoaded, setMapLoaded] = useState(false)
 
@@ -279,4 +293,28 @@ export function ZipCodeMapInner({
 			</Map>
 		</div>
 	)
+}
+
+export function ZipCodeSelector(props: ZipCodeSelectorProps) {
+	const [Inner, setInner] =
+		useState<React.ComponentType<ZipCodeSelectorProps> | null>(null)
+
+	useEffect(() => {
+		let cancelled = false
+
+		void import('react-map-gl/maplibre').then(() => {
+			if (cancelled) return
+			setInner(() => ZipCodeMap)
+		})
+
+		return () => {
+			cancelled = true
+		}
+	}, [])
+
+	if (!Inner) {
+		return <ZipCodeMapSkeleton className={props.className} />
+	}
+
+	return <Inner {...props} />
 }

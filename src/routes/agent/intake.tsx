@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { AgentIntake } from '@/components/agent-flow-pages'
+import { AgentIntake } from './-components/flow-pages'
 import { clearAgentDraft } from '@/lib/agent-draft-storage'
 import { getCurrentSession } from '@/lib/auth/functions'
 import { loadAgentProfile } from '@/lib/matching/profile.db'

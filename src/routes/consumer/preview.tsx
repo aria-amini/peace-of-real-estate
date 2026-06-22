@@ -41,8 +41,8 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from '@/components/ui/sheet'
-import { consumerMatches } from '@/components/consumer-flow-pages'
-import { AgentPreviewCard } from '@/components/match-card-variants'
+import { consumerMatches } from './-components/flow-pages'
+import { AgentPreviewCard } from '@/components/match/card'
 import { getCurrentSession } from '@/lib/auth/functions'
 import {
 	consumerQuestionFlow,

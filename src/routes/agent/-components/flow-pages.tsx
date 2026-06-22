@@ -18,11 +18,11 @@ import {
 	AnimatedStepCard,
 	FlowIntakeProgress,
 	StepProgressHeader,
-} from '@/components/flow-shared'
-import { PriceInput } from '@/components/price-input'
-import { QuestionFlow } from '@/components/question-flow'
-import { WizardShell } from '@/components/wizard-shell'
-import { ZipCodeMap } from '@/components/zip-code-map'
+} from '@/components/flow/shared'
+import { PriceInput } from '@/components/flow/price-range'
+import { QuestionFlow } from '@/components/flow/question-flow'
+import { WizardShell } from '@/components/flow/wizard-shell'
+import { ZipCodeSelector } from '@/components/maps'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -748,7 +748,7 @@ export function AgentMarket({
 								{!centerForCity ? (
 									<Skeleton className="h-64 rounded-2xl" />
 								) : (
-									<ZipCodeMap
+									<ZipCodeSelector
 										boundaries={
 											boundaries ?? {
 												type: 'FeatureCollection',

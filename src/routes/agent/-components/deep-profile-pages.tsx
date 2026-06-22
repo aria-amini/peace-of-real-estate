@@ -13,8 +13,8 @@ import type { Icon } from '@phosphor-icons/react'
 import { ArrowRight, Check, TriangleAlert } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { AnimatedStepCard, FlowIntakeProgress } from '@/components/flow-shared'
-import { WizardShell } from '@/components/wizard-shell'
+import { AnimatedStepCard, FlowIntakeProgress } from '@/components/flow/shared'
+import { WizardShell } from '@/components/flow/wizard-shell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {

@@ -1,3 +1,11 @@
+import { serverEnv } from './src/env.server'
+import type { NitroAppPlugin } from 'nitro/types'
+
+const validateEnvPlugin: NitroAppPlugin = () => {
+	// Trigger lazy zod parse so the server fails fast on startup if required env is missing.
+	Object.keys(serverEnv)
+}
+
 import { createAppConfig } from '@aamini/config/vite'
 import type { TestProjectConfiguration } from 'vite-plus'
 import { mergeConfig } from 'vite-plus'
@@ -59,7 +67,7 @@ export default mergeConfig(appConfig, {
 		],
 	},
 	nitro: {
-		plugins: ['src/plugins/validate-env.ts'],
+		plugins: [validateEnvPlugin],
 	},
 	staged: {
 		'*': 'vp check --fix',

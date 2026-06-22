@@ -1,4 +1,4 @@
-import { AuthCard } from '@/components/auth-card'
+import { AuthCard } from '@/components/auth/card'
 import { redirectAuthenticatedUsers } from '@/lib/auth/functions'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'

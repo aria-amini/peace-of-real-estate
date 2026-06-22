@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowRight, User } from 'lucide-react'
 import { useState } from 'react'
 
-import { FlowPageShell } from '@/components/flow-page-shell'
+import { FlowPageShell } from '@/components/flow/page-shell'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'

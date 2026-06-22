@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CheckCircle2, CreditCard } from 'lucide-react'
 
-import { FlowPageShell } from '@/components/flow-page-shell'
+import { FlowPageShell } from '@/components/flow/page-shell'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/agent/subscribe')({

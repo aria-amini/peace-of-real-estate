@@ -37,7 +37,8 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from '@/components/ui/sheet'
-import { AgentPreviewCard } from '@/components/match-card-variants'
+import { AgentPreviewCard } from '@/components/match/card'
+import { consumerMatches } from '@/routes/consumer/-components/flow-pages'
 import { createAgentProfileFromDraft } from '@/lib/agent-profile/create-from-draft'
 import {
 	draftToAgentProfileUpdate,
@@ -48,7 +49,6 @@ import { agentQuestionFlow } from '@/lib/matching/questions'
 import { loadAgentProfile } from '@/lib/matching/profile.db'
 import type { AgentProfile } from '@/lib/matching/profile.types'
 import { formatPriceRange, parsePriceRange } from '@/lib/price-range'
-import { consumerMatches } from '@/components/consumer-flow-pages'
 
 function draftToPreviewProfile(draft: AgentDraft): AgentProfile {
 	const update = draftToAgentProfileUpdate(draft)

@@ -14,8 +14,8 @@ import {
 	User,
 } from 'lucide-react'
 
-import { PaywallDialog } from '@/components/paywall-dialog'
-import { SignupDialog } from '@/components/signup-dialog'
+import { PaywallDialog } from '@/components/auth/paywall-dialog'
+import { SignupDialog } from '@/components/auth/signup-dialog'
 import { Button } from '@/components/ui/button'
 import {
 	Card,

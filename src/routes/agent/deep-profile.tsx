@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { AgentDeepProfile } from '@/components/agent-deep-profile-pages'
+import { AgentDeepProfile } from './-components/deep-profile-pages'
 import { getCurrentSession } from '@/lib/auth/functions'
 import { loadAgentProfile } from '@/lib/matching/profile.db'
 

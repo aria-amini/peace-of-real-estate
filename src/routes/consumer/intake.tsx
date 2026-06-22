@@ -1,10 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import {
-	ConsumerIntake,
-	consumerConfig,
-} from '@/components/consumer-flow-pages'
+import { ConsumerIntake, consumerConfig } from './-components/flow-pages'
 import { clearConsumerDraft } from '@/lib/consumer-draft-storage'
 import { getCurrentSession } from '@/lib/auth/functions'
 import {

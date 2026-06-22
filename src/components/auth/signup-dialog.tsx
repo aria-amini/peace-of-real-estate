@@ -1,4 +1,4 @@
-import { AuthCard } from '@/components/auth-card'
+import { AuthCard } from '@/components/auth/card'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,

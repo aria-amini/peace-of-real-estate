@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card'
 import { ChipSelect } from '@/components/ui/chip-select'
 import { Input } from '@/components/ui/input'
-import { PriceInput } from '@/components/price-input'
+import { PriceInput } from '@/components/flow/price-range'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'

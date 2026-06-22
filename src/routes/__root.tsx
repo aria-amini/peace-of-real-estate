@@ -7,8 +7,7 @@ import {
 	createRootRouteWithContext,
 	redirect,
 } from '@tanstack/react-router'
-import { NotFoundComponent } from '@/components/not-found'
-import { ServerErrorComponent } from '@/components/server-error'
+import { NotFoundComponent, ServerErrorComponent } from '@/components/errors'
 import appCss from '../styles.css?url'
 import { PostHogProvider } from 'posthog-js/react'
 

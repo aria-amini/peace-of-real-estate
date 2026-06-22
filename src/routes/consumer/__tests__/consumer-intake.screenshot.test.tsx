@@ -1,10 +1,7 @@
 import '@tests/__mocks__/browser'
 
 import { test } from '@config/test/browser'
-import {
-	ConsumerIntake,
-	consumerConfig,
-} from '@/components/consumer-flow-pages'
+import { ConsumerIntake, consumerConfig } from '../-components/flow-pages'
 
 import { expectComponentScreenshot } from '@tests/utils/component-screenshot'
 
