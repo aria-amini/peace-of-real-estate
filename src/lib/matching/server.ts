@@ -5,7 +5,6 @@ import { agentProfiles, consumerProfiles, user } from '@/db/tables'
 import { requireUserId } from '@/lib/auth/functions'
 import { calculateFitScore, type AgentMatchData } from '@/lib/matching/scoring'
 import { getAvatarUrl } from '@/lib/s3/avatar'
-import { getSignedVideoUrl } from '@/lib/s3/video'
 
 export async function listAgentMatches(): Promise<AgentMatchData[]> {
 	const userId = await requireUserId()
@@ -41,10 +40,7 @@ export async function listAgentMatches(): Promise<AgentMatchData[]> {
 
 	return Promise.all(
 		top.map(async ({ row, score }, index) => {
-			const [avatar, introVideo] = await Promise.all([
-				getAvatarUrl(row.user.image),
-				getSignedVideoUrl(row.agent.introVideo),
-			])
+			const avatar = await getAvatarUrl(row.user.image)
 
 			return {
 				id: row.agent.id,
@@ -76,7 +72,6 @@ export async function listAgentMatches(): Promise<AgentMatchData[]> {
 				},
 				isTopMatch: index === 0,
 				...(avatar ? { avatar } : {}),
-				...(introVideo ? { introVideo } : {}),
 			}
 		}),
 	)

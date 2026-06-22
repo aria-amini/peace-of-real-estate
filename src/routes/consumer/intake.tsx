@@ -7,7 +7,10 @@ import {
 } from '@/components/consumer-flow-pages'
 import { clearConsumerDraft } from '@/lib/consumer-draft-storage'
 import { getCurrentSession } from '@/lib/auth/functions'
-import { loadConsumerProfile } from '@/lib/matching/profile.db'
+import {
+	hasCompletedConsumerIntake,
+	loadConsumerProfile,
+} from '@/lib/matching/profile.db'
 
 const intakeSearchSchema = z.object({
 	step: z.enum(['intro', 'situation', 'quiz']).default('intro').catch('intro'),
@@ -32,7 +35,7 @@ export const Route = createFileRoute('/consumer/intake')({
 			if (session) {
 				const profile = await loadConsumerProfile()
 
-				if (profile) {
+				if (hasCompletedConsumerIntake(profile)) {
 					throw redirect({ to: '/matches' })
 				}
 			}

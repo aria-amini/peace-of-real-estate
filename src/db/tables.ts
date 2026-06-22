@@ -192,7 +192,6 @@ export const agentProfiles = pgTable(
 		clientFirstTerms: text('client_first_terms'),
 		valueProposition: text('value_proposition'),
 		usePaxWriter: boolean('use_pax_writer').default(true).notNull(),
-		introVideo: text('intro_video'),
 		licenseAttested: boolean('license_attested').default(false).notNull(),
 		eoInsuranceStatus: text('eo_insurance_status'),
 		peacePactSigned: boolean('peace_pact_signed').default(false).notNull(),

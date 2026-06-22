@@ -1,7 +1,7 @@
 [build]
 builder = "RAILPACK"
-buildCommand = "APP_ENV=production vp build"
-preDeployCommand = "APP_ENV=production vp run db:push"
+buildCommand = "vp build"
+preDeployCommand = "vp run db:push"
 
 [deploy]
 runtime = "V2"

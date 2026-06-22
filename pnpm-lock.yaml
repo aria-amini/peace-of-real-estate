@@ -75,9 +75,6 @@ importers:
       '@tanstack/router-plugin':
         specifier: ^1.166.7
         version: 1.168.6(@tanstack/react-router@1.170.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0))
-      '@varlock/vite-integration':
-        specifier: ^1.1.3
-        version: 1.1.3(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0))(varlock@1.7.2)
       '@vitejs/plugin-react':
         specifier: ^6.0.2
         version: 6.0.2(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0))(rolldown@1.1.0))(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0))(babel-plugin-react-compiler@1.0.0)
@@ -126,9 +123,6 @@ importers:
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
-      varlock:
-        specifier: ^1.7.2
-        version: 1.7.2
       vite-plugin-svgr:
         specifier: ^5.2.0
         version: 5.2.0(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0))(typescript@6.0.2)
@@ -3088,13 +3082,6 @@ packages:
   '@types/validate-npm-package-name@4.0.2':
     resolution: {integrity: sha512-lrpDziQipxCEeK5kWxvljWYhUvOiB2A9izZd9B2AFarYAkqZshb4lPbRs7zKEic6eGtH8V/2qJW+dPp9OtF6bw==}
 
-  '@varlock/vite-integration@1.1.3':
-    resolution: {integrity: sha512-HCpdg6nPn3Oyf6NFLJ/+nXcupQ8fXhXjka6pXVC02wdTygyQTbqChQOK4BrHrBNmyzDjG6TktN/EN81o6iza9A==}
-    engines: {node: '>=22'}
-    peerDependencies:
-      varlock: ^1.5.0
-      vite: '>=5'
-
   '@vercel/functions@3.6.0':
     resolution: {integrity: sha512-Xj68JYqqJwtqFWJN7EWmFN7MOiUjv5whjw48UEKqQbg8r7hRkhuJhncTU0ba3jJCh/wxEuLWckrtsKcrHQraxw==}
     engines: {node: '>= 20'}
@@ -5838,11 +5825,6 @@ packages:
   validate-npm-package-name@7.0.2:
     resolution: {integrity: sha512-hVDIBwsRruT73PbK7uP5ebUt+ezEtCmzZz3F59BSr2F6OVFnJ/6h8liuvdLrQ88Xmnk6/+xGGuq+pG9WwTuy3A==}
     engines: {node: ^20.17.0 || >=22.9.0}
-
-  varlock@1.7.2:
-    resolution: {integrity: sha512-ZiyKMPW/NStvroygZynKSukVfq1auC3Nq06Eu3qkrMVaEPeSeI64TbWE5QCW0Eo9pWlu/as/Yl+OnhL8f/guRw==}
-    engines: {bun: '>=1.3.3', node: '>=22'}
-    hasBin: true
 
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
@@ -8835,11 +8817,6 @@ snapshots:
 
   '@types/validate-npm-package-name@4.0.2': {}
 
-  '@varlock/vite-integration@1.1.3(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0))(varlock@1.7.2)':
-    dependencies:
-      varlock: 1.7.2
-      vite: '@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.2)(yaml@2.9.0)'
-
   '@vercel/functions@3.6.0(@aws-sdk/credential-provider-web-identity@3.972.42)':
     dependencies:
       '@vercel/oidc': 3.4.1
@@ -11455,8 +11432,6 @@ snapshots:
   uuid@10.0.0: {}
 
   validate-npm-package-name@7.0.2: {}
-
-  varlock@1.7.2: {}
 
   vary@1.1.2: {}
 

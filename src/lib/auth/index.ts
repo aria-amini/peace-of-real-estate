@@ -1,6 +1,6 @@
 import { getDb } from '@/db/connection'
 import { account, session, user, verification } from '@/db/tables'
-import { env, isProductionRuntime } from '@/env'
+import { serverEnv as env } from '@/env.server'
 
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { createAuthMiddleware } from 'better-auth/api'
@@ -110,11 +110,10 @@ export function getAuth() {
 	if (!authInstance) {
 		const betterAuthUrl = env.BETTER_AUTH_URL
 		const betterAuthSecret = env.BETTER_AUTH_SECRET
-		const oAuthProxySecret = env.OAUTH_PROXY_SECRET ?? betterAuthSecret
 		const googleClientId = env.GOOGLE_CLIENT_ID
 		const googleClientSecret = env.GOOGLE_CLIENT_SECRET
 		const localAuthEnabled =
-			!isProductionRuntime() ||
+			import.meta.env.DEV ||
 			(betterAuthUrl ? isLoopbackURL(betterAuthUrl) : false)
 		const localHosts = localAuthEnabled ? ['127.0.0.1:*', 'localhost:*'] : []
 
@@ -177,7 +176,7 @@ export function getAuth() {
 					? [
 							oAuthProxy({
 								productionURL: productionAppOrigin,
-								secret: oAuthProxySecret,
+								secret: betterAuthSecret,
 							}),
 						]
 					: []),

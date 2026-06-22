@@ -1,9 +1,7 @@
-import { ENV } from 'varlock/env'
-import type { PublicTypedEnvSchema, TypedEnvSchema } from 'varlock/env'
+import { z } from 'zod'
 
-export const env: TypedEnvSchema = ENV
-export const publicEnv: PublicTypedEnvSchema = ENV
-
-export function isProductionRuntime() {
-	return env.APP_ENV === 'production' || env.APP_ENV === 'staging'
-}
+export const clientEnv = z
+	.object({
+		VITE_PUBLIC_POSTHOG_KEY: z.string().optional(),
+	})
+	.parse(import.meta.env)

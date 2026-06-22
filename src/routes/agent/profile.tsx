@@ -27,7 +27,6 @@ const textFields = [
 	['yearsLicensed', 'Years licensed'],
 	['averageTransactions', 'Avg transactions / year (last 3 years)'],
 	['licenseProof', 'Proof of current license URL or note'],
-	['introVideo', 'Short introduction video link'],
 ] as const
 
 const emptyProfile: AgentProfileUpdate = {
@@ -49,7 +48,6 @@ const emptyProfile: AgentProfileUpdate = {
 	clientFirstTerms: '',
 	valueProposition: '',
 	usePaxWriter: true,
-	introVideo: '',
 }
 
 function AgentProfile() {

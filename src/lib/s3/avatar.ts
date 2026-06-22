@@ -1,5 +1,5 @@
 import { getSignedDownloadUrl, resolvePublicOrSignedUrl } from '@/lib/s3'
-import { env } from '@/env'
+import { serverEnv as env } from '@/env.server'
 
 export async function getAvatarUrl(
 	image: string | null | undefined,
