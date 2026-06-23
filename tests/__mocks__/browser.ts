@@ -76,27 +76,8 @@ const mockMatches = [
 	},
 ]
 
-vi.stubGlobal(
-	'fetch',
-	vi.fn(async (input: RequestInfo | URL) => {
-		const url =
-			typeof input === 'string'
-				? input
-				: input instanceof URL
-					? input.toString()
-					: input.url
-		if (url.includes('/api/agent-matches')) {
-			return new Response(JSON.stringify(mockMatches), {
-				status: 200,
-				headers: { 'Content-Type': 'application/json' },
-			})
-		}
-		return new Response(null, { status: 404 })
-	}),
-)
-
-vi.mock('@/lib/matching/matches.server', () => ({
-	listAgentMatches: () => Promise.resolve(mockMatches),
+vi.mock('@/lib/matching/server', () => ({
+	loadAgentMatches: () => Promise.resolve(mockMatches),
 }))
 
 vi.mock('@/lib/matching/profile.db', () => ({

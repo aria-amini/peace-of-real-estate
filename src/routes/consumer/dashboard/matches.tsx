@@ -29,9 +29,9 @@ import { ConsumerSidebarShell } from '@/routes/consumer/dashboard/-components/sh
 import type { MatchDetails } from '@/components/match/card'
 import { PaywallDialog } from '@/components/auth/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
-import type { AgentMatchData } from '@/lib/matching/scoring'
 import { isUserPremium } from '@/lib/premium'
 import { getCurrentSession } from '@/lib/auth/functions'
+import { loadAgentMatches } from '@/lib/matching/server'
 import { loadConsumerProfile } from '@/lib/matching/profile.db'
 import {
 	getAnswerSummary,
@@ -176,13 +176,7 @@ function Matches() {
 
 	const { data: matches = [], isLoading } = useQuery({
 		queryKey: ['agent-matches'],
-		queryFn: async () => {
-			const response = await fetch('/api/agent-matches')
-			if (!response.ok) {
-				throw new Error(`Failed to load agent matches: ${response.status}`)
-			}
-			return response.json() as Promise<AgentMatchData[]>
-		},
+		queryFn: loadAgentMatches,
 	})
 	const { data: consumerProfile } = useQuery({
 		queryKey: ['consumer-profile'],

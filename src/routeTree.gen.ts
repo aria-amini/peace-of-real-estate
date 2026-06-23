@@ -15,7 +15,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConsumerIndexRouteImport } from './routes/consumer/index'
 import { Route as AgentIndexRouteImport } from './routes/agent/index'
 import { Route as ConsumerDashboardRouteImport } from './routes/consumer/dashboard'
-import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
 import { Route as AgentDashboardRouteImport } from './routes/agent/dashboard'
 import { Route as ConsumerSignupIndexRouteImport } from './routes/consumer/signup/index'
 import { Route as ConsumerDashboardIndexRouteImport } from './routes/consumer/dashboard/index'
@@ -26,7 +25,6 @@ import { Route as ConsumerDashboardPracticeNegotiatingRouteImport } from './rout
 import { Route as ConsumerDashboardMatchesRouteImport } from './routes/consumer/dashboard/matches'
 import { Route as ConsumerDashboardIntroductionsRouteImport } from './routes/consumer/dashboard/introductions'
 import { Route as ApiIngestSplatRouteImport } from './routes/api/ingest/$'
-import { Route as ApiBetaAuthRouteImport } from './routes/api/beta/auth'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AgentDashboardValuePropositionRouteImport } from './routes/agent/dashboard/value-proposition'
 import { Route as AgentDashboardSubscribeRouteImport } from './routes/agent/dashboard/subscribe'
@@ -64,11 +62,6 @@ const AgentIndexRoute = AgentIndexRouteImport.update({
 const ConsumerDashboardRoute = ConsumerDashboardRouteImport.update({
   id: '/consumer/dashboard',
   path: '/consumer/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAgentMatchesRoute = ApiAgentMatchesRouteImport.update({
-  id: '/api/agent-matches',
-  path: '/api/agent-matches',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentDashboardRoute = AgentDashboardRouteImport.update({
@@ -125,11 +118,6 @@ const ApiIngestSplatRoute = ApiIngestSplatRouteImport.update({
   path: '/api/ingest/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBetaAuthRoute = ApiBetaAuthRouteImport.update({
-  id: '/api/beta/auth',
-  path: '/api/beta/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -179,7 +167,6 @@ export interface FileRoutesByFullPath {
   '/beta': typeof BetaRoute
   '/login': typeof LoginRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
-  '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/consumer/dashboard': typeof ConsumerDashboardRouteWithChildren
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
@@ -190,7 +177,6 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard/subscribe': typeof AgentDashboardSubscribeRoute
   '/agent/dashboard/value-proposition': typeof AgentDashboardValuePropositionRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/consumer/dashboard/introductions': typeof ConsumerDashboardIntroductionsRoute
   '/consumer/dashboard/matches': typeof ConsumerDashboardMatchesRoute
@@ -206,7 +192,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/beta': typeof BetaRoute
   '/login': typeof LoginRoute
-  '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/agent': typeof AgentIndexRoute
   '/consumer': typeof ConsumerIndexRoute
   '/agent/dashboard/compliance': typeof AgentDashboardComplianceRoute
@@ -216,7 +201,6 @@ export interface FileRoutesByTo {
   '/agent/dashboard/subscribe': typeof AgentDashboardSubscribeRoute
   '/agent/dashboard/value-proposition': typeof AgentDashboardValuePropositionRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/consumer/dashboard/introductions': typeof ConsumerDashboardIntroductionsRoute
   '/consumer/dashboard/matches': typeof ConsumerDashboardMatchesRoute
@@ -234,7 +218,6 @@ export interface FileRoutesById {
   '/beta': typeof BetaRoute
   '/login': typeof LoginRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
-  '/api/agent-matches': typeof ApiAgentMatchesRoute
   '/consumer/dashboard': typeof ConsumerDashboardRouteWithChildren
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
@@ -245,7 +228,6 @@ export interface FileRoutesById {
   '/agent/dashboard/subscribe': typeof AgentDashboardSubscribeRoute
   '/agent/dashboard/value-proposition': typeof AgentDashboardValuePropositionRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/beta/auth': typeof ApiBetaAuthRoute
   '/api/ingest/$': typeof ApiIngestSplatRoute
   '/consumer/dashboard/introductions': typeof ConsumerDashboardIntroductionsRoute
   '/consumer/dashboard/matches': typeof ConsumerDashboardMatchesRoute
@@ -264,7 +246,6 @@ export interface FileRouteTypes {
     | '/beta'
     | '/login'
     | '/agent/dashboard'
-    | '/api/agent-matches'
     | '/consumer/dashboard'
     | '/agent/'
     | '/consumer/'
@@ -275,7 +256,6 @@ export interface FileRouteTypes {
     | '/agent/dashboard/subscribe'
     | '/agent/dashboard/value-proposition'
     | '/api/auth/$'
-    | '/api/beta/auth'
     | '/api/ingest/$'
     | '/consumer/dashboard/introductions'
     | '/consumer/dashboard/matches'
@@ -291,7 +271,6 @@ export interface FileRouteTypes {
     | '/'
     | '/beta'
     | '/login'
-    | '/api/agent-matches'
     | '/agent'
     | '/consumer'
     | '/agent/dashboard/compliance'
@@ -301,7 +280,6 @@ export interface FileRouteTypes {
     | '/agent/dashboard/subscribe'
     | '/agent/dashboard/value-proposition'
     | '/api/auth/$'
-    | '/api/beta/auth'
     | '/api/ingest/$'
     | '/consumer/dashboard/introductions'
     | '/consumer/dashboard/matches'
@@ -318,7 +296,6 @@ export interface FileRouteTypes {
     | '/beta'
     | '/login'
     | '/agent/dashboard'
-    | '/api/agent-matches'
     | '/consumer/dashboard'
     | '/agent/'
     | '/consumer/'
@@ -329,7 +306,6 @@ export interface FileRouteTypes {
     | '/agent/dashboard/subscribe'
     | '/agent/dashboard/value-proposition'
     | '/api/auth/$'
-    | '/api/beta/auth'
     | '/api/ingest/$'
     | '/consumer/dashboard/introductions'
     | '/consumer/dashboard/matches'
@@ -347,12 +323,10 @@ export interface RootRouteChildren {
   BetaRoute: typeof BetaRoute
   LoginRoute: typeof LoginRoute
   AgentDashboardRoute: typeof AgentDashboardRouteWithChildren
-  ApiAgentMatchesRoute: typeof ApiAgentMatchesRoute
   ConsumerDashboardRoute: typeof ConsumerDashboardRouteWithChildren
   AgentIndexRoute: typeof AgentIndexRoute
   ConsumerIndexRoute: typeof ConsumerIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiBetaAuthRoute: typeof ApiBetaAuthRoute
   ApiIngestSplatRoute: typeof ApiIngestSplatRoute
   AgentSignupIndexRoute: typeof AgentSignupIndexRoute
   ConsumerSignupIndexRoute: typeof ConsumerSignupIndexRoute
@@ -401,13 +375,6 @@ declare module '@tanstack/react-router' {
       path: '/consumer/dashboard'
       fullPath: '/consumer/dashboard'
       preLoaderRoute: typeof ConsumerDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/agent-matches': {
-      id: '/api/agent-matches'
-      path: '/api/agent-matches'
-      fullPath: '/api/agent-matches'
-      preLoaderRoute: typeof ApiAgentMatchesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent/dashboard': {
@@ -478,13 +445,6 @@ declare module '@tanstack/react-router' {
       path: '/api/ingest/$'
       fullPath: '/api/ingest/$'
       preLoaderRoute: typeof ApiIngestSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/beta/auth': {
-      id: '/api/beta/auth'
-      path: '/api/beta/auth'
-      fullPath: '/api/beta/auth'
-      preLoaderRoute: typeof ApiBetaAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -596,12 +556,10 @@ const rootRouteChildren: RootRouteChildren = {
   BetaRoute: BetaRoute,
   LoginRoute: LoginRoute,
   AgentDashboardRoute: AgentDashboardRouteWithChildren,
-  ApiAgentMatchesRoute: ApiAgentMatchesRoute,
   ConsumerDashboardRoute: ConsumerDashboardRouteWithChildren,
   AgentIndexRoute: AgentIndexRoute,
   ConsumerIndexRoute: ConsumerIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiBetaAuthRoute: ApiBetaAuthRoute,
   ApiIngestSplatRoute: ApiIngestSplatRoute,
   AgentSignupIndexRoute: AgentSignupIndexRoute,
   ConsumerSignupIndexRoute: ConsumerSignupIndexRoute,

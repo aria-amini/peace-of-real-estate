@@ -5,18 +5,11 @@ import { ArrowRight, Lock, ShieldCheck, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { authenticateBeta } from '@/lib/beta-auth'
 
-async function authenticateBeta(password: string) {
+async function authenticateBetaWithPassword(password: string) {
 	try {
-		const response = await fetch('/api/beta/auth', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ password }),
-		})
-
-		if (!response.ok) return 'server-error'
-
-		const data = await response.json()
+		const data = await authenticateBeta({ data: { password } })
 		return data.success ? 'success' : 'invalid'
 	} catch {
 		return 'server-error'
@@ -40,7 +33,7 @@ function BetaLogin() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		const authResult = await authenticateBeta(password)
+		const authResult = await authenticateBetaWithPassword(password)
 
 		if (authResult === 'success') {
 			setError(null)

@@ -18,7 +18,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import type { AgentMatchData } from '@/lib/matching/scoring'
+import { loadAgentMatches } from '@/lib/matching/server'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/consumer/dashboard/introductions')({
@@ -46,13 +46,7 @@ const introductionSteps = [
 function Introductions() {
 	const { data: matches = [], isLoading } = useQuery({
 		queryKey: ['agent-matches'],
-		queryFn: async () => {
-			const response = await fetch('/api/agent-matches')
-			if (!response.ok) {
-				throw new Error(`Failed to load agent matches: ${response.status}`)
-			}
-			return response.json() as Promise<AgentMatchData[]>
-		},
+		queryFn: loadAgentMatches,
 	})
 	const introductionCandidates = matches.slice(0, 3)
 
