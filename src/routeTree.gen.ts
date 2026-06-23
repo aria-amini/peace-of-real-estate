@@ -15,7 +15,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConsumerIndexRouteImport } from './routes/consumer/index'
 import { Route as AgentIndexRouteImport } from './routes/agent/index'
 import { Route as ConsumerDashboardRouteImport } from './routes/consumer/dashboard'
-import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAgentMatchesRouteImport } from './routes/api/agent-matches'
 import { Route as AgentDashboardRouteImport } from './routes/agent/dashboard'
 import { Route as ConsumerSignupIndexRouteImport } from './routes/consumer/signup/index'
@@ -65,11 +64,6 @@ const AgentIndexRoute = AgentIndexRouteImport.update({
 const ConsumerDashboardRoute = ConsumerDashboardRouteImport.update({
   id: '/consumer/dashboard',
   path: '/consumer/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: '/api/health',
-  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgentMatchesRoute = ApiAgentMatchesRouteImport.update({
@@ -186,7 +180,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/api/agent-matches': typeof ApiAgentMatchesRoute
-  '/api/health': typeof ApiHealthRoute
   '/consumer/dashboard': typeof ConsumerDashboardRouteWithChildren
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
@@ -214,7 +207,6 @@ export interface FileRoutesByTo {
   '/beta': typeof BetaRoute
   '/login': typeof LoginRoute
   '/api/agent-matches': typeof ApiAgentMatchesRoute
-  '/api/health': typeof ApiHealthRoute
   '/agent': typeof AgentIndexRoute
   '/consumer': typeof ConsumerIndexRoute
   '/agent/dashboard/compliance': typeof AgentDashboardComplianceRoute
@@ -243,7 +235,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/agent/dashboard': typeof AgentDashboardRouteWithChildren
   '/api/agent-matches': typeof ApiAgentMatchesRoute
-  '/api/health': typeof ApiHealthRoute
   '/consumer/dashboard': typeof ConsumerDashboardRouteWithChildren
   '/agent/': typeof AgentIndexRoute
   '/consumer/': typeof ConsumerIndexRoute
@@ -274,7 +265,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/agent/dashboard'
     | '/api/agent-matches'
-    | '/api/health'
     | '/consumer/dashboard'
     | '/agent/'
     | '/consumer/'
@@ -302,7 +292,6 @@ export interface FileRouteTypes {
     | '/beta'
     | '/login'
     | '/api/agent-matches'
-    | '/api/health'
     | '/agent'
     | '/consumer'
     | '/agent/dashboard/compliance'
@@ -330,7 +319,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/agent/dashboard'
     | '/api/agent-matches'
-    | '/api/health'
     | '/consumer/dashboard'
     | '/agent/'
     | '/consumer/'
@@ -360,7 +348,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   AgentDashboardRoute: typeof AgentDashboardRouteWithChildren
   ApiAgentMatchesRoute: typeof ApiAgentMatchesRoute
-  ApiHealthRoute: typeof ApiHealthRoute
   ConsumerDashboardRoute: typeof ConsumerDashboardRouteWithChildren
   AgentIndexRoute: typeof AgentIndexRoute
   ConsumerIndexRoute: typeof ConsumerIndexRoute
@@ -414,13 +401,6 @@ declare module '@tanstack/react-router' {
       path: '/consumer/dashboard'
       fullPath: '/consumer/dashboard'
       preLoaderRoute: typeof ConsumerDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/health': {
-      id: '/api/health'
-      path: '/api/health'
-      fullPath: '/api/health'
-      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agent-matches': {
@@ -617,7 +597,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   AgentDashboardRoute: AgentDashboardRouteWithChildren,
   ApiAgentMatchesRoute: ApiAgentMatchesRoute,
-  ApiHealthRoute: ApiHealthRoute,
   ConsumerDashboardRoute: ConsumerDashboardRouteWithChildren,
   AgentIndexRoute: AgentIndexRoute,
   ConsumerIndexRoute: ConsumerIndexRoute,
