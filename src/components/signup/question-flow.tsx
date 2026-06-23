@@ -25,8 +25,6 @@ import { cn } from '@/lib/utils/ui'
 
 type Answers = Record<string, AnswerValue>
 
-const SKIPPED_ANSWER = '__skipped__'
-
 type QuestionFlowMode = 'grouped' | 'single-question'
 
 type QuestionFlowProgressState = {
@@ -221,7 +219,7 @@ export function QuestionFlow({
 
 	const handleSkipQuestion = (questionId: string) => {
 		if (ui.isTransitioning) return
-		updateAnswers((prev) => ({ ...prev, [questionId]: SKIPPED_ANSWER }))
+		updateAnswers((prev) => ({ ...prev, [questionId]: null }))
 		advanceAfterAnswer()
 	}
 

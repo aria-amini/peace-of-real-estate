@@ -29,7 +29,6 @@ import {
 	stepOrder,
 	type ConsumerFlowStep,
 } from './-steps/shared'
-import { SKIPPED_ANSWER } from '@/lib/signup/shared'
 
 const signupSearchSchema = z.object({
 	step: z
@@ -124,8 +123,7 @@ function ConsumerSignupRoute() {
 				case 'quiz':
 					return consumerQuestionFlow.questions.every(
 						(q) =>
-							state.answers[q.id] !== undefined &&
-							state.answers[q.id] !== SKIPPED_ANSWER,
+							state.answers[q.id] !== undefined && state.answers[q.id] !== null,
 					)
 				default:
 					return false

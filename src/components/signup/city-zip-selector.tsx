@@ -30,11 +30,12 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { StepLabel } from '@/components/signup/step-header'
 import { cn } from '@/lib/utils/ui'
-import { isValidZipCode, parseCityState } from '@/lib/signup/shared'
 import {
+	isValidZipCode,
 	loadCityCenter,
 	loadCitySuggestions,
 	loadZipCodeBoundaries,
+	parseCityState,
 } from '@/lib/zip-codes'
 
 export type CityZipSelectorProps = {

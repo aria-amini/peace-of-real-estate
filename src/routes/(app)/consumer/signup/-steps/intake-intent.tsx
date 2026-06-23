@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils/ui'
 import type { ConsumerDraft } from '@/lib/drafts'
-import { parseCityState } from '@/lib/signup/shared'
+import { parseCityState } from '@/lib/zip-codes'
 import { MapPinIcon } from '@phosphor-icons/react'
 import { useState } from 'react'
 

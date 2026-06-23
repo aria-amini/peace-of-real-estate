@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseCityState, isValidZipCode } from '@/lib/signup/shared'
+import { isValidZipCode, parseCityState } from '@/lib/zip-codes'
 
-describe('signup shared helpers', () => {
+describe('zip code helpers', () => {
 	it('parses city and state', () => {
 		expect(parseCityState('Austin, TX')).toEqual({
 			city: 'Austin',

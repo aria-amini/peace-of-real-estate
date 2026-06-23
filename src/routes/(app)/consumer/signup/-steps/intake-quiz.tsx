@@ -8,7 +8,6 @@ import {
 import { QuestionFlow } from '@/components/signup/question-flow'
 import { Card, CardContent } from '@/components/ui/card'
 import type { ConsumerDraft } from '@/lib/drafts'
-import { SKIPPED_ANSWER } from '@/lib/signup/shared'
 import { StepHeader } from '@/components/signup/step-header'
 import {
 	consumerQuestionFlow,
@@ -54,7 +53,7 @@ export function ConsumerQuiz({
 						items={consumerQuestionFlow.questions.map(
 							(q) =>
 								state.answers[q.id] !== undefined &&
-								state.answers[q.id] !== SKIPPED_ANSWER,
+								state.answers[q.id] !== null,
 						)}
 						showTitle={false}
 					/>

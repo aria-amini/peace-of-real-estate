@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils/ui'
 import type { AgentDraft } from '@/lib/drafts'
-import { parseCityState } from '@/lib/signup/shared'
+import { parseCityState } from '@/lib/zip-codes'
 import type { RepresentationSide } from '@/lib/matching/profile'
 import {
 	agentQuestionFlow,

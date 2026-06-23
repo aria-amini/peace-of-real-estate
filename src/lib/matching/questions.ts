@@ -9,13 +9,14 @@ export type Question = {
 	allowSkip?: boolean
 }
 
-export type AnswerValue = string | string[]
+export type AnswerValue = string | string[] | null
 
 export type Answers = Record<string, AnswerValue>
 
 export const answerValueSchema: z.ZodType<AnswerValue> = z.union([
 	z.string(),
 	z.array(z.string()),
+	z.null(),
 ])
 
 export const answersSchema: z.ZodType<Answers> = z.record(
@@ -253,7 +254,7 @@ export function getAnswerSummary(
 	question: Question,
 	answer: AnswerValue | undefined,
 ): string {
-	if (answer === undefined || answer === '') {
+	if (answer === undefined || answer === '' || answer === null) {
 		return 'Not answered'
 	}
 
@@ -273,7 +274,7 @@ export function getMultiSelectSummary(
 	question: Question,
 	answer: AnswerValue | undefined,
 ): string[] {
-	if (answer === undefined) return []
+	if (answer === undefined || answer === null) return []
 	if (Array.isArray(answer)) {
 		return answer
 			.map((slug) => question.options[slug])
