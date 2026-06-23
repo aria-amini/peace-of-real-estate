@@ -326,7 +326,7 @@ export function ConsumerLocation({
 
 	const { data: locationSuggestions = [] } = useQuery({
 		queryKey: ['city-suggestions', locationQuery],
-		queryFn: () => loadCitySuggestions(locationQuery),
+		queryFn: () => loadCitySuggestions({ data: locationQuery }),
 		enabled: locationQuery.trim().length >= 0,
 		staleTime: 1000 * 60 * 60,
 	})
@@ -335,7 +335,7 @@ export function ConsumerLocation({
 		queryKey: ['city-zip-codes', committedLocation],
 		queryFn: async () => {
 			if (!cityState) return []
-			return loadCityZipCodes(cityState)
+			return loadCityZipCodes({ data: cityState })
 		},
 		enabled: marketComplete && Boolean(cityState),
 		staleTime: 1000 * 60 * 60,
@@ -352,7 +352,7 @@ export function ConsumerLocation({
 					features: [],
 				} satisfies FeatureCollection
 			}
-			return loadZipCodeBoundaries(cityState)
+			return loadZipCodeBoundaries({ data: cityState })
 		},
 		enabled: marketComplete && Boolean(cityState),
 		staleTime: 1000 * 60 * 60,
@@ -362,7 +362,7 @@ export function ConsumerLocation({
 		queryKey: ['city-center', committedLocation],
 		queryFn: async () => {
 			if (!cityState) return undefined
-			return loadCityCenter(cityState)
+			return loadCityCenter({ data: cityState })
 		},
 		enabled: marketComplete && Boolean(cityState),
 		staleTime: 1000 * 60 * 60,

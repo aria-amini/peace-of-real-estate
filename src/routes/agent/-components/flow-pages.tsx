@@ -511,7 +511,7 @@ export function AgentMarket({
 
 	const { data: locationSuggestions = [] } = useQuery({
 		queryKey: ['city-suggestions', locationQuery],
-		queryFn: () => loadCitySuggestions(locationQuery),
+		queryFn: () => loadCitySuggestions({ data: locationQuery }),
 		enabled: locationQuery.trim().length >= 0,
 		staleTime: 1000 * 60 * 60,
 	})
@@ -525,7 +525,7 @@ export function AgentMarket({
 					features: [],
 				} satisfies FeatureCollection
 			}
-			return loadZipCodeBoundaries(cityState)
+			return loadZipCodeBoundaries({ data: cityState })
 		},
 		enabled: marketComplete && Boolean(cityState),
 		staleTime: 1000 * 60 * 60,
@@ -535,7 +535,7 @@ export function AgentMarket({
 		queryKey: ['city-center', committedLocation],
 		queryFn: async () => {
 			if (!cityState) return undefined
-			return loadCityCenter(cityState)
+			return loadCityCenter({ data: cityState })
 		},
 		enabled: marketComplete && Boolean(cityState),
 		staleTime: 1000 * 60 * 60,
