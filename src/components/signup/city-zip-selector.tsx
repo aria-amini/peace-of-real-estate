@@ -36,7 +36,7 @@ import {
 	loadCitySuggestions,
 	loadZipCodeBoundaries,
 	parseCityState,
-} from '@/lib/zip-codes'
+} from '@/lib/geography/zip'
 
 export type CityZipSelectorProps = {
 	id?: string

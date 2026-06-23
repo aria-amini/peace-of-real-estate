@@ -44,76 +44,7 @@ import {
 } from '@/components/signup/price-range'
 import { cn } from '@/lib/utils/ui'
 
-const stateNames: Record<string, string> = {
-	AL: 'Alabama',
-	AK: 'Alaska',
-	AZ: 'Arizona',
-	AR: 'Arkansas',
-	CA: 'California',
-	CO: 'Colorado',
-	CT: 'Connecticut',
-	DE: 'Delaware',
-	DC: 'District_of_Columbia',
-	FL: 'Florida',
-	GA: 'Georgia',
-	HI: 'Hawaii',
-	ID: 'Idaho',
-	IL: 'Illinois',
-	IN: 'Indiana',
-	IA: 'Iowa',
-	KS: 'Kansas',
-	KY: 'Kentucky',
-	LA: 'Louisiana',
-	ME: 'Maine',
-	MD: 'Maryland',
-	MA: 'Massachusetts',
-	MI: 'Michigan',
-	MN: 'Minnesota',
-	MS: 'Mississippi',
-	MO: 'Missouri',
-	MT: 'Montana',
-	NE: 'Nebraska',
-	NV: 'Nevada',
-	NH: 'New_Hampshire',
-	NJ: 'New_Jersey',
-	NM: 'New_Mexico',
-	NY: 'New_York',
-	NC: 'North_Carolina',
-	ND: 'North_Dakota',
-	OH: 'Ohio',
-	OK: 'Oklahoma',
-	OR: 'Oregon',
-	PA: 'Pennsylvania',
-	RI: 'Rhode_Island',
-	SC: 'South_Carolina',
-	SD: 'South_Dakota',
-	TN: 'Tennessee',
-	TX: 'Texas',
-	UT: 'Utah',
-	VT: 'Vermont',
-	VA: 'Virginia',
-	WA: 'Washington',
-	WV: 'West_Virginia',
-	WI: 'Wisconsin',
-	WY: 'Wyoming',
-}
-
-const stateAbbreviations = new Set(Object.keys(stateNames))
-
-function resolveStateCode(...values: Array<string | undefined>) {
-	for (const value of values) {
-		if (!value) continue
-		const normalized = value.trim().toUpperCase()
-		if (stateAbbreviations.has(normalized)) return normalized
-
-		const stateMatch = normalized.match(/\b[A-Z]{2}\b(?=\s*$|\s*,|\s+\d{5})/)
-		if (stateMatch && stateAbbreviations.has(stateMatch[0])) {
-			return stateMatch[0]
-		}
-	}
-
-	return undefined
-}
+import { resolveStateCode } from '@/lib/geography/states'
 
 function statIcon(label: string) {
 	const normalized = label.toLowerCase()
@@ -306,7 +237,7 @@ function PreferencesSummaryCard({
 	state?: string | undefined
 }) {
 	const items = getPreferenceSummaryItems(settings)
-	const stateSvgFile = state ? stateNames[state] : null
+	const stateSvgFile = state ? `/states/${state}.svg` : null
 
 	return (
 		<Card className="p-4">
@@ -316,7 +247,7 @@ function PreferencesSummaryCard({
 						<div className="bg-primary/8 text-primary flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl">
 							{stateSvgFile ? (
 								<img
-									src={`/states/${stateSvgFile}.svg`}
+									src={stateSvgFile}
 									alt={`${state} state icon`}
 									className="h-8 w-8 object-contain opacity-85"
 								/>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isValidZipCode, parseCityState } from '@/lib/zip-codes'
+import { isValidZipCode, parseCityState } from '@/lib/geography/zip'
 
 describe('zip code helpers', () => {
 	it('parses city and state', () => {
