@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils/ui'
 import type { AgentDraft } from '@/lib/drafts'
-import { StepHeader } from './shared'
+import { StepHeader } from '@/components/signup/step-header'
 
 export function AgentPeacePact({
 	state,

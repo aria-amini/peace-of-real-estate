@@ -35,9 +35,9 @@ vi.mock('@/lib/premium', () => ({
 	upgradeToPremium: () => ({ success: true }),
 }))
 
-vi.mock('@/lib/auth/beta', () => ({
-	checkBetaAuthClient: () => true,
-	checkBetaAuthServer: async () => true,
+vi.mock('@/lib/beta', () => ({
+	authenticateBeta: async () => ({ success: true }),
+	hasBetaAccess: () => true,
 }))
 
 vi.mock('@/routes/__root', async () => {

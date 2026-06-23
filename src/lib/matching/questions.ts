@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 export type Question = {
 	id: string
 	title: string
@@ -10,6 +12,16 @@ export type Question = {
 export type AnswerValue = string | string[]
 
 export type Answers = Record<string, AnswerValue>
+
+export const answerValueSchema: z.ZodType<AnswerValue> = z.union([
+	z.string(),
+	z.array(z.string()),
+])
+
+export const answersSchema: z.ZodType<Answers> = z.record(
+	z.string(),
+	answerValueSchema,
+)
 
 export const consumerQuestions = [
 	{

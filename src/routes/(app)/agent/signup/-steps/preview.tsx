@@ -29,7 +29,7 @@ import {
 	formatPriceRange,
 	parsePriceRange,
 } from '@/components/signup/price-range-utils'
-import { useIsBelowDesktop } from './use-is-below-desktop'
+import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
 
 export function draftToPreviewProfile(draft: AgentDraft): AgentProfile {
 	const update = draftToAgentProfileUpdate(draft)

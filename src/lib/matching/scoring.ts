@@ -1,3 +1,7 @@
+import {
+	AGENT_PRICE_RANGES,
+	parsePriceRange,
+} from '@/components/signup/price-range-utils'
 import type { AgentProfile, ConsumerProfile } from '@/lib/matching/profile'
 
 export interface AgentMatchData {
@@ -105,28 +109,6 @@ function hasOverlap(
 ): boolean {
 	if (!a || a.length === 0 || !b || b.length === 0) return false
 	return a.some((value) => b.includes(value))
-}
-
-const AGENT_PRICE_RANGES: Record<string, { min: number; max: number }> = {
-	under400k: { min: 0, max: 400_000 },
-	'400kTo750k': { min: 400_000, max: 750_000 },
-	'750kTo1_5m': { min: 750_000, max: 1_500_000 },
-	'1_5mPlus': { min: 1_500_000, max: 2_000_000 },
-}
-
-function parsePriceRange(value: string | null | undefined): {
-	min: number
-	max: number
-} {
-	if (!value) return { min: 0, max: 2_000_000 }
-	const [minRaw, maxRaw] = value.split('-')
-	const min = Number.parseInt(minRaw?.replace(/\D/g, '') ?? '', 10)
-	const max = Number.parseInt(maxRaw?.replace(/\D/g, '') ?? '', 10)
-	if (Number.isNaN(min) || Number.isNaN(max)) return { min: 0, max: 2_000_000 }
-	return {
-		min: Math.max(0, Math.min(min, max)),
-		max: Math.min(2_000_000, Math.max(min, max)),
-	}
 }
 
 function priceRangeMatch(

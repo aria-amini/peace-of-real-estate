@@ -3,6 +3,7 @@ import { Check } from 'lucide-react'
 import { useState } from 'react'
 
 import { AnimatedStepCard } from '@/components/signup/shared'
+import { StepHeader } from '@/components/signup/step-header'
 import { PriceInput } from '@/components/signup/price-range'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -20,7 +21,7 @@ import {
 	PRICE_STEP,
 	serializePriceRange,
 } from '@/components/signup/price-range-utils'
-import { consumerConfig, getPropertyIcon, StepHeader } from './shared'
+import { consumerConfig, getPropertyIcon } from './shared'
 
 export function ConsumerHome({
 	state,

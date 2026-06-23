@@ -3,6 +3,11 @@ import { CheckCircle2, CreditCard } from 'lucide-react'
 
 import { FlowPageShell } from '@/components/signup/step-shell'
 import { Button } from '@/components/ui/button'
+import {
+	AGENT_SUBSCRIPTION_PRICE,
+	EXCLUSIVE_INTRO_FEE,
+	SHARED_INTRO_FEE,
+} from '@/lib/pricing'
 
 export const Route = createFileRoute('/(app)/agent/dashboard/subscribe')({
 	component: AgentSubscribe,
@@ -24,7 +29,9 @@ function AgentSubscribe() {
 				Subscribe to go live and start receiving pre-matched consumer
 				introductions.
 			</p>
-			<div className="mt-8 text-center text-5xl">$99 / month</div>
+			<div className="mt-8 text-center text-5xl">
+				${AGENT_SUBSCRIPTION_PRICE} / month
+			</div>
 			<p className="text-muted-foreground mt-2 text-center text-sm">
 				Agent Concierge — keeps your profile active and you visible to matched
 				consumers.
@@ -35,7 +42,7 @@ function AgentSubscribe() {
 					'AI-matched consumers sent directly to you',
 					'Only pre-qualified intros — no tire-kickers',
 					'Pause or cancel anytime',
-					'Selection fees: Shared intro $199 · Exclusive intro $399',
+					`Selection fees: Shared intro $${SHARED_INTRO_FEE} · Exclusive intro $${EXCLUSIVE_INTRO_FEE}`,
 					'You can decline any intro at no charge. Fees only apply when you accept.',
 				].map((item) => (
 					<div key={item} className="flex gap-3 text-sm">

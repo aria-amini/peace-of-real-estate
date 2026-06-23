@@ -9,11 +9,11 @@ import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils/ui'
 import type { ConsumerDraft } from '@/lib/drafts'
 import type { RepresentationSide } from '@/lib/matching/profile'
+import { StepHeader } from '@/components/signup/step-header'
 import {
 	consumerConfig,
 	getIntentIcon,
 	getIntentLabel,
-	StepHeader,
 	timelineOptions,
 } from './shared'
 

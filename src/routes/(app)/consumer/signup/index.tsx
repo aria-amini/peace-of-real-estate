@@ -26,10 +26,10 @@ import {
 import { ConsumerPreview, draftToPreviewProfile } from './-steps/preview'
 import {
 	consumerFlowSteps,
-	SKIPPED_ANSWER,
 	stepOrder,
 	type ConsumerFlowStep,
 } from './-steps/shared'
+import { SKIPPED_ANSWER } from '@/lib/signup/shared'
 
 const signupSearchSchema = z.object({
 	step: z

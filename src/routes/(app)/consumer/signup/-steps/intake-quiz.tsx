@@ -8,6 +8,8 @@ import {
 import { QuestionFlow } from '@/components/signup/question-flow'
 import { Card, CardContent } from '@/components/ui/card'
 import type { ConsumerDraft } from '@/lib/drafts'
+import { SKIPPED_ANSWER } from '@/lib/signup/shared'
+import { StepHeader } from '@/components/signup/step-header'
 import {
 	consumerQuestionFlow,
 	getAnswerSummary,
@@ -15,7 +17,6 @@ import {
 	type Answers,
 	type Question,
 } from '@/lib/matching/questions'
-import { StepHeader, SKIPPED_ANSWER } from './shared'
 
 export function ConsumerQuiz({
 	state,

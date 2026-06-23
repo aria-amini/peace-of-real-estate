@@ -85,9 +85,9 @@ function trimLeadingSlash(value: string) {
 }
 
 function trimSlashes(value: string) {
-	return value.replace(/^\+|\+$/g, '')
+	return value.replace(/^\/|\/$/g, '')
 }
 
 function trimTrailingSlash(value: string) {
-	return value.replace(/\+$/, '')
+	return value.replace(/\/$/, '')
 }

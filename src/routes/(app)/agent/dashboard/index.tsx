@@ -26,6 +26,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { DASHBOARD_PLACEHOLDER_PIPELINE } from '@/lib/pricing'
 import { authClient } from '@/lib/auth/client'
 import { loadAgentProfile } from '@/lib/matching/profile'
 import { agentQuestionFlow } from '@/lib/matching/questions'
@@ -39,16 +40,21 @@ export const Route = createFileRoute('/(app)/agent/dashboard/')({
 })
 
 const pipelineSteps = [
-	{ label: 'New matches', value: '12', icon: Users, tone: 'muted' as const },
+	{
+		label: 'New matches',
+		value: DASHBOARD_PLACEHOLDER_PIPELINE.newMatches.toString(),
+		icon: Users,
+		tone: 'muted' as const,
+	},
 	{
 		label: 'Pending intros',
-		value: '3',
+		value: DASHBOARD_PLACEHOLDER_PIPELINE.pendingIntros.toString(),
 		icon: MessageSquare,
 		tone: 'primary' as const,
 	},
 	{
 		label: 'Active conversations',
-		value: '7',
+		value: DASHBOARD_PLACEHOLDER_PIPELINE.activeConversations.toString(),
 		icon: Home,
 		tone: 'muted' as const,
 	},

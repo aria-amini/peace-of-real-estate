@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils/ui'
 import type { AgentDraft } from '@/lib/drafts'
-import { StepHeader } from './shared'
+import { StepHeader } from '@/components/signup/step-header'
 
 export function AgentCompliance({
 	state,

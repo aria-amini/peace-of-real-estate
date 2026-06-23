@@ -36,7 +36,7 @@ import {
 	formatPriceRange,
 	parsePriceRange,
 } from '@/components/signup/price-range-utils'
-import { useIsBelowDesktop } from './use-is-below-desktop'
+import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
 
 const stateNames: Record<string, string> = {
 	AL: 'Alabama',

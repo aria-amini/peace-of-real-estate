@@ -1,6 +1,7 @@
 import { text } from 'drizzle-orm/pg-core'
 import { createServerFn } from '@tanstack/react-start'
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
 import { getDb } from '@/db/connection'
 import { agentProfiles, consumerProfiles } from '@/db/tables'
@@ -24,13 +25,24 @@ export type AgentProfile = typeof agentProfiles.$inferSelect
 
 export type AgentProfileInsert = typeof agentProfiles.$inferInsert
 
-export type ConsumerProfileUpdate = Partial<
-	Omit<ConsumerProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+const consumerProfileUpdateSchema = z.record(
+	z.string(),
+	z.unknown(),
+) as z.ZodType<
+	Partial<
+		Omit<ConsumerProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+	>
 >
 
-export type AgentProfileUpdate = Partial<
-	Omit<AgentProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+const agentProfileUpdateSchema = z.record(z.string(), z.unknown()) as z.ZodType<
+	Partial<Omit<AgentProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>
 >
+
+export { consumerProfileUpdateSchema, agentProfileUpdateSchema }
+
+export type ConsumerProfileUpdate = z.infer<typeof consumerProfileUpdateSchema>
+
+export type AgentProfileUpdate = z.infer<typeof agentProfileUpdateSchema>
 
 export const sharedProfileColumns = {
 	status: text().$type<ProfileStatus>().default('draft').notNull(),
@@ -107,7 +119,7 @@ const loadConsumerProfile = createServerFn({ method: 'GET' }).handler(
 )
 
 const saveConsumerProfile = createServerFn({ method: 'POST' })
-	.validator((data) => data as ConsumerProfileUpdate)
+	.validator(consumerProfileUpdateSchema)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const db = getDb()
@@ -150,7 +162,7 @@ const loadAgentProfile = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 const saveAgentProfile = createServerFn({ method: 'POST' })
-	.validator((data) => data as AgentProfileUpdate)
+	.validator(agentProfileUpdateSchema)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const db = getDb()
@@ -203,7 +215,7 @@ function isEssentialsComplete(data: AgentProfileUpdate) {
 }
 
 const saveAgentEssentials = createServerFn({ method: 'POST' })
-	.validator((data) => data as AgentProfileUpdate)
+	.validator(agentProfileUpdateSchema)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const db = getDb()

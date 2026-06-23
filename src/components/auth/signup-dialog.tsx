@@ -1,5 +1,4 @@
 import { AuthCard } from '@/components/auth/card'
-import { Button } from '@/components/ui/button'
 import {
 	Dialog,
 	DialogContent,
@@ -43,21 +42,5 @@ export function SignupDialog({
 				<AuthCard mode="sign-up" embedded redirect={redirect} />
 			</DialogContent>
 		</Dialog>
-	)
-}
-
-export function SignupDialogButton({
-	className,
-	variant = 'default',
-}: {
-	className?: string
-	variant?: React.ComponentProps<typeof Button>['variant']
-}) {
-	return (
-		<SignupDialog>
-			<Button className={className} variant={variant}>
-				Create Profile
-			</Button>
-		</SignupDialog>
 	)
 }

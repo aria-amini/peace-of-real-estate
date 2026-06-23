@@ -19,6 +19,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { upgradeToPremium } from '@/lib/premium'
+import { CONSUMER_UNLOCK_PRICE } from '@/lib/pricing'
 
 export function PaywallDialog({
 	open,
@@ -83,7 +84,9 @@ export function PaywallDialog({
 							<h2 className="text-xl font-semibold">
 								Meet the agent who actually fits you.
 							</h2>
-							<div className="mt-6 text-5xl font-bold">$19.99</div>
+							<div className="mt-6 text-5xl font-bold">
+								${CONSUMER_UNLOCK_PRICE}
+							</div>
 							<p className="text-muted-foreground mt-2 text-sm">
 								One-time fee · No subscription · 100% refundable if no match
 							</p>
@@ -146,7 +149,7 @@ export function PaywallDialog({
 								) : (
 									<span className="flex items-center gap-2">
 										<CreditCard className="h-4 w-4" />
-										Unlock Premium — $19.99
+										Unlock Premium — ${CONSUMER_UNLOCK_PRICE}
 									</span>
 								)}
 							</Button>

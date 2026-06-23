@@ -8,7 +8,7 @@ export const PRICE_MAX = 2_000_000
 export const PRICE_STEP = 50_000
 export const DEFAULT_PRICE_RANGE: PriceRange = { min: 400_000, max: 600_000 }
 
-const AGENT_PRICE_RANGES: Record<string, PriceRange> = {
+export const AGENT_PRICE_RANGES: Record<string, PriceRange> = {
 	under400k: { min: 0, max: 400_000 },
 	'400kTo750k': { min: 400_000, max: 750_000 },
 	'750kTo1_5m': { min: 750_000, max: 1_500_000 },

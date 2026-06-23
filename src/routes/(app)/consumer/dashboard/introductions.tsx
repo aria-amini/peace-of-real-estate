@@ -3,7 +3,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import {
 	ArrowRight,
 	CalendarClock,
-	CheckCircle2,
 	Mail,
 	MessageSquare,
 	Users,
@@ -18,6 +17,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { StatusRow } from '@/components/dashboard/status-row'
 import { loadAgentMatches } from '@/lib/matching/server'
 import { cn } from '@/lib/utils/ui'
 
@@ -202,18 +202,6 @@ function Introductions() {
 					</Card>
 				</div>
 			</div>
-		</div>
-	)
-}
-
-function StatusRow({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="flex items-center justify-between rounded-xl border px-3 py-2.5">
-			<div className="flex items-center gap-2">
-				<CheckCircle2 className="text-muted-foreground size-4" />
-				<span>{label}</span>
-			</div>
-			<span className="font-semibold">{value}</span>
 		</div>
 	)
 }
