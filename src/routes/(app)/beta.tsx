@@ -5,7 +5,7 @@ import { ArrowRight, Lock, ShieldCheck, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { authenticateBeta } from '@/lib/beta'
+import { authenticateBeta } from '@/lib/auth/beta'
 
 async function authenticateBetaWithPassword(password: string) {
 	try {
