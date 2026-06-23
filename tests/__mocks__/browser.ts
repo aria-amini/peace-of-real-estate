@@ -80,48 +80,38 @@ vi.mock('@/lib/matching/server', () => ({
 	loadAgentMatches: () => Promise.resolve(mockMatches),
 }))
 
-vi.mock('@/lib/matching/profile.db', () => ({
-	hasCompletedConsumerIntake: (
-		profile:
-			| {
-					preferredContactMethod?: string | null
-					involvementLevel?: string | null
-					representationPreference?: string | null
-					commissionComfort?: string | null
-			  }
-			| null
-			| undefined,
-	) =>
-		Boolean(
-			profile?.preferredContactMethod ||
-			profile?.involvementLevel ||
-			profile?.representationPreference ||
-			profile?.commissionComfort,
-		),
-	loadConsumerProfile: () =>
-		Promise.resolve({
-			id: 'consumer-1',
-			userId: 'user-1',
-			status: 'draft',
-			intent: 'buying',
-			location: 'Austin, TX',
-			state: 'TX',
-			priceRange: '400000-750000',
-			propertyTypes: ['singleFamily'],
-			experienceLevel: 'firstTime',
-			preferredContactMethod: 'text',
-			involvementLevel: 'veryInvolved',
-			representationPreference: 'exclusive',
-			commissionComfort: 'explain',
-			matchPriorities: null,
-			matchDetails: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		}),
-	saveConsumerProfile: () => Promise.resolve(),
-	loadAgentProfile: () => Promise.resolve(null),
-	saveAgentProfile: () => Promise.resolve(),
-}))
+vi.mock('@/lib/matching/profile', async () => {
+	const actual = await vi.importActual<typeof import('@/lib/matching/profile')>(
+		'@/lib/matching/profile',
+	)
+	return {
+		...actual,
+		loadConsumerProfile: () =>
+			Promise.resolve({
+				id: 'consumer-1',
+				userId: 'user-1',
+				status: 'draft',
+				intent: 'buying',
+				location: 'Austin, TX',
+				state: 'TX',
+				priceRange: '400000-750000',
+				propertyTypes: ['singleFamily'],
+				experienceLevel: 'firstTime',
+				preferredContactMethod: 'text',
+				involvementLevel: 'veryInvolved',
+				representationPreference: 'exclusive',
+				commissionComfort: 'explain',
+				matchPriorities: null,
+				matchDetails: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		saveConsumerProfile: () => Promise.resolve(),
+		loadAgentProfile: () => Promise.resolve(null),
+		saveAgentProfile: () => Promise.resolve(),
+		saveAgentEssentials: () => Promise.resolve(),
+	}
+})
 
 vi.mock('@/lib/matching/questions', async () => {
 	const actual = await vi.importActual<
