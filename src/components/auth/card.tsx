@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { useGoogleSignIn } from '@/hooks/use-google-sign-in'
 import { authClient } from '@/lib/auth/client'
 
 type AuthMode = 'sign-in' | 'sign-up'
@@ -34,47 +35,13 @@ export function AuthCard({
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-	const [googleAvailable, setGoogleAvailable] = useState(true)
-
-	const callbackURL =
-		typeof window !== 'undefined'
-			? new URL(resolvedRedirect, window.location.origin).toString()
-			: resolvedRedirect
-
-	const handleGoogleSignIn = async () => {
-		setIsGoogleLoading(true)
-
-		try {
-			const { data, error } = await authClient.signIn.social({
-				provider: 'google',
-				callbackURL,
-			})
-
-			if (error) {
-				throw error
-			}
-
-			window.location.assign(data?.url ?? resolvedRedirect)
-		} catch (error) {
-			if (
-				error &&
-				typeof error === 'object' &&
-				'code' in error &&
-				error.code === 'PROVIDER_NOT_FOUND'
-			) {
-				setGoogleAvailable(false)
-				toast.error(
-					'Google login is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env.development.',
-				)
-			} else {
-				toast.error('Google sign-in failed. Try again.')
-			}
-
-			console.error('Google sign-in failed', error)
-			setIsGoogleLoading(false)
-		}
-	}
+	const {
+		signIn: handleGoogleSignIn,
+		isLoading: isGoogleLoading,
+		isAvailable: googleAvailable,
+	} = useGoogleSignIn({
+		fallbackRedirect: resolvedRedirect,
+	})
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -84,6 +51,11 @@ export function AuthCard({
 		}
 
 		setIsSubmitting(true)
+
+		const callbackURL = new URL(
+			resolvedRedirect,
+			window.location.origin,
+		).toString()
 
 		try {
 			if (isSignUp) {

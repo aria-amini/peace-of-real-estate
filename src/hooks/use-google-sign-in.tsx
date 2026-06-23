@@ -4,19 +4,19 @@ import { toast } from 'sonner'
 import { authClient } from '@/lib/auth/client'
 
 export type UseGoogleSignInOptions = {
-	callbackURL: string
 	fallbackRedirect: string
 }
 
-export function useGoogleSignIn({
-	callbackURL,
-	fallbackRedirect,
-}: UseGoogleSignInOptions) {
+export function useGoogleSignIn({ fallbackRedirect }: UseGoogleSignInOptions) {
 	const [isLoading, setIsLoading] = useState(false)
 	const [isAvailable, setIsAvailable] = useState(true)
 
 	const signIn = async () => {
 		setIsLoading(true)
+		const callbackURL = new URL(
+			fallbackRedirect,
+			window.location.origin,
+		).toString()
 
 		try {
 			const { data, error } = await authClient.signIn.social({
