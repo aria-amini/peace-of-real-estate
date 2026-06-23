@@ -15,20 +15,20 @@ import {
 } from '@/components/ui/sheet'
 import { SignupForm, type SignupFormProps } from './signup-form'
 
-type MobileSignupBannerProps = SignupFormProps & {
+type MobileSignupBannerProps<TData> = SignupFormProps<TData> & {
 	title: string
 	subtitle: string
 	ctaLabel?: string
 	googleLabel?: string
 }
 
-export function MobileSignupBanner({
+export function MobileSignupBanner<TData>({
 	title,
 	subtitle,
 	ctaLabel = 'Create account',
 	googleLabel = 'Google',
 	...signupFormProps
-}: MobileSignupBannerProps) {
+}: MobileSignupBannerProps<TData>) {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 	const redirect = signupFormProps.redirect
 	const callbackURL =

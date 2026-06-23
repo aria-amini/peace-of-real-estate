@@ -30,6 +30,7 @@ import {
 	clearConsumerDraft,
 	createConsumerProfileFromDraft,
 	loadConsumerDraft,
+	type ConsumerDraft,
 } from '@/lib/drafts'
 import { loadConsumerProfile } from '@/lib/matching/profile'
 import { isUserPremium } from '@/lib/premium'
@@ -67,7 +68,7 @@ function ConsumerDashboard() {
 
 		draftCompletionStarted.current = true
 
-		async function completeDraft() {
+		async function completeDraft(draft: ConsumerDraft) {
 			try {
 				await createProfile({ data: draft })
 				clearConsumerDraft()
@@ -77,7 +78,7 @@ function ConsumerDashboard() {
 			}
 		}
 
-		void completeDraft()
+		void completeDraft(draft)
 	}, [createProfile, session])
 
 	if (consumerProfile === undefined) {

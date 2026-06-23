@@ -10,13 +10,11 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 
-type CreateProfileFn = (payload: { data: unknown }) => Promise<unknown>
-
-export type SignupFormProps = {
+export type SignupFormProps<TData = unknown> = {
 	idPrefix?: string
 	redirect: string
-	createProfile: CreateProfileFn
-	loadDraft: () => unknown
+	createProfile: (payload: { data: TData }) => Promise<unknown>
+	loadDraft: () => TData | null
 	clearDraft?: () => void
 	submitLabel?: string
 	namePlaceholder?: string
@@ -25,7 +23,7 @@ export type SignupFormProps = {
 	showTerms?: boolean
 }
 
-export function SignupForm({
+export function SignupForm<TData>({
 	idPrefix = 'signup',
 	redirect,
 	createProfile,
@@ -36,7 +34,7 @@ export function SignupForm({
 	emailPlaceholder = 'you@example.com',
 	passwordPlaceholder = 'Choose a password',
 	showTerms = true,
-}: SignupFormProps) {
+}: SignupFormProps<TData>) {
 	const navigate = useNavigate()
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')

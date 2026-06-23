@@ -1,5 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
 import { requireUserId } from '@/lib/auth/functions'
 import {
@@ -7,16 +6,10 @@ import {
 	consumerProfileColumns,
 	saveAgentEssentials,
 	saveConsumerProfile,
-	agentProfileUpdateSchema,
-	consumerProfileUpdateSchema,
 	type AgentProfileUpdate,
 	type ConsumerProfileUpdate,
 } from '@/lib/matching/profile'
-import {
-	answersSchema,
-	type AnswerValue,
-	type Answers,
-} from '@/lib/matching/questions'
+import { type AnswerValue, type Answers } from '@/lib/matching/questions'
 
 // Draft types extend the DB profile shapes so profile.ts stays the
 // source of truth for profile fields. Extra keys are transient UI state that
@@ -177,28 +170,8 @@ export function draftToAgentProfileUpdate(
 
 //region Server functions
 
-const consumerDraftSchema = z.intersection(
-	consumerProfileUpdateSchema,
-	z.object({
-		city: z.string().optional(),
-		zipCodes: z.array(z.string()).optional(),
-		timeline: z.string().optional(),
-		answers: answersSchema,
-	}),
-) as z.ZodType<ConsumerDraft>
-
-const agentDraftSchema = z.intersection(
-	agentProfileUpdateSchema,
-	z.object({
-		city: z.string().optional(),
-		state: z.string().optional(),
-		zipCodes: z.array(z.string()).optional(),
-		answers: answersSchema.optional(),
-	}),
-) as z.ZodType<AgentDraft>
-
 export const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
-	.validator(consumerDraftSchema)
+	.validator((data: ConsumerDraft) => data)
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToConsumerProfileUpdate(data)
@@ -214,7 +187,7 @@ export const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
 	})
 
 export const createAgentProfileFromDraft = createServerFn({ method: 'POST' })
-	.validator(agentDraftSchema)
+	.validator((data: AgentDraft) => data)
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)
