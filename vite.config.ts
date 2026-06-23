@@ -6,10 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 import babel from '@rolldown/plugin-babel'
 import svgr from 'vite-plugin-svgr'
 import { resolve } from 'node:path'
-import {
-	defineConfig,
-	type UserConfig,
-} from 'vite-plus'
+import { defineConfig, type UserConfig } from 'vite-plus'
 import { playwright } from 'vite-plus/test/browser-playwright'
 
 const fmt = {
@@ -63,7 +60,7 @@ const lint = {
 			rules: {
 				'no-console': 'off',
 			},
-		}
+		},
 	],
 	settings: {
 		'jsx-a11y': { components: {}, attributes: {} },
@@ -101,7 +98,9 @@ export default defineConfig({
 		],
 	},
 	plugins: [
-		tanstackStart({ router: { routeFileIgnorePattern: '(__tests__|\\.test\\.tsx$)' } }),
+		tanstackStart({
+			router: { routeFileIgnorePattern: '(__tests__|\\.test\\.tsx$)' },
+		}),
 		...(process.env.VITEST === 'true'
 			? []
 			: [devtools({ injectSource: { enabled: false } }), nitro()]),
@@ -152,6 +151,5 @@ export default defineConfig({
 				},
 			},
 		],
-	}
+	},
 })
-
