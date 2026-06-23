@@ -151,7 +151,10 @@ function GoogleIcon({ className }: { className?: string }) {
 	)
 }
 
-import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
+import {
+	formatPriceRange,
+	parsePriceRange,
+} from '@/components/flow/price-range-utils'
 function draftToPreviewProfile(draft: ConsumerDraft): ConsumerProfile {
 	const update = draftToConsumerProfileUpdate(draft)
 	const now = new Date()

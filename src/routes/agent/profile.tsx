@@ -9,10 +9,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import {
-	loadAgentProfile,
-	saveAgentProfile,
-} from '@/lib/matching/profile.db'
+import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile.db'
 import type { AgentProfileUpdate } from '@/lib/matching/profile.types'
 import { withSaveToast } from '@/lib/toast'
 

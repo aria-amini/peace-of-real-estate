@@ -34,7 +34,10 @@ import {
 } from '@/lib/drafts'
 import { loadConsumerProfile } from '@/lib/matching/profile.db'
 import { isUserPremium } from '@/lib/premium'
-import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
+import {
+	formatPriceRange,
+	parsePriceRange,
+} from '@/components/flow/price-range-utils'
 
 export const Route = createFileRoute('/consumer/dashboard/')({
 	component: ConsumerDashboard,

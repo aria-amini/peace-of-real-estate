@@ -48,7 +48,10 @@ import {
 import { agentQuestionFlow } from '@/lib/matching/questions'
 import { loadAgentProfile } from '@/lib/matching/profile.db'
 import type { AgentProfile } from '@/lib/matching/profile.types'
-import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
+import {
+	formatPriceRange,
+	parsePriceRange,
+} from '@/components/flow/price-range-utils'
 
 function draftToPreviewProfile(draft: AgentDraft): AgentProfile {
 	const update = draftToAgentProfileUpdate(draft)

@@ -157,4 +157,9 @@ const loadZipCodeBoundaries = createServerFn({ method: 'GET' })
 		} satisfies FeatureCollection
 	})
 
-export { loadCitySuggestions, loadCityZipCodes, loadCityCenter, loadZipCodeBoundaries }
+export {
+	loadCitySuggestions,
+	loadCityZipCodes,
+	loadCityCenter,
+	loadZipCodeBoundaries,
+}

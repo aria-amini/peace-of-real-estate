@@ -55,18 +55,16 @@ const saveConsumerProfile = createServerFn({ method: 'POST' })
 		})
 	})
 
-const loadAgentProfile = createServerFn({ method: 'GET' }).handler(
-	async () => {
-		const userId = await requireUserId()
-		const db = getDb()
-		const [profile] = await db
-			.select()
-			.from(agentProfiles)
-			.where(eq(agentProfiles.userId, userId))
-			.limit(1)
-		return profile ?? null
-	},
-)
+const loadAgentProfile = createServerFn({ method: 'GET' }).handler(async () => {
+	const userId = await requireUserId()
+	const db = getDb()
+	const [profile] = await db
+		.select()
+		.from(agentProfiles)
+		.where(eq(agentProfiles.userId, userId))
+		.limit(1)
+	return profile ?? null
+})
 
 const saveAgentProfile = createServerFn({ method: 'POST' })
 	.inputValidator((data) => data as AgentProfileUpdate)

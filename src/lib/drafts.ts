@@ -148,7 +148,9 @@ export function draftToConsumerProfileUpdate(
 	update.representationPreference = draft.answers.representationPreference as
 		| string
 		| undefined
-	update.commissionComfort = draft.answers.commissionComfort as string | undefined
+	update.commissionComfort = draft.answers.commissionComfort as
+		| string
+		| undefined
 
 	return update
 }

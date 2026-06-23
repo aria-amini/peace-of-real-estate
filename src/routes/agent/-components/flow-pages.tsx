@@ -52,11 +52,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
-import {
-	loadAgentDraft,
-	saveAgentDraft,
-	type AgentDraft,
-} from '@/lib/drafts'
+import { loadAgentDraft, saveAgentDraft, type AgentDraft } from '@/lib/drafts'
 import type { RepresentationSide } from '@/lib/matching/profile.types'
 import {
 	agentQuestionFlow,

@@ -6,10 +6,7 @@ import { useState } from 'react'
 import { FlowPageShell } from '@/components/flow/page-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import {
-	loadAgentProfile,
-	saveAgentProfile,
-} from '@/lib/matching/profile.db'
+import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile.db'
 import { withSaveToast } from '@/lib/toast'
 
 export const Route = createFileRoute('/agent/chat')({
