@@ -185,15 +185,12 @@ export type AgentProfileUpdate = Partial<
 >
 
 const saveConsumerProfile = createServerFn({ method: 'POST' })
-	// no .validator(...)
-	.handler(async ({ data }: { data: ConsumerProfileUpdate }) => { ... })
+	.validator((data: ConsumerProfileUpdate) => data)
+	.handler(async ({ data }) => { ... })
 ```
 
-If TanStack Start requires a validator, use a tiny pass-through:
-
-```ts
-.validator((data: ConsumerProfileUpdate) => data)
-```
+Use the same pass-through validator for `saveAgentProfile` and
+`saveAgentEssentials`.
 
 Also remove the intersected schemas from `src/lib/drafts.ts`.
 
@@ -261,33 +258,112 @@ patterns.
 ```ts
 export const consumerQuestions = [
 	// ...
-] satisfies readonly Question[]
+] as const satisfies readonly Question[]
+
+export const agentQuestions = [
+	// ...
+] as const satisfies readonly Question[]
 
 export const consumerQuestionFlow = {
 	label: 'Consumer Matching Quiz',
 	questions: [...consumerQuestions],
 } satisfies QuestionFlow
+
+export const agentQuestionFlow = {
+	label: 'Agent Flow',
+	questions: [...agentQuestions],
+} satisfies QuestionFlow
 ```
+
+Keep `as const` on the question arrays so option keys stay narrowly typed. Only
+remove the redundant `as Question[]` casts from the flow objects.
 
 Also fix `src/lib/matching/profile.ts` by deleting the `as z.ZodType<...>` casts
 (see item 5).
 
 ---
 
-## 11. Remove `typeof window` guard in `AuthCard`
+## 11. Move `callbackURL` construction into the Google click handler
 
-**Goal:** simplify `callbackURL` construction.
+**Goal:** remove the `typeof window` guard in `AuthCard` while keeping SSR safe.
+
+**Problem:**
+
+`AuthCard` computes `callbackURL` during render and uses
+`window.location.origin`. Since `AuthCard` is rendered on the server during SSR,
+it needs the `typeof window` guard. The guard is ugly but not wrong.
+
+**Fix:**
+
+Move the construction into the click handler. Event handlers only run on the
+client, so `window.location.origin` is always available there.
+
+Both `AuthCard` and `SignupForm` should share the existing `useGoogleSignIn`
+hook. Update the hook to take `fallbackRedirect` and build the URL inside
+`signIn`.
 
 **LSP steps:**
 
-- `lsp findReferences` on `callbackURL` in `src/components/auth/card.tsx`.
-- Delete the ternary.
+- `lsp findReferences` on `callbackURL` in `src/components/auth/card.tsx`,
+  `src/components/signup/signup-form.tsx`, and
+  `src/hooks/use-google-sign-in.tsx`.
+- In `useGoogleSignIn`, change the options from `callbackURL` to
+  `fallbackRedirect` and build `callbackURL` inside `signIn`.
+- In `AuthCard` and `SignupForm`, remove the inline Google handlers and state,
+  and use the hook.
 
 **Target shape:**
 
 ```ts
-const callbackURL = new URL(resolvedRedirect, window.location.origin).toString()
+// src/hooks/use-google-sign-in.tsx
+export type UseGoogleSignInOptions = {
+	fallbackRedirect: string
+}
+
+export function useGoogleSignIn({ fallbackRedirect }: UseGoogleSignInOptions) {
+	const [isLoading, setIsLoading] = useState(false)
+	const [isAvailable, setIsAvailable] = useState(true)
+
+	const signIn = async () => {
+		setIsLoading(true)
+		const callbackURL = new URL(
+			fallbackRedirect,
+			window.location.origin,
+		).toString()
+
+		try {
+			const { data, error } = await authClient.signIn.social({
+				provider: 'google',
+				callbackURL,
+			})
+
+			if (error) {
+				throw error
+			}
+
+			window.location.assign(data?.url ?? fallbackRedirect)
+		} catch (error) {
+			// ...provider-not-found handling...
+		}
+	}
+
+	return { signIn, isLoading, isAvailable }
+}
 ```
+
+```ts
+// src/components/auth/card.tsx
+const {
+	signIn,
+	isLoading: isGoogleLoading,
+	isAvailable,
+} = useGoogleSignIn({
+	fallbackRedirect: resolvedRedirect,
+})
+```
+
+`SignupForm` should use the same hook. Each component may style the button
+differently.
 
 ---
 
