@@ -176,7 +176,7 @@ export function draftToAgentProfileUpdate(
 //region Server functions
 
 export const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as ConsumerDraft)
+	.validator((data) => data as ConsumerDraft)
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToConsumerProfileUpdate(data)
@@ -192,7 +192,7 @@ export const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
 	})
 
 export const createAgentProfileFromDraft = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as AgentDraft)
+	.validator((data) => data as AgentDraft)
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)
@@ -203,7 +203,7 @@ export const createAgentProfileFromDraft = createServerFn({ method: 'POST' })
 export const createAgentDeepProfileFromDraft = createServerFn({
 	method: 'POST',
 })
-	.inputValidator((data) => data as AgentDraft)
+	.validator((data) => data as AgentDraft)
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)

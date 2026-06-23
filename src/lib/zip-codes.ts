@@ -58,7 +58,7 @@ function buildTopCitiesWhereClause() {
 }
 
 const loadCitySuggestions = createServerFn({ method: 'GET' })
-	.inputValidator((query: string) => query)
+	.validator((query: string) => query)
 	.handler(async ({ data }) => {
 		const normalizedQuery = data.trim().toLowerCase()
 		if (normalizedQuery.length < 2) {
@@ -96,7 +96,7 @@ const loadCitySuggestions = createServerFn({ method: 'GET' })
 	})
 
 const loadCityZipCodes = createServerFn({ method: 'GET' })
-	.inputValidator((data: CityState) => data)
+	.validator((data: CityState) => data)
 	.handler(async ({ data }) => {
 		const rows = await getDb()
 			.select({ zip: cityZips.zip })
@@ -108,7 +108,7 @@ const loadCityZipCodes = createServerFn({ method: 'GET' })
 	})
 
 const loadCityCenter = createServerFn({ method: 'GET' })
-	.inputValidator((data: CityState) => data)
+	.validator((data: CityState) => data)
 	.handler(async ({ data }) => {
 		const [row] = await getDb()
 			.select({ centerLat: cities.centerLat, centerLng: cities.centerLng })
@@ -126,7 +126,7 @@ const loadCityCenter = createServerFn({ method: 'GET' })
 	})
 
 const loadZipCodeBoundaries = createServerFn({ method: 'GET' })
-	.inputValidator((data: CityState) => data)
+	.validator((data: CityState) => data)
 	.handler(async ({ data }) => {
 		const zipRows = await getDb()
 			.select({ zip: cityZips.zip })

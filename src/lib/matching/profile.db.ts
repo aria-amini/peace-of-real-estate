@@ -24,7 +24,7 @@ const loadConsumerProfile = createServerFn({ method: 'GET' }).handler(
 )
 
 const saveConsumerProfile = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as ConsumerProfileUpdate)
+	.validator((data) => data as ConsumerProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const db = getDb()
@@ -67,7 +67,7 @@ const loadAgentProfile = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 const saveAgentProfile = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as AgentProfileUpdate)
+	.validator((data) => data as AgentProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const db = getDb()
@@ -155,7 +155,7 @@ function computeDeepProfileStatus(
 }
 
 const saveAgentEssentials = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as AgentProfileUpdate)
+	.validator((data) => data as AgentProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const db = getDb()
@@ -193,7 +193,7 @@ const saveAgentEssentials = createServerFn({ method: 'POST' })
 	})
 
 const saveAgentDeepProfile = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as AgentProfileUpdate)
+	.validator((data) => data as AgentProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const db = getDb()
