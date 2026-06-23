@@ -4,18 +4,14 @@ import { requireUserId } from '@/lib/auth/functions'
 import {
 	agentProfileColumns,
 	consumerProfileColumns,
-} from '@/lib/matching/profile.columns'
-import {
 	saveAgentEssentials,
 	saveConsumerProfile,
-} from '@/lib/matching/profile.db'
-import type {
-	AgentProfileUpdate,
-	ConsumerProfileUpdate,
-} from '@/lib/matching/profile.types'
+	type AgentProfileUpdate,
+	type ConsumerProfileUpdate,
+} from '@/lib/matching/profile'
 import type { AnswerValue, Answers } from '@/lib/matching/questions'
 
-// Draft types extend the DB profile shapes so profile.columns.ts stays the
+// Draft types extend the DB profile shapes so profile.ts stays the
 // source of truth for profile fields. Extra keys are transient UI state that
 // only lives in localStorage.
 
@@ -122,7 +118,7 @@ export function clearAgentDraft() {
 
 //region Transformations
 
-// Build profile updates directly from profile.columns.ts so adding a column
+// Build profile updates directly from profile.ts so adding a column
 // there is automatically reflected in the draft promotion path.
 
 export function draftToConsumerProfileUpdate(

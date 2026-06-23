@@ -32,12 +32,12 @@ import { authClient } from '@/lib/auth/client'
 import { isUserPremium } from '@/lib/premium'
 import { getCurrentSession } from '@/lib/auth/functions'
 import { loadAgentMatches } from '@/lib/matching/server'
-import { loadConsumerProfile } from '@/lib/matching/profile.db'
+import { loadConsumerProfile } from '@/lib/matching/profile'
 import {
 	getAnswerSummary,
 	consumerQuestionFlow,
 } from '@/lib/matching/questions'
-import type { ConsumerProfile } from '@/lib/matching/profile.types'
+import type { ConsumerProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
 	parsePriceRange,

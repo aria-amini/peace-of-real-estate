@@ -15,7 +15,7 @@ import {
 	agentProfileColumns,
 	consumerProfileColumns,
 	sharedProfileColumns,
-} from '@/lib/matching/profile.columns'
+} from '@/lib/matching/profile'
 
 type EntitlementKey = 'consumer_lifetime_premium' | 'agent_subscription'
 

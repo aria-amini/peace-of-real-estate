@@ -24,7 +24,7 @@ import {
 	type AgentDraft,
 } from '@/lib/drafts'
 import { agentQuestionFlow } from '@/lib/matching/questions'
-import type { AgentProfile } from '@/lib/matching/profile.types'
+import type { AgentProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
 	parsePriceRange,

@@ -21,12 +21,12 @@ import { Textarea } from '@/components/ui/textarea'
 import {
 	loadConsumerProfile,
 	saveConsumerProfile,
-} from '@/lib/matching/profile.db'
+} from '@/lib/matching/profile'
 import type {
 	ConsumerProfile,
 	ConsumerProfileUpdate,
 	RepresentationSide,
-} from '@/lib/matching/profile.types'
+} from '@/lib/matching/profile'
 import {
 	DEFAULT_PRICE_RANGE,
 	formatPriceCompact,

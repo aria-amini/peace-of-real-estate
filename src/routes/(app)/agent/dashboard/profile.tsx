@@ -9,8 +9,8 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile.db'
-import type { AgentProfileUpdate } from '@/lib/matching/profile.types'
+import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile'
+import type { AgentProfileUpdate } from '@/lib/matching/profile'
 import { withSaveToast } from '@/lib/toast'
 
 export const Route = createFileRoute('/(app)/agent/dashboard/profile')({

@@ -32,7 +32,7 @@ import {
 	createConsumerProfileFromDraft,
 	loadConsumerDraft,
 } from '@/lib/drafts'
-import { loadConsumerProfile } from '@/lib/matching/profile.db'
+import { loadConsumerProfile } from '@/lib/matching/profile'
 import { isUserPremium } from '@/lib/premium'
 import {
 	formatPriceRange,

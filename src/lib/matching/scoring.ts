@@ -1,7 +1,4 @@
-import type {
-	AgentProfile,
-	ConsumerProfile,
-} from '@/lib/matching/profile.types'
+import type { AgentProfile, ConsumerProfile } from '@/lib/matching/profile'
 
 export interface AgentMatchData {
 	id: string

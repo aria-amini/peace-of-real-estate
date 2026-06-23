@@ -31,7 +31,7 @@ import {
 	type AnswerValue,
 	type Answers,
 } from '@/lib/matching/questions'
-import type { ConsumerProfile } from '@/lib/matching/profile.types'
+import type { ConsumerProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
 	parsePriceRange,

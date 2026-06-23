@@ -12,7 +12,7 @@ import {
 	type AgentDraft,
 } from '@/lib/drafts'
 import { getCurrentSession } from '@/lib/auth/functions'
-import { loadAgentProfile } from '@/lib/matching/profile.db'
+import { loadAgentProfile } from '@/lib/matching/profile'
 import {
 	AgentCompliance,
 	AgentIdentity,

@@ -27,9 +27,9 @@ import {
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { authClient } from '@/lib/auth/client'
-import { loadAgentProfile } from '@/lib/matching/profile.db'
+import { loadAgentProfile } from '@/lib/matching/profile'
 import { agentQuestionFlow } from '@/lib/matching/questions'
-import type { AgentProfile } from '@/lib/matching/profile.types'
+import type { AgentProfile } from '@/lib/matching/profile'
 import { isUserPremium } from '@/lib/premium'
 import { cn } from '@/lib/utils/ui'
 

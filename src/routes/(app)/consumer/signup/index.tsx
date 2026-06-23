@@ -15,7 +15,7 @@ import { getCurrentSession } from '@/lib/auth/functions'
 import {
 	hasCompletedConsumerIntake,
 	loadConsumerProfile,
-} from '@/lib/matching/profile.db'
+} from '@/lib/matching/profile'
 import { consumerQuestionFlow } from '@/lib/matching/questions'
 import {
 	ConsumerHome,

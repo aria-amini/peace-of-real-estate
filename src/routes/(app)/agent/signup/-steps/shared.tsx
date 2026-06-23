@@ -14,7 +14,7 @@ import {
 	questionOptionSlugs,
 	type QuestionFlow as MatchingQuestionFlow,
 } from '@/lib/matching/questions'
-import type { RepresentationSide } from '@/lib/matching/profile.types'
+import type { RepresentationSide } from '@/lib/matching/profile'
 
 export type AgentFlowStep =
 	| 'welcome'
