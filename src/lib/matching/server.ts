@@ -5,7 +5,7 @@ import { getDb } from '@/db/connection'
 import { agentProfiles, consumerProfiles, user } from '@/db/tables'
 import { requireUserId } from '@/lib/auth/functions'
 import { calculateFitScore, type AgentMatchData } from '@/lib/matching/scoring'
-import { getAvatarUrl } from '@/lib/s3/server'
+import { getAvatarUrl } from '@/lib/s3'
 
 export const loadAgentMatches = createServerFn({ method: 'GET' }).handler(
 	async (): Promise<AgentMatchData[]> => {
