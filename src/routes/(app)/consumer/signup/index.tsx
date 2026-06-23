@@ -6,7 +6,6 @@ import { WizardShell } from '@/components/signup/wizard-shell'
 import { FlowIntakeProgress } from '@/components/signup/shared'
 import { LeaveDialog } from '@/components/signup/leave-dialog'
 import {
-	clearConsumerDraft,
 	loadConsumerDraft,
 	saveConsumerDraft,
 	type ConsumerDraft,
@@ -35,7 +34,6 @@ const signupSearchSchema = z.object({
 		.enum(['intro', 'intent', 'home', 'quiz', 'preview'])
 		.default('intro')
 		.catch('intro'),
-	reset: z.boolean().optional().catch(undefined),
 	redirect: z.string().optional().catch(undefined),
 })
 
@@ -45,10 +43,6 @@ export const Route = createFileRoute('/(app)/consumer/signup/')({
 		const validSteps = ['intro', 'intent', 'home', 'quiz', 'preview'] as const
 		if (!validSteps.includes(search.step)) {
 			throw redirect({ to: '/consumer/signup', search: { step: 'intro' } })
-		}
-
-		if (search.reset) {
-			clearConsumerDraft()
 		}
 
 		const session = await getCurrentSession()

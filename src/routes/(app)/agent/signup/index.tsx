@@ -5,12 +5,7 @@ import { z } from 'zod'
 import { WizardShell } from '@/components/signup/wizard-shell'
 import { FlowIntakeProgress } from '@/components/signup/shared'
 import { LeaveDialog } from '@/components/signup/leave-dialog'
-import {
-	clearAgentDraft,
-	loadAgentDraft,
-	saveAgentDraft,
-	type AgentDraft,
-} from '@/lib/drafts'
+import { loadAgentDraft, saveAgentDraft, type AgentDraft } from '@/lib/drafts'
 import { getCurrentSession } from '@/lib/auth/functions'
 import { loadAgentProfile } from '@/lib/matching/profile'
 import {
@@ -35,7 +30,6 @@ const signupSearchSchema = z.object({
 		])
 		.default('welcome')
 		.catch('welcome'),
-	reset: z.boolean().optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/(app)/agent/signup/')({
@@ -51,10 +45,6 @@ export const Route = createFileRoute('/(app)/agent/signup/')({
 		] as const
 		if (!validSteps.includes(search.step)) {
 			throw redirect({ to: '/agent/signup', search: { step: 'welcome' } })
-		}
-
-		if (search.reset) {
-			clearAgentDraft()
 		}
 
 		const session = await getCurrentSession()
