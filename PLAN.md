@@ -55,7 +55,8 @@ await db.select()...
 
 Affected files (verify with LSP): `src/lib/auth/config.ts`,
 `src/lib/matching/profile.ts`, `src/lib/matching/server.ts`,
-`src/lib/premium.ts`, `src/lib/zip-codes.ts`.
+`src/lib/premium.ts`, and `src/lib/zip-codes.ts` (which will later be split into
+`src/lib/geography/zip.ts` in item 4).
 
 ---
 
@@ -130,7 +131,7 @@ unavailable message.
 
 ## 4. Split geography helpers into `src/lib/geography/zip.ts` and `src/lib/geography/states.ts`
 
-**Goal:** move zip/city logic and US-state maps out of inline route files.
+**Goal:** move zip/city logic and US-state helpers out of inline route files.
 
 **LSP steps:**
 
@@ -139,14 +140,39 @@ unavailable message.
 - Create `src/lib/geography/states.ts` and `src/lib/geography/zip.ts`.
 - Update imports and delete the moved code.
 
+`parseCityState` and `isValidZipCode` already live in `src/lib/zip-codes.ts`, so
+move them (and the related server functions) into `src/lib/geography/zip.ts`.
+
+For state helpers, note that `stateNames` is only used to map a state
+abbreviation to an SVG file name. The current map contains values like
+`'New_York'` and `'North_Carolina'` because the SVG files in `public/states/`
+use those names. We will rename the SVG files to use abbreviations (`NY.svg`,
+`CA.svg`, etc.) and drop the display-name map entirely.
+
 **Target shape:**
 
 ```ts
 // src/lib/geography/states.ts
-export const STATE_NAMES: Record<string, string> = { AL: 'Alabama', /* ... */ }
-export const STATE_ABBREVIATIONS = new Set(Object.keys(STATE_NAMES))
+export const STATE_ABBREVIATIONS = new Set([
+	'AL',
+	'AK',
+	// ... all 50 states + DC
+])
 
-export function resolveStateCode(...values: Array<string | undefined>) { ... }
+export function resolveStateCode(...values: Array<string | undefined>) {
+	for (const value of values) {
+		if (!value) continue
+		const normalized = value.trim().toUpperCase()
+		if (STATE_ABBREVIATIONS.has(normalized)) return normalized
+
+		const stateMatch = normalized.match(/\b[A-Z]{2}\b(?=\s*$|\s*,|\s+\d{5})/)
+		if (stateMatch && STATE_ABBREVIATIONS.has(stateMatch[0])) {
+			return stateMatch[0]
+		}
+	}
+
+	return undefined
+}
 ```
 
 ```ts
@@ -156,6 +182,11 @@ export function isValidZipCode(zipCode: string) { ... }
 export const loadCitySuggestions = createServerFn(...)
 // ...
 ```
+
+SVG paths become `/states/${state}.svg`. Rename `public/states/*.svg` files from
+underscore-style names to two-letter abbreviations. Update the two consumers
+(`consumer/dashboard/matches.tsx` and `consumer/signup/-steps/preview.tsx`) to
+import from the new modules and build paths from the abbreviation directly.
 
 ---
 
@@ -242,75 +273,113 @@ access pattern is clearer.
 
 ---
 
-## 10. Remove `as` casts while keeping `satisfies`
+## 10. Remove `AuthCard` sign-up mode and rename to `SignInCard`
 
-**Goal:** purge `as Question[]`, `as z.ZodType<...>`, `as const` + `as`
-patterns.
+**Goal:** eliminate the quiz-less sign-up path and remove dead code.
+
+`AuthCard` currently supports both `sign-in` and `sign-up` modes. The sign-up
+mode is only used by `src/components/auth/signup-dialog.tsx`, which lets users
+create an account without going through the signup wizard. That path conflicts
+with the intended flow: users should take the quiz and build a draft profile
+before signing up, which is handled by `SignupForm` on the preview step.
 
 **LSP steps:**
 
-- `lsp findReferences` on `consumerQuestions`, `agentQuestions`,
-  `consumerQuestionFlow`, `agentQuestionFlow`.
-- Rewrite types so `satisfies` provides the contract.
+- `lsp findReferences` on `AuthCard`, `SignupDialog`, and the `mode` prop.
+- Delete `src/components/auth/signup-dialog.tsx`.
+- Rename `src/components/auth/card.tsx` default export from `AuthCard` to
+  `SignInCard` and update the file name to `sign-in-card.tsx`.
+- Remove the `mode` prop, `isSignUp` branch, name field, sign-up labels, and
+  `authClient.signUp.email` call. Keep only email sign-in and Google sign-in.
+- Update `src/routes/(app)/login.tsx` to import and render `SignInCard` without
+  a `mode` prop.
+- Update `src/components/auth/index.ts` or any barrel exports if they exist.
 
 **Target shape:**
 
 ```ts
-export const consumerQuestions = [
-	// ...
-] as const satisfies readonly Question[]
+// src/components/auth/sign-in-card.tsx
+export function SignInCard({
+	redirect,
+	embedded = false,
+}: {
+	redirect?: string
+	embedded?: boolean
+}) {
+	const resolvedRedirect =
+		redirect && redirect !== '/account' ? redirect : DEFAULT_POST_AUTH_REDIRECT
 
-export const agentQuestions = [
-	// ...
-] as const satisfies readonly Question[]
+	const {
+		signIn,
+		isLoading: isGoogleLoading,
+		isAvailable,
+	} = useGoogleSignIn({
+		fallbackRedirect: resolvedRedirect,
+	})
 
-export const consumerQuestionFlow = {
-	label: 'Consumer Matching Quiz',
-	questions: [...consumerQuestions],
-} satisfies QuestionFlow
+	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault()
+		const callbackURL = new URL(
+			resolvedRedirect,
+			window.location.origin,
+		).toString()
+		// ... email sign-in only ...
+	}
 
-export const agentQuestionFlow = {
-	label: 'Agent Flow',
-	questions: [...agentQuestions],
-} satisfies QuestionFlow
+	// ... render email form + Google button ...
+}
 ```
 
-Keep `as const` on the question arrays so option keys stay narrowly typed. Only
-remove the redundant `as Question[]` casts from the flow objects.
+```ts
+// src/routes/(app)/login.tsx
+import { SignInCard } from '@/components/auth/sign-in-card'
 
-Also fix `src/lib/matching/profile.ts` by deleting the `as z.ZodType<...>` casts
-(see item 5).
+export default function LoginPage() {
+	return <SignInCard {...(redirect ? { redirect } : {})} />
+}
+```
+
+This makes `SignupForm` the only component responsible for account creation, and
+it already loads the draft and creates the profile after sign-up.
 
 ---
 
 ## 11. Move `callbackURL` construction into the Google click handler
 
-**Goal:** remove the `typeof window` guard in `AuthCard` while keeping SSR safe.
+**Goal:** remove the `typeof window` guard in `SignInCard` while keeping SSR
+safe.
 
 **Problem:**
 
-`AuthCard` computes `callbackURL` during render and uses
-`window.location.origin`. Since `AuthCard` is rendered on the server during SSR,
-it needs the `typeof window` guard. The guard is ugly but not wrong.
+`SignInCard` computes `callbackURL` during render and uses
+`window.location.origin`. Since `SignInCard` is rendered on the server during
+SSR, it needs the `typeof window` guard. The guard is ugly but not wrong.
 
 **Fix:**
 
 Move the construction into the click handler. Event handlers only run on the
 client, so `window.location.origin` is always available there.
 
-Both `AuthCard` and `SignupForm` should share the existing `useGoogleSignIn`
+Both `SignInCard` and `SignupForm` should share the existing `useGoogleSignIn`
 hook. Update the hook to take `fallbackRedirect` and build the URL inside
 `signIn`.
 
+`SignInCard` also uses `callbackURL` for the email sign-in flow, so build that
+URL lazily inside `handleSubmit` as well. Event handlers run only on the client,
+so `window.location.origin` is safe there.
+
 **LSP steps:**
 
-- `lsp findReferences` on `callbackURL` in `src/components/auth/card.tsx`,
+- `lsp findReferences` on `callbackURL` in
+  `src/components/auth/sign-in-card.tsx`,
   `src/components/signup/signup-form.tsx`, and
   `src/hooks/use-google-sign-in.tsx`.
 - In `useGoogleSignIn`, change the options from `callbackURL` to
   `fallbackRedirect` and build `callbackURL` inside `signIn`.
-- In `AuthCard` and `SignupForm`, remove the inline Google handlers and state,
+- In `SignInCard` and `SignupForm`, remove the inline Google handlers and state,
   and use the hook.
+- In `SignInCard`, remove the top-level `callbackURL` computation and build it
+  inside `handleSubmit` for email sign-in.
 
 **Target shape:**
 
@@ -352,7 +421,7 @@ export function useGoogleSignIn({ fallbackRedirect }: UseGoogleSignInOptions) {
 ```
 
 ```ts
-// src/components/auth/card.tsx
+// src/components/auth/sign-in-card.tsx
 const {
 	signIn,
 	isLoading: isGoogleLoading,
@@ -360,10 +429,61 @@ const {
 } = useGoogleSignIn({
 	fallbackRedirect: resolvedRedirect,
 })
+
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+	event.preventDefault()
+	// ...
+	const callbackURL = new URL(resolvedRedirect, window.location.origin).toString()
+	await authClient.signIn.email({ ..., callbackURL })
+}
 ```
 
 `SignupForm` should use the same hook. Each component may style the button
 differently.
+
+---
+
+## 12. Remove `as` casts while keeping `satisfies`
+
+**Goal:** purge `as Question[]`, `as z.ZodType<...>`, `as const` + `as`
+patterns.
+
+**LSP steps:**
+
+- `lsp findReferences` on `consumerQuestions`, `agentQuestions`,
+  `consumerQuestionFlow`, `agentQuestionFlow`.
+- Rewrite types so `satisfies` provides the contract.
+
+**Target shape:**
+
+```ts
+export const consumerQuestions = [
+	// ...
+] as const satisfies readonly Question[]
+
+export const agentQuestions = [
+	// ...
+] as const satisfies readonly Question[]
+
+export const consumerQuestionFlow = {
+	label: 'Consumer Matching Quiz',
+	questions: [...consumerQuestions],
+} satisfies QuestionFlow
+
+export const agentQuestionFlow = {
+	label: 'Agent Flow',
+	questions: [...agentQuestions],
+} satisfies QuestionFlow
+```
+
+Keep `as const` on the question arrays so option keys stay narrowly typed. Only
+remove the redundant `as Question[]` casts from the flow objects.
+
+Also fix `src/lib/matching/profile.ts` by deleting the `as z.ZodType<...>` casts
+(see item 5).
+
+Also fix `src/lib/matching/questions.ts` `answersSchema` and any remaining
+`as z.ZodType<...>` casts in `src/lib/drafts.ts`.
 
 ---
 
