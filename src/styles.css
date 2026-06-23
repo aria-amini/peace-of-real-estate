@@ -193,29 +193,3 @@
 		opacity: 1;
 	}
 }
-
-@keyframes spark-burst {
-	0% {
-		transform: translate(-50%, -50%) scale(1);
-		opacity: 1;
-	}
-
-	100% {
-		transform: translate(var(--spark-x), var(--spark-y)) scale(0);
-		opacity: 0;
-	}
-}
-
-@keyframes marquee {
-	0% {
-		transform: translateX(0);
-	}
-
-	100% {
-		transform: translateX(-50%);
-	}
-}
-
-.animate-marquee {
-	animation: marquee 60s linear infinite;
-}
