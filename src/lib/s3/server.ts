@@ -2,6 +2,7 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 import { serverEnv as env } from '@/env.server'
+import { resolvePublicOrSignedUrl } from '@/lib/s3/client'
 
 let storageClient: S3Client | undefined
 
@@ -32,15 +33,9 @@ export async function getSignedDownloadUrl(
 	})
 }
 
-export function isPublicUrl(value: string | null | undefined): boolean {
-	return typeof value === 'string' && /^https?:\/\//.test(value)
-}
-
-export function resolvePublicOrSignedUrl(
-	value: string | null | undefined,
-	signedUrl: string | undefined,
-): string | undefined {
-	if (!value) return undefined
-	if (isPublicUrl(value)) return value
-	return signedUrl
+export async function getAvatarUrl(
+	image: string | null | undefined,
+): Promise<string | undefined> {
+	const signedUrl = await getSignedDownloadUrl(env.AVATAR_BUCKET, image)
+	return resolvePublicOrSignedUrl(image, signedUrl)
 }
