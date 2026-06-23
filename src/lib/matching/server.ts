@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { eq, or } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { db } from '@/db/connection'
 import { agentProfiles, consumerProfiles, user } from '@/db/tables'
@@ -24,12 +24,6 @@ export const loadAgentMatches = createServerFn({ method: 'GET' }).handler(
 			})
 			.from(agentProfiles)
 			.innerJoin(user, eq(agentProfiles.userId, user.id))
-			.where(
-				or(
-					eq(agentProfiles.status, 'active'),
-					eq(agentProfiles.status, 'enriched'),
-				),
-			)
 
 		const scored = results.map((row) => ({
 			row,
@@ -47,7 +41,7 @@ export const loadAgentMatches = createServerFn({ method: 'GET' }).handler(
 					id: row.agent.id,
 					name: row.user.name,
 					role: 'agent' as const,
-					location: row.agent.serviceAreas[0] ?? 'Unknown',
+					location: `${row.agent.city}, ${row.agent.state}`,
 					zipCodes: row.agent.serviceAreas,
 					fitScore: score.fitScore,
 					status: 'new' as const,

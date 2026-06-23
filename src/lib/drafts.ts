@@ -2,13 +2,15 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { requireUserId } from '@/lib/auth/functions'
 import {
-	agentProfileColumns,
-	consumerProfileColumns,
-	saveAgentEssentials,
+	createAgentProfile,
 	saveConsumerProfile,
 	type AgentProfileUpdate,
 	type ConsumerProfileUpdate,
 } from '@/lib/matching/profile'
+import {
+	agentProfileColumns,
+	consumerProfileColumns,
+} from '@/lib/matching/profile.db'
 import { type AnswerValue, type Answers } from '@/lib/matching/questions'
 
 // Draft types extend the DB profile shapes so profile.ts stays the
@@ -186,12 +188,12 @@ export const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
 		return { success: true }
 	})
 
-export const createAgentProfileFromDraft = createServerFn({ method: 'POST' })
+export const completeAgentSignup = createServerFn({ method: 'POST' })
 	.validator((data: AgentDraft) => data)
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)
-		await saveAgentEssentials({ data: update })
+		await createAgentProfile({ data: update })
 		return { success: true }
 	})
 

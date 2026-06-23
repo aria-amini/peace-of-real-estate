@@ -790,24 +790,12 @@ function pickEmployment(archetype: AgentArchetype): string {
 	return pick(['Salesperson', 'Realtor'])
 }
 
-function statusFromProfile(
-	peaceSigned: boolean,
-	score: number,
-): 'draft' | 'active' | 'enriched' {
-	if (peaceSigned && score > 0.7) return 'enriched'
-	if (peaceSigned && score > 0.4) return 'active'
-	return 'draft'
-}
-
 function generatePersona(archetype: AgentArchetype, r: number) {
 	const years = randInt(archetype.yearsRange[0], archetype.yearsRange[1])
 	const avgTrans = randInt(
 		archetype.transactionsRange[0],
 		archetype.transactionsRange[1],
 	)
-	const peacePact = r < archetype.peacePactProb
-	const usePaxWriter = r < archetype.usePaxWriterProb
-	const completionScore = r
 
 	return {
 		representationSide: archetype.representationSide,
@@ -837,9 +825,8 @@ function generatePersona(archetype: AgentArchetype, r: number) {
 		employmentStatus: pickEmployment(archetype),
 		eoInsuranceStatus: archetype.eoInsuranceStatus,
 		valueProposition: archetype.valueProposition,
-		peacePactSigned: peacePact,
-		usePaxWriter,
-		status: statusFromProfile(peacePact, completionScore),
+		peacePactSigned: r < archetype.peacePactProb,
+		usePaxWriter: r < archetype.usePaxWriterProb,
 	}
 }
 
@@ -939,7 +926,8 @@ async function populateDb(count: number) {
 		await db.insert(agentProfiles).values({
 			id: agentId,
 			userId,
-			status: persona.status,
+			city: location.city,
+			state: location.state,
 			representationSide: persona.representationSide,
 			typicalPriceRange: persona.typicalPriceRange,
 			bestClientTypes: persona.bestClientTypes,

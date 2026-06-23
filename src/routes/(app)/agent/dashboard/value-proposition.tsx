@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { FlowPageShell } from '@/components/signup/step-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile'
+import { loadAgentProfile, updateAgentProfile } from '@/lib/matching/profile'
 import { withSaveToast } from '@/lib/toast'
 
 export const Route = createFileRoute(
@@ -18,7 +18,7 @@ export const Route = createFileRoute(
 
 function AgentChat() {
 	const agentProfile = Route.useLoaderData()
-	const saveAgent = useServerFn(saveAgentProfile)
+	const saveAgent = useServerFn(updateAgentProfile)
 	const navigate = useNavigate()
 	const [valueProposition, setValueProposition] = useState(
 		agentProfile?.valueProposition ?? '',

@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile'
+import { loadAgentProfile, updateAgentProfile } from '@/lib/matching/profile'
 import type { AgentProfileUpdate } from '@/lib/matching/profile'
 import { withSaveToast } from '@/lib/toast'
 
@@ -26,6 +26,8 @@ const textFields = [
 	['phone', 'Telephone number'],
 	['businessAddress', 'Business address'],
 	['billingAddress', 'Billing address'],
+	['city', 'City'],
+	['state', 'State'],
 	['licenseNumberState', 'License number & state'],
 	['yearsLicensed', 'Years licensed'],
 	['averageTransactions', 'Avg transactions / year (last 3 years)'],
@@ -40,6 +42,8 @@ const emptyProfile: AgentProfileUpdate = {
 	phone: '',
 	businessAddress: '',
 	billingAddress: '',
+	city: '',
+	state: '',
 	licenseNumberState: '',
 	serviceAreas: [],
 	yearsLicensed: '',
@@ -53,7 +57,7 @@ const emptyProfile: AgentProfileUpdate = {
 
 function AgentProfile() {
 	const agentProfile = Route.useLoaderData()
-	const saveAgent = useServerFn(saveAgentProfile)
+	const saveAgent = useServerFn(updateAgentProfile)
 	const navigate = useNavigate()
 	const initial = { ...emptyProfile, ...agentProfile }
 	const [formData, setFormData] = useState<AgentProfileUpdate>(initial)

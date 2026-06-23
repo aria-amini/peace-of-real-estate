@@ -50,11 +50,7 @@ export const Route = createFileRoute('/(app)/agent/signup/')({
 		const session = await getCurrentSession()
 		if (session) {
 			const profile = await loadAgentProfile()
-			if (
-				profile?.status === 'active' ||
-				profile?.status === 'enriched' ||
-				profile?.status === 'essentials_submitted'
-			) {
+			if (profile) {
 				throw redirect({ to: '/agent/dashboard' })
 			}
 		}

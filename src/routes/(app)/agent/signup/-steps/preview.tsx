@@ -18,7 +18,7 @@ import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
 import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
 import {
-	createAgentProfileFromDraft,
+	completeAgentSignup,
 	draftToAgentProfileUpdate,
 	loadAgentDraft,
 	type AgentDraft,
@@ -42,7 +42,6 @@ export function draftToPreviewProfile(draft: AgentDraft): AgentProfile {
 	return {
 		id: 'preview',
 		userId: 'preview',
-		status: 'draft',
 		createdAt: now,
 		updatedAt: now,
 		representationSide: update.representationSide ?? null,
@@ -79,6 +78,8 @@ export function draftToPreviewProfile(draft: AgentDraft): AgentProfile {
 		businessAddress: update.businessAddress ?? null,
 		billingAddress: null,
 		licenseNumberState: update.licenseNumberState ?? null,
+		city: update.city ?? null,
+		state: update.state ?? null,
 		serviceAreas: update.serviceAreas ?? [],
 		yearsLicensed: update.yearsLicensed ?? null,
 		averageTransactions: update.averageTransactions ?? null,
@@ -135,7 +136,7 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 						<SignupForm
 							idPrefix="desktop-signup"
 							redirect="/agent/dashboard"
-							createProfile={createAgentProfileFromDraft}
+							createProfile={completeAgentSignup}
 							loadDraft={loadAgentDraft}
 							submitLabel="Activate profile"
 							namePlaceholder="Jane Doe"
@@ -173,7 +174,7 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 					subtitle="Create your account to start matching with consumers."
 					ctaLabel="Create account"
 					redirect="/agent/dashboard"
-					createProfile={createAgentProfileFromDraft}
+					createProfile={completeAgentSignup}
 					loadDraft={loadAgentDraft}
 					submitLabel="Activate profile"
 					namePlaceholder="Jane Doe"

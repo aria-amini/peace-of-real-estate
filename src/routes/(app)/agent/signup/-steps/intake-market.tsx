@@ -96,10 +96,11 @@ export function AgentMarket({
 			return
 		}
 
-		const derivedState = cityState?.state
+		const locationUpdate = cityState
+			? { city: cityState.city, state: cityState.state }
+			: { city: committedLocation }
 		onUpdate({
-			city: committedLocation,
-			...(derivedState ? { state: derivedState } : {}),
+			...locationUpdate,
 			zipCodes: selectedZipCodes,
 			serviceAreas:
 				selectedZipCodes.length > 0 ? selectedZipCodes : [committedLocation],

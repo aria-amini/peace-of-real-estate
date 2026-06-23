@@ -15,7 +15,7 @@ import {
 	agentProfileColumns,
 	consumerProfileColumns,
 	sharedProfileColumns,
-} from '@/lib/matching/profile'
+} from '@/lib/matching/profile.db'
 
 type EntitlementKey = 'consumer_lifetime_premium' | 'agent_subscription'
 
@@ -172,7 +172,6 @@ export const agentProfiles = pgTable(
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		...sharedProfileColumns,
 		...agentProfileColumns,
 		firstName: text('first_name'),
 		lastName: text('last_name'),
@@ -206,10 +205,6 @@ export const agentProfiles = pgTable(
 			foreignColumns: [user.id],
 			name: 'agent_profiles_user_id_fk',
 		}),
-		check(
-			'agent_profiles_status_check',
-			sql`${table.status} in ('draft', 'essentials_submitted', 'active', 'enriched')`,
-		),
 		check(
 			'agent_profiles_representation_side_check',
 			sql`${table.representationSide} is null or ${table.representationSide} in ('buying', 'selling', 'both')`,
