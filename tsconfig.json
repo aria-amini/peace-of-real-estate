@@ -25,7 +25,6 @@
 		"allowUnusedLabels": false,
 		"paths": {
 			"@tests/*": ["./tests/*"],
-			"@tests/*": ["./tests/*"],
 			"@/*": ["./src/*"]
 		}
 	}

@@ -18,7 +18,6 @@
 		"test:watch": "vp test --watch",
 		"test:ui": "vp test dev --ui --open=false --api.port 5123 --api.strictPort --project browser",
 		"e2e": "playwright test",
-		"e2e:staging": "BASE_URL=https://imdbgraph.org playwright test",
 		"e2e:update": "playwright test --update-snapshots",
 		"report": "playwright show-report .playwright/report",
 		"compose:up": "docker compose up -d --wait --remove-orphans postgres minio",
@@ -99,6 +98,7 @@
 		"typescript": "6.0.3",
 		"vite": "catalog:",
 		"vite-plus": "catalog:",
+		"vitest": "catalog:",
 		"vitest-browser-react": "^2.2.0",
 		"web-vitals": "^5.3.0",
 		"zod": "^4.4.3"

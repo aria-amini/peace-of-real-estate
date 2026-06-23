@@ -135,7 +135,3 @@ vi.mock('@/lib/matching/questions', async () => {
 		},
 	}
 })
-
-vi.mock('@/components/wavy-background', () => ({
-	WavyBackground: () => null,
-}))
