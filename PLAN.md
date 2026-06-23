@@ -9,8 +9,8 @@
   signup dispatcher. The signup dispatcher is strictly for anonymous onboarding.
   Authenticated users with completed profiles are redirected to their dashboard.
 - `routes/<role>/dashboard/*` = authenticated account/profile management.
-  Onboarding form components may be reused here, but the route decides whether
-  it reads/writes an anonymous `Draft` or a server profile.
+  Dashboard edit routes keep their own form components; only shell components
+  are shared with signup.
 
 ## Component moves
 
@@ -228,13 +228,13 @@ There is no `priorities` or `payment` step in the signup flow.
 - `src/lib/auth/functions.ts`: authenticated redirects ->
   `/consumer/dashboard/matches`.
 - `src/routes/consumer/index.tsx`: redirect -> `/consumer/signup?step=intro`.
-  Keep the existing reset-handling branch, but redirect to
-  `/consumer/signup?step=intro` and remove the `edit` logic.
+  Remove the `edit` and `reset` branches; the dispatcher only validates and
+  dispatches the step.
 - `src/routes/agent/index.tsx`: redirect -> `/agent/signup?step=welcome`.
 - `src/routes/consumer/dashboard/index.tsx`: update any `/consumer/intake` or
   `/matches` links.
-- `src/routes/consumer/dashboard/search-preferences.tsx`: reuse extracted signup
-  form components if useful; this is the canonical edit page for preferences.
+- `src/routes/consumer/dashboard/search-preferences.tsx`: this is the canonical
+  edit page for preferences.
 - `src/routes/agent/dashboard/index.tsx`: remove deep-profile links and
   deep-profile fields from profile strength; update `/agent/compliance`,
   `/agent/profile`, `/agent/preview` links to `/agent/dashboard/...`. Send users
@@ -249,7 +249,8 @@ There is no `priorities` or `payment` step in the signup flow.
 ## Test updates
 
 - `e2e/consumer-signup.spec.ts`: update `/consumer/intake?reset=true` ->
-  `/consumer/signup?step=intro&reset=true`, `/matches` ->
+  `/consumer/signup?step=intro` and clear localStorage at the start of the test
+  to get a clean draft (remove reliance on `?reset=true`). Update `/matches` ->
   `/consumer/dashboard/matches`.
 - `src/routes/consumer/__tests__/consumer-intake.screenshot.test.tsx`: update
   path to `/consumer/signup?step=intro`.
