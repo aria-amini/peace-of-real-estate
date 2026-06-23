@@ -3,7 +3,7 @@ import { redirectAuthenticatedUsers } from '@/lib/auth/functions'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-export const Route = createFileRoute('/login')({
+export const Route = createFileRoute('/(app)/login')({
 	validateSearch: z.object({
 		redirect: z.string().optional(),
 	}),

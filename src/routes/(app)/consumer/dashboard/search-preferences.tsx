@@ -40,7 +40,9 @@ import {
 import { withSaveToast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/consumer/dashboard/search-preferences')({
+export const Route = createFileRoute(
+	'/(app)/consumer/dashboard/search-preferences',
+)({
 	component: SearchPreferences,
 	loader: () => loadConsumerProfile(),
 })

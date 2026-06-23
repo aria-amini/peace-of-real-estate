@@ -4,7 +4,7 @@ import { CheckCircle2, CreditCard } from 'lucide-react'
 import { FlowPageShell } from '@/components/signup/step-shell'
 import { Button } from '@/components/ui/button'
 
-export const Route = createFileRoute('/agent/dashboard/subscribe')({
+export const Route = createFileRoute('/(app)/agent/dashboard/subscribe')({
 	component: AgentSubscribe,
 })
 

@@ -1,7 +1,7 @@
 import { AgentSidebarShell } from './dashboard/-components/shell'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/agent/dashboard')({
+export const Route = createFileRoute('/(app)/agent/dashboard')({
 	component: AgentDashboardLayout,
 })
 

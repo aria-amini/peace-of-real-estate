@@ -25,7 +25,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { ConsumerSidebarShell } from '@/routes/consumer/dashboard/-components/shell'
+import { ConsumerSidebarShell } from '@/routes/(app)/consumer/dashboard/-components/shell'
 import type { MatchDetails } from '@/components/match/card'
 import { PaywallDialog } from '@/components/auth/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
@@ -132,7 +132,7 @@ function statIcon(label: string) {
 	return Zap
 }
 
-export const Route = createFileRoute('/consumer/dashboard/matches')({
+export const Route = createFileRoute('/(app)/consumer/dashboard/matches')({
 	beforeLoad: async () => {
 		const session = await getCurrentSession()
 

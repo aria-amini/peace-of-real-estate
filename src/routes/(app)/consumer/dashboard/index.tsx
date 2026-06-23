@@ -39,7 +39,7 @@ import {
 	parsePriceRange,
 } from '@/components/signup/price-range-utils'
 
-export const Route = createFileRoute('/consumer/dashboard/')({
+export const Route = createFileRoute('/(app)/consumer/dashboard/')({
 	component: ConsumerDashboard,
 	loader: () => loadConsumerProfile(),
 })

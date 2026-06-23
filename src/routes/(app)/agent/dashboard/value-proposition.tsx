@@ -9,7 +9,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile.db'
 import { withSaveToast } from '@/lib/toast'
 
-export const Route = createFileRoute('/agent/dashboard/value-proposition')({
+export const Route = createFileRoute(
+	'/(app)/agent/dashboard/value-proposition',
+)({
 	component: AgentChat,
 	loader: () => loadAgentProfile(),
 })

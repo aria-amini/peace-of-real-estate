@@ -15,7 +15,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute(
-	'/consumer/dashboard/practice-negotiating',
+	'/(app)/consumer/dashboard/practice-negotiating',
 )({
 	component: PracticeNegotiating,
 })

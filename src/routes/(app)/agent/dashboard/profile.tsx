@@ -13,7 +13,7 @@ import { loadAgentProfile, saveAgentProfile } from '@/lib/matching/profile.db'
 import type { AgentProfileUpdate } from '@/lib/matching/profile.types'
 import { withSaveToast } from '@/lib/toast'
 
-export const Route = createFileRoute('/agent/dashboard/profile')({
+export const Route = createFileRoute('/(app)/agent/dashboard/profile')({
 	component: AgentProfile,
 	loader: () => loadAgentProfile(),
 })

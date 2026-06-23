@@ -21,9 +21,11 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { loadAgentMatches } from '@/lib/matching/server'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/consumer/dashboard/introductions')({
-	component: Introductions,
-})
+export const Route = createFileRoute('/(app)/consumer/dashboard/introductions')(
+	{
+		component: Introductions,
+	},
+)
 
 const introductionSteps = [
 	{

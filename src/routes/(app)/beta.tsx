@@ -16,7 +16,7 @@ async function authenticateBetaWithPassword(password: string) {
 	}
 }
 
-export const Route = createFileRoute('/beta')({
+export const Route = createFileRoute('/(app)/beta')({
 	component: BetaLogin,
 })
 

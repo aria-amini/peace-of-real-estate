@@ -40,7 +40,7 @@ const signupSearchSchema = z.object({
 	redirect: z.string().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/consumer/signup/')({
+export const Route = createFileRoute('/(app)/consumer/signup/')({
 	validateSearch: signupSearchSchema,
 	beforeLoad: async ({ search }) => {
 		const validSteps = ['intro', 'intent', 'home', 'quiz', 'preview'] as const

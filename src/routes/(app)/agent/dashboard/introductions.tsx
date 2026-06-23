@@ -20,7 +20,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import { AgentSidebarShell } from './-components/shell'
 
-export const Route = createFileRoute('/agent/dashboard/introductions')({
+export const Route = createFileRoute('/(app)/agent/dashboard/introductions')({
 	component: AgentIntroductions,
 })
 

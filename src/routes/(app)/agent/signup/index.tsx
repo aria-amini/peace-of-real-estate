@@ -38,7 +38,7 @@ const signupSearchSchema = z.object({
 	reset: z.boolean().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/agent/signup/')({
+export const Route = createFileRoute('/(app)/agent/signup/')({
 	validateSearch: signupSearchSchema,
 	beforeLoad: async ({ search }) => {
 		const validSteps = [

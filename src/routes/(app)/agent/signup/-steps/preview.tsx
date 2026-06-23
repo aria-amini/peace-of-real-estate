@@ -16,7 +16,7 @@ import { AgentPreviewCard } from '@/components/match/card'
 import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
-import { consumerMatches } from '@/routes/consumer/signup/-steps/mock-matches'
+import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
 import {
 	createAgentProfileFromDraft,
 	draftToAgentProfileUpdate,

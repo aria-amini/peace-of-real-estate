@@ -33,7 +33,7 @@ import type { AgentProfile } from '@/lib/matching/profile.types'
 import { isUserPremium } from '@/lib/premium'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/agent/dashboard/')({
+export const Route = createFileRoute('/(app)/agent/dashboard/')({
 	component: AgentDashboard,
 	loader: () => loadAgentProfile(),
 })
