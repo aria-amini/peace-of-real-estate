@@ -118,17 +118,11 @@ Onboarding is separate from authenticated profile editing. The signup dispatcher
 only handles anonymous draft flows. Dashboard routes handle editing a server
 profile.
 
-Where the same form UI exists in both flows (compliance, peace pact, identity/
-profile details, value proposition), extract a single presentational component
-under `src/components/signup/` and have each route wrap it with its own state
-source and submit handler:
-
-- Signup steps read/write the anonymous `AgentDraft` / `ConsumerDraft` via
-  `loadXxxDraft()` / `saveXxxDraft()`.
-- Dashboard routes read/write the server profile via `loadXxxProfile()` /
-  `saveXxxProfile()` or equivalent server functions.
-
-Keep the wrapper thin; do not duplicate form markup between routes.
+Form components for signup steps and dashboard edit routes are kept separate;
+although they edit some of the same fields, they are used in different contexts
+and have different presentations. Do not try to share them prematurely. Only
+promote genuinely shared UI shell components (wizard shell, leave dialog, signup
+form, etc.) to `src/components/signup/`.
 
 - `agent/signup.tsx` absorbs:
   - agent/-components/flow-pages.tsx
@@ -153,6 +147,18 @@ flow.
 - Delete `ConsumerPriorities` from `consumer/-components/flow-pages.tsx` and
   delete `src/routes/consumer/priorities.tsx`. It is not part of the active
   flow.
+
+## Consumer signup flow order
+
+The dispatcher runs steps in this order:
+
+1. `intro`
+2. `intent`
+3. `home`
+4. `quiz`
+5. `preview`
+
+There is no `priorities` or `payment` step in the signup flow.
 
 ## Delete
 
