@@ -1,4 +1,4 @@
-import { createPostHogProxyRequestHandler } from '@aamini/lib/posthog-proxy'
+import { createPostHogProxyRequestHandler } from '@/lib/posthog-proxy'
 import { createFileRoute } from '@tanstack/react-router'
 
 const proxyRequest = createPostHogProxyRequestHandler({

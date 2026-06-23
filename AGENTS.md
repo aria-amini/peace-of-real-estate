@@ -32,7 +32,7 @@ Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and
 for information about a specific command.
 
 Docs are local at `node_modules/vite-plus/docs` or online at
-<https://viteplus.dev/guide/>.
+https://viteplus.dev/guide/.
 
 ## Review Checklist
 

@@ -1,17 +1,43 @@
-import { baseConfig } from '@aamini/config/playwright'
-import { defineConfig } from '@playwright/test'
+import {
+	defineConfig,
+	devices,
+} from '@playwright/test'
 
 export default defineConfig(
-	await baseConfig({
-		webServer: {
-			command:
-				'BETA_PASSWORD=test123 DATABASE_URL=postgresql://peace_user:peace_test@127.0.0.1:5433/peace_of_real_estate_test?sslmode=disable vp build && BETA_PASSWORD=test123 DATABASE_URL=postgresql://peace_user:peace_test@127.0.0.1:5433/peace_of_real_estate_test?sslmode=disable vp preview --port 3333',
-			url: 'http://localhost:3333',
-			reuseExistingServer: !process.env.CI,
-			timeout: 180 * 1000,
-		},
+	{
+		testDir: './e2e',
+		outputDir: '.playwright/test-results',
+		fullyParallel: true,
+		workers: process.env.CI ? 1 : '50%',
+		forbidOnly: !!process.env.CI,
+		retries: process.env.CI ? 3 : 0,
+		reporter: [
+			['html', { open: 'never', outputFolder: '.playwright/report' }],
+		],
 		use: {
-			baseURL: 'http://localhost:3333',
+			baseURL: process.env.BASE_URL,
+			trace: 'retain-on-first-failure',
+			screenshot: 'on',
+			video: 'retain-on-failure',
 		},
-	}),
+		timeout: 15_000,
+		expect: { timeout: 5_000 },
+		projects: [
+			{
+				name: 'chromium',
+				use: {
+					...devices['Desktop Chrome'],
+					launchOptions: { args: ['--disable-lcd-text'] },
+				},
+			},
+			{
+				name: 'mobile',
+				use: {
+					...devices['Desktop Chrome'],
+					viewport: { width: 320, height: 800 },
+					launchOptions: { args: ['--disable-lcd-text'] },
+				},
+			},
+		],
+	},
 )

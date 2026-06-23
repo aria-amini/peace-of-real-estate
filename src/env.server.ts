@@ -1,4 +1,4 @@
-import { createEnv } from '@aamini/lib/env'
+import { createEnv } from '@/lib/env'
 import { z } from 'zod'
 
 export const serverEnv = createEnv(

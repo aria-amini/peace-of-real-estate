@@ -166,6 +166,6 @@ export async function expectRouteScreenshot(options: RouteTestOptions) {
 	await expect
 		.element(screenshotTarget)
 		.toMatchScreenshot(`${getScreenshotName(options)}.png`, {
-			screenshotOptions: { animations: 'disabled', scale: 'css' },
+			screenshotOptions: { animations: 'disabled', scale: 'css', caret: 'hide' },
 		})
 }
