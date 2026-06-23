@@ -1,9 +1,8 @@
-import { getDb } from '../src/db/connection'
+import { db } from '../src/db/connection'
 import { cities, cityZips } from '../src/db/tables'
 import * as zipcodes from 'zipcodes'
 
 async function seedCityData() {
-	const db = getDb()
 	const now = new Date()
 
 	console.log('Seeding cities and city_zips...')

@@ -1,7 +1,7 @@
 import { and, eq, ilike, or, sql } from 'drizzle-orm'
 import { createServerFn } from '@tanstack/react-start'
 
-import { getDb } from '@/db/connection'
+import { db } from '@/db/connection'
 import { cities, cityZips } from '@/db/tables'
 import type { FeatureCollection } from 'geojson'
 
@@ -76,7 +76,7 @@ const loadCitySuggestions = createServerFn({ method: 'GET' })
 	.handler(async ({ data }) => {
 		const normalizedQuery = data.trim().toLowerCase()
 		if (normalizedQuery.length < 2) {
-			const topCities = await getDb()
+			const topCities = await db
 				.select({
 					label: sql<string>`concat(${cities.city}, ', ', ${cities.state})`,
 				})
@@ -88,7 +88,7 @@ const loadCitySuggestions = createServerFn({ method: 'GET' })
 			return topCities.map((row) => row.label)
 		}
 
-		const matches = await getDb()
+		const matches = await db
 			.select({
 				label: sql<string>`concat(${cities.city}, ', ', ${cities.state})`,
 			})
@@ -112,7 +112,7 @@ const loadCitySuggestions = createServerFn({ method: 'GET' })
 const loadCityZipCodes = createServerFn({ method: 'GET' })
 	.validator((data: CityState) => data)
 	.handler(async ({ data }) => {
-		const rows = await getDb()
+		const rows = await db
 			.select({ zip: cityZips.zip })
 			.from(cityZips)
 			.where(and(eq(cityZips.city, data.city), eq(cityZips.state, data.state)))
@@ -124,7 +124,7 @@ const loadCityZipCodes = createServerFn({ method: 'GET' })
 const loadCityCenter = createServerFn({ method: 'GET' })
 	.validator((data: CityState) => data)
 	.handler(async ({ data }) => {
-		const [row] = await getDb()
+		const [row] = await db
 			.select({ centerLat: cities.centerLat, centerLng: cities.centerLng })
 			.from(cities)
 			.where(and(eq(cities.city, data.city), eq(cities.state, data.state)))
@@ -142,7 +142,7 @@ const loadCityCenter = createServerFn({ method: 'GET' })
 const loadZipCodeBoundaries = createServerFn({ method: 'GET' })
 	.validator((data: CityState) => data)
 	.handler(async ({ data }) => {
-		const zipRows = await getDb()
+		const zipRows = await db
 			.select({ zip: cityZips.zip })
 			.from(cityZips)
 			.where(and(eq(cityZips.city, data.city), eq(cityZips.state, data.state)))

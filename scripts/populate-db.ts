@@ -1,4 +1,4 @@
-import { getDb } from '../src/db/connection'
+import { db } from '../src/db/connection'
 import {
 	user,
 	agentProfiles,
@@ -881,7 +881,6 @@ function buildPhone(): string {
 }
 
 async function populateDb(count: number) {
-	const db = getDb()
 	const now = new Date()
 
 	console.log('Clearing existing data...')

@@ -1,4 +1,4 @@
-import { getDb } from '@/db/connection'
+import { db } from '@/db/connection'
 import { account, session, user, verification } from '@/db/tables'
 import { serverEnv as env } from '@/env.server'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
@@ -23,7 +23,7 @@ export function getAuth() {
 			fallback: appOrigin,
 		},
 		secret: env.BETTER_AUTH_SECRET,
-		database: drizzleAdapter(getDb(), {
+		database: drizzleAdapter(db, {
 			provider: 'pg',
 			schema: { account, session, user, verification },
 		}),

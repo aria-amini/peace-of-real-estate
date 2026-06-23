@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { eq, or } from 'drizzle-orm'
 
-import { getDb } from '@/db/connection'
+import { db } from '@/db/connection'
 import { agentProfiles, consumerProfiles, user } from '@/db/tables'
 import { requireUserId } from '@/lib/auth/functions'
 import { calculateFitScore, type AgentMatchData } from '@/lib/matching/scoring'
@@ -10,7 +10,6 @@ import { getAvatarUrl } from '@/lib/s3'
 export const loadAgentMatches = createServerFn({ method: 'GET' }).handler(
 	async (): Promise<AgentMatchData[]> => {
 		const userId = await requireUserId()
-		const db = getDb()
 
 		const [consumer] = await db
 			.select()

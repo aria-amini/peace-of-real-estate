@@ -3,7 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-import { getDb } from '@/db/connection'
+import { db } from '@/db/connection'
 import { agentProfiles, consumerProfiles } from '@/db/tables'
 import { requireUserId } from '@/lib/auth/functions'
 
@@ -108,7 +108,6 @@ export const agentProfileColumns = {
 const loadConsumerProfile = createServerFn({ method: 'GET' }).handler(
 	async () => {
 		const userId = await requireUserId()
-		const db = getDb()
 		const [profile] = await db
 			.select()
 			.from(consumerProfiles)
@@ -122,7 +121,6 @@ const saveConsumerProfile = createServerFn({ method: 'POST' })
 	.validator(consumerProfileUpdateSchema)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
-		const db = getDb()
 		const now = new Date()
 
 		const existing = await db
@@ -152,7 +150,6 @@ const saveConsumerProfile = createServerFn({ method: 'POST' })
 
 const loadAgentProfile = createServerFn({ method: 'GET' }).handler(async () => {
 	const userId = await requireUserId()
-	const db = getDb()
 	const [profile] = await db
 		.select()
 		.from(agentProfiles)
@@ -165,7 +162,6 @@ const saveAgentProfile = createServerFn({ method: 'POST' })
 	.validator(agentProfileUpdateSchema)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
-		const db = getDb()
 		const now = new Date()
 
 		const existing = await db
@@ -218,7 +214,6 @@ const saveAgentEssentials = createServerFn({ method: 'POST' })
 	.validator(agentProfileUpdateSchema)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
-		const db = getDb()
 		const now = new Date()
 
 		const status = isEssentialsComplete(data) ? 'active' : 'draft'

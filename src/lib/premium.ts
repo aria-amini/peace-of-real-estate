@@ -1,4 +1,4 @@
-import { getDb } from '@/db/connection'
+import { db } from '@/db/connection'
 import { userEntitlements } from '@/db/tables'
 import { getCurrentSession } from '@/lib/auth/functions'
 import { createServerFn } from '@tanstack/react-start'
@@ -13,7 +13,6 @@ export const upgradeToPremium = createServerFn({ method: 'POST' }).handler(
 			throw new Error('Unauthorized')
 		}
 
-		const db = getDb()
 		const now = new Date()
 
 		await db
@@ -48,7 +47,6 @@ export const isUserPremium = createServerFn({ method: 'GET' }).handler(
 			return false
 		}
 
-		const db = getDb()
 		const now = new Date()
 		const result = await db
 			.select({ id: userEntitlements.id })
