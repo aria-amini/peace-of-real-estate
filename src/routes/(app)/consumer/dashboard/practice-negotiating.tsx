@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 export const Route = createFileRoute(
 	'/(app)/consumer/dashboard/practice-negotiating',

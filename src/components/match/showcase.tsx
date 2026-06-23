@@ -1,5 +1,5 @@
 import { CheckCircle2, ClipboardList, MessageSquare, Users } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { MatchCardModern } from '@/components/match/card'

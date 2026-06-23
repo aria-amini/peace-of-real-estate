@@ -31,7 +31,7 @@ import { loadAgentProfile } from '@/lib/matching/profile.db'
 import { agentQuestionFlow } from '@/lib/matching/questions'
 import type { AgentProfile } from '@/lib/matching/profile.types'
 import { isUserPremium } from '@/lib/premium'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 export const Route = createFileRoute('/(app)/agent/dashboard/')({
 	component: AgentDashboard,

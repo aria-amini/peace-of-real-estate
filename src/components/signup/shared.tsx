@@ -3,7 +3,7 @@ import { Check } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 export function StepProgressHeader({
 	stepNumber,

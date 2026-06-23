@@ -7,7 +7,7 @@ import { PriceInput } from '@/components/signup/price-range'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 import type { ConsumerDraft } from '@/lib/drafts'
 import { propertyTypeOptions } from '@/lib/matching/questions'
 import {

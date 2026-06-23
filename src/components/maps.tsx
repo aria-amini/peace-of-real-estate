@@ -11,7 +11,7 @@ import type { Feature, FeatureCollection } from 'geojson'
 import type { StyleSpecification } from 'maplibre-gl'
 
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 export type ZipCodeSelectorProps = {
 	boundaries: FeatureCollection

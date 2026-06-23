@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { loadAgentMatches } from '@/lib/matching/server'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 export const Route = createFileRoute('/(app)/consumer/dashboard/introductions')(
 	{

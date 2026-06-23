@@ -1,5 +1,5 @@
-import { createServerFn } from '@tanstack/react-start'
-import { setCookie } from '@tanstack/react-start/server'
+import { createIsomorphicFn, createServerFn } from '@tanstack/react-start'
+import { getCookie, setCookie } from '@tanstack/react-start/server'
 
 import { serverEnv as env } from '@/env.server'
 
@@ -18,3 +18,7 @@ export const authenticateBeta = createServerFn({ method: 'POST' })
 
 		return { success: isValid }
 	})
+
+export const hasBetaAccess = createIsomorphicFn()
+	.server(() => getCookie('beta_auth') === 'true')
+	.client(() => document.cookie.includes('beta_auth=true'))

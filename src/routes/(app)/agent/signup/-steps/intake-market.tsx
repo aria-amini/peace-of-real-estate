@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Slider } from '@/components/ui/slider'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 import type { AgentDraft } from '@/lib/drafts'
 import type { RepresentationSide } from '@/lib/matching/profile.types'
 import {

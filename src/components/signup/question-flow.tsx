@@ -16,13 +16,12 @@ import { useEffect, useRef, useState } from 'react'
 import { FlowPageShell } from '@/components/signup/step-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { useSwipe } from '@/hooks/use-swipe'
 import {
 	questionOptionEntries,
 	type AnswerValue,
 	type Question,
 } from '@/lib/matching/questions'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 type Answers = Record<string, AnswerValue>
 
@@ -463,14 +462,6 @@ export function QuestionFlow({
 			setUi((prev) => ({ ...prev, poppedOption: null }))
 		}, 100)
 	}
-
-	useSwipe({
-		onSwipeLeft: () => {
-			if (canAdvance && !isLastGroup) handleNext()
-		},
-		onSwipeRight: handleBack,
-		isEnabled: !ui.isTransitioning,
-	})
 
 	const progressNode =
 		typeof progress === 'function'

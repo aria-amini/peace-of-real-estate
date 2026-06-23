@@ -1,6 +1,6 @@
 import '../__mocks__/browser'
 
-import { queryClient as appQueryClient } from '@/lib/query'
+import { queryClient as appQueryClient } from '@/lib/utils/query'
 import { expect } from '@tests/__fixtures__/browser'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {

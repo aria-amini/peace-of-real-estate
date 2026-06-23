@@ -38,7 +38,7 @@ import {
 	serializePriceRange,
 } from '@/components/signup/price-range-utils'
 import { withSaveToast } from '@/lib/toast'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 export const Route = createFileRoute(
 	'/(app)/consumer/dashboard/search-preferences',

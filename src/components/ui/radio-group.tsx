@@ -1,7 +1,7 @@
 import { CircleIcon } from 'lucide-react'
 import { RadioGroup as RadioGroupPrimitive } from 'radix-ui'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 function RadioGroup({
 	className,

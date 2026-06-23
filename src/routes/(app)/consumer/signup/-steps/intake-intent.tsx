@@ -22,7 +22,7 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 import type { ConsumerDraft } from '@/lib/drafts'
 import {
 	loadCityCenter,

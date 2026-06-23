@@ -1,5 +1,5 @@
 import { Slider as SliderPrimitive } from 'radix-ui'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 export function Slider({
 	className,

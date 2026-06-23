@@ -42,7 +42,7 @@ import {
 	formatPriceRange,
 	parsePriceRange,
 } from '@/components/signup/price-range-utils'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
 const stateNames: Record<string, string> = {
 	AL: 'Alabama',

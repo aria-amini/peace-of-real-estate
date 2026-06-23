@@ -17,7 +17,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 import { AgentSidebarShell } from './-components/shell'
 
 export const Route = createFileRoute('/(app)/agent/dashboard/introductions')({
