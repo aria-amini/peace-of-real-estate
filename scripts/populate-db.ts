@@ -962,7 +962,7 @@ async function populateDb(count: number) {
 			businessAddress: buildAddress(location),
 			billingAddress: buildAddress(location),
 			licenseNumberState: `LIC-${randInt(100000, 999999)}-${location.state}`,
-			serviceAreas: location.zips.slice(0, 3),
+			zipCodes: location.zips.slice(0, 3),
 			yearsLicensed: persona.yearsLicensed,
 			averageTransactions: persona.averageTransactions,
 			employmentStatus: persona.employmentStatus,
@@ -972,9 +972,7 @@ async function populateDb(count: number) {
 			licenseAttested: true,
 			eoInsuranceStatus: persona.eoInsuranceStatus,
 			peacePactSigned: persona.peacePactSigned,
-			peacePactSignature: persona.peacePactSigned
-				? `${firstName} ${lastName}`
-				: null,
+			peacePactSignature: `${firstName} ${lastName}`,
 			peacePactSignedAt: persona.peacePactSigned
 				? new Date(now.getTime() - randInt(0, 90) * 86400000)
 				: null,

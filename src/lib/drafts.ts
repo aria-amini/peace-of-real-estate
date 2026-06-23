@@ -4,6 +4,7 @@ import { requireUserId } from '@/lib/auth/functions'
 import {
 	createAgentProfile,
 	saveConsumerProfile,
+	type AgentProfileCreateInput,
 	type AgentProfileUpdate,
 	type ConsumerProfileUpdate,
 } from '@/lib/matching/profile'
@@ -24,12 +25,7 @@ export type ConsumerDraft = ConsumerProfileUpdate & {
 	answers: Answers
 }
 
-export type AgentDraft = AgentProfileUpdate & {
-	city?: string
-	state?: string
-	zipCodes?: string[]
-	answers?: Answers
-}
+export type AgentDraft = Partial<AgentProfileCreateInput>
 
 //region LocalStorage helpers
 
@@ -193,7 +189,7 @@ export const completeAgentSignup = createServerFn({ method: 'POST' })
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)
-		await createAgentProfile({ data: update })
+		await createAgentProfile({ data: update as AgentProfileCreateInput })
 		return { success: true }
 	})
 

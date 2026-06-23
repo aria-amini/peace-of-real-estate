@@ -116,7 +116,7 @@ function AgentDashboard() {
 					</h1>
 					<p className="text-muted-foreground mt-1 truncate text-sm">
 						{agentProfile?.brokerageName
-							? `${agentProfile.brokerageName} · ${agentProfile.serviceAreas[0] ?? 'No service area'}`
+							? `${agentProfile.brokerageName} · ${agentProfile.zipCodes[0] ?? 'No service area'}`
 							: (session?.user.email ?? 'No email on file')}
 					</p>
 				</div>
@@ -330,7 +330,7 @@ function computeProfileStrength(profile: AgentProfile | null) {
 		profile.email,
 		profile.phone,
 		profile.licenseNumberState,
-		profile.serviceAreas.length > 0,
+		profile.zipCodes.length > 0,
 		profile.typicalPriceRange,
 		profile.representationSide,
 		profile.bestClientTypes.length > 0,

@@ -7,7 +7,7 @@ import { FlowPageShell } from '@/components/signup/step-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { loadAgentProfile, updateAgentProfile } from '@/lib/matching/profile'
-import { withSaveToast } from '@/lib/toast'
+import { withSaveToast } from '@/lib/utils/ui/toast'
 
 export const Route = createFileRoute(
 	'/(app)/agent/dashboard/value-proposition',

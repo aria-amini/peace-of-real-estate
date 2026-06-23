@@ -29,10 +29,12 @@ export const consumerProfileColumns = {
 }
 
 export const agentCoreProfileColumns = {
-	representationSide: text('representation_side').$type<RepresentationSide>(),
-	city: text(),
-	state: text(),
-	typicalPriceRange: text('typical_price_range'),
+	representationSide: text('representation_side')
+		.$type<RepresentationSide>()
+		.notNull(),
+	city: text().notNull(),
+	state: text().notNull(),
+	typicalPriceRange: text('typical_price_range').notNull(),
 	bestClientTypes: text('best_client_types').array().notNull().default([]),
 	notFitFor: text('not_fit_for'),
 }

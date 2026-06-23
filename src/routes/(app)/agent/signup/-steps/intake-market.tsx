@@ -62,7 +62,11 @@ export function AgentMarket({
 	const [priceRange, setPriceRange] = useState(initialRange)
 	const [representationSide, setRepresentationSide] = useState<
 		RepresentationSide | ''
-	>(state.representationSide ?? '')
+	>(
+		state.representationSide
+			? (state.representationSide as RepresentationSide)
+			: '',
+	)
 	const [bestClientTypes, setBestClientTypes] = useState<string[]>(
 		state.bestClientTypes ?? [],
 	)
@@ -102,8 +106,6 @@ export function AgentMarket({
 		onUpdate({
 			...locationUpdate,
 			zipCodes: selectedZipCodes,
-			serviceAreas:
-				selectedZipCodes.length > 0 ? selectedZipCodes : [committedLocation],
 			typicalPriceRange: serializePriceRange(priceRange),
 			representationSide: representationSide as RepresentationSide,
 			bestClientTypes,

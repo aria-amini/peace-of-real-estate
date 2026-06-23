@@ -236,7 +236,7 @@ export function calculateFitScore(
 
 	add(
 		'Fit',
-		agent.serviceAreas.some(
+		agent.zipCodes.some(
 			(area) =>
 				area &&
 				consumer.state &&

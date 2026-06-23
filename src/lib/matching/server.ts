@@ -42,7 +42,7 @@ export const loadAgentMatches = createServerFn({ method: 'GET' }).handler(
 					name: row.user.name,
 					role: 'agent' as const,
 					location: `${row.agent.city}, ${row.agent.state}`,
-					zipCodes: row.agent.serviceAreas,
+					zipCodes: row.agent.zipCodes,
 					fitScore: score.fitScore,
 					status: 'new' as const,
 					date: new Date(row.agent.updatedAt).toLocaleDateString(),

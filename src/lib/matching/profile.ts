@@ -1,5 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
+import { createInsertSchema } from 'drizzle-zod'
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
 import { db } from '@/db/connection'
 import { agentProfiles, consumerProfiles } from '@/db/tables'
@@ -25,6 +27,53 @@ export type ConsumerProfileUpdate = Partial<
 export type AgentProfileUpdate = Partial<
 	Omit<AgentProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
 >
+
+const agentProfileCreateSchema = createInsertSchema(agentProfiles)
+	.omit({
+		id: true,
+		userId: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.partial({
+		email: true,
+		phone: true,
+		businessAddress: true,
+		billingAddress: true,
+		yearsLicensed: true,
+		averageTransactions: true,
+		employmentStatus: true,
+		licenseProof: true,
+		clientFirstTerms: true,
+		peacePactSignedAt: true,
+		valueProposition: true,
+		idealClientDescription: true,
+		whyIStarted: true,
+		typicalDayInDeal: true,
+		hardNo: true,
+		valueBeyondTransaction: true,
+		communicationCadence: true,
+		quickContactStyle: true,
+		updateDeliveryStyle: true,
+		responseTime: true,
+		transparencyStyle: true,
+		clientBoundaryStyle: true,
+		negotiationEthic: true,
+		dualAgencyStyle: true,
+		energyStyle: true,
+		teachingStyle: true,
+		dealStressStyle: true,
+		decisionMakingStyle: true,
+		serviceDepth: true,
+		involvementLevel: true,
+		representationPreference: true,
+		notFitFor: true,
+	})
+	.extend({
+		representationSide: z.enum(['buying', 'selling', 'both']),
+	})
+
+export type AgentProfileCreateInput = z.infer<typeof agentProfileCreateSchema>
 
 const loadConsumerProfile = createServerFn({ method: 'GET' }).handler(
 	async () => {
@@ -79,34 +128,9 @@ const loadAgentProfile = createServerFn({ method: 'GET' }).handler(async () => {
 	return profile ?? null
 })
 
-export function isAgentProfileComplete(data: AgentProfileUpdate) {
-	return Boolean(
-		data.firstName?.trim() &&
-		data.lastName?.trim() &&
-		data.brokerageName?.trim() &&
-		data.licenseNumberState?.trim() &&
-		data.city?.trim() &&
-		data.state?.trim() &&
-		data.serviceAreas &&
-		data.serviceAreas.length > 0 &&
-		data.typicalPriceRange?.trim() &&
-		data.representationSide?.trim() &&
-		data.bestClientTypes &&
-		data.bestClientTypes.length > 0 &&
-		data.licenseAttested &&
-		data.eoInsuranceStatus?.trim() &&
-		data.peacePactSigned &&
-		data.peacePactSignature?.trim(),
-	)
-}
-
 const createAgentProfile = createServerFn({ method: 'POST' })
-	.validator((data: AgentProfileUpdate) => data)
+	.validator((data: AgentProfileCreateInput) => data)
 	.handler(async ({ data }) => {
-		if (!isAgentProfileComplete(data)) {
-			throw new Error('Agent profile is incomplete')
-		}
-
 		const userId = await requireUserId()
 		const now = new Date()
 
@@ -120,16 +144,15 @@ const createAgentProfile = createServerFn({ method: 'POST' })
 			throw new Error('Agent profile already exists')
 		}
 
-		await db.insert(agentProfiles).values({
+		const insert = {
 			id: crypto.randomUUID(),
 			userId,
-			usePaxWriter: data.usePaxWriter ?? true,
-			licenseAttested: data.licenseAttested ?? false,
-			peacePactSigned: data.peacePactSigned ?? false,
 			...data,
 			createdAt: now,
 			updatedAt: now,
-		})
+		} satisfies AgentProfileInsert
+
+		await db.insert(agentProfiles).values(insert)
 	})
 
 const updateAgentProfile = createServerFn({ method: 'POST' })

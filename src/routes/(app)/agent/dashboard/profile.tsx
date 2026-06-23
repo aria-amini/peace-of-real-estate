@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { loadAgentProfile, updateAgentProfile } from '@/lib/matching/profile'
 import type { AgentProfileUpdate } from '@/lib/matching/profile'
-import { withSaveToast } from '@/lib/toast'
+import { withSaveToast } from '@/lib/utils/ui/toast'
 
 export const Route = createFileRoute('/(app)/agent/dashboard/profile')({
 	component: AgentProfile,
@@ -45,7 +45,7 @@ const emptyProfile: AgentProfileUpdate = {
 	city: '',
 	state: '',
 	licenseNumberState: '',
-	serviceAreas: [],
+	zipCodes: [],
 	yearsLicensed: '',
 	averageTransactions: '',
 	employmentStatus: '',
@@ -61,8 +61,8 @@ function AgentProfile() {
 	const navigate = useNavigate()
 	const initial = { ...emptyProfile, ...agentProfile }
 	const [formData, setFormData] = useState<AgentProfileUpdate>(initial)
-	const [serviceAreas, setServiceAreas] = useState(
-		(initial.serviceAreas ?? []).join(', '),
+	const [zipCodes, setServiceAreas] = useState(
+		(initial.zipCodes ?? []).join(', '),
 	)
 
 	const updateField = (
@@ -73,13 +73,13 @@ function AgentProfile() {
 	}
 
 	const handleContinue = async () => {
-		const parts = serviceAreas
+		const parts = zipCodes
 			.split(',')
 			.map((area) => area.trim())
 			.filter(Boolean)
 		const update: AgentProfileUpdate = {
 			...formData,
-			serviceAreas: parts,
+			zipCodes: parts,
 		}
 		const ok = await withSaveToast(() => saveAgent({ data: update }))
 		if (ok) {
@@ -118,7 +118,7 @@ function AgentProfile() {
 				<Label className="text-muted-foreground flex-col items-start gap-2 text-xs font-medium tracking-[0.14em] uppercase sm:col-span-2">
 					Service areas
 					<Input
-						value={serviceAreas}
+						value={zipCodes}
 						onChange={(event) => setServiceAreas(event.target.value)}
 						placeholder="Area 1, Area 2, Area 3"
 						className="tracking-normal normal-case"

@@ -7,7 +7,7 @@ import { FlowIntakeProgress } from '@/components/signup/shared'
 import { LeaveDialog } from '@/components/signup/leave-dialog'
 import { loadAgentDraft, saveAgentDraft, type AgentDraft } from '@/lib/drafts'
 import { getCurrentSession } from '@/lib/auth/functions'
-import { loadAgentProfile } from '@/lib/matching/profile'
+import { loadAgentProfile, type AgentProfile } from '@/lib/matching/profile'
 import {
 	AgentCompliance,
 	AgentIdentity,
@@ -15,7 +15,11 @@ import {
 	AgentPeacePact,
 	AgentWelcome,
 } from './-steps'
-import { AgentPreview, draftToPreviewProfile } from './-steps/preview'
+import {
+	AgentPreview,
+	agentProfileCreateSchema,
+	draftToPreviewProfile,
+} from './-steps/preview'
 import { agentFlowSteps, stepOrder, type AgentFlowStep } from './-steps/shared'
 
 const signupSearchSchema = z.object({
@@ -122,7 +126,10 @@ function AgentSignupRoute() {
 		.map((s) => s.id)
 
 	if (step === 'preview') {
-		const profile = draftToPreviewProfile(state)
+		const parsed = agentProfileCreateSchema.safeParse(state)
+		const profile = parsed.success
+			? draftToPreviewProfile(parsed.data as AgentProfile)
+			: draftToPreviewProfile(state as AgentProfile)
 		return (
 			<>
 				<AgentPreview profile={profile} />

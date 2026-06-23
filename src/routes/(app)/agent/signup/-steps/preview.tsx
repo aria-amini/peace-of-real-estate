@@ -12,17 +12,15 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
+import { createInsertSchema } from 'drizzle-zod'
+
 import { AgentPreviewCard } from '@/components/match/card'
 import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
+import { agentProfiles } from '@/db/tables'
 import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
-import {
-	completeAgentSignup,
-	draftToAgentProfileUpdate,
-	loadAgentDraft,
-	type AgentDraft,
-} from '@/lib/drafts'
+import { completeAgentSignup, loadAgentDraft } from '@/lib/drafts'
 import {
 	agentQuestionFlow,
 	questionOptionLabel,
@@ -35,63 +33,57 @@ import {
 } from '@/components/signup/price-range'
 import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
 
-export function draftToPreviewProfile(draft: AgentDraft): AgentProfile {
-	const update = draftToAgentProfileUpdate(draft)
-	const now = new Date()
+export const agentProfileCreateSchema = createInsertSchema(agentProfiles)
+	.omit({
+		id: true,
+		userId: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.partial({
+		email: true,
+		phone: true,
+		businessAddress: true,
+		billingAddress: true,
+		yearsLicensed: true,
+		averageTransactions: true,
+		employmentStatus: true,
+		licenseProof: true,
+		clientFirstTerms: true,
+		usePaxWriter: true,
+		peacePactSignedAt: true,
+		valueProposition: true,
+		idealClientDescription: true,
+		whyIStarted: true,
+		typicalDayInDeal: true,
+		hardNo: true,
+		valueBeyondTransaction: true,
+		communicationCadence: true,
+		quickContactStyle: true,
+		updateDeliveryStyle: true,
+		responseTime: true,
+		transparencyStyle: true,
+		clientBoundaryStyle: true,
+		negotiationEthic: true,
+		dualAgencyStyle: true,
+		energyStyle: true,
+		teachingStyle: true,
+		dealStressStyle: true,
+		decisionMakingStyle: true,
+		serviceDepth: true,
+		involvementLevel: true,
+		representationPreference: true,
+		matchPriorities: true,
+		notFitFor: true,
+	})
 
+export function draftToPreviewProfile(draft: AgentProfile): AgentProfile {
 	return {
+		...draft,
 		id: 'preview',
 		userId: 'preview',
-		createdAt: now,
-		updatedAt: now,
-		representationSide: update.representationSide ?? null,
-		typicalPriceRange: update.typicalPriceRange ?? null,
-		bestClientTypes: update.bestClientTypes ?? [],
-		notFitFor: update.notFitFor ?? null,
-		communicationCadence: update.communicationCadence ?? null,
-		quickContactStyle: update.quickContactStyle ?? null,
-		updateDeliveryStyle: update.updateDeliveryStyle ?? null,
-		responseTime: update.responseTime ?? null,
-		transparencyStyle: update.transparencyStyle ?? null,
-		clientBoundaryStyle: update.clientBoundaryStyle ?? null,
-		negotiationEthic: update.negotiationEthic ?? null,
-		dualAgencyStyle: update.dualAgencyStyle ?? null,
-		energyStyle: update.energyStyle ?? null,
-		teachingStyle: update.teachingStyle ?? null,
-		dealStressStyle: update.dealStressStyle ?? null,
-		decisionMakingStyle: update.decisionMakingStyle ?? null,
-		serviceDepth: update.serviceDepth ?? null,
-		involvementLevel: update.involvementLevel ?? null,
-		representationPreference: update.representationPreference ?? null,
-		matchPriorities: update.matchPriorities ?? [],
-		valueProposition: update.valueProposition ?? null,
-		idealClientDescription: update.idealClientDescription ?? null,
-		whyIStarted: update.whyIStarted ?? null,
-		typicalDayInDeal: update.typicalDayInDeal ?? null,
-		hardNo: update.hardNo ?? null,
-		valueBeyondTransaction: update.valueBeyondTransaction ?? null,
-		firstName: update.firstName ?? null,
-		lastName: update.lastName ?? null,
-		brokerageName: update.brokerageName ?? null,
-		email: update.email ?? null,
-		phone: update.phone ?? null,
-		businessAddress: update.businessAddress ?? null,
-		billingAddress: null,
-		licenseNumberState: update.licenseNumberState ?? null,
-		city: update.city ?? null,
-		state: update.state ?? null,
-		serviceAreas: update.serviceAreas ?? [],
-		yearsLicensed: update.yearsLicensed ?? null,
-		averageTransactions: update.averageTransactions ?? null,
-		employmentStatus: update.employmentStatus ?? null,
-		licenseProof: update.licenseProof ?? null,
-		clientFirstTerms: update.clientFirstTerms ?? null,
-		usePaxWriter: true,
-		licenseAttested: update.licenseAttested ?? false,
-		eoInsuranceStatus: update.eoInsuranceStatus ?? null,
-		peacePactSigned: update.peacePactSigned ?? false,
-		peacePactSignature: update.peacePactSignature ?? null,
-		peacePactSignedAt: null,
+		createdAt: new Date(),
+		updatedAt: new Date(),
 	}
 }
 
@@ -230,10 +222,10 @@ function getProfileStats(profile: AgentProfile) {
 		})
 	}
 
-	if (profile.serviceAreas.length > 0) {
+	if (profile.zipCodes.length > 0) {
 		stats.push({
 			label: 'Service areas',
-			value: profile.serviceAreas.slice(0, 3).join(', '),
+			value: profile.zipCodes.slice(0, 3).join(', '),
 		})
 	}
 
@@ -291,8 +283,8 @@ function AgentProfileCard({ profile }: { profile: AgentProfile }) {
 		.join(' ')
 	const title = fullName || 'Your Agent Profile'
 	const subtitle = profile.brokerageName
-		? `${profile.brokerageName}${profile.serviceAreas[0] ? ` · ${profile.serviceAreas[0]}` : ''}`
-		: profile.serviceAreas[0]
+		? `${profile.brokerageName}${profile.zipCodes[0] ? ` · ${profile.zipCodes[0]}` : ''}`
+		: profile.zipCodes[0]
 
 	return (
 		<Card className="gap-0 rounded-2xl border-slate-200 bg-white p-0 shadow-sm">

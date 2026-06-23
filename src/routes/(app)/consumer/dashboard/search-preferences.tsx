@@ -37,7 +37,7 @@ import {
 	PRICE_STEP,
 	serializePriceRange,
 } from '@/components/signup/price-range'
-import { withSaveToast } from '@/lib/toast'
+import { withSaveToast } from '@/lib/utils/ui/toast'
 import { cn } from '@/lib/utils/ui'
 
 export const Route = createFileRoute(

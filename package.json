@@ -88,6 +88,7 @@
 		"drizzle-kit": "^0.31.10",
 		"drizzle-orm": "^0.45.2",
 		"drizzle-seed": "^0.3.1",
+		"drizzle-zod": "^0.8.3",
 		"msw": "^2.14.6",
 		"pg": "^8.22.0",
 		"pg-copy-streams": "^7.0.0",
