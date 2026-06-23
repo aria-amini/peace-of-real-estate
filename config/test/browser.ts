@@ -19,7 +19,7 @@ let workerSingleton: SetupWorker | undefined
 
 async function ensureWorker(): Promise<SetupWorker> {
 	if (!workerSingleton) {
-		const { default: handlers } = await import('@test/handlers')
+		const { default: handlers } = await import('@tests/__mocks__/handlers')
 		workerSingleton = setupWorker(...handlers)
 	}
 	return workerSingleton

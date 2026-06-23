@@ -42,7 +42,7 @@ let seedFunction: (db: Database) => Promise<void> | void = async () => {}
 
 async function ensureMswServer(): Promise<SetupServer> {
 	if (!mswServer) {
-		const { default: handlers } = await import('@test/handlers')
+		const { default: handlers } = await import('@tests/__mocks__/handlers')
 		mswServer = setupServer(...handlers)
 	}
 	return mswServer

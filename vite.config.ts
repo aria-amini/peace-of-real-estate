@@ -141,7 +141,7 @@ export default defineConfig({
 				test: {
 					name: 'browser',
 					include: ['src/**/*.test.tsx', 'tests/**/*.test.tsx'],
-					setupFiles: ['./config/setup/styles.ts'],
+					setupFiles: ['./tests/__mocks__/styles.ts'],
 					browser: {
 						instances: [{ browser: 'chromium' }],
 						provider: playwright(),
