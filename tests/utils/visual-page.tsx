@@ -2,7 +2,7 @@ import { createElement, type ComponentType } from 'react'
 import { page } from 'vite-plus/test/browser'
 import { render } from 'vitest-browser-react'
 
-import { expect } from './browser'
+import { expect } from '@tests/__fixtures__/browser'
 
 async function waitForImages() {
 	await Promise.all(

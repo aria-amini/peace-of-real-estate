@@ -1,6 +1,6 @@
 import '@tests/__mocks__/browser'
 
-import { test } from '@config/test/browser'
+import { test } from '@tests/__fixtures__/browser'
 
 import { expectRouteScreenshot } from '@tests/utils/file-routes'
 

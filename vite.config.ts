@@ -89,10 +89,6 @@ export default defineConfig({
 		tsconfigPaths: true,
 		dedupe: ['react', 'react-dom'],
 		alias: [
-			{
-				find: /^@config\/(.*)$/,
-				replacement: `${root}/config/$1`,
-			},
 			{ find: '@', replacement: resolve(root, 'src') },
 			{ find: '@tests', replacement: resolve(root, 'tests') },
 		],

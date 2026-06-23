@@ -1,7 +1,7 @@
 import '../__mocks__/browser'
 
 import { queryClient as appQueryClient } from '@/lib/query'
-import { expect } from '@config/test/browser'
+import { expect } from '@tests/__fixtures__/browser'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
 	createMemoryHistory,

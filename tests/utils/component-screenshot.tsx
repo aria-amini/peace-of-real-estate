@@ -10,7 +10,7 @@ import {
 	RouterProvider,
 	type RouteComponent,
 } from '@tanstack/react-router'
-import { expect } from '@config/test/browser'
+import { expect } from '@tests/__fixtures__/browser'
 import { page } from 'vite-plus/test/browser'
 import { render, type RenderResult } from 'vitest-browser-react'
 
