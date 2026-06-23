@@ -1,6 +1,6 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Map, { Layer, Source } from 'react-map-gl/maplibre'
 import type {
 	LayerProps,
@@ -49,6 +49,16 @@ const CARTO_STYLE = {
 		},
 	],
 } satisfies StyleSpecification
+
+const LINE_LAYER = {
+	id: 'zip-line',
+	type: 'line',
+	source: 'zip-codes',
+	paint: {
+		'line-color': '#9ca3af',
+		'line-width': 1,
+	},
+} satisfies LayerProps
 
 function expandBoundsFromRing(bounds: BBox, ring: unknown) {
 	if (!Array.isArray(ring)) return
@@ -135,7 +145,7 @@ function ZipCodeMap({
 	const mapRef = useRef<MapRef>(null)
 	const [mapLoaded, setMapLoaded] = useState(false)
 
-	const bounds = useMemo(() => getBounds(boundaries.features), [boundaries])
+	const bounds = getBounds(boundaries.features)
 
 	useEffect(() => {
 		if (!mapRef.current || !mapLoaded) return
@@ -157,57 +167,35 @@ function ZipCodeMap({
 		}
 	}, [bounds, center, mapLoaded])
 
-	const fillLayer = useMemo(
-		() =>
-			({
-				id: 'zip-fill',
-				type: 'fill',
-				source: 'zip-codes',
-				paint: {
-					'fill-color': [
-						'case',
-						[
-							'boolean',
-							['in', ['get', 'ZCTA5'], ['literal', selectedZipCodes]],
-							false,
-						],
-						'#2563eb',
-						'#e5e7eb',
-					],
-					'fill-opacity': 0.5,
-				},
-			}) satisfies LayerProps,
-		[selectedZipCodes],
-	)
+	const fillLayer = {
+		id: 'zip-fill',
+		type: 'fill',
+		source: 'zip-codes',
+		paint: {
+			'fill-color': [
+				'case',
+				[
+					'boolean',
+					['in', ['get', 'ZCTA5'], ['literal', selectedZipCodes]],
+					false,
+				],
+				'#2563eb',
+				'#e5e7eb',
+			],
+			'fill-opacity': 0.5,
+		},
+	} satisfies LayerProps
 
-	const lineLayer = useMemo(
-		() =>
-			({
-				id: 'zip-line',
-				type: 'line',
-				source: 'zip-codes',
-				paint: {
-					'line-color': '#9ca3af',
-					'line-width': 1,
-				},
-			}) satisfies LayerProps,
-		[],
-	)
-
-	const selectedLineLayer = useMemo(
-		() =>
-			({
-				id: 'zip-line-selected',
-				type: 'line',
-				source: 'zip-codes',
-				filter: ['in', ['get', 'ZCTA5'], ['literal', selectedZipCodes]],
-				paint: {
-					'line-color': '#2563eb',
-					'line-width': 2,
-				},
-			}) satisfies LayerProps,
-		[selectedZipCodes],
-	)
+	const selectedLineLayer = {
+		id: 'zip-line-selected',
+		type: 'line',
+		source: 'zip-codes',
+		filter: ['in', ['get', 'ZCTA5'], ['literal', selectedZipCodes]],
+		paint: {
+			'line-color': '#2563eb',
+			'line-width': 2,
+		},
+	} satisfies LayerProps
 
 	function handleClick(event: MapLayerMouseEvent) {
 		if (!onToggleZipCode) return
@@ -217,57 +205,29 @@ function ZipCodeMap({
 		onToggleZipCode(zipCode)
 	}
 
-	const handleMouseEnter = useCallback(() => {
+	function handleMouseEnter() {
 		if (!mapRef.current) return
 		mapRef.current.getCanvas().style.cursor = 'pointer'
-	}, [])
+	}
 
-	const handleMouseLeave = useCallback(() => {
+	function handleMouseLeave() {
 		if (!mapRef.current) return
 		mapRef.current.getCanvas().style.cursor = ''
-	}, [])
-
-	const handleClickCallback = useCallback(
-		(event: MapLayerMouseEvent) => {
-			handleClick(event)
-		},
-		// handleClick only depends on onToggleZipCode which is stable in practice
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[onToggleZipCode],
-	)
+	}
 
 	const interactiveLayerIds = ['zip-fill']
 
-	const mapCallbacks = useMemo(() => {
-		if (readOnly) {
-			return {
-				onClick: () => {},
-				onMouseEnter: () => {},
-				onMouseLeave: () => {},
+	const initialViewState = center
+		? {
+				longitude: center.longitude,
+				latitude: center.latitude,
+				zoom: 10,
 			}
-		}
-		return {
-			onClick: handleClickCallback,
-			onMouseEnter: handleMouseEnter,
-			onMouseLeave: handleMouseLeave,
-		}
-	}, [readOnly, handleClickCallback, handleMouseEnter, handleMouseLeave])
-
-	const initialViewState = useMemo(
-		() =>
-			center
-				? {
-						longitude: center.longitude,
-						latitude: center.latitude,
-						zoom: 10,
-					}
-				: {
-						longitude: -98.5795,
-						latitude: 39.8283,
-						zoom: 3,
-					},
-		[center],
-	)
+		: {
+				longitude: -98.5795,
+				latitude: 39.8283,
+				zoom: 3,
+			}
 
 	return (
 		<div className={cn('relative h-80 overflow-hidden rounded-2xl', className)}>
@@ -282,13 +242,19 @@ function ZipCodeMap({
 				touchZoomRotate={false}
 				keyboard={false}
 				{...(readOnly ? { interactiveLayerIds: [] } : { interactiveLayerIds })}
-				{...mapCallbacks}
+				{...(readOnly
+					? {}
+					: {
+							onClick: handleClick,
+							onMouseEnter: handleMouseEnter,
+							onMouseLeave: handleMouseLeave,
+						})}
 				onLoad={() => setMapLoaded(true)}
 				style={{ width: '100%', height: '100%' }}
 			>
 				<Source id="zip-codes" type="geojson" data={boundaries} />
 				<Layer {...fillLayer} />
-				<Layer {...lineLayer} />
+				<Layer {...LINE_LAYER} />
 				<Layer {...selectedLineLayer} />
 			</Map>
 		</div>
