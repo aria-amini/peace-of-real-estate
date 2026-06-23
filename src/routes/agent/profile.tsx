@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useServerFn } from '@tanstack/react-start'
 import { ArrowRight, User } from 'lucide-react'
 import { useState } from 'react'
 
@@ -8,11 +9,16 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { useAccountSettings } from '@/hooks/use-account-settings'
+import {
+	loadAgentProfile,
+	saveAgentProfile,
+} from '@/lib/matching/profile.db'
 import type { AgentProfileUpdate } from '@/lib/matching/profile.types'
+import { withSaveToast } from '@/lib/toast'
 
 export const Route = createFileRoute('/agent/profile')({
 	component: AgentProfile,
+	loader: () => loadAgentProfile(),
 })
 
 const textFields = [
@@ -49,15 +55,14 @@ const emptyProfile: AgentProfileUpdate = {
 }
 
 function AgentProfile() {
-	const { agentProfile, loading, saveAgent } = useAccountSettings()
+	const agentProfile = Route.useLoaderData()
+	const saveAgent = useServerFn(saveAgentProfile)
 	const navigate = useNavigate()
 	const initial = { ...emptyProfile, ...agentProfile }
 	const [formData, setFormData] = useState<AgentProfileUpdate>(initial)
 	const [serviceAreas, setServiceAreas] = useState(
 		(initial.serviceAreas ?? []).join(', '),
 	)
-
-	if (loading) return null
 
 	const updateField = (
 		field: keyof AgentProfileUpdate,
@@ -75,7 +80,7 @@ function AgentProfile() {
 			...formData,
 			serviceAreas: parts,
 		}
-		const ok = await saveAgent(update)
+		const ok = await withSaveToast(() => saveAgent({ data: update }))
 		if (ok) {
 			await navigate({ to: '/agent/compliance' })
 		}

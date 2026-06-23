@@ -26,8 +26,8 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { useAccountSettings } from '@/hooks/use-account-settings'
 import { authClient } from '@/lib/auth/client'
+import { loadAgentProfile } from '@/lib/matching/profile.db'
 import { agentQuestionFlow } from '@/lib/matching/questions'
 import type { AgentProfile } from '@/lib/matching/profile.types'
 import { isUserPremium } from '@/lib/premium'
@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/agent/dashboard/')({
 	component: AgentDashboard,
+	loader: () => loadAgentProfile(),
 })
 
 const pipelineSteps = [
@@ -60,17 +61,13 @@ const trustBadges = [
 ]
 
 function AgentDashboard() {
+	const agentProfile = Route.useLoaderData()
 	const { data: session } = authClient.useSession()
-	const { agentProfile, loading } = useAccountSettings()
 	const { data: premiumStatus } = useQuery({
 		queryKey: ['user-premium'],
 		queryFn: isUserPremium,
 		enabled: Boolean(session),
 	})
-
-	if (loading) {
-		return <div className="flex-1" />
-	}
 
 	const tierLabel = premiumStatus ? 'Premium' : 'Free'
 	const fullName = [agentProfile?.firstName, agentProfile?.lastName]

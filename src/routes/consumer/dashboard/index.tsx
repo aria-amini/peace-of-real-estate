@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import {
@@ -26,24 +26,24 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { useAccountSettings } from '@/hooks/use-account-settings'
 import { authClient } from '@/lib/auth/client'
 import {
 	clearConsumerDraft,
 	createConsumerProfileFromDraft,
 	loadConsumerDraft,
 } from '@/lib/drafts'
+import { loadConsumerProfile } from '@/lib/matching/profile.db'
 import { isUserPremium } from '@/lib/premium'
 import { formatPriceRange, parsePriceRange } from '@/components/flow/price-range-utils'
 
 export const Route = createFileRoute('/consumer/dashboard/')({
 	component: ConsumerDashboard,
+	loader: () => loadConsumerProfile(),
 })
 
 function ConsumerDashboard() {
-	const queryClient = useQueryClient()
+	const consumerProfile = Route.useLoaderData()
 	const { data: session } = authClient.useSession()
-	const { consumerProfile, loading } = useAccountSettings()
 	const createProfile = useServerFn(createConsumerProfileFromDraft)
 	const draftCompletionStarted = useRef(false)
 	const [showPaywall, setShowPaywall] = useState(false)
@@ -69,7 +69,6 @@ function ConsumerDashboard() {
 			try {
 				await createProfile({ data: draft })
 				clearConsumerDraft()
-				await queryClient.invalidateQueries({ queryKey: ['consumer-profile'] })
 			} catch (error) {
 				console.error('Unable to complete consumer profile', error)
 				draftCompletionStarted.current = false
@@ -77,9 +76,9 @@ function ConsumerDashboard() {
 		}
 
 		void completeDraft()
-	}, [createProfile, queryClient, session])
+	}, [createProfile, session])
 
-	if (loading) {
+	if (consumerProfile === undefined) {
 		return <div className="flex-1" />
 	}
 

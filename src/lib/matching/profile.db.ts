@@ -10,7 +10,7 @@ import type {
 	ConsumerProfileUpdate,
 } from '@/lib/matching/profile.types'
 
-const loadConsumerProfileServer = createServerFn({ method: 'GET' }).handler(
+const loadConsumerProfile = createServerFn({ method: 'GET' }).handler(
 	async () => {
 		const userId = await requireUserId()
 		const db = getDb()
@@ -23,7 +23,7 @@ const loadConsumerProfileServer = createServerFn({ method: 'GET' }).handler(
 	},
 )
 
-const saveConsumerProfileServer = createServerFn({ method: 'POST' })
+const saveConsumerProfile = createServerFn({ method: 'POST' })
 	.inputValidator((data) => data as ConsumerProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
@@ -55,7 +55,7 @@ const saveConsumerProfileServer = createServerFn({ method: 'POST' })
 		})
 	})
 
-const loadAgentProfileServer = createServerFn({ method: 'GET' }).handler(
+const loadAgentProfile = createServerFn({ method: 'GET' }).handler(
 	async () => {
 		const userId = await requireUserId()
 		const db = getDb()
@@ -68,7 +68,7 @@ const loadAgentProfileServer = createServerFn({ method: 'GET' }).handler(
 	},
 )
 
-const saveAgentProfileServer = createServerFn({ method: 'POST' })
+const saveAgentProfile = createServerFn({ method: 'POST' })
 	.inputValidator((data) => data as AgentProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
@@ -156,7 +156,7 @@ function computeDeepProfileStatus(
 	return 'not_started'
 }
 
-const saveAgentEssentialsServer = createServerFn({ method: 'POST' })
+const saveAgentEssentials = createServerFn({ method: 'POST' })
 	.inputValidator((data) => data as AgentProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
@@ -194,7 +194,7 @@ const saveAgentEssentialsServer = createServerFn({ method: 'POST' })
 		})
 	})
 
-const saveAgentDeepProfileServer = createServerFn({ method: 'POST' })
+const saveAgentDeepProfile = createServerFn({ method: 'POST' })
 	.inputValidator((data) => data as AgentProfileUpdate)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
@@ -241,9 +241,9 @@ const saveAgentDeepProfileServer = createServerFn({ method: 'POST' })
 		})
 	})
 
-export async function loadConsumerProfile() {
-	return loadConsumerProfileServer()
-}
+export { loadConsumerProfile, saveConsumerProfile }
+export { loadAgentProfile, saveAgentProfile }
+export { saveAgentEssentials, saveAgentDeepProfile }
 
 export function hasCompletedConsumerIntake(
 	profile: ConsumerProfile | null | undefined,
@@ -254,24 +254,4 @@ export function hasCompletedConsumerIntake(
 		profile?.representationPreference ||
 		profile?.commissionComfort,
 	)
-}
-
-export async function saveConsumerProfile(update: ConsumerProfileUpdate) {
-	await saveConsumerProfileServer({ data: update })
-}
-
-export async function loadAgentProfile() {
-	return loadAgentProfileServer()
-}
-
-export async function saveAgentProfile(update: AgentProfileUpdate) {
-	await saveAgentProfileServer({ data: update })
-}
-
-export async function saveAgentEssentials(update: AgentProfileUpdate) {
-	await saveAgentEssentialsServer({ data: update })
-}
-
-export async function saveAgentDeepProfile(update: AgentProfileUpdate) {
-	await saveAgentDeepProfileServer({ data: update })
 }

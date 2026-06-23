@@ -1,30 +1,37 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useServerFn } from '@tanstack/react-start'
 import { ArrowRight, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 
 import { FlowPageShell } from '@/components/flow/page-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { useAccountSettings } from '@/hooks/use-account-settings'
+import {
+	loadAgentProfile,
+	saveAgentProfile,
+} from '@/lib/matching/profile.db'
+import { withSaveToast } from '@/lib/toast'
 
 export const Route = createFileRoute('/agent/chat')({
 	component: AgentChat,
+	loader: () => loadAgentProfile(),
 })
 
 function AgentChat() {
-	const { agentProfile, loading, saveAgent } = useAccountSettings()
+	const agentProfile = Route.useLoaderData()
+	const saveAgent = useServerFn(saveAgentProfile)
 	const navigate = useNavigate()
 	const [valueProposition, setValueProposition] = useState(
 		agentProfile?.valueProposition ?? '',
 	)
 
-	if (loading) return null
-
 	const canFinish = valueProposition.trim().length > 0
 
 	const handleFinish = async () => {
 		if (!canFinish) return
-		const ok = await saveAgent({ valueProposition: valueProposition.trim() })
+		const ok = await withSaveToast(() =>
+			saveAgent({ data: { valueProposition: valueProposition.trim() } }),
+		)
 		if (ok) {
 			await navigate({ to: '/agent/subscribe' })
 		}

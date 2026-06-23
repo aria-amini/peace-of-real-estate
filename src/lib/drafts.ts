@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 
+import { requireUserId } from '@/lib/auth/functions'
 import {
 	agentProfileColumns,
 	consumerProfileColumns,
@@ -14,7 +15,6 @@ import type {
 	ConsumerProfileUpdate,
 } from '@/lib/matching/profile.types'
 import type { AnswerValue, Answers } from '@/lib/matching/questions'
-import { requireUserId } from '@/lib/auth/functions'
 
 // Draft types extend the DB profile shapes so profile.columns.ts stays the
 // source of truth for profile fields. Extra keys are transient UI state that
@@ -180,8 +180,10 @@ export const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
 		const update = draftToConsumerProfileUpdate(data)
 
 		await saveConsumerProfile({
-			status: 'active',
-			...update,
+			data: {
+				status: 'active',
+				...update,
+			},
 		})
 
 		return { success: true }
@@ -192,7 +194,7 @@ export const createAgentProfileFromDraft = createServerFn({ method: 'POST' })
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)
-		await saveAgentEssentials(update)
+		await saveAgentEssentials({ data: update })
 		return { success: true }
 	})
 
@@ -203,7 +205,7 @@ export const createAgentDeepProfileFromDraft = createServerFn({
 	.handler(async ({ data }) => {
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)
-		await saveAgentDeepProfile(update)
+		await saveAgentDeepProfile({ data: update })
 		return { success: true }
 	})
 

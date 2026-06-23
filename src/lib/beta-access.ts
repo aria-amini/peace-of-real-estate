@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
 
-export const checkBetaAuthServer = createServerFn({ method: 'GET' }).handler(
+export const checkBetaAuth = createServerFn({ method: 'GET' }).handler(
 	async () => {
 		return getCookie('beta_auth') === 'true'
 	},

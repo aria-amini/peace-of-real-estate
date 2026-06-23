@@ -137,7 +137,7 @@ export const Route = createFileRoute('/matches')({
 			throw redirect({ to: '/consumer/intake', search: { step: 'intro' } })
 		}
 
-		const consumerProfile = await loadConsumerProfile().catch(() => null)
+		const consumerProfile = await loadConsumerProfile()
 		const hasSavedAnswers = Boolean(
 			consumerProfile?.preferredContactMethod ||
 			consumerProfile?.involvementLevel ||

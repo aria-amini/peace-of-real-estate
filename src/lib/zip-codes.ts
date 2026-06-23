@@ -57,7 +57,7 @@ function buildTopCitiesWhereClause() {
 	return sql`${cities.city} || ', ' || ${cities.state} in (${sql.raw(values)})`
 }
 
-const loadCitySuggestionsServer = createServerFn({ method: 'GET' })
+const loadCitySuggestions = createServerFn({ method: 'GET' })
 	.inputValidator((query: string) => query)
 	.handler(async ({ data }) => {
 		const normalizedQuery = data.trim().toLowerCase()
@@ -95,7 +95,7 @@ const loadCitySuggestionsServer = createServerFn({ method: 'GET' })
 		return matches.map((row) => row.label)
 	})
 
-const loadCityZipCodesServer = createServerFn({ method: 'GET' })
+const loadCityZipCodes = createServerFn({ method: 'GET' })
 	.inputValidator((data: CityState) => data)
 	.handler(async ({ data }) => {
 		const rows = await getDb()
@@ -107,7 +107,7 @@ const loadCityZipCodesServer = createServerFn({ method: 'GET' })
 		return rows.map((row) => row.zip)
 	})
 
-const loadCityCenterServer = createServerFn({ method: 'GET' })
+const loadCityCenter = createServerFn({ method: 'GET' })
 	.inputValidator((data: CityState) => data)
 	.handler(async ({ data }) => {
 		const [row] = await getDb()
@@ -125,7 +125,7 @@ const loadCityCenterServer = createServerFn({ method: 'GET' })
 		return { latitude, longitude }
 	})
 
-const loadZipCodeBoundariesServer = createServerFn({ method: 'GET' })
+const loadZipCodeBoundaries = createServerFn({ method: 'GET' })
 	.inputValidator((data: CityState) => data)
 	.handler(async ({ data }) => {
 		const zipRows = await getDb()
@@ -157,18 +157,4 @@ const loadZipCodeBoundariesServer = createServerFn({ method: 'GET' })
 		} satisfies FeatureCollection
 	})
 
-export async function loadCitySuggestions(query: string) {
-	return loadCitySuggestionsServer({ data: query })
-}
-
-export async function loadCityZipCodes(input: CityState) {
-	return loadCityZipCodesServer({ data: input })
-}
-
-export async function loadCityCenter(input: CityState) {
-	return loadCityCenterServer({ data: input })
-}
-
-export async function loadZipCodeBoundaries(input: CityState) {
-	return loadZipCodeBoundariesServer({ data: input })
-}
+export { loadCitySuggestions, loadCityZipCodes, loadCityCenter, loadZipCodeBoundaries }

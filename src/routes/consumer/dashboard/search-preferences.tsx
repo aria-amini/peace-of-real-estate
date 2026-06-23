@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { createFileRoute } from '@tanstack/react-router'
+import { useServerFn } from '@tanstack/react-start'
 import { Check, Home, MapPin, SlidersHorizontal } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,10 @@ import { PriceInput } from '@/components/flow/price-range'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
-import { useAccountSettings } from '@/hooks/use-account-settings'
+import {
+	loadConsumerProfile,
+	saveConsumerProfile,
+} from '@/lib/matching/profile.db'
 import type {
 	ConsumerProfile,
 	ConsumerProfileUpdate,
@@ -34,10 +38,12 @@ import {
 	PRICE_STEP,
 	serializePriceRange,
 } from '@/components/flow/price-range-utils'
+import { withSaveToast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/consumer/dashboard/search-preferences')({
 	component: SearchPreferences,
+	loader: () => loadConsumerProfile(),
 })
 
 const intentOptions: RepresentationSide[] = ['buying', 'selling', 'both']
@@ -161,15 +167,12 @@ function formToUpdate(form: FormState): ConsumerProfileUpdate {
 }
 
 function SearchPreferences() {
-	const { consumerProfile, loading, saveConsumer } = useAccountSettings()
+	const consumerProfile = Route.useLoaderData()
+	const saveConsumer = useServerFn(saveConsumerProfile)
 	const [form, setForm] = useState<FormState>(() =>
 		profileToForm(consumerProfile ?? {}),
 	)
 	const [isSaving, setIsSaving] = useState(false)
-
-	if (loading) {
-		return <div className="flex-1" />
-	}
 
 	const updateForm = (patch: Partial<FormState>) => {
 		setForm((current) => ({ ...current, ...patch }))
@@ -177,14 +180,11 @@ function SearchPreferences() {
 
 	const handleSave = async () => {
 		setIsSaving(true)
-		try {
-			await saveConsumer(formToUpdate(form))
-			toast.success('Search preferences saved')
-		} catch {
-			toast.error('Could not save preferences. Try again.')
-		} finally {
-			setIsSaving(false)
-		}
+		await withSaveToast(() => saveConsumer({ data: formToUpdate(form) }), {
+			success: 'Search preferences saved',
+			error: 'Could not save preferences. Try again.',
+		})
+		setIsSaving(false)
 	}
 
 	return (

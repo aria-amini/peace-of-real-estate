@@ -1,4 +1,4 @@
-import { checkBetaAuthClient, checkBetaAuthServer } from '@/lib/beta-access'
+import { checkBetaAuthClient, checkBetaAuth } from '@/lib/beta-access'
 import type { QueryClient } from '@tanstack/react-query'
 import {
 	HeadContent,
@@ -31,7 +31,7 @@ export const Route = createRootRouteWithContext<{
 		const isAuthenticated =
 			typeof document !== 'undefined'
 				? checkBetaAuthClient()
-				: await checkBetaAuthServer()
+				: await checkBetaAuth()
 
 		if (!isAuthenticated && location.pathname !== '/beta') {
 			throw redirect({ to: '/beta' })
