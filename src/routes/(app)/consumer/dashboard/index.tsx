@@ -15,7 +15,6 @@ import {
 } from 'lucide-react'
 
 import { PaywallDialog } from '@/components/auth/paywall-dialog'
-import { SignupDialog } from '@/components/auth/signup-dialog'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -263,9 +262,11 @@ function ConsumerDashboard() {
 								Create a free profile to manage account details, preferences,
 								and matches.
 							</p>
-							<SignupDialog>
-								<Button className="w-full">Create Profile</Button>
-							</SignupDialog>
+							<Button asChild className="w-full">
+								<Link to="/consumer/signup" search={{ step: 'intro' }}>
+									Create Profile
+								</Link>
+							</Button>
 						</Card>
 					</div>
 				)}

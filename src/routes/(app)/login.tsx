@@ -1,4 +1,4 @@
-import { AuthCard } from '@/components/auth/card'
+import { SignInCard } from '@/components/auth/sign-in-card'
 import { redirectAuthenticatedUsers } from '@/lib/auth/functions'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
@@ -17,5 +17,5 @@ function LoginRoute() {
 }
 
 export function Login({ redirect }: { redirect?: string }) {
-	return <AuthCard mode="sign-in" {...(redirect ? { redirect } : {})} />
+	return <SignInCard {...(redirect ? { redirect } : {})} />
 }

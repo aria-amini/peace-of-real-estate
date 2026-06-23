@@ -41,7 +41,6 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { SignupDialog } from '@/components/auth/signup-dialog'
 import type { DashboardRole } from './shell'
 
 type SidebarItem = {
@@ -309,9 +308,11 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 
 					{!isAuthenticated ? (
 						<div className="flex flex-col gap-2 px-2">
-							<SignupDialog>
-								<Button className="w-full">Create Profile</Button>
-							</SignupDialog>
+							<Button asChild className="w-full">
+								<Link to="/consumer/signup" search={{ step: 'intro' }}>
+									Create Profile
+								</Link>
+							</Button>
 							<Button asChild variant="outline" className="w-full">
 								<Link to="/login">Log in</Link>
 							</Button>

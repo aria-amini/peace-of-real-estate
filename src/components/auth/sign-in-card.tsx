@@ -2,36 +2,26 @@ import { Link } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+
 import { GoogleIcon } from '@/components/icons/google'
+import { useGoogleSignIn } from '@/hooks/use-google-sign-in'
+import { authClient } from '@/lib/auth/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { useGoogleSignIn } from '@/hooks/use-google-sign-in'
-import { authClient } from '@/lib/auth/client'
-
-type AuthMode = 'sign-in' | 'sign-up'
 
 const DEFAULT_POST_AUTH_REDIRECT = '/consumer/dashboard/matches'
 
-export function AuthCard({
-	mode,
+export function SignInCard({
 	redirect,
 	embedded = false,
 }: {
-	mode: AuthMode
 	redirect?: string
 	embedded?: boolean
 }) {
 	const resolvedRedirect =
 		redirect && redirect !== '/account' ? redirect : DEFAULT_POST_AUTH_REDIRECT
-	const isSignUp = mode === 'sign-up'
-	const title = isSignUp ? 'Create your profile' : 'Welcome Back'
-	const primaryLabel = isSignUp ? 'Create profile' : 'Sign in'
-	const alternateCopy = isSignUp
-		? 'Already have an account?'
-		: "Don't have an account?"
-	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
@@ -58,22 +48,6 @@ export function AuthCard({
 		).toString()
 
 		try {
-			if (isSignUp) {
-				const { error } = await authClient.signUp.email({
-					name: name.trim(),
-					email: email.trim(),
-					password,
-					callbackURL,
-				})
-
-				if (error) {
-					throw error
-				}
-
-				window.location.assign(resolvedRedirect)
-				return
-			}
-
 			const { data, error } = await authClient.signIn.email({
 				email: email.trim(),
 				password,
@@ -89,12 +63,10 @@ export function AuthCard({
 			const message =
 				error && typeof error === 'object' && 'message' in error
 					? String(error.message)
-					: isSignUp
-						? 'Unable to create account. Try again.'
-						: 'Unable to sign in. Check email and password.'
+					: 'Unable to sign in. Check email and password.'
 
 			toast.error(message)
-			console.error(isSignUp ? 'Sign-up failed' : 'Sign-in failed', error)
+			console.error('Sign-in failed', error)
 			setIsSubmitting(false)
 		}
 	}
@@ -115,7 +87,7 @@ export function AuthCard({
 						) : (
 							<GoogleIcon className="h-5 w-5" />
 						)}
-						{isSignUp ? 'Create profile with Google' : 'Sign in with Google'}
+						Sign in with Google
 					</Button>
 
 					<div className="text-muted-foreground relative py-2 text-center text-xs tracking-[0.2em] uppercase">
@@ -127,19 +99,6 @@ export function AuthCard({
 
 			<form className="space-y-6" onSubmit={handleSubmit}>
 				<FieldGroup>
-					{isSignUp ? (
-						<Field>
-							<FieldLabel htmlFor="name">Full name</FieldLabel>
-							<Input
-								id="name"
-								placeholder="Jordan Lee"
-								value={name}
-								onChange={(event) => setName(event.target.value)}
-								disabled={isSubmitting || isGoogleLoading}
-								required
-							/>
-						</Field>
-					) : null}
 					<Field>
 						<FieldLabel htmlFor="email">Email</FieldLabel>
 						<Input
@@ -158,11 +117,11 @@ export function AuthCard({
 						<Input
 							id="password"
 							type="password"
-							placeholder={isSignUp ? 'Choose password' : 'Enter password'}
+							placeholder="Enter password"
 							value={password}
 							onChange={(event) => setPassword(event.target.value)}
 							disabled={isSubmitting || isGoogleLoading}
-							autoComplete={isSignUp ? 'new-password' : 'current-password'}
+							autoComplete="current-password"
 							required
 						/>
 					</Field>
@@ -172,29 +131,19 @@ export function AuthCard({
 						className="w-full"
 					>
 						{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-						{primaryLabel}
+						Sign in
 					</Button>
 					<p className="text-muted-foreground text-center text-sm">
-						{alternateCopy}{' '}
-						{isSignUp ? (
-							<Link
-								to="/login"
-								{...(redirect ? { search: { redirect } } : {})}
-								className="text-foreground font-medium underline underline-offset-4"
-							>
-								Sign in
-							</Link>
-						) : (
-							<Link
-								to="/consumer/signup"
-								search={
-									redirect ? { step: 'intro', redirect } : { step: 'intro' }
-								}
-								className="text-foreground font-medium underline underline-offset-4"
-							>
-								Create profile
-							</Link>
-						)}
+						Don&apos;t have an account?{' '}
+						<Link
+							to="/consumer/signup"
+							search={
+								redirect ? { step: 'intro', redirect } : { step: 'intro' }
+							}
+							className="text-foreground font-medium underline underline-offset-4"
+						>
+							Create profile
+						</Link>
 					</p>
 				</FieldGroup>
 			</form>
@@ -210,9 +159,9 @@ export function AuthCard({
 			<div className="flex w-full max-w-md flex-col items-center gap-8">
 				<div className="text-center">
 					<div className="text-muted-foreground mb-3 text-sm">
-						{isSignUp ? 'New Profile' : 'Authentication'}
+						Authentication
 					</div>
-					<h1 className="text-3xl">{title}</h1>
+					<h1 className="text-3xl">Welcome Back</h1>
 				</div>
 				<Card className="w-full">
 					<CardContent className="pt-6">{cardInner}</CardContent>
