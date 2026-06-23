@@ -1,139 +1,45 @@
 import { getDb } from '@/db/connection'
 import { account, session, user, verification } from '@/db/tables'
 import { serverEnv as env } from '@/env.server'
-
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { createAuthMiddleware } from 'better-auth/api'
-import { betterAuth } from 'better-auth'
+import { Auth, betterAuth } from 'better-auth'
 import { oAuthProxy } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { getRequestHeaders } from '@tanstack/react-start/server'
 
-let authInstance: ReturnType<typeof betterAuth> | undefined
+export function getAuth(): Auth {
+	const betterAuthUrl = env.BETTER_AUTH_URL
+	const betterAuthSecret = env.BETTER_AUTH_SECRET
+	const googleClientId = env.GOOGLE_CLIENT_ID
+	const googleClientSecret = env.GOOGLE_CLIENT_SECRET
 
-const AUTH_PATH = '/api/auth'
+	const localAuthEnabled =
+		import.meta.env.DEV ||
+		(betterAuthUrl ? new URL(betterAuthUrl).hostname === 'localhost' || new URL(betterAuthUrl).hostname === '127.0.0.1' : false)
 
-function toAuthBaseURL(baseURL: string) {
-	const url = new URL(baseURL)
-	const pathname = url.pathname.replace(/\/$/, '')
+	const productionAppOrigin = betterAuthUrl
+		? new URL(betterAuthUrl).origin
+		: undefined
 
-	if (!pathname) {
-		url.pathname = AUTH_PATH
-	} else if (!pathname.endsWith(AUTH_PATH)) {
-		url.pathname = `${pathname}${AUTH_PATH}`
-	}
-
-	return url.toString()
-}
-
-function isLoopbackURL(url: string) {
-	const host = new URL(url).hostname
-
-	return host === 'localhost' || host === '127.0.0.1'
-}
-
-function resolveForwardedOrigin(request: Request) {
-	const forwardedHost = request.headers
-		.get('x-forwarded-host')
-		?.split(',')[0]
-		?.trim()
-	const host = request.headers.get('host')?.split(',')[0]?.trim()
-	const resolvedHost = forwardedHost || host
-
-	if (!resolvedHost) {
-		return null
-	}
-
-	const forwardedProto = request.headers
-		.get('x-forwarded-proto')
-		?.split(',')[0]
-		?.trim()
-	const protocol =
-		forwardedProto ||
-		(resolvedHost.startsWith('localhost') ||
-		resolvedHost.startsWith('127.0.0.1')
-			? 'http'
-			: 'https')
-
-	return `${protocol}://${resolvedHost}`
-}
-
-function forwardedHostOAuthShim() {
-	return {
-		id: 'forwarded-host-oauth-shim',
-		hooks: {
-			before: [
-				{
-					matcher(context: { path?: string }) {
-						return !!(
-							context.path?.startsWith('/sign-in/social') ||
-							context.path?.startsWith('/sign-in/oauth2')
-						)
-					},
-					handler: createAuthMiddleware(async (ctx) => {
-						if (!ctx.request) {
-							return
-						}
-
-						const forwardedOrigin = resolveForwardedOrigin(ctx.request)
-
-						if (!forwardedOrigin) {
-							return
-						}
-
-						const requestURL = new URL(ctx.request.url)
-						const forwardedURL = new URL(
-							requestURL.pathname + requestURL.search,
-							forwardedOrigin,
-						)
-
-						if (forwardedURL.origin === requestURL.origin) {
-							return
-						}
-
-						ctx.request = new Proxy(ctx.request, {
-							get(target, prop, receiver) {
-								if (prop === 'url') {
-									return forwardedURL.toString()
-								}
-
-								return Reflect.get(target, prop, receiver)
-							},
-						}) as Request
-					}),
-				},
-			],
-		},
-	}
-}
-
-export function getAuth() {
-	if (!authInstance) {
-		const betterAuthUrl = env.BETTER_AUTH_URL
-		const betterAuthSecret = env.BETTER_AUTH_SECRET
-		const googleClientId = env.GOOGLE_CLIENT_ID
-		const googleClientSecret = env.GOOGLE_CLIENT_SECRET
-		const localAuthEnabled =
-			import.meta.env.DEV ||
-			(betterAuthUrl ? isLoopbackURL(betterAuthUrl) : false)
-		const localHosts = localAuthEnabled ? ['127.0.0.1:*', 'localhost:*'] : []
-
-		const productionAppOrigin = betterAuthUrl
-			? new URL(betterAuthUrl).origin
-			: undefined
-
-		const authBaseURL = {
+	return betterAuth({
+		appName: 'Peace of Real Estate',
+		baseURL: {
 			allowedHosts: [
-				...localHosts,
+				'127.0.0.1:*',
+				'localhost:*',
 				'peace-of-real-estate-production.up.railway.app',
 				'peace-of-real-estate-*.up.railway.app',
 				'peace-of-real-estate-projects-*.up.railway.app',
 			],
 			protocol: 'auto' as const,
 			fallback:
-				(betterAuthUrl ? toAuthBaseURL(betterAuthUrl) : undefined) ??
+				(betterAuthUrl ? `${new URL(betterAuthUrl).origin}/api/auth` : undefined) ??
 				(localAuthEnabled ? 'http://localhost:3000/api/auth' : undefined),
-		}
-		const trustedOrigins = [
+		},
+		trustedOrigins: [
 			'http://127.0.0.1:*',
 			'http://localhost:*',
 			'https://peaceofrealestate.com',
@@ -141,49 +47,142 @@ export function getAuth() {
 			'https://peace-of-real-estate-production.up.railway.app',
 			'https://peace-of-real-estate-*.up.railway.app',
 			'https://peace-of-real-estate-projects-*.up.railway.app',
-		]
-
-		authInstance = betterAuth({
-			appName: 'Peace of Real Estate',
-			baseURL: authBaseURL,
-			trustedOrigins,
-			secret: betterAuthSecret,
-			database: drizzleAdapter(getDb(), {
-				provider: 'pg',
-				schema: {
-					account,
-					session,
-					user,
-					verification,
-				},
-			}),
-			emailAndPassword: {
-				enabled: true,
-				autoSignIn: true,
+		],
+		secret: betterAuthSecret,
+		database: drizzleAdapter(getDb(), {
+			provider: 'pg',
+			schema: {
+				account,
+				session,
+				user,
+				verification,
 			},
-			socialProviders:
-				googleClientId && googleClientSecret
-					? {
-							google: {
-								clientId: googleClientId,
-								clientSecret: googleClientSecret,
+		}),
+		emailAndPassword: {
+			enabled: true,
+			autoSignIn: true,
+		},
+		socialProviders:
+		{
+			google: {
+				clientId: googleClientId,
+				clientSecret: googleClientSecret,
+			},
+		},
+		plugins: [
+			{
+				id: 'forwarded-host-oauth-shim',
+				hooks: {
+					before: [
+						{
+							matcher(context: { path?: string }) {
+								return !!(
+									context.path?.startsWith('/sign-in/social') ||
+									context.path?.startsWith('/sign-in/oauth2')
+								)
 							},
-						}
-					: undefined,
-			plugins: [
-				forwardedHostOAuthShim(),
-				...(productionAppOrigin
-					? [
-							oAuthProxy({
-								productionURL: productionAppOrigin,
-								secret: betterAuthSecret,
+							handler: createAuthMiddleware(async (ctx) => {
+								if (!ctx.request) {
+									return
+								}
+
+								const forwardedHost = ctx.request.headers
+									.get('x-forwarded-host')
+									?.split(',')[0]
+									?.trim()
+								const host = ctx.request.headers
+									.get('host')
+									?.split(',')[0]
+									?.trim()
+								const resolvedHost = forwardedHost || host
+
+								if (!resolvedHost) {
+									return
+								}
+
+								const forwardedProto = ctx.request.headers
+									.get('x-forwarded-proto')
+									?.split(',')[0]
+									?.trim()
+								const protocol =
+									forwardedProto ||
+									(resolvedHost.startsWith('localhost') ||
+										resolvedHost.startsWith('127.0.0.1')
+										? 'http'
+										: 'https')
+
+								const forwardedOrigin = `${protocol}://${resolvedHost}`
+								const requestURL = new URL(ctx.request.url)
+								const forwardedURL = new URL(
+									requestURL.pathname + requestURL.search,
+									forwardedOrigin,
+								)
+
+								if (forwardedURL.origin === requestURL.origin) {
+									return
+								}
+
+								ctx.request = new Proxy(ctx.request, {
+									get(target, prop, receiver) {
+										if (prop === 'url') {
+											return forwardedURL.toString()
+										}
+
+										return Reflect.get(target, prop, receiver)
+									},
+								}) as Request
 							}),
-						]
-					: []),
-				tanstackStartCookies(),
-			],
-		}) as unknown as ReturnType<typeof betterAuth>
+						},
+					],
+				},
+			},
+			...(productionAppOrigin
+				? [
+					oAuthProxy({
+						productionURL: productionAppOrigin,
+						secret: betterAuthSecret,
+					}),
+				]
+				: []),
+			tanstackStartCookies(),
+		],
+	})
+}
+
+export const getCurrentSession = createServerFn({ method: 'GET' }).handler(() =>
+	getAuth().api.getSession({
+		headers: getRequestHeaders(),
+	}),
+)
+
+export async function requireUserId(): Promise<string> {
+	const session = await getCurrentSession()
+
+	if (!session) {
+		throw new Error('Unauthorized')
 	}
 
-	return authInstance
+	return session.user.id
+}
+
+export async function redirectAuthenticatedUsers() {
+	const session = await getCurrentSession()
+
+	if (session) {
+		throw redirect({ to: '/consumer/dashboard' })
+	}
+}
+
+export async function redirectUnauthenticatedUsers({
+	redirectTo = '/consumer/dashboard/matches',
+}: {
+	redirectTo?: string
+} = {}) {
+	const session = await getCurrentSession()
+
+	if (!session) {
+		throw redirect({ to: '/login', search: { redirect: redirectTo } })
+	}
+
+	return session
 }
