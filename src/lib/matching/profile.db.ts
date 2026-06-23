@@ -94,7 +94,6 @@ const saveAgentProfile = createServerFn({ method: 'POST' })
 			usePaxWriter: data.usePaxWriter ?? true,
 			licenseAttested: data.licenseAttested ?? false,
 			peacePactSigned: data.peacePactSigned ?? false,
-			deepProfileStatus: data.deepProfileStatus ?? 'not_started',
 			...data,
 			createdAt: now,
 			updatedAt: now,
@@ -118,40 +117,6 @@ function isEssentialsComplete(data: AgentProfileUpdate) {
 		data.peacePactSigned &&
 		data.peacePactSignature?.trim(),
 	)
-}
-
-function computeDeepProfileStatus(
-	data: AgentProfileUpdate,
-): 'not_started' | 'in_progress' | 'complete' {
-	const subjectiveFields = [
-		data.communicationCadence,
-		data.quickContactStyle,
-		data.updateDeliveryStyle,
-		data.responseTime,
-		data.transparencyStyle,
-		data.clientBoundaryStyle,
-		data.negotiationEthic,
-		data.dualAgencyStyle,
-		data.energyStyle,
-		data.teachingStyle,
-		data.dealStressStyle,
-		data.decisionMakingStyle,
-		data.serviceDepth,
-		data.involvementLevel,
-		data.representationPreference,
-	]
-	const subjectiveComplete = subjectiveFields.every(Boolean)
-	const narrativeComplete = Boolean(
-		data.valueProposition?.trim() || data.whyIStarted?.trim(),
-	)
-	const prioritiesSet =
-		data.matchPriorities !== undefined && data.matchPriorities.length > 0
-
-	if (subjectiveComplete && narrativeComplete && prioritiesSet)
-		return 'complete'
-	if (subjectiveFields.some(Boolean) || narrativeComplete || prioritiesSet)
-		return 'in_progress'
-	return 'not_started'
 }
 
 const saveAgentEssentials = createServerFn({ method: 'POST' })
@@ -185,54 +150,6 @@ const saveAgentEssentials = createServerFn({ method: 'POST' })
 			usePaxWriter: data.usePaxWriter ?? true,
 			licenseAttested: data.licenseAttested ?? false,
 			peacePactSigned: data.peacePactSigned ?? false,
-			deepProfileStatus: 'not_started',
-			...data,
-			createdAt: now,
-			updatedAt: now,
-		})
-	})
-
-const saveAgentDeepProfile = createServerFn({ method: 'POST' })
-	.validator((data) => data as AgentProfileUpdate)
-	.handler(async ({ data }) => {
-		const userId = await requireUserId()
-		const db = getDb()
-		const now = new Date()
-
-		const deepProfileStatus = computeDeepProfileStatus(data)
-		const status = deepProfileStatus === 'complete' ? 'enriched' : 'active'
-
-		const existing = await db
-			.select({ id: agentProfiles.id })
-			.from(agentProfiles)
-			.where(eq(agentProfiles.userId, userId))
-			.limit(1)
-
-		if (existing[0]) {
-			await db
-				.update(agentProfiles)
-				.set({
-					...data,
-					status,
-					deepProfileStatus,
-					deepProfileCompletedAt:
-						deepProfileStatus === 'complete' ? now : undefined,
-					updatedAt: now,
-				})
-				.where(eq(agentProfiles.id, existing[0].id))
-			return
-		}
-
-		await db.insert(agentProfiles).values({
-			id: crypto.randomUUID(),
-			userId,
-			status,
-			deepProfileStatus,
-			deepProfileCompletedAt:
-				deepProfileStatus === 'complete' ? now : undefined,
-			usePaxWriter: data.usePaxWriter ?? true,
-			licenseAttested: data.licenseAttested ?? false,
-			peacePactSigned: data.peacePactSigned ?? false,
 			...data,
 			createdAt: now,
 			updatedAt: now,
@@ -241,7 +158,7 @@ const saveAgentDeepProfile = createServerFn({ method: 'POST' })
 
 export { loadConsumerProfile, saveConsumerProfile }
 export { loadAgentProfile, saveAgentProfile }
-export { saveAgentEssentials, saveAgentDeepProfile }
+export { saveAgentEssentials }
 
 export function hasCompletedConsumerIntake(
 	profile: ConsumerProfile | null | undefined,

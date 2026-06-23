@@ -6,7 +6,7 @@ import { expectRouteScreenshot } from '@tests/utils/file-routes'
 
 test('matches page matches desktop screenshot', async () => {
 	await expectRouteScreenshot({
-		path: '/matches',
+		path: '/consumer/dashboard/matches',
 		name: 'matches',
 	})
 }, 20_000)

@@ -6,8 +6,6 @@ export type ProfileStatus =
 	| 'active'
 	| 'enriched'
 
-export type DeepProfileStatus = 'not_started' | 'in_progress' | 'complete'
-
 export type RepresentationSide = 'buying' | 'selling' | 'both'
 
 export const sharedProfileColumns = {

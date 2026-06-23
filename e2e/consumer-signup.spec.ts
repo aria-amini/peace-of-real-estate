@@ -39,7 +39,9 @@ async function unlockBeta(page: Page) {
 }
 
 async function completeIntake(page: Page) {
-	await page.goto('/consumer/intake?reset=true')
+	await page.goto('/consumer/signup?step=intro')
+	await page.evaluate(() => localStorage.clear())
+	await page.reload()
 	await expect(
 		page.getByRole('heading', { name: 'Where are you looking?' }),
 	).toBeVisible()
@@ -129,12 +131,16 @@ test.describe('E2E smoke: signup flow against BASE_URL', () => {
 		// - the auth backend created a session
 		// - the database persisted the user and profile
 		// - the frontend redirects correctly
-		await expect(page).toHaveURL('/matches', { timeout: 15000 })
+		await expect(page).toHaveURL('/consumer/dashboard/matches', {
+			timeout: 15000,
+		})
 		await expect(page.getByText('Your Top Matches')).toBeVisible()
 
-		// A returning signed-in user should be redirected away from intake.
-		await page.goto('/consumer/intake?step=intro')
-		await expect(page).toHaveURL('/matches', { timeout: 15000 })
+		// A returning signed-in user should be redirected away from signup.
+		await page.goto('/consumer/signup?step=intro')
+		await expect(page).toHaveURL('/consumer/dashboard/matches', {
+			timeout: 15000,
+		})
 	})
 
 	test('Google sign-in button redirects to Google OAuth', async ({ page }) => {

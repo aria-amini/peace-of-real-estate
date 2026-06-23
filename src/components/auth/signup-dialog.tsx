@@ -14,7 +14,7 @@ export function SignupDialog({
 	children,
 	open,
 	onOpenChange,
-	redirect = '/matches',
+	redirect = '/consumer/dashboard/matches',
 }: {
 	children?: React.ReactNode
 	open?: boolean

@@ -7,7 +7,6 @@ import {
 	account,
 	userEntitlements,
 } from '../src/db/tables'
-import type { DeepProfileStatus } from '../src/lib/matching/profile.types'
 
 const FIRST_NAMES = [
 	'James',
@@ -841,12 +840,6 @@ function generatePersona(archetype: AgentArchetype, r: number) {
 		peacePactSigned: peacePact,
 		usePaxWriter,
 		status: statusFromProfile(peacePact, completionScore),
-		deepProfileStatus:
-			statusFromProfile(peacePact, completionScore) === 'enriched'
-				? 'complete'
-				: statusFromProfile(peacePact, completionScore) === 'active'
-					? 'in_progress'
-					: 'not_started',
 	}
 }
 
@@ -968,9 +961,6 @@ async function populateDb(count: number) {
 			involvementLevel: persona.involvementLevel,
 			representationPreference: persona.representationPreference,
 			matchPriorities: persona.matchPriorities,
-			deepProfileStatus: persona.deepProfileStatus as DeepProfileStatus,
-			deepProfileCompletedAt:
-				persona.deepProfileStatus === 'complete' ? now : null,
 			valueProposition: persona.valueProposition,
 			idealClientDescription: null,
 			whyIStarted: null,

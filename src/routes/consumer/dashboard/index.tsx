@@ -37,7 +37,7 @@ import { isUserPremium } from '@/lib/premium'
 import {
 	formatPriceRange,
 	parsePriceRange,
-} from '@/components/flow/price-range-utils'
+} from '@/components/signup/price-range-utils'
 
 export const Route = createFileRoute('/consumer/dashboard/')({
 	component: ConsumerDashboard,

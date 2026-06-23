@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/card'
 import { ChipSelect } from '@/components/ui/chip-select'
 import { Input } from '@/components/ui/input'
-import { PriceInput } from '@/components/flow/price-range'
+import { PriceInput } from '@/components/signup/price-range'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
@@ -36,7 +36,7 @@ import {
 	PRICE_MIN,
 	PRICE_STEP,
 	serializePriceRange,
-} from '@/components/flow/price-range-utils'
+} from '@/components/signup/price-range-utils'
 import { withSaveToast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
 

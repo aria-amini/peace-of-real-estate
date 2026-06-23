@@ -179,8 +179,8 @@ function AgentDashboard() {
 						</CardContent>
 						<CardFooter className="border-t">
 							<Button asChild variant="outline" size="sm">
-								<Link to="/agent/dashboard/introductions">
-									View all introductions
+								<Link to="/agent/dashboard/compliance">
+									Review compliance
 									<ExternalLink className="size-3.5" />
 								</Link>
 							</Button>
@@ -265,7 +265,7 @@ function AgentDashboard() {
 						</CardContent>
 						<CardFooter className="border-t">
 							<Button asChild variant="outline" size="sm" className="w-full">
-								<Link to="/agent/compliance">
+								<Link to="/agent/dashboard/compliance">
 									Review compliance
 									<ExternalLink className="size-3.5" />
 								</Link>
@@ -356,13 +356,13 @@ function computeProfileStrength(profile: AgentProfile | null) {
 
 function getNextStep(
 	profile: AgentProfile | null,
-	strength: number,
+	_strength: number,
 ): { label: string; description: string; href: string; action: string } {
 	if (!profile?.firstName || !profile.lastName || !profile.brokerageName) {
 		return {
 			label: 'Complete your essentials',
 			description: 'Add your name, brokerage, and license details.',
-			href: '/agent/profile',
+			href: '/agent/dashboard/profile',
 			action: 'Edit profile',
 		}
 	}
@@ -375,17 +375,8 @@ function getNextStep(
 		return {
 			label: 'Finish compliance',
 			description: 'Attest your license and confirm E\u0026O coverage.',
-			href: '/agent/compliance',
+			href: '/agent/dashboard/compliance',
 			action: 'Go to compliance',
-		}
-	}
-
-	if (strength < 60) {
-		return {
-			label: 'Build your deep profile',
-			description: 'Answer style questions so consumers know how you work.',
-			href: '/agent/deep-profile',
-			action: 'Deep profile',
 		}
 	}
 
@@ -400,7 +391,7 @@ function getNextStep(
 	return {
 		label: 'Review your public profile',
 		description: `Best clients: ${bestClients}.`,
-		href: '/agent/preview',
+		href: '/agent/dashboard/profile',
 		action: 'Preview',
 	}
 }

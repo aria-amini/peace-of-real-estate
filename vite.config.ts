@@ -48,6 +48,9 @@ export default mergeConfig(appConfig, {
 	resolve: {
 		tsconfigPaths: true,
 	},
+	router: {
+		routeFileIgnorePrefix: '-',
+	},
 	lint: {
 		overrides: [
 			{

@@ -33,12 +33,12 @@ export async function redirectAuthenticatedUsers() {
 	const session = await getCurrentSession()
 
 	if (session) {
-		throw redirect({ to: '/matches' })
+		throw redirect({ to: '/consumer/dashboard' })
 	}
 }
 
 export async function redirectUnauthenticatedUsers({
-	redirectTo = '/matches',
+	redirectTo = '/consumer/dashboard/matches',
 }: {
 	redirectTo?: string
 } = {}) {

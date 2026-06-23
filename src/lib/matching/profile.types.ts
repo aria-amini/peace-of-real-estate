@@ -6,8 +6,6 @@ export type ProfileStatus =
 	| 'active'
 	| 'enriched'
 
-export type DeepProfileStatus = 'not_started' | 'in_progress' | 'complete'
-
 export type ProfileRole = 'consumer' | 'agent'
 
 export type RepresentationSide = 'buying' | 'selling' | 'both'

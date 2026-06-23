@@ -6,7 +6,6 @@ import {
 	consumerProfileColumns,
 } from '@/lib/matching/profile.columns'
 import {
-	saveAgentDeepProfile,
 	saveAgentEssentials,
 	saveConsumerProfile,
 } from '@/lib/matching/profile.db'
@@ -197,17 +196,6 @@ export const createAgentProfileFromDraft = createServerFn({ method: 'POST' })
 		await requireUserId()
 		const update = draftToAgentProfileUpdate(data)
 		await saveAgentEssentials({ data: update })
-		return { success: true }
-	})
-
-export const createAgentDeepProfileFromDraft = createServerFn({
-	method: 'POST',
-})
-	.validator((data) => data as AgentDraft)
-	.handler(async ({ data }) => {
-		await requireUserId()
-		const update = draftToAgentProfileUpdate(data)
-		await saveAgentDeepProfile({ data: update })
 		return { success: true }
 	})
 

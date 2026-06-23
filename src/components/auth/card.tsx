@@ -37,7 +37,7 @@ function GoogleIcon({ className }: { className?: string }) {
 
 type AuthMode = 'sign-in' | 'sign-up'
 
-const DEFAULT_POST_AUTH_REDIRECT = '/matches'
+const DEFAULT_POST_AUTH_REDIRECT = '/consumer/dashboard/matches'
 
 export function AuthCard({
 	mode,
@@ -240,8 +240,10 @@ export function AuthCard({
 							</Link>
 						) : (
 							<Link
-								to="/signup"
-								{...(redirect ? { search: { redirect } } : {})}
+								to="/consumer/signup"
+								search={
+									redirect ? { step: 'intro', redirect } : { step: 'intro' }
+								}
 								className="text-foreground font-medium underline underline-offset-4"
 							>
 								Create profile
