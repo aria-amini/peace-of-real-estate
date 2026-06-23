@@ -16,7 +16,6 @@ import { useEffect, useRef, useState } from 'react'
 import { FlowPageShell } from '@/components/flow/page-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { useQuizKeyboard } from '@/hooks/use-quiz-keyboard'
 import { useSwipe } from '@/hooks/use-swipe'
 import {
 	questionOptionEntries,
@@ -464,19 +463,6 @@ export function QuestionFlow({
 			setUi((prev) => ({ ...prev, poppedOption: null }))
 		}, 100)
 	}
-
-	useQuizKeyboard({
-		onNext: () => {
-			if (canAdvance) {
-				if (isLastGroup) handleComplete()
-				else handleNext()
-			}
-		},
-		onPrev: handleBack,
-		onSelect: () => {},
-		optionCount: 0,
-		isEnabled: !ui.isTransitioning,
-	})
 
 	useSwipe({
 		onSwipeLeft: () => {
