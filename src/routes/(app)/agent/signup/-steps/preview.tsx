@@ -28,7 +28,7 @@ import type { AgentProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
 	parsePriceRange,
-} from '@/components/signup/price-range-utils'
+} from '@/components/signup/price-range'
 import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
 
 export function draftToPreviewProfile(draft: AgentDraft): AgentProfile {

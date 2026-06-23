@@ -8,15 +8,15 @@ export {
 	FlowIntakeProgress,
 	StepProgressHeader,
 } from './shared'
-export { PriceInput } from './price-range'
-export { QuestionFlow } from './question-flow'
 export {
 	DEFAULT_PRICE_RANGE,
 	formatPriceCompact,
 	formatPriceRange,
 	parsePriceRange,
+	PriceInput,
 	PRICE_MAX,
 	PRICE_MIN,
 	PRICE_STEP,
 	serializePriceRange,
-} from './price-range-utils'
+} from './price-range'
+export { QuestionFlow } from './question-flow'

@@ -41,7 +41,7 @@ import type { ConsumerProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
 	parsePriceRange,
-} from '@/components/signup/price-range-utils'
+} from '@/components/signup/price-range'
 import { cn } from '@/lib/utils/ui'
 
 const stateNames: Record<string, string> = {

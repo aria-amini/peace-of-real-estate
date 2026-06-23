@@ -6,6 +6,6 @@ export function getDb() {
 	return drizzle({
 		client: new Pool({
 			connectionString: env.DATABASE_URL,
-		})
+		}),
 	})
 }

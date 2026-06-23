@@ -1,7 +1,7 @@
 import {
 	AGENT_PRICE_RANGES,
 	parsePriceRange,
-} from '@/components/signup/price-range-utils'
+} from '@/components/signup/price-range'
 import type { AgentProfile, ConsumerProfile } from '@/lib/matching/profile'
 
 export interface AgentMatchData {

@@ -29,7 +29,7 @@ import {
 	PRICE_MIN,
 	PRICE_STEP,
 	serializePriceRange,
-} from '@/components/signup/price-range-utils'
+} from '@/components/signup/price-range'
 import {
 	agentConfig,
 	getRepresentationIcon,
