@@ -23,7 +23,11 @@ import {
 	loadAgentDraft,
 	type AgentDraft,
 } from '@/lib/drafts'
-import { agentQuestionFlow } from '@/lib/matching/questions'
+import {
+	agentQuestionFlow,
+	questionOptionLabel,
+	type Question,
+} from '@/lib/matching/questions'
 import type { AgentProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
@@ -233,13 +237,12 @@ function getProfileStats(profile: AgentProfile) {
 	}
 
 	if (profile.bestClientTypes.length > 0) {
-		const question = agentQuestionFlow.questions.find(
-			(q) => q.id === 'bestClientTypes',
-		)
+		const questions: Question[] = agentQuestionFlow.questions
+		const question = questions.find((q) => q.id === 'bestClientTypes')
 		stats.push({
 			label: 'Best clients',
 			value: profile.bestClientTypes
-				.map((slug) => question?.options[slug] ?? slug)
+				.map((slug) => (question ? questionOptionLabel(question, slug) : slug))
 				.join(', '),
 		})
 	}

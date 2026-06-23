@@ -230,12 +230,12 @@ export type QuestionFlow = {
 
 export const consumerQuestionFlow = {
 	label: 'Consumer Matching Quiz',
-	questions: consumerQuestions as Question[],
+	questions: [...consumerQuestions],
 } satisfies QuestionFlow
 
 export const agentQuestionFlow = {
 	label: 'Agent Flow',
-	questions: agentQuestions as Question[],
+	questions: [...agentQuestions],
 } satisfies QuestionFlow
 
 export function questionOptionEntries(question: Question): [string, string][] {

@@ -36,6 +36,7 @@ import { loadConsumerProfile } from '@/lib/matching/profile'
 import {
 	getAnswerSummary,
 	consumerQuestionFlow,
+	type Question,
 } from '@/lib/matching/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile'
 import {
@@ -339,7 +340,9 @@ function getPreferenceSummaryItems(
 	if (!profile) return []
 
 	const questions = consumerQuestionFlow.questions
-	const questionsById = new Map(questions.map((q) => [q.id, q]))
+	const questionsById = new Map<string, Question>(
+		questions.map((q) => [q.id, q]),
+	)
 	const labelOverrides: Record<string, string> = {
 		preferredContactMethod: 'Communication',
 		involvementLevel: 'Involvement',
