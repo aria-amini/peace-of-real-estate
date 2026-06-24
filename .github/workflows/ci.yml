@@ -23,7 +23,7 @@ jobs:
       - name: setup vite+
         uses: voidzero-dev/setup-vp@v1
         with:
-          version: '0.1.22'
+          version: '0.2.1'
           node-version: '22'
       - run: vp check
       - run: vp test run --project unit
@@ -36,7 +36,7 @@ jobs:
       - name: setup vite+
         uses: voidzero-dev/setup-vp@v1
         with:
-          version: '0.1.22'
+          version: '0.2.1'
           node-version: '22'
       - name: Run Tests
         run: vp test run --project server
@@ -49,7 +49,7 @@ jobs:
       - name: setup vite+
         uses: voidzero-dev/setup-vp@v1
         with:
-          version: '0.1.22'
+          version: '0.2.1'
           node-version: '22'
       - name: Install Playwright Browsers
         run: vpx playwright install --with-deps --only-shell
