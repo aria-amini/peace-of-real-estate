@@ -2,7 +2,7 @@ import { db } from '../src/db/connection'
 import { cities, cityZips } from '../src/db/tables'
 import * as zipcodes from 'zipcodes'
 
-async function seedCityData() {
+export async function seedCityData() {
 	const now = new Date()
 
 	console.log('Seeding cities and city_zips...')
@@ -75,12 +75,14 @@ async function seedCityData() {
 		}
 	}
 
-	await db.delete(cityZips)
-	await db.delete(cities)
-
 	const CITY_BATCH = 1000
 	for (let i = 0; i < cityRows.length; i += CITY_BATCH) {
-		await db.insert(cities).values(cityRows.slice(i, i + CITY_BATCH))
+		await db
+			.insert(cities)
+			.values(cityRows.slice(i, i + CITY_BATCH))
+			.onConflictDoNothing({
+				target: [cities.city, cities.state],
+			})
 		console.log(
 			`  cities ${Math.min(i + CITY_BATCH, cityRows.length)}/${cityRows.length}`,
 		)
@@ -88,7 +90,12 @@ async function seedCityData() {
 
 	const ZIP_BATCH = 2000
 	for (let i = 0; i < zipRows.length; i += ZIP_BATCH) {
-		await db.insert(cityZips).values(zipRows.slice(i, i + ZIP_BATCH))
+		await db
+			.insert(cityZips)
+			.values(zipRows.slice(i, i + ZIP_BATCH))
+			.onConflictDoNothing({
+				target: [cityZips.city, cityZips.state, cityZips.zip],
+			})
 		console.log(
 			`  city_zips ${Math.min(i + ZIP_BATCH, zipRows.length)}/${zipRows.length}`,
 		)
@@ -99,9 +106,11 @@ async function seedCityData() {
 	)
 }
 
-seedCityData()
-	.then(() => process.exit(0))
-	.catch((error) => {
-		console.error('City seed failed:', error)
-		process.exit(1)
-	})
+if (import.meta.url === `file://${process.argv[1]}`) {
+	seedCityData()
+		.then(() => process.exit(0))
+		.catch((error) => {
+			console.error('City seed failed:', error)
+			process.exit(1)
+		})
+}
