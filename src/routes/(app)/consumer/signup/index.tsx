@@ -9,8 +9,8 @@ import { getCurrentSession } from '@/lib/auth/functions'
 import {
 	hasCompletedConsumerIntake,
 	type ConsumerDraft,
+	loadConsumerProfile,
 } from '@/lib/matching/profile'
-import { loadConsumerProfile } from '@/lib/matching/profile.server'
 import { createLocalStorage } from '@/lib/utils/localstorage'
 import {
 	ConsumerHome,

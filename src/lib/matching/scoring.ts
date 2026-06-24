@@ -2,7 +2,10 @@ import {
 	AGENT_PRICE_RANGES,
 	parsePriceRange,
 } from '@/components/signup/price-range'
-import type { AgentProfile, ConsumerProfile } from '@/lib/matching/profile'
+import type {
+	AgentProfile,
+	ConsumerProfile,
+} from '@/lib/matching/profile.types'
 
 export interface AgentMatchData {
 	id: string

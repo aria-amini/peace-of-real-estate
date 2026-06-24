@@ -34,8 +34,8 @@ import { getCurrentSession } from '@/lib/auth/functions'
 import {
 	loadAgentMatches,
 	loadConsumerProfile,
-} from '@/lib/matching/profile.server'
-import { hasCompletedConsumerIntake } from '@/lib/matching/profile'
+	hasCompletedConsumerIntake,
+} from '@/lib/matching/profile'
 import { consumerAnswerLabels } from '@/components/signup/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile'
 import {

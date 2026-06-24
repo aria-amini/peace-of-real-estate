@@ -28,7 +28,7 @@ import {
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { DASHBOARD_PLACEHOLDER_PIPELINE } from '@/lib/pricing'
 import { authClient } from '@/lib/auth/client'
-import { loadAgentProfile } from '@/lib/matching/profile.server'
+import { loadAgentProfile } from '@/lib/matching/profile'
 import type { AgentProfile } from '@/lib/matching/profile'
 import { bestClientTypeLabels } from '@/components/signup/questions'
 import { isUserPremium } from '@/lib/premium'

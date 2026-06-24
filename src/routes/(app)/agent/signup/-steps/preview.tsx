@@ -17,7 +17,7 @@ import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
 import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
-import { completeAgentSignup } from '@/lib/matching/profile.server'
+import { completeAgentSignup } from '@/lib/matching/profile'
 import { createLocalStorage } from '@/lib/utils/localstorage'
 import { bestClientTypeLabels } from '@/components/signup/questions'
 import {

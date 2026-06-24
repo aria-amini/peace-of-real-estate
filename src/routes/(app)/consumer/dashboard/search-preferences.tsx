@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
 	loadConsumerProfile,
 	upsertConsumerProfile,
-} from '@/lib/matching/profile.server'
+} from '@/lib/matching/profile'
 import type {
 	ConsumerProfile,
 	ConsumerProfileUpdate,

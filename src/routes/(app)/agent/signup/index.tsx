@@ -10,8 +10,8 @@ import {
 	agentProfileCreateSchema,
 	type AgentProfile,
 	type AgentDraft,
+	loadAgentProfile,
 } from '@/lib/matching/profile'
-import { loadAgentProfile } from '@/lib/matching/profile.server'
 import { createLocalStorage } from '@/lib/utils/localstorage'
 import {
 	AgentCompliance,

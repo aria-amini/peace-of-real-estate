@@ -29,7 +29,7 @@ import { authClient } from '@/lib/auth/client'
 import {
 	createConsumerProfileFromDraft,
 	loadConsumerProfile,
-} from '@/lib/matching/profile.server'
+} from '@/lib/matching/profile'
 import { type ConsumerDraft } from '@/lib/matching/profile'
 import { createLocalStorage } from '@/lib/utils/localstorage'
 import { isUserPremium } from '@/lib/premium'

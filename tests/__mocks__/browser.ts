@@ -52,44 +52,19 @@ vi.mock('@/routes/__root', async () => {
 	}
 })
 
-const mockMatches = [
-	{
-		id: 'agent-1',
-		name: 'Sarah Chen',
-		role: 'agent',
-		location: 'Austin, TX',
-		zipCodes: ['78701'],
-		fitScore: 96,
-		status: 'new',
-		date: '2026-04-21',
-		experience: '12 years',
-		agency: 'Horizon Realty Group',
-		specialties: ['First-time buyers', 'Luxury homes'],
-		about: 'Known for patient guidance and transparent communication.',
-		scores: {
-			'Working Style': 4.9,
-			Communication: 4.7,
-			Transparency: 4.8,
-			Fit: 4.9,
-		},
-		isTopMatch: true,
-	},
-]
-
-vi.mock('@/lib/matching/profile.server', async () => {
+vi.mock('@/lib/matching/profile', async () => {
 	const actual = await vi.importActual<
-		typeof import('@/lib/matching/profile.server')
-	>('@/lib/matching/profile.server')
+		typeof import('@/lib/matching/profile.types')
+	>('@/lib/matching/profile.types')
 	return {
 		...actual,
-		loadAgentMatches: () => Promise.resolve(mockMatches),
 		loadConsumerProfile: () =>
 			Promise.resolve({
 				id: 'consumer-1',
 				userId: 'user-1',
 				status: 'draft',
 				intent: 'buying',
-				location: 'Austin, TX',
+				city: 'Austin',
 				state: 'TX',
 				priceRange: '400000-750000',
 				propertyTypes: ['singleFamily'],
@@ -108,15 +83,30 @@ vi.mock('@/lib/matching/profile.server', async () => {
 		updateAgentProfile: () => Promise.resolve(),
 		createConsumerProfileFromDraft: () => Promise.resolve({ success: true }),
 		completeAgentSignup: () => Promise.resolve({ success: true }),
-	}
-})
-
-vi.mock('@/lib/matching/profile', async () => {
-	const actual = await vi.importActual<typeof import('@/lib/matching/profile')>(
-		'@/lib/matching/profile',
-	)
-	return {
-		...actual,
+		loadAgentMatches: () =>
+			Promise.resolve([
+				{
+					id: 'agent-1',
+					name: 'Sarah Chen',
+					role: 'agent',
+					location: 'Austin, TX',
+					zipCodes: ['78701'],
+					fitScore: 96,
+					status: 'new',
+					date: '2026-04-21',
+					experience: '12 years',
+					agency: 'Horizon Realty Group',
+					specialties: ['First-time buyers', 'Luxury homes'],
+					about: 'Known for patient guidance and transparent communication.',
+					scores: {
+						'Working Style': 4.9,
+						Communication: 4.7,
+						Transparency: 4.8,
+						Fit: 4.9,
+					},
+					isTopMatch: true,
+				},
+			]),
 	}
 })
 
