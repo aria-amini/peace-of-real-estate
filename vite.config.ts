@@ -93,6 +93,13 @@ export default defineConfig({
 			{ find: '@tests', replacement: resolve(root, 'tests') },
 		],
 	},
+	optimizeDeps: {
+		include: [
+			'vite-plus/test',
+			'vite-plus/test/browser',
+			'vitest-browser-react',
+		],
+	},
 	plugins: [
 		tanstackStart({
 			router: { routeFileIgnorePattern: '(__tests__|\\.test\\.tsx$)' },
