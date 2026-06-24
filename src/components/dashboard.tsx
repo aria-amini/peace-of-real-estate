@@ -3,6 +3,7 @@ import { Link, useRouterState } from '@tanstack/react-router'
 import { CheckCircle2, HelpCircle, LogOut, MessageSquare } from 'lucide-react'
 
 import { authClient } from '@/lib/auth/client'
+import { cn } from '@/lib/utils/ui'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -365,13 +366,7 @@ export type DashboardPageProps = {
 }
 
 export function DashboardPage({ children, className }: DashboardPageProps) {
-	return (
-		<div
-			className={`w-full px-6 py-10 xl:-ml-[calc(var(--sidebar-width)/2)] ${className ?? ''}`}
-		>
-			{children}
-		</div>
-	)
+	return <div className={cn('w-full px-6 py-10', className)}>{children}</div>
 }
 
 export type DashboardPageMobileNavProps = {
