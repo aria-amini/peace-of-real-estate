@@ -20,13 +20,17 @@ export type AgentProfile = typeof agentProfiles.$inferSelect
 
 export type AgentProfileInsert = typeof agentProfiles.$inferInsert
 
-export type ConsumerProfileUpdate = Partial<
-	Omit<ConsumerProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
->
-
-export type AgentProfileUpdate = Partial<
-	Omit<AgentProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
->
+const consumerProfileCreateSchema = createInsertSchema(consumerProfiles)
+	.omit({
+		id: true,
+		userId: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.extend({
+		intent: z.enum(['buying', 'selling', 'both']),
+		status: z.enum(['draft', 'essentials_submitted', 'active', 'enriched']),
+	})
 
 const agentProfileCreateSchema = createInsertSchema(agentProfiles)
 	.omit({
@@ -35,45 +39,19 @@ const agentProfileCreateSchema = createInsertSchema(agentProfiles)
 		createdAt: true,
 		updatedAt: true,
 	})
-	.partial({
-		email: true,
-		phone: true,
-		businessAddress: true,
-		billingAddress: true,
-		yearsLicensed: true,
-		averageTransactions: true,
-		employmentStatus: true,
-		licenseProof: true,
-		clientFirstTerms: true,
-		peacePactSignedAt: true,
-		valueProposition: true,
-		idealClientDescription: true,
-		whyIStarted: true,
-		typicalDayInDeal: true,
-		hardNo: true,
-		valueBeyondTransaction: true,
-		communicationCadence: true,
-		quickContactStyle: true,
-		updateDeliveryStyle: true,
-		responseTime: true,
-		transparencyStyle: true,
-		clientBoundaryStyle: true,
-		negotiationEthic: true,
-		dualAgencyStyle: true,
-		energyStyle: true,
-		teachingStyle: true,
-		dealStressStyle: true,
-		decisionMakingStyle: true,
-		serviceDepth: true,
-		involvementLevel: true,
-		representationPreference: true,
-		notFitFor: true,
-	})
 	.extend({
 		representationSide: z.enum(['buying', 'selling', 'both']),
 	})
 
+export type ConsumerProfileCreateInput = z.infer<
+	typeof consumerProfileCreateSchema
+>
+
 export type AgentProfileCreateInput = z.infer<typeof agentProfileCreateSchema>
+
+export type ConsumerProfileUpdate = Partial<ConsumerProfileCreateInput>
+
+export type AgentProfileUpdate = Partial<AgentProfileCreateInput>
 
 const loadConsumerProfile = createServerFn({ method: 'GET' }).handler(
 	async () => {
@@ -87,7 +65,7 @@ const loadConsumerProfile = createServerFn({ method: 'GET' }).handler(
 	},
 )
 
-const saveConsumerProfile = createServerFn({ method: 'POST' })
+const upsertConsumerProfile = createServerFn({ method: 'POST' })
 	.validator((data: ConsumerProfileUpdate) => data)
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
@@ -107,12 +85,15 @@ const saveConsumerProfile = createServerFn({ method: 'POST' })
 			return
 		}
 
+		const insert = consumerProfileCreateSchema.parse({
+			...data,
+			status: data.status ?? 'draft',
+		})
+
 		await db.insert(consumerProfiles).values({
 			id: crypto.randomUUID(),
 			userId,
-			intent: data.intent ?? 'buying',
-			status: data.status ?? 'draft',
-			...data,
+			...insert,
 			createdAt: now,
 			updatedAt: now,
 		})
@@ -129,7 +110,7 @@ const loadAgentProfile = createServerFn({ method: 'GET' }).handler(async () => {
 })
 
 const createAgentProfile = createServerFn({ method: 'POST' })
-	.validator((data: AgentProfileCreateInput) => data)
+	.validator((data: unknown) => agentProfileCreateSchema.parse(data))
 	.handler(async ({ data }) => {
 		const userId = await requireUserId()
 		const now = new Date()
@@ -177,17 +158,63 @@ const updateAgentProfile = createServerFn({ method: 'POST' })
 			.where(eq(agentProfiles.id, existing[0].id))
 	})
 
+const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
+	.validator((data: ConsumerProfileUpdate) => data)
+	.handler(async ({ data }) => {
+		await requireUserId()
+		const createInput = consumerProfileCreateSchema.parse({
+			...data,
+			status: 'active',
+		})
+
+		await upsertConsumerProfile({ data: createInput })
+
+		return { success: true }
+	})
+
+const completeAgentSignup = createServerFn({ method: 'POST' })
+	.validator((data: unknown) => agentProfileCreateSchema.parse(data))
+	.handler(async ({ data }) => {
+		const userId = await requireUserId()
+		const now = new Date()
+
+		const existing = await db
+			.select({ id: agentProfiles.id })
+			.from(agentProfiles)
+			.where(eq(agentProfiles.userId, userId))
+			.limit(1)
+
+		if (existing[0]) {
+			throw new Error('Agent profile already exists')
+		}
+
+		const insert = {
+			id: crypto.randomUUID(),
+			userId,
+			...data,
+			createdAt: now,
+			updatedAt: now,
+		} satisfies AgentProfileInsert
+
+		await db.insert(agentProfiles).values(insert)
+		return { success: true }
+	})
+
 export {
 	agentProfileColumns,
 	consumerProfileColumns,
 } from '@/lib/matching/profile.db'
 
 export {
+	consumerProfileCreateSchema,
+	agentProfileCreateSchema,
 	loadConsumerProfile,
-	saveConsumerProfile,
+	upsertConsumerProfile,
 	loadAgentProfile,
 	createAgentProfile,
 	updateAgentProfile,
+	createConsumerProfileFromDraft,
+	completeAgentSignup,
 }
 
 export function hasCompletedConsumerIntake(

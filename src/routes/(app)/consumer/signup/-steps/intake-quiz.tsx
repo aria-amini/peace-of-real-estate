@@ -11,11 +11,11 @@ import type { ConsumerDraft } from '@/lib/drafts'
 import { StepHeader } from '@/components/signup/step-header'
 import {
 	consumerQuestionFlow,
-	getAnswerSummary,
+	questionOptionLabel,
 	type AnswerValue,
-	type Answers,
 	type Question,
 } from '@/lib/matching/questions'
+import type { ConsumerProfileUpdate } from '@/lib/matching/profile'
 
 export function ConsumerQuiz({
 	state,
@@ -28,11 +28,9 @@ export function ConsumerQuiz({
 	onUpdate: (patch: Partial<ConsumerDraft>) => void
 	onComplete: () => void
 }) {
+	const answers = extractAnswers(state)
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() =>
-		getNextUnansweredQuestionIndex(
-			consumerQuestionFlow.questions,
-			state.answers,
-		),
+		getNextUnansweredQuestionIndex(consumerQuestionFlow.questions, answers),
 	)
 
 	return (
@@ -51,9 +49,7 @@ export function ConsumerQuiz({
 						title="Preferences"
 						activeIndex={currentQuestionIndex}
 						items={consumerQuestionFlow.questions.map(
-							(q) =>
-								state.answers[q.id] !== undefined &&
-								state.answers[q.id] !== null,
+							(q) => answers[q.id] !== undefined && answers[q.id] !== null,
 						)}
 						showTitle={false}
 					/>
@@ -63,10 +59,10 @@ export function ConsumerQuiz({
 						mode="single-question"
 						title="Step 3: Your Match"
 						wrapper="wizard"
-						answers={state.answers}
+						answers={answers}
 						currentQuestionIndex={currentQuestionIndex}
 						onAnswersChange={(nextAnswers) =>
-							onUpdate({ answers: nextAnswers })
+							onUpdate(answersToProfileUpdate(nextAnswers))
 						}
 						onQuestionIndexChange={setCurrentQuestionIndex}
 						onComplete={onComplete}
@@ -82,13 +78,47 @@ export function ConsumerQuiz({
 
 function getNextUnansweredQuestionIndex(
 	questions: Question[],
-	answers: Answers,
+	answers: Record<string, AnswerValue>,
 ) {
 	const nextIndex = questions.findIndex((q) => answers[q.id] === undefined)
 
 	return nextIndex === -1 ? Math.max(questions.length - 1, 0) : nextIndex
 }
 
+function extractAnswers(draft: ConsumerDraft): Record<string, AnswerValue> {
+	const answers: Record<string, AnswerValue> = {}
+	for (const question of consumerQuestionFlow.questions) {
+		const value = draft[question.id as keyof ConsumerProfileUpdate]
+		if (value !== undefined && value !== null) {
+			answers[question.id] = value as AnswerValue
+		}
+	}
+	return answers
+}
+
+function answersToProfileUpdate(
+	answers: Record<string, AnswerValue>,
+): Partial<ConsumerDraft> {
+	const update: Partial<ConsumerDraft> = {}
+	for (const question of consumerQuestionFlow.questions) {
+		const value = answers[question.id]
+		if (value !== undefined && value !== null) {
+			update[question.id as keyof ConsumerDraft] = value as never
+		}
+	}
+	return update
+}
+
 export function getAnswerLabel(question: Question, value: AnswerValue): string {
-	return getAnswerSummary(question, value)
+	if (value === undefined || value === null) return 'Not answered'
+	if (question.freeForm && typeof value === 'string') {
+		return value.trim() || 'Not answered'
+	}
+	if (Array.isArray(value)) {
+		return value
+			.map((slug) => questionOptionLabel(question, slug))
+			.filter(Boolean)
+			.join(', ')
+	}
+	return questionOptionLabel(question, value)
 }

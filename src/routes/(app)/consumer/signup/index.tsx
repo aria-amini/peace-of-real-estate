@@ -62,16 +62,16 @@ function ConsumerSignupRoute() {
 	const navigate = useNavigate()
 	const currentIndex = stepOrder.indexOf(step as ConsumerFlowStep)
 	const [state, setState] = useState<ConsumerDraft>(() => {
-		return loadConsumerDraft() ?? { answers: {} }
+		return loadConsumerDraft() ?? { zipCodes: [] }
 	})
 	const [direction, setDirection] = useState(1)
 	const [showLeaveDialog, setShowLeaveDialog] = useState(false)
 	const previousIndexRef = useRef(currentIndex)
 
 	const hasDraft =
-		Object.keys(state.answers).length > 0 ||
-		state.location !== undefined ||
-		state.intent !== undefined
+		state.intent !== undefined ||
+		state.city !== undefined ||
+		state.preferredContactMethod !== undefined
 
 	const updateState = (patch: Partial<ConsumerDraft>) => {
 		setState((current) => {
@@ -105,9 +105,9 @@ function ConsumerSignupRoute() {
 		.filter((stepItem) => {
 			switch (stepItem.id) {
 				case 'intro':
-					return Boolean(state.location ?? state.city)
-				case 'intent':
 					return Boolean(state.intent)
+				case 'intent':
+					return Boolean(state.city && state.state)
 				case 'home':
 					return (
 						Boolean(state.priceRange) &&
@@ -116,8 +116,7 @@ function ConsumerSignupRoute() {
 					)
 				case 'quiz':
 					return consumerQuestionFlow.questions.every(
-						(q) =>
-							state.answers[q.id] !== undefined && state.answers[q.id] !== null,
+						(q) => state[q.id as keyof ConsumerDraft] !== undefined,
 					)
 				default:
 					return false

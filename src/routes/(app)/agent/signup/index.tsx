@@ -7,7 +7,11 @@ import { FlowIntakeProgress } from '@/components/signup/shared'
 import { LeaveDialog } from '@/components/signup/leave-dialog'
 import { loadAgentDraft, saveAgentDraft, type AgentDraft } from '@/lib/drafts'
 import { getCurrentSession } from '@/lib/auth/functions'
-import { loadAgentProfile, type AgentProfile } from '@/lib/matching/profile'
+import {
+	loadAgentProfile,
+	agentProfileCreateSchema,
+	type AgentProfile,
+} from '@/lib/matching/profile'
 import {
 	AgentCompliance,
 	AgentIdentity,
@@ -15,11 +19,7 @@ import {
 	AgentPeacePact,
 	AgentWelcome,
 } from './-steps'
-import {
-	AgentPreview,
-	agentProfileCreateSchema,
-	draftToPreviewProfile,
-} from './-steps/preview'
+import { AgentPreview, draftToPreviewProfile } from './-steps/preview'
 import { agentFlowSteps, stepOrder, type AgentFlowStep } from './-steps/shared'
 
 const signupSearchSchema = z.object({

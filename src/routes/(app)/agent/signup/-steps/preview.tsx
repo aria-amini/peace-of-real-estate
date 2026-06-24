@@ -12,70 +12,23 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-import { createInsertSchema } from 'drizzle-zod'
-
 import { AgentPreviewCard } from '@/components/match/card'
 import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
-import { agentProfiles } from '@/db/tables'
 import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
-import { completeAgentSignup, loadAgentDraft } from '@/lib/drafts'
+import { completeAgentSignup, type AgentProfile } from '@/lib/matching/profile'
+import { loadAgentDraft } from '@/lib/drafts'
 import {
 	agentQuestionFlow,
 	questionOptionLabel,
 	type Question,
 } from '@/lib/matching/questions'
-import type { AgentProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
 	parsePriceRange,
 } from '@/components/signup/price-range'
 import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
-
-export const agentProfileCreateSchema = createInsertSchema(agentProfiles)
-	.omit({
-		id: true,
-		userId: true,
-		createdAt: true,
-		updatedAt: true,
-	})
-	.partial({
-		email: true,
-		phone: true,
-		businessAddress: true,
-		billingAddress: true,
-		yearsLicensed: true,
-		averageTransactions: true,
-		employmentStatus: true,
-		licenseProof: true,
-		clientFirstTerms: true,
-		usePaxWriter: true,
-		peacePactSignedAt: true,
-		valueProposition: true,
-		idealClientDescription: true,
-		whyIStarted: true,
-		typicalDayInDeal: true,
-		hardNo: true,
-		valueBeyondTransaction: true,
-		communicationCadence: true,
-		quickContactStyle: true,
-		updateDeliveryStyle: true,
-		responseTime: true,
-		transparencyStyle: true,
-		clientBoundaryStyle: true,
-		negotiationEthic: true,
-		dualAgencyStyle: true,
-		energyStyle: true,
-		teachingStyle: true,
-		dealStressStyle: true,
-		decisionMakingStyle: true,
-		serviceDepth: true,
-		involvementLevel: true,
-		representationPreference: true,
-		matchPriorities: true,
-		notFitFor: true,
-	})
 
 export function draftToPreviewProfile(draft: AgentProfile): AgentProfile {
 	return {

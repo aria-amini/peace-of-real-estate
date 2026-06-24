@@ -14,8 +14,10 @@ export const sharedProfileColumns = {
 
 export const consumerProfileColumns = {
 	intent: text().$type<RepresentationSide>().notNull(),
-	location: text(),
 	state: text(),
+	city: text(),
+	zipCodes: text('zip_codes').array().notNull().default([]),
+	timeline: text(),
 	priceRange: text('price_range'),
 	estimatedHomeValue: text('estimated_home_value'),
 	propertyTypes: text('property_types').array(),

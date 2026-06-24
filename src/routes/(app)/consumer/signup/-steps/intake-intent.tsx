@@ -22,7 +22,7 @@ export function ConsumerLocation({
 	onUpdate: (patch: Partial<ConsumerDraft>) => void
 	onContinue: () => void
 }) {
-	const rawInitialLocation = state.city ?? state.location ?? ''
+	const rawInitialLocation = state.city ?? ''
 	const [committedLocation, setCommittedLocation] = useState(rawInitialLocation)
 	const [selectedZipCodes, setSelectedZipCodes] = useState<string[]>(
 		state.zipCodes ?? [],
@@ -47,16 +47,9 @@ export function ConsumerLocation({
 			return
 		}
 
-		const derivedState = cityState?.state
-		const location =
-			selectedZipCodes.length > 0
-				? `${finalLocation} (${selectedZipCodes.join(', ')})`
-				: finalLocation
-
 		onUpdate({
-			city: finalLocation,
-			location,
-			...(derivedState ? { state: derivedState } : {}),
+			city: cityState?.city ?? finalLocation,
+			state: cityState?.state,
 			zipCodes: selectedZipCodes,
 		})
 		onContinue()

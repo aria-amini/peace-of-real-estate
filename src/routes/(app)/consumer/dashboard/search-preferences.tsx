@@ -20,7 +20,7 @@ import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import {
 	loadConsumerProfile,
-	saveConsumerProfile,
+	upsertConsumerProfile,
 } from '@/lib/matching/profile'
 import type {
 	ConsumerProfile,
@@ -106,7 +106,7 @@ const reversePrioritySlugMap: Record<string, string> = Object.fromEntries(
 )
 
 type FormState = {
-	location: string | undefined
+	city: string | undefined
 	state: string | undefined
 	intent: RepresentationSide | undefined
 	priceRange: string | undefined
@@ -118,7 +118,7 @@ type FormState = {
 
 function profileToForm(profile: Partial<ConsumerProfile>): FormState {
 	return {
-		location: profile.location ?? undefined,
+		city: profile.city ?? undefined,
 		state: profile.state ?? undefined,
 		intent: profile.intent ?? undefined,
 		priceRange: profile.priceRange
@@ -141,7 +141,7 @@ function profileToForm(profile: Partial<ConsumerProfile>): FormState {
 function formToUpdate(form: FormState): ConsumerProfileUpdate {
 	const update: ConsumerProfileUpdate = {}
 
-	if (form.location !== undefined) update.location = form.location
+	if (form.city !== undefined) update.city = form.city
 	if (form.state !== undefined) update.state = form.state
 	if (form.intent !== undefined) update.intent = form.intent
 	if (form.priceRange !== undefined) {
@@ -169,7 +169,7 @@ function formToUpdate(form: FormState): ConsumerProfileUpdate {
 
 function SearchPreferences() {
 	const consumerProfile = Route.useLoaderData()
-	const saveConsumer = useServerFn(saveConsumerProfile)
+	const saveConsumer = useServerFn(upsertConsumerProfile)
 	const [form, setForm] = useState<FormState>(() =>
 		profileToForm(consumerProfile ?? {}),
 	)
@@ -227,16 +227,27 @@ function SearchPreferences() {
 					</CardHeader>
 					<CardContent className="grid gap-5 sm:grid-cols-2">
 						<div className="space-y-2 sm:col-span-2">
-							<label htmlFor="search-location" className="text-sm font-medium">
-								City, state, or ZIP
+							<label htmlFor="search-city" className="text-sm font-medium">
+								City
 							</label>
 							<Input
-								id="search-location"
-								value={form.location ?? ''}
-								onChange={(event) =>
-									updateForm({ location: event.target.value })
-								}
-								placeholder="Austin, TX 78701"
+								id="search-city"
+								value={form.city ?? ''}
+								onChange={(event) => updateForm({ city: event.target.value })}
+								placeholder="Austin"
+								className="h-11"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<label htmlFor="search-state" className="text-sm font-medium">
+								State
+							</label>
+							<Input
+								id="search-state"
+								value={form.state ?? ''}
+								onChange={(event) => updateForm({ state: event.target.value })}
+								placeholder="TX"
 								className="h-11"
 							/>
 						</div>

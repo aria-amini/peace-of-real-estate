@@ -18,9 +18,9 @@ import { AgentPreviewCard } from '@/components/match/card'
 import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
+import { createConsumerProfileFromDraft } from '@/lib/matching/profile'
 import {
-	createConsumerProfileFromDraft,
-	draftToConsumerProfileUpdate,
+	clearConsumerDraft,
 	loadConsumerDraft,
 	type ConsumerDraft,
 } from '@/lib/drafts'
@@ -29,7 +29,6 @@ import {
 	getAnswerSummary,
 	propertyTypeOptions,
 	type AnswerValue,
-	type Answers,
 } from '@/lib/matching/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile'
 import {
@@ -65,8 +64,10 @@ export function draftToPreviewProfile(draft: ConsumerDraft): ConsumerProfile {
 		intent: update.intent ?? 'buying',
 		createdAt: now,
 		updatedAt: now,
-		location: update.location ?? null,
 		state: update.state ?? null,
+		city: update.city ?? null,
+		zipCodes: update.zipCodes ?? [],
+		timeline: update.timeline ?? null,
 		priceRange: update.priceRange ?? null,
 		estimatedHomeValue: null,
 		propertyTypes: update.propertyTypes ?? null,
@@ -80,6 +81,18 @@ export function draftToPreviewProfile(draft: ConsumerDraft): ConsumerProfile {
 	}
 }
 
+function draftToConsumerProfileUpdate(
+	draft: ConsumerDraft,
+): Partial<ConsumerProfile> {
+	const result: Partial<ConsumerProfile> = {}
+	for (const [key, value] of Object.entries(draft)) {
+		if (value !== undefined) {
+			result[key as keyof ConsumerProfile] = value as never
+		}
+	}
+	return result
+}
+
 export function ConsumerPreview({ profile }: { profile: ConsumerProfile }) {
 	const showMobileSignup = useIsBelowDesktop()
 
@@ -87,7 +100,7 @@ export function ConsumerPreview({ profile }: { profile: ConsumerProfile }) {
 	const summaryItems = getProfileStats(profile)
 
 	const previewMatches = consumerMatches.slice(0, 3)
-	const locationLabel = profile.state ?? profile.location
+	const locationLabel = profile.city ?? profile.state
 	const experienceLabel = getExperienceLabel(
 		profile.experienceLevel ?? undefined,
 	).label
@@ -163,7 +176,7 @@ export function ConsumerPreview({ profile }: { profile: ConsumerProfile }) {
 											alt={`${profile.state} state icon`}
 											className="h-8 w-8 object-contain opacity-85"
 										/>
-									) : profile.location ? (
+									) : profile.city ? (
 										<MapPin className="h-5 w-5" />
 									) : (
 										<User className="h-5 w-5" />
@@ -240,13 +253,6 @@ function getStateSvgPath(state?: string) {
 	return `/states/${state}.svg`
 }
 
-const answerLabelOverrides: Record<string, string> = {
-	preferredContactMethod: 'Communication',
-	involvementLevel: 'Involvement',
-	representationPreference: 'Exclusivity',
-	commissionComfort: 'Negotiation',
-}
-
 const experienceLevelPills: Record<
 	string,
 	{ label: string; className: string }
@@ -261,7 +267,7 @@ const experienceLevelPills: Record<
 	},
 	veryExperienced: {
 		label: 'Expert buyer',
-		className: 'bg-emerald-100 text-emerald-950 ring-emerald-200/80',
+		className: 'bg-emerald-100 text-emerald-950 ring-emky-200/80',
 	},
 }
 
@@ -287,31 +293,23 @@ function getProfileStats(profile: ConsumerProfile) {
 		})
 	}
 
-	const answers: Answers = {
-		...(profile.preferredContactMethod
-			? { preferredContactMethod: profile.preferredContactMethod }
-			: {}),
-		...(profile.involvementLevel
-			? { involvementLevel: profile.involvementLevel }
-			: {}),
-		...(profile.representationPreference
-			? { representationPreference: profile.representationPreference }
-			: {}),
-		...(profile.commissionComfort
-			? { commissionComfort: profile.commissionComfort }
-			: {}),
-		...(profile.experienceLevel
-			? { experienceLevel: profile.experienceLevel }
-			: {}),
-	}
+	const answerQuestions: { id: string; label: string }[] = [
+		{ id: 'preferredContactMethod', label: 'Communication' },
+		{ id: 'involvementLevel', label: 'Involvement' },
+		{ id: 'representationPreference', label: 'Exclusivity' },
+		{ id: 'commissionComfort', label: 'Negotiation' },
+		{ id: 'experienceLevel', label: 'Experience' },
+	]
 
-	for (const [id, value] of Object.entries(answers)) {
-		if (value === '__skipped__') continue
+	for (const { id, label } of answerQuestions) {
+		const value = profile[id as keyof ConsumerProfile] as AnswerValue
+		if (value === undefined || value === null || value === '__skipped__')
+			continue
 		const question = consumerQuestionFlow.questions.find((q) => q.id === id)
 		if (!question) continue
 		stats.push({
-			label: answerLabelOverrides[id] ?? question.title,
-			value: getAnswerSummary(question, value as AnswerValue),
+			label,
+			value: getAnswerSummary(question, value),
 		})
 	}
 
@@ -323,5 +321,4 @@ function getExperienceLabel(experienceLevel?: string) {
 	return experienceLevelPills[experienceLevel] ?? { label: experienceLevel }
 }
 
-import { clearConsumerDraft } from '@/lib/drafts'
 import { consumerMatches } from './mock-matches'

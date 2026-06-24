@@ -114,10 +114,7 @@ function Matches() {
 		queryKey: ['consumer-profile'],
 		queryFn: loadConsumerProfile,
 	})
-	const stateCode = resolveStateCode(
-		consumerProfile?.state ?? undefined,
-		consumerProfile?.location ?? undefined,
-	)
+	const stateCode = resolveStateCode(consumerProfile?.state ?? undefined)
 
 	const handleUpgrade = () => {
 		void refetchPremium()
@@ -351,7 +348,8 @@ function getPreferenceSummaryItems(
 	}
 
 	const profileItems = [
-		profile.location ? { label: 'Location', value: profile.location } : null,
+		profile.city ? { label: 'City', value: profile.city } : null,
+		profile.state ? { label: 'State', value: profile.state } : null,
 		profile.priceRange
 			? {
 					label: 'Budget',

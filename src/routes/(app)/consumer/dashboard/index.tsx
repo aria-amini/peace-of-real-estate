@@ -27,12 +27,14 @@ import {
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { authClient } from '@/lib/auth/client'
 import {
-	clearConsumerDraft,
 	createConsumerProfileFromDraft,
+	loadConsumerProfile,
+} from '@/lib/matching/profile'
+import {
+	clearConsumerDraft,
 	loadConsumerDraft,
 	type ConsumerDraft,
 } from '@/lib/drafts'
-import { loadConsumerProfile } from '@/lib/matching/profile'
 import { isUserPremium } from '@/lib/premium'
 import {
 	formatPriceRange,
@@ -89,7 +91,13 @@ function ConsumerDashboard() {
 	const tierLabel = premiumStatus ? 'Premium' : 'Free'
 	const initials = getInitials(session?.user.name, session?.user.email)
 	const searchSnapshot = [
-		{ label: 'Location', value: consumerProfile?.location },
+		{
+			label: 'Location',
+			value:
+				consumerProfile?.city && consumerProfile?.state
+					? `${consumerProfile.city}, ${consumerProfile.state}`
+					: (consumerProfile?.city ?? consumerProfile?.state),
+		},
 		{ label: 'Intent', value: consumerProfile?.intent },
 		{
 			label: 'Budget',
