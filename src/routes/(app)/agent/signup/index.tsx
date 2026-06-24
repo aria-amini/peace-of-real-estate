@@ -5,13 +5,14 @@ import { z } from 'zod'
 import { WizardShell } from '@/components/signup/wizard-shell'
 import { FlowIntakeProgress } from '@/components/signup/shared'
 import { LeaveDialog } from '@/components/signup/leave-dialog'
-import { loadAgentDraft, saveAgentDraft, type AgentDraft } from '@/lib/drafts'
 import { getCurrentSession } from '@/lib/auth/functions'
 import {
-	loadAgentProfile,
 	agentProfileCreateSchema,
 	type AgentProfile,
+	type AgentDraft,
 } from '@/lib/matching/profile'
+import { loadAgentProfile } from '@/lib/matching/profile.server'
+import { createLocalStorage } from '@/lib/utils/localstorage'
 import {
 	AgentCompliance,
 	AgentIdentity,
@@ -62,12 +63,14 @@ export const Route = createFileRoute('/(app)/agent/signup/')({
 	component: AgentSignupRoute,
 })
 
+const agentDraftStorage = createLocalStorage<AgentDraft>('pre-agent-draft')
+
 function AgentSignupRoute() {
 	const { step } = Route.useSearch()
 	const navigate = useNavigate()
 	const currentIndex = stepOrder.indexOf(step as AgentFlowStep)
 	const [state, setState] = useState<AgentDraft>(() => {
-		return loadAgentDraft() ?? {}
+		return agentDraftStorage.load() ?? {}
 	})
 	const [direction, setDirection] = useState(1)
 	const [showLeaveDialog, setShowLeaveDialog] = useState(false)
@@ -81,7 +84,7 @@ function AgentSignupRoute() {
 	const updateState = (patch: Partial<AgentDraft>) => {
 		setState((current) => {
 			const next = { ...current, ...patch }
-			saveAgentDraft(next)
+			agentDraftStorage.save(next)
 			return next
 		})
 	}

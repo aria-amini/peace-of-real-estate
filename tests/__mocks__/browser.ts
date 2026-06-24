@@ -76,16 +76,13 @@ const mockMatches = [
 	},
 ]
 
-vi.mock('@/lib/matching/server', () => ({
-	loadAgentMatches: () => Promise.resolve(mockMatches),
-}))
-
-vi.mock('@/lib/matching/profile', async () => {
-	const actual = await vi.importActual<typeof import('@/lib/matching/profile')>(
-		'@/lib/matching/profile',
-	)
+vi.mock('@/lib/matching/profile.server', async () => {
+	const actual = await vi.importActual<
+		typeof import('@/lib/matching/profile.server')
+	>('@/lib/matching/profile.server')
 	return {
 		...actual,
+		loadAgentMatches: () => Promise.resolve(mockMatches),
 		loadConsumerProfile: () =>
 			Promise.resolve({
 				id: 'consumer-1',
@@ -106,10 +103,20 @@ vi.mock('@/lib/matching/profile', async () => {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			}),
-		saveConsumerProfile: () => Promise.resolve(),
+		upsertConsumerProfile: () => Promise.resolve(),
 		loadAgentProfile: () => Promise.resolve(null),
-		saveAgentProfile: () => Promise.resolve(),
-		saveAgentEssentials: () => Promise.resolve(),
+		updateAgentProfile: () => Promise.resolve(),
+		createConsumerProfileFromDraft: () => Promise.resolve({ success: true }),
+		completeAgentSignup: () => Promise.resolve({ success: true }),
+	}
+})
+
+vi.mock('@/lib/matching/profile', async () => {
+	const actual = await vi.importActual<typeof import('@/lib/matching/profile')>(
+		'@/lib/matching/profile',
+	)
+	return {
+		...actual,
 	}
 })
 

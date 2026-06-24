@@ -13,7 +13,7 @@ import {
 	type Question,
 } from '@/components/signup/questions'
 import { Card, CardContent } from '@/components/ui/card'
-import type { ConsumerDraft } from '@/lib/drafts'
+import type { ConsumerDraft } from '@/lib/matching/profile'
 import { StepHeader } from '@/components/signup/step-header'
 import type { ConsumerProfileUpdate } from '@/lib/matching/profile'
 

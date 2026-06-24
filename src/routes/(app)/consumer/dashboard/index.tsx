@@ -29,12 +29,9 @@ import { authClient } from '@/lib/auth/client'
 import {
 	createConsumerProfileFromDraft,
 	loadConsumerProfile,
-} from '@/lib/matching/profile'
-import {
-	clearConsumerDraft,
-	loadConsumerDraft,
-	type ConsumerDraft,
-} from '@/lib/drafts'
+} from '@/lib/matching/profile.server'
+import { type ConsumerDraft } from '@/lib/matching/profile'
+import { createLocalStorage } from '@/lib/utils/localstorage'
 import { isUserPremium } from '@/lib/premium'
 import {
 	formatPriceRange,
@@ -45,6 +42,9 @@ export const Route = createFileRoute('/(app)/consumer/dashboard/')({
 	component: ConsumerDashboard,
 	loader: () => loadConsumerProfile(),
 })
+
+const consumerDraftStorage =
+	createLocalStorage<ConsumerDraft>('pre-consumer-draft')
 
 function ConsumerDashboard() {
 	const consumerProfile = Route.useLoaderData()
@@ -63,7 +63,7 @@ function ConsumerDashboard() {
 			return
 		}
 
-		const draft = loadConsumerDraft()
+		const draft = consumerDraftStorage.load()
 		if (!draft) {
 			return
 		}
@@ -73,7 +73,7 @@ function ConsumerDashboard() {
 		async function completeDraft(draft: ConsumerDraft) {
 			try {
 				await createProfile({ data: draft })
-				clearConsumerDraft()
+				consumerDraftStorage.clear()
 			} catch (error) {
 				console.error('Unable to complete consumer profile', error)
 				draftCompletionStarted.current = false

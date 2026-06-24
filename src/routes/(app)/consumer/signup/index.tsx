@@ -5,16 +5,13 @@ import { z } from 'zod'
 import { WizardShell } from '@/components/signup/wizard-shell'
 import { FlowIntakeProgress } from '@/components/signup/shared'
 import { LeaveDialog } from '@/components/signup/leave-dialog'
-import {
-	loadConsumerDraft,
-	saveConsumerDraft,
-	type ConsumerDraft,
-} from '@/lib/drafts'
 import { getCurrentSession } from '@/lib/auth/functions'
 import {
 	hasCompletedConsumerIntake,
-	loadConsumerProfile,
+	type ConsumerDraft,
 } from '@/lib/matching/profile'
+import { loadConsumerProfile } from '@/lib/matching/profile.server'
+import { createLocalStorage } from '@/lib/utils/localstorage'
 import {
 	ConsumerHome,
 	ConsumerLocation,
@@ -57,12 +54,15 @@ export const Route = createFileRoute('/(app)/consumer/signup/')({
 	component: ConsumerSignupRoute,
 })
 
+const consumerDraftStorage =
+	createLocalStorage<ConsumerDraft>('pre-consumer-draft')
+
 function ConsumerSignupRoute() {
 	const { step } = Route.useSearch()
 	const navigate = useNavigate()
 	const currentIndex = stepOrder.indexOf(step as ConsumerFlowStep)
 	const [state, setState] = useState<ConsumerDraft>(() => {
-		return loadConsumerDraft() ?? { zipCodes: [] }
+		return consumerDraftStorage.load() ?? { zipCodes: [] }
 	})
 	const [direction, setDirection] = useState(1)
 	const [showLeaveDialog, setShowLeaveDialog] = useState(false)
@@ -76,7 +76,7 @@ function ConsumerSignupRoute() {
 	const updateState = (patch: Partial<ConsumerDraft>) => {
 		setState((current) => {
 			const next = { ...current, ...patch }
-			saveConsumerDraft(next)
+			consumerDraftStorage.save(next)
 			return next
 		})
 	}

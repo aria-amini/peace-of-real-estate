@@ -13,8 +13,8 @@ import { sql } from 'drizzle-orm'
 
 import {
 	agentProfileColumns,
+	consumerLifecycleColumns,
 	consumerProfileColumns,
-	sharedProfileColumns,
 } from '@/lib/matching/profile.db'
 
 type EntitlementKey = 'consumer_lifetime_premium' | 'agent_subscription'
@@ -144,7 +144,7 @@ export const consumerProfiles = pgTable(
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		...sharedProfileColumns,
+		...consumerLifecycleColumns,
 		...consumerProfileColumns,
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
@@ -173,28 +173,6 @@ export const agentProfiles = pgTable(
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
 		...agentProfileColumns,
-		firstName: text('first_name').notNull(),
-		lastName: text('last_name').notNull(),
-		brokerageName: text('brokerage_name').notNull(),
-		email: text(),
-		phone: text(),
-		businessAddress: text('business_address'),
-		billingAddress: text('billing_address'),
-		licenseNumberState: text('license_number_state').notNull(),
-		zipCodes: text('zip_codes').array().notNull().default([]),
-		yearsLicensed: text('years_licensed'),
-		averageTransactions: text('average_transactions'),
-		employmentStatus: text('employment_status'),
-		licenseProof: text('license_proof'),
-		clientFirstTerms: text('client_first_terms'),
-		usePaxWriter: boolean('use_pax_writer').default(true).notNull(),
-		licenseAttested: boolean('license_attested').default(false).notNull(),
-		eoInsuranceStatus: text('eo_insurance_status').notNull(),
-		peacePactSigned: boolean('peace_pact_signed').default(false).notNull(),
-		peacePactSignature: text('peace_pact_signature').notNull(),
-		peacePactSignedAt: timestamp('peace_pact_signed_at', {
-			withTimezone: true,
-		}),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 	},

@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { StatusRow } from '@/components/dashboard/status-row'
-import { loadAgentMatches } from '@/lib/matching/server'
+import { loadAgentMatches } from '@/lib/matching/profile.server'
 import { cn } from '@/lib/utils/ui'
 
 export const Route = createFileRoute('/(app)/consumer/dashboard/introductions')(

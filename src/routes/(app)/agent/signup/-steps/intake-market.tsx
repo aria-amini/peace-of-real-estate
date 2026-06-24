@@ -13,9 +13,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils/ui'
-import type { AgentDraft } from '@/lib/drafts'
+import type { AgentDraft, RepresentationSide } from '@/lib/matching/profile'
 import { parseCityState } from '@/lib/geography/zip'
-import type { RepresentationSide } from '@/lib/matching/profile'
 import {
 	DEFAULT_PRICE_RANGE,
 	formatPriceCompact,

@@ -17,14 +17,17 @@ import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
 import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
-import { completeAgentSignup, type AgentProfile } from '@/lib/matching/profile'
-import { loadAgentDraft } from '@/lib/drafts'
+import { completeAgentSignup } from '@/lib/matching/profile.server'
+import { createLocalStorage } from '@/lib/utils/localstorage'
 import { bestClientTypeLabels } from '@/components/signup/questions'
 import {
 	formatPriceRange,
 	parsePriceRange,
 } from '@/components/signup/price-range'
 import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
+import type { AgentProfile, AgentDraft } from '@/lib/matching/profile'
+
+const agentDraftStorage = createLocalStorage<AgentDraft>('pre-agent-draft')
 
 export function draftToPreviewProfile(draft: AgentProfile): AgentProfile {
 	return {
@@ -78,7 +81,7 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 							idPrefix="desktop-signup"
 							redirect="/agent/dashboard"
 							createProfile={completeAgentSignup}
-							loadDraft={loadAgentDraft}
+							loadDraft={agentDraftStorage.load}
 							submitLabel="Activate profile"
 							namePlaceholder="Jane Doe"
 							emailPlaceholder="jane@example.com"
@@ -116,7 +119,7 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 					ctaLabel="Create account"
 					redirect="/agent/dashboard"
 					createProfile={completeAgentSignup}
-					loadDraft={loadAgentDraft}
+					loadDraft={agentDraftStorage.load}
 					submitLabel="Activate profile"
 					namePlaceholder="Jane Doe"
 					emailPlaceholder="jane@example.com"

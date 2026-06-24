@@ -6,7 +6,10 @@ import { useState } from 'react'
 import { FlowPageShell } from '@/components/signup/step-shell'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { loadAgentProfile, updateAgentProfile } from '@/lib/matching/profile'
+import {
+	loadAgentProfile,
+	updateAgentProfile,
+} from '@/lib/matching/profile.server'
 import { withSaveToast } from '@/lib/utils/ui/toast'
 
 export const Route = createFileRoute(

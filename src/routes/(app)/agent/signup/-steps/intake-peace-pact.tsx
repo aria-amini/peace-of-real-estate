@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils/ui'
-import type { AgentDraft } from '@/lib/drafts'
+import type { AgentDraft } from '@/lib/matching/profile'
 import { StepHeader } from '@/components/signup/step-header'
 
 export function AgentPeacePact({

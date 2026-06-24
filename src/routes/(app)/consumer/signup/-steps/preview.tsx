@@ -18,20 +18,19 @@ import { AgentPreviewCard } from '@/components/match/card'
 import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
-import { createConsumerProfileFromDraft } from '@/lib/matching/profile'
-import {
-	clearConsumerDraft,
-	loadConsumerDraft,
-	type ConsumerDraft,
-} from '@/lib/drafts'
+import { createConsumerProfileFromDraft } from '@/lib/matching/profile.server'
+import { createLocalStorage } from '@/lib/utils/localstorage'
 import { propertyTypeOptions } from '@/components/signup/questions'
-import type { ConsumerProfile } from '@/lib/matching/profile'
+import type { ConsumerProfile, ConsumerDraft } from '@/lib/matching/profile'
 import { consumerAnswerLabels } from '@/components/signup/questions'
 import {
 	formatPriceRange,
 	parsePriceRange,
 } from '@/components/signup/price-range'
 import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
+
+const consumerDraftStorage =
+	createLocalStorage<ConsumerDraft>('pre-consumer-draft')
 
 function statIcon(label: string) {
 	const normalized = label.toLowerCase()
@@ -142,8 +141,8 @@ export function ConsumerPreview({ profile }: { profile: ConsumerProfile }) {
 							idPrefix="desktop-signup"
 							redirect="/consumer/dashboard"
 							createProfile={createConsumerProfileFromDraft}
-							loadDraft={loadConsumerDraft}
-							clearDraft={clearConsumerDraft}
+							loadDraft={consumerDraftStorage.load}
+							clearDraft={consumerDraftStorage.clear}
 						/>
 					</div>
 				</div>
@@ -236,8 +235,8 @@ export function ConsumerPreview({ profile }: { profile: ConsumerProfile }) {
 					ctaLabel="Create account"
 					redirect="/consumer/dashboard"
 					createProfile={createConsumerProfileFromDraft}
-					loadDraft={loadConsumerDraft}
-					clearDraft={clearConsumerDraft}
+					loadDraft={consumerDraftStorage.load}
+					clearDraft={consumerDraftStorage.clear}
 				/>
 			) : null}
 		</div>

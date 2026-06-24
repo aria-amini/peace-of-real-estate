@@ -31,8 +31,11 @@ import { PaywallDialog } from '@/components/auth/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
 import { isUserPremium } from '@/lib/premium'
 import { getCurrentSession } from '@/lib/auth/functions'
-import { loadAgentMatches } from '@/lib/matching/server'
-import { loadConsumerProfile } from '@/lib/matching/profile'
+import {
+	loadAgentMatches,
+	loadConsumerProfile,
+} from '@/lib/matching/profile.server'
+import { hasCompletedConsumerIntake } from '@/lib/matching/profile'
 import { consumerAnswerLabels } from '@/components/signup/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile'
 import {
@@ -69,14 +72,8 @@ export const Route = createFileRoute('/(app)/consumer/dashboard/matches')({
 		}
 
 		const consumerProfile = await loadConsumerProfile()
-		const hasSavedAnswers = Boolean(
-			consumerProfile?.preferredContactMethod ||
-			consumerProfile?.involvementLevel ||
-			consumerProfile?.representationPreference ||
-			consumerProfile?.commissionComfort,
-		)
 
-		if (!hasSavedAnswers) {
+		if (!hasCompletedConsumerIntake(consumerProfile)) {
 			throw redirect({ to: '/consumer/signup', search: { step: 'intro' } })
 		}
 	},
