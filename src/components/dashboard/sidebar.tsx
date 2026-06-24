@@ -1,6 +1,5 @@
 import { useState, type ElementType } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
 import {
 	ArrowRightLeft,
 	HelpCircle,
@@ -9,14 +8,12 @@ import {
 	MessageSquare,
 	Search,
 	ShieldCheck,
-	Sparkles,
 	User,
 	Users,
 } from 'lucide-react'
 
 import { authClient } from '@/lib/auth/client'
 import { Button } from '@/components/ui/button'
-import { isUserPremium } from '@/lib/premium'
 import {
 	Dialog,
 	DialogClose,
@@ -27,7 +24,6 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { PaywallDialog } from '@/components/auth/paywall-dialog'
 import { Textarea } from '@/components/ui/textarea'
 import {
 	Sidebar,
@@ -62,20 +58,13 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 	const currentPath = router.location.pathname
 	const { data: session } = authClient.useSession()
 	const isAuthenticated = Boolean(session)
-	const [showPaywall, setShowPaywall] = useState(false)
 	const [showSupport, setShowSupport] = useState(false)
-	const { data: premiumStatus } = useQuery({
-		queryKey: ['user-premium'],
-		queryFn: isUserPremium,
-		enabled: isAuthenticated,
-	})
 	const profileName = session?.user.name?.trim() || 'Your profile'
 	const profileEmail =
 		session?.user.email ||
 		(variant === 'agent'
 			? 'Agent dashboard'
 			: 'Create a profile to save matches')
-	const tierLabel = premiumStatus ? 'Premium' : 'Free'
 	const profileImage = session?.user.image
 	const profileInitials = getInitials(session?.user.name, session?.user.email)
 	const profileGradient = getProfileGradient(
@@ -217,11 +206,6 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 						<div className="min-w-0 flex-1 leading-tight">
 							<div className="flex min-w-0 items-center gap-2">
 								<span className="truncate font-medium">{profileName}</span>
-								{isAuthenticated ? (
-									<span className="bg-muted text-muted-foreground shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-medium tracking-wide uppercase">
-										{tierLabel}
-									</span>
-								) : null}
 							</div>
 							<div className="text-muted-foreground truncate text-xs">
 								{profileEmail}
@@ -267,28 +251,6 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 				</SidebarContent>
 
 				<SidebarFooter className="gap-3">
-					<button
-						type="button"
-						disabled={!isAuthenticated}
-						onClick={() => setShowPaywall(true)}
-						className="bg-card text-card-foreground hover:border-primary/50 hover:bg-card/95 group mx-2 rounded-xl border-2 p-3 text-left shadow-sm transition hover:shadow-md disabled:pointer-events-none disabled:opacity-50"
-					>
-						<div className="mb-2 flex items-center gap-2">
-							<span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg">
-								<Sparkles className="size-3.5" />
-							</span>
-							<span className="text-sm font-medium">
-								{variant === 'agent' ? 'Agent plan' : 'Upgrade'}
-							</span>
-						</div>
-						<p className="text-muted-foreground mb-2 text-xs leading-snug">
-							{variant === 'agent'
-								? 'Unlock full consumer insights, priority placement, and more introductions.'
-								: 'Unlock full agent profiles, saved preferences, and better match insights.'}
-						</p>
-						<span className="text-primary text-xs font-medium">See plans</span>
-					</button>
-
 					<SidebarMenu>
 						<SidebarMenuItem>
 							<SidebarMenuButton onClick={() => setShowSupport(true)}>
@@ -320,7 +282,6 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 					) : null}
 				</SidebarFooter>
 			</Sidebar>
-			<PaywallDialog open={showPaywall} onOpenChange={setShowPaywall} />
 			<SupportDialog open={showSupport} onOpenChange={setShowSupport} />
 		</>
 	)

@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
 	ArrowRight,
@@ -31,7 +30,6 @@ import { authClient } from '@/lib/auth/client'
 import { loadAgentProfile } from '@/lib/matching/profile'
 import type { AgentProfile } from '@/lib/matching/profile'
 import { bestClientTypeLabels } from '@/components/signup/questions'
-import { isUserPremium } from '@/lib/premium'
 import { cn } from '@/lib/utils/ui'
 
 export const Route = createFileRoute('/(app)/agent/dashboard/')({
@@ -69,13 +67,7 @@ const trustBadges = [
 function AgentDashboard() {
 	const agentProfile = Route.useLoaderData()
 	const { data: session } = authClient.useSession()
-	const { data: premiumStatus } = useQuery({
-		queryKey: ['user-premium'],
-		queryFn: isUserPremium,
-		enabled: Boolean(session),
-	})
 
-	const tierLabel = premiumStatus ? 'Premium' : 'Free'
 	const fullName = [agentProfile?.firstName, agentProfile?.lastName]
 		.filter(Boolean)
 		.join(' ')
@@ -222,11 +214,9 @@ function AgentDashboard() {
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div>
-								<div className="text-2xl font-semibold">{tierLabel}</div>
+								<div className="text-2xl font-semibold">Free</div>
 								<p className="text-muted-foreground text-sm">
-									{premiumStatus
-										? 'Agent subscription is active.'
-										: 'Upgrade for priority placement and richer consumer insights.'}
+									Agent dashboard access is free while PRE is in beta.
 								</p>
 							</div>
 							<Button variant="outline" size="sm" className="w-full">

@@ -7,7 +7,6 @@ import {
 	ChevronDown,
 	Clock,
 	Home,
-	Lock,
 	MapPin,
 	MessageSquare,
 	Pencil,
@@ -27,9 +26,7 @@ import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { ConsumerSidebarShell } from '@/routes/(app)/consumer/dashboard/-components/shell'
 import type { MatchDetails } from '@/components/match/card'
-import { PaywallDialog } from '@/components/auth/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
-import { isUserPremium } from '@/lib/premium'
 import {
 	loadAgentMatches,
 	loadConsumerProfile,
@@ -82,15 +79,8 @@ function MatchesRoute() {
 }
 
 function Matches() {
-	const [showPaywall, setShowPaywall] = useState(false)
 	const [selectedMatchIds, setSelectedMatchIds] = useState<string[]>([])
 	const { data: session } = authClient.useSession()
-
-	const { data: premiumStatus, refetch: refetchPremium } = useQuery({
-		queryKey: ['user-premium'],
-		queryFn: isUserPremium,
-	})
-	const isLocked = !premiumStatus
 
 	const { data: matches = [], isLoading } = useQuery({
 		queryKey: ['agent-matches'],
@@ -101,10 +91,6 @@ function Matches() {
 		queryFn: loadConsumerProfile,
 	})
 	const stateCode = resolveStateCode(consumerProfile?.state ?? undefined)
-
-	const handleUpgrade = () => {
-		void refetchPremium()
-	}
 
 	const toggleSelectedMatch = (matchId: string) => {
 		setSelectedMatchIds((current) => {
@@ -138,23 +124,6 @@ function Matches() {
 				</div>
 			</div>
 
-			{isLocked && (
-				<div className="mx-auto mb-6 flex max-w-4xl items-center gap-3 rounded-xl border bg-amber-50/50 px-4 py-3 dark:bg-amber-950/20">
-					<Lock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-					<p className="text-sm">
-						Preview mode — upgrade to unlock full match details and connect with
-						agents.
-					</p>
-					<Button
-						size="sm"
-						className="ml-auto shrink-0"
-						onClick={() => setShowPaywall(true)}
-					>
-						Unlock
-					</Button>
-				</div>
-			)}
-
 			<div className="mx-auto mb-6 max-w-4xl space-y-3">
 				<PreferencesSummaryCard
 					settings={consumerProfile}
@@ -177,36 +146,24 @@ function Matches() {
 					</Card>
 				) : (
 					<Card className="overflow-hidden p-0">
-						<MatchListHeader
-							selectedCount={selectedMatchIds.length}
-							locked={isLocked}
-							onUnlock={() => setShowPaywall(true)}
-						/>
+						<MatchListHeader selectedCount={selectedMatchIds.length} />
 						<div className="divide-y">
 							{matches.map((match) => (
 								<CompactMatchRow
 									key={match.id}
 									match={match}
-									locked={isLocked}
 									selected={selectedMatchIds.includes(match.id)}
 									selectionDisabled={
 										selectedMatchIds.length >= 3 &&
 										!selectedMatchIds.includes(match.id)
 									}
 									onToggleSelected={() => toggleSelectedMatch(match.id)}
-									onUnlock={() => setShowPaywall(true)}
 								/>
 							))}
 						</div>
 					</Card>
 				)}
 			</div>
-
-			<PaywallDialog
-				open={showPaywall}
-				onOpenChange={setShowPaywall}
-				onUpgrade={handleUpgrade}
-			/>
 		</div>
 	)
 }
@@ -282,15 +239,7 @@ function PreferencesSummaryCard({
 	)
 }
 
-function MatchListHeader({
-	selectedCount,
-	locked,
-	onUnlock,
-}: {
-	selectedCount: number
-	locked: boolean
-	onUnlock: () => void
-}) {
+function MatchListHeader({ selectedCount }: { selectedCount: number }) {
 	return (
 		<div className="flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
 			<div>
@@ -300,14 +249,7 @@ function MatchListHeader({
 					sending.
 				</p>
 			</div>
-			<Button
-				disabled={locked || selectedCount === 0}
-				onClick={() => {
-					if (locked) {
-						onUnlock()
-					}
-				}}
-			>
+			<Button disabled={selectedCount === 0}>
 				<Send className="mr-2 h-4 w-4" />
 				{selectedCount > 0
 					? `Send ${selectedCount} Invitation${selectedCount === 1 ? '' : 's'}`
@@ -360,18 +302,14 @@ function getPreferenceSummaryItems(
 
 function CompactMatchRow({
 	match,
-	locked,
 	selected,
 	selectionDisabled,
 	onToggleSelected,
-	onUnlock,
 }: {
 	match: MatchDetails
-	locked: boolean
 	selected: boolean
 	selectionDisabled: boolean
 	onToggleSelected: () => void
-	onUnlock: () => void
 }) {
 	const statusLabel =
 		match.status.charAt(0).toUpperCase() + match.status.slice(1)
@@ -391,7 +329,7 @@ function CompactMatchRow({
 					variant={selected ? 'default' : 'outline'}
 					size="sm"
 					className="w-fit"
-					disabled={locked || selectionDisabled}
+					disabled={selectionDisabled}
 					onClick={(event) => {
 						event.preventDefault()
 						event.stopPropagation()
@@ -415,14 +353,7 @@ function CompactMatchRow({
 
 				<div className="min-w-0">
 					<div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-						<h3
-							className={cn(
-								'truncate font-semibold',
-								locked && 'blur-sm select-none',
-							)}
-						>
-							{match.name}
-						</h3>
+						<h3 className="truncate font-semibold">{match.name}</h3>
 						<span className="text-muted-foreground rounded-full border px-2 py-0.5 text-[11px] font-medium">
 							{statusLabel}
 						</span>
@@ -498,31 +429,20 @@ function CompactMatchRow({
 							</div>
 						)}
 
-						{locked ? (
-							<Button className="w-full" onClick={onUnlock}>
-								<Lock className="mr-2 h-4 w-4" />
-								Unlock Matches
-							</Button>
-						) : (
-							<>
-								{match.contact && (
-									<div className="text-muted-foreground space-y-1 border-t pt-3 text-xs">
-										{match.contact.phone && <div>{match.contact.phone}</div>}
-										{match.contact.email && <div>{match.contact.email}</div>}
-									</div>
-								)}
-								<Button
-									className="w-full"
-									variant={selected ? 'default' : 'outline'}
-									disabled={selectionDisabled}
-									onClick={onToggleSelected}
-								>
-									{selected
-										? 'Remove from invitations'
-										: 'Select for invitation'}
-								</Button>
-							</>
+						{match.contact && (
+							<div className="text-muted-foreground space-y-1 border-t pt-3 text-xs">
+								{match.contact.phone && <div>{match.contact.phone}</div>}
+								{match.contact.email && <div>{match.contact.email}</div>}
+							</div>
 						)}
+						<Button
+							className="w-full"
+							variant={selected ? 'default' : 'outline'}
+							disabled={selectionDisabled}
+							onClick={onToggleSelected}
+						>
+							{selected ? 'Remove from invitations' : 'Select for invitation'}
+						</Button>
 					</div>
 				</div>
 			</div>
