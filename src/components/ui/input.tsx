@@ -1,10 +1,14 @@
 import * as React from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/ui'
 
-function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
+function Input(
+	{ className, type, ...props }: React.ComponentProps<'input'>,
+	forwardedRef: React.ForwardedRef<HTMLInputElement>,
+) {
 	return (
 		<input
+			ref={forwardedRef}
 			type={type}
 			data-slot="input"
 			className={cn(
@@ -16,4 +20,7 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
 	)
 }
 
-export { Input }
+const ForwardedInput = React.forwardRef(Input)
+ForwardedInput.displayName = 'Input'
+
+export { ForwardedInput as Input }

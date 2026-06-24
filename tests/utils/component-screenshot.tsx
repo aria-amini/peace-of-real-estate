@@ -10,7 +10,7 @@ import {
 	RouterProvider,
 	type RouteComponent,
 } from '@tanstack/react-router'
-import { expect } from '@config/test/browser'
+import { expect } from '@tests/__fixtures__/browser'
 import { page } from 'vite-plus/test/browser'
 import { render, type RenderResult } from 'vitest-browser-react'
 
@@ -79,14 +79,16 @@ export async function expectComponentScreenshot(
 	const Component = options.component
 	const componentRoute = createRoute({
 		getParentRoute: () => rootRoute,
-		path: '/consumer/intake',
+		path: '/consumer/signup',
 		component: Component as RouteComponent,
 	})
 
 	const routeTree = rootRoute.addChildren([indexRoute, componentRoute])
 	const router = createRouter({
 		routeTree,
-		history: createMemoryHistory({ initialEntries: ['/consumer/intake'] }),
+		history: createMemoryHistory({
+			initialEntries: ['/consumer/signup?step=intro'],
+		}),
 		context: { queryClient },
 		scrollRestoration: false,
 		defaultPreloadStaleTime: 0,

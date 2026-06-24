@@ -1,3 +1,7 @@
+import {
+	AGENT_PRICE_RANGES,
+	parsePriceRange,
+} from '@/components/signup/price-range'
 import type {
 	AgentProfile,
 	ConsumerProfile,
@@ -48,11 +52,6 @@ const involvementCompatibility: Record<string, string[]> = {
 const representationCompatibility: Record<string, string[]> = {
 	access: ['sameBrokerage', 'sellerOnly'],
 	exclusive: ['separateBrokerage'],
-}
-
-const commissionCompatibility: Record<string, string[]> = {
-	negotiate: ['proactiveSet', 'proactiveOpen', 'waitOpen'],
-	explain: ['proactiveOpen', 'waitOpen'],
 }
 
 const experienceCompatibility: Record<string, string[]> = {
@@ -119,18 +118,11 @@ function priceRangeMatch(
 	consumerRange: string | null | undefined,
 	agentRange: string | null | undefined,
 ): boolean {
-	return Boolean(consumerRange && agentRange && consumerRange === agentRange)
-}
-
-function stateLocationMatch(
-	consumerState: string | null | undefined,
-	agentState: string | null | undefined,
-): boolean {
-	return Boolean(
-		consumerState &&
-		agentState &&
-		consumerState.toLowerCase() === agentState.toLowerCase(),
-	)
+	const consumer = parsePriceRange(consumerRange)
+	const agentSlug = agentRange?.trim() ?? ''
+	const agent = AGENT_PRICE_RANGES[agentSlug]
+	if (!agent) return false
+	return consumer.min < agent.max && consumer.max > agent.min
 }
 
 export function calculateFitScore(
@@ -206,19 +198,6 @@ export function calculateFitScore(
 		['representationPreference'],
 	)
 
-	add(
-		'Transparency',
-		isCompatible(
-			consumer.commissionComfort,
-			commissionCompatibility,
-			agent.commissionStyle,
-		)
-			? 2
-			: 0,
-		2,
-		['commissionComfort'],
-	)
-
 	const consumerPropertyTypes = consumer.propertyTypes ?? []
 	const agentClientTypes = agent.bestClientTypes
 	const propertyClientMatches = consumerPropertyTypes.flatMap(
@@ -260,9 +239,12 @@ export function calculateFitScore(
 
 	add(
 		'Fit',
-		stateLocationMatch(consumer.state, agent.serviceArea1) ||
-			stateLocationMatch(consumer.state, agent.serviceArea2) ||
-			stateLocationMatch(consumer.state, agent.serviceArea3)
+		agent.zipCodes.some(
+			(area) =>
+				area &&
+				consumer.state &&
+				area.toLowerCase() === consumer.state.toLowerCase(),
+		)
 			? 1
 			: 0,
 		1,
@@ -301,27 +283,33 @@ function calculateFallbackScore(agent: AgentProfile): {
 		agent.bestClientTypes.length ? 'client-types' : null,
 		agent.peacePactSigned ? 'peace-pact' : null,
 	].filter((value): value is string => typeof value === 'string').length
-	const workingStyle = [agent.workingStyle, agent.dealStressStyle].filter(
-		Boolean,
-	).length
+	const workingStyle = [
+		agent.energyStyle,
+		agent.teachingStyle,
+		agent.dealStressStyle,
+		agent.decisionMakingStyle,
+	].filter(Boolean).length
 	const communication = [
 		agent.communicationCadence,
 		agent.quickContactStyle,
 		agent.updateDeliveryStyle,
 		agent.responseTime,
 	].filter(Boolean).length
-	const transparency = [agent.commissionStyle, agent.dualAgencyStyle].filter(
-		Boolean,
-	).length
-	const max = 12
+	const transparency = [
+		agent.transparencyStyle,
+		agent.clientBoundaryStyle,
+		agent.negotiationEthic,
+		agent.dualAgencyStyle,
+	].filter(Boolean).length
+	const max = 16
 	const points = fit + workingStyle + communication + transparency
 
 	return {
 		fitScore: Math.round((points / max) * 100),
 		scores: {
-			'Working Style': toStars(workingStyle, 2),
+			'Working Style': toStars(workingStyle, 4),
 			Communication: toStars(communication, 4),
-			Transparency: toStars(transparency, 2),
+			Transparency: toStars(transparency, 4),
 			Fit: toStars(fit, 4),
 		},
 	}

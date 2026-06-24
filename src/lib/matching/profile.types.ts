@@ -1,10 +1,7 @@
-import type { agentProfiles, consumerProfiles } from '@/db/tables'
+import { createInsertSchema } from 'drizzle-zod'
+import { z } from 'zod'
 
-export type ProfileStatus = 'draft' | 'submitted' | 'active'
-
-export type ProfileRole = 'consumer' | 'agent'
-
-export type RepresentationSide = 'buying' | 'selling' | 'both'
+import { agentProfiles, consumerProfiles } from '@/db/tables'
 
 export type ConsumerProfile = typeof consumerProfiles.$inferSelect
 
@@ -14,10 +11,52 @@ export type AgentProfile = typeof agentProfiles.$inferSelect
 
 export type AgentProfileInsert = typeof agentProfiles.$inferInsert
 
-export type ConsumerProfileUpdate = Partial<
-	Omit<ConsumerProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+const consumerProfileCreateSchema = createInsertSchema(consumerProfiles)
+	.omit({
+		id: true,
+		userId: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.extend({
+		intent: z.enum(['buying', 'selling', 'both']),
+		status: z.enum(['draft', 'essentials_submitted', 'active', 'enriched']),
+	})
+
+const agentProfileCreateSchema = createInsertSchema(agentProfiles)
+	.omit({
+		id: true,
+		userId: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.extend({
+		representationSide: z.enum(['buying', 'selling', 'both']),
+	})
+
+export { consumerProfileCreateSchema, agentProfileCreateSchema }
+
+export type ConsumerProfileCreateInput = z.infer<
+	typeof consumerProfileCreateSchema
 >
 
-export type AgentProfileUpdate = Partial<
-	Omit<AgentProfileInsert, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
->
+export type AgentProfileCreateInput = z.infer<typeof agentProfileCreateSchema>
+
+export type ConsumerProfileUpdate = Partial<ConsumerProfileCreateInput>
+
+export type AgentProfileUpdate = Partial<AgentProfileCreateInput>
+
+export type ConsumerDraft = ConsumerProfileUpdate
+
+export type AgentDraft = Partial<AgentProfileCreateInput>
+
+export function hasCompletedConsumerIntake(
+	profile: ConsumerProfile | null | undefined,
+) {
+	return Boolean(
+		profile?.preferredContactMethod ||
+		profile?.involvementLevel ||
+		profile?.representationPreference ||
+		profile?.commissionComfort,
+	)
+}

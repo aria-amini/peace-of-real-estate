@@ -13,9 +13,9 @@ import { sql } from 'drizzle-orm'
 
 import {
 	agentProfileColumns,
+	consumerLifecycleColumns,
 	consumerProfileColumns,
-	sharedProfileColumns,
-} from '@/lib/matching/profile.columns'
+} from '@/lib/matching/profile.db'
 
 type EntitlementKey = 'consumer_lifetime_premium' | 'agent_subscription'
 
@@ -144,7 +144,7 @@ export const consumerProfiles = pgTable(
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		...sharedProfileColumns,
+		...consumerLifecycleColumns,
 		...consumerProfileColumns,
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
@@ -158,7 +158,7 @@ export const consumerProfiles = pgTable(
 		}),
 		check(
 			'consumer_profiles_status_check',
-			sql`${table.status} in ('draft', 'submitted', 'active')`,
+			sql`${table.status} in ('draft', 'essentials_submitted', 'active', 'enriched')`,
 		),
 		check(
 			'consumer_profiles_intent_check',
@@ -172,33 +172,7 @@ export const agentProfiles = pgTable(
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		...sharedProfileColumns,
 		...agentProfileColumns,
-		firstName: text('first_name'),
-		lastName: text('last_name'),
-		brokerageName: text('brokerage_name'),
-		email: text(),
-		phone: text(),
-		businessAddress: text('business_address'),
-		billingAddress: text('billing_address'),
-		licenseNumberState: text('license_number_state'),
-		serviceArea1: text('service_area_1'),
-		serviceArea2: text('service_area_2'),
-		serviceArea3: text('service_area_3'),
-		yearsLicensed: text('years_licensed'),
-		averageTransactions: text('average_transactions'),
-		employmentStatus: text('employment_status'),
-		licenseProof: text('license_proof'),
-		clientFirstTerms: text('client_first_terms'),
-		valueProposition: text('value_proposition'),
-		usePaxWriter: boolean('use_pax_writer').default(true).notNull(),
-		licenseAttested: boolean('license_attested').default(false).notNull(),
-		eoInsuranceStatus: text('eo_insurance_status'),
-		peacePactSigned: boolean('peace_pact_signed').default(false).notNull(),
-		peacePactSignature: text('peace_pact_signature'),
-		peacePactSignedAt: timestamp('peace_pact_signed_at', {
-			withTimezone: true,
-		}),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 	},
@@ -210,12 +184,44 @@ export const agentProfiles = pgTable(
 			name: 'agent_profiles_user_id_fk',
 		}),
 		check(
-			'agent_profiles_status_check',
-			sql`${table.status} in ('draft', 'submitted', 'active')`,
-		),
-		check(
 			'agent_profiles_representation_side_check',
-			sql`${table.representationSide} is null or ${table.representationSide} in ('buying', 'selling', 'both')`,
+			sql`${table.representationSide} in ('buying', 'selling', 'both')`,
 		),
+	],
+)
+
+export const cities = pgTable(
+	'cities',
+	{
+		id: text().primaryKey().notNull(),
+		city: text().notNull(),
+		state: text().notNull(),
+		centerLat: text('center_lat').notNull(),
+		centerLng: text('center_lng').notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+	},
+	(table) => [
+		uniqueIndex('cities_city_state_index').on(table.city, table.state),
+		index('cities_state_index').on(table.state),
+	],
+)
+
+export const cityZips = pgTable(
+	'city_zips',
+	{
+		id: text().primaryKey().notNull(),
+		city: text().notNull(),
+		state: text().notNull(),
+		zip: text().notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+	},
+	(table) => [
+		index('city_zips_city_state_index').on(table.city, table.state),
+		uniqueIndex('city_zips_city_state_zip_index').on(
+			table.city,
+			table.state,
+			table.zip,
+		),
+		index('city_zips_zip_index').on(table.zip),
 	],
 )

@@ -1,4 +1,5 @@
-import { checkBetaAuthClient, checkBetaAuthServer } from '@/lib/beta-access'
+import { hasBetaAccess } from '@/lib/auth/beta'
+import { getCurrentSession } from '@/lib/auth/functions'
 import type { QueryClient } from '@tanstack/react-query'
 import {
 	HeadContent,
@@ -7,8 +8,7 @@ import {
 	createRootRouteWithContext,
 	redirect,
 } from '@tanstack/react-router'
-import { NotFoundComponent } from '@/components/not-found'
-import { ServerErrorComponent } from '@/components/server-error'
+import { NotFoundComponent, ServerErrorComponent } from '@/components/errors'
 import appCss from '../styles.css?url'
 import { PostHogProvider } from 'posthog-js/react'
 
@@ -29,10 +29,7 @@ export const Route = createRootRouteWithContext<{
 	beforeLoad: async ({ location }) => {
 		if (import.meta.env.DEV) return
 
-		const isAuthenticated =
-			typeof document !== 'undefined'
-				? checkBetaAuthClient()
-				: await checkBetaAuthServer()
+		const isAuthenticated = hasBetaAccess()
 
 		if (!isAuthenticated && location.pathname !== '/beta') {
 			throw redirect({ to: '/beta' })
@@ -40,6 +37,28 @@ export const Route = createRootRouteWithContext<{
 
 		if (isAuthenticated && location.pathname === '/beta') {
 			throw redirect({ to: '/' })
+		}
+
+		const session = await getCurrentSession()
+		const protectedPrefixes = ['/agent/dashboard/', '/consumer/dashboard/']
+
+		if (
+			!session &&
+			protectedPrefixes.some((prefix) => location.pathname.startsWith(prefix))
+		) {
+			if (location.pathname.startsWith('/agent/')) {
+				throw redirect({
+					to: '/login',
+					search: { redirect: location.pathname },
+				})
+			}
+
+			if (location.pathname.startsWith('/consumer/')) {
+				throw redirect({
+					to: '/consumer/signup',
+					search: { step: 'intro' },
+				})
+			}
 		}
 	},
 	component: RootComponent,

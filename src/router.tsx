@@ -1,4 +1,4 @@
-import { queryClient } from '@/lib/query'
+import { queryClient } from '@/lib/utils/query'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { Toaster } from 'sonner'

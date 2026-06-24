@@ -1,4 +1,4 @@
-import { getDb } from '../src/db/connection'
+import { db } from '../src/db/connection'
 import {
 	user,
 	agentProfiles,
@@ -790,24 +790,12 @@ function pickEmployment(archetype: AgentArchetype): string {
 	return pick(['Salesperson', 'Realtor'])
 }
 
-function statusFromProfile(
-	peaceSigned: boolean,
-	score: number,
-): 'draft' | 'submitted' | 'active' {
-	if (peaceSigned && score > 0.6) return 'active'
-	if (score > 0.3) return 'submitted'
-	return 'draft'
-}
-
 function generatePersona(archetype: AgentArchetype, r: number) {
 	const years = randInt(archetype.yearsRange[0], archetype.yearsRange[1])
 	const avgTrans = randInt(
 		archetype.transactionsRange[0],
 		archetype.transactionsRange[1],
 	)
-	const peacePact = r < archetype.peacePactProb
-	const usePaxWriter = r < archetype.usePaxWriterProb
-	const completionScore = r
 
 	return {
 		representationSide: archetype.representationSide,
@@ -816,22 +804,29 @@ function generatePersona(archetype: AgentArchetype, r: number) {
 			.sort(() => r - 0.5)
 			.slice(0, randInt(2, archetype.clientTypes.length)),
 		notFitFor: archetype.notFitFor,
-		workingStyle: archetype.workingStyle,
 		dealStressStyle: archetype.dealStressStyle,
 		communicationCadence: archetype.communicationCadence,
 		quickContactStyle: archetype.quickContactStyle,
 		updateDeliveryStyle: archetype.updateDeliveryStyle,
 		responseTime: archetype.responseTime,
-		commissionStyle: archetype.commissionStyle,
 		dualAgencyStyle: archetype.dualAgencyStyle,
+		energyStyle: 'calm',
+		teachingStyle: 'onRequest',
+		decisionMakingStyle: 'data',
+		transparencyStyle: 'upfront',
+		clientBoundaryStyle: 'gentle',
+		negotiationEthic: 'winWin',
+		serviceDepth: 'standard',
+		involvementLevel: 'keyDetails',
+		representationPreference: 'exclusive',
+		matchPriorities: ['communicationCadence', 'responseTime'],
 		yearsLicensed: approxLabel(YEARS_LABELS, years),
 		averageTransactions: approxLabel(TRANSACTION_LABELS, avgTrans),
 		employmentStatus: pickEmployment(archetype),
 		eoInsuranceStatus: archetype.eoInsuranceStatus,
 		valueProposition: archetype.valueProposition,
-		peacePactSigned: peacePact,
-		usePaxWriter,
-		status: statusFromProfile(peacePact, completionScore),
+		peacePactSigned: r < archetype.peacePactProb,
+		usePaxWriter: r < archetype.usePaxWriterProb,
 	}
 }
 
@@ -873,7 +868,6 @@ function buildPhone(): string {
 }
 
 async function populateDb(count: number) {
-	const db = getDb()
 	const now = new Date()
 
 	console.log('Clearing existing data...')
@@ -932,19 +926,34 @@ async function populateDb(count: number) {
 		await db.insert(agentProfiles).values({
 			id: agentId,
 			userId,
-			status: persona.status,
+			city: location.city,
+			state: location.state,
 			representationSide: persona.representationSide,
 			typicalPriceRange: persona.typicalPriceRange,
 			bestClientTypes: persona.bestClientTypes,
 			notFitFor: persona.notFitFor,
-			workingStyle: persona.workingStyle,
 			dealStressStyle: persona.dealStressStyle,
 			communicationCadence: persona.communicationCadence,
 			quickContactStyle: persona.quickContactStyle,
 			updateDeliveryStyle: persona.updateDeliveryStyle,
 			responseTime: persona.responseTime,
-			commissionStyle: persona.commissionStyle,
 			dualAgencyStyle: persona.dualAgencyStyle,
+			energyStyle: persona.energyStyle,
+			teachingStyle: persona.teachingStyle,
+			decisionMakingStyle: persona.decisionMakingStyle,
+			transparencyStyle: persona.transparencyStyle,
+			clientBoundaryStyle: persona.clientBoundaryStyle,
+			negotiationEthic: persona.negotiationEthic,
+			serviceDepth: persona.serviceDepth,
+			involvementLevel: persona.involvementLevel,
+			representationPreference: persona.representationPreference,
+			matchPriorities: persona.matchPriorities,
+			valueProposition: persona.valueProposition,
+			idealClientDescription: null,
+			whyIStarted: null,
+			typicalDayInDeal: null,
+			hardNo: null,
+			valueBeyondTransaction: null,
 			firstName,
 			lastName,
 			brokerageName: pickBrokerage(archetype),
@@ -953,22 +962,17 @@ async function populateDb(count: number) {
 			businessAddress: buildAddress(location),
 			billingAddress: buildAddress(location),
 			licenseNumberState: `LIC-${randInt(100000, 999999)}-${location.state}`,
-			serviceArea1: location.zips[0] ?? null,
-			serviceArea2: location.zips[1] ?? null,
-			serviceArea3: location.zips[2] ?? null,
+			zipCodes: location.zips.slice(0, 3),
 			yearsLicensed: persona.yearsLicensed,
 			averageTransactions: persona.averageTransactions,
 			employmentStatus: persona.employmentStatus,
 			licenseProof: null,
 			clientFirstTerms: null,
-			valueProposition: persona.valueProposition,
 			usePaxWriter: persona.usePaxWriter,
 			licenseAttested: true,
 			eoInsuranceStatus: persona.eoInsuranceStatus,
 			peacePactSigned: persona.peacePactSigned,
-			peacePactSignature: persona.peacePactSigned
-				? `${firstName} ${lastName}`
-				: null,
+			peacePactSignature: `${firstName} ${lastName}`,
 			peacePactSignedAt: persona.peacePactSigned
 				? new Date(now.getTime() - randInt(0, 90) * 86400000)
 				: null,

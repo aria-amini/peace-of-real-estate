@@ -35,9 +35,9 @@ vi.mock('@/lib/premium', () => ({
 	upgradeToPremium: () => ({ success: true }),
 }))
 
-vi.mock('@/lib/auth/beta', () => ({
-	checkBetaAuthClient: () => true,
-	checkBetaAuthServer: async () => true,
+vi.mock('@/lib/beta', () => ({
+	authenticateBeta: async () => ({ success: true }),
+	hasBetaAccess: () => true,
 }))
 
 vi.mock('@/routes/__root', async () => {
@@ -52,100 +52,68 @@ vi.mock('@/routes/__root', async () => {
 	}
 })
 
-const mockMatches = [
-	{
-		id: 'agent-1',
-		name: 'Sarah Chen',
-		role: 'agent',
-		location: 'Austin, TX',
-		zipCodes: ['78701'],
-		fitScore: 96,
-		status: 'new',
-		date: '2026-04-21',
-		experience: '12 years',
-		agency: 'Horizon Realty Group',
-		specialties: ['First-time buyers', 'Luxury homes'],
-		about: 'Known for patient guidance and transparent communication.',
-		scores: {
-			'Working Style': 4.9,
-			Communication: 4.7,
-			Transparency: 4.8,
-			Fit: 4.9,
-		},
-		isTopMatch: true,
-	},
-]
-
-vi.stubGlobal(
-	'fetch',
-	vi.fn(async (input: RequestInfo | URL) => {
-		const url =
-			typeof input === 'string'
-				? input
-				: input instanceof URL
-					? input.toString()
-					: input.url
-		if (url.includes('/api/agent-matches')) {
-			return new Response(JSON.stringify(mockMatches), {
-				status: 200,
-				headers: { 'Content-Type': 'application/json' },
-			})
-		}
-		return new Response(null, { status: 404 })
-	}),
-)
-
-vi.mock('@/lib/matching/matches.server', () => ({
-	listAgentMatches: () => Promise.resolve(mockMatches),
-}))
-
-vi.mock('@/lib/matching/profile.db', () => ({
-	hasCompletedConsumerIntake: (
-		profile:
-			| {
-					preferredContactMethod?: string | null
-					involvementLevel?: string | null
-					representationPreference?: string | null
-					commissionComfort?: string | null
-			  }
-			| null
-			| undefined,
-	) =>
-		Boolean(
-			profile?.preferredContactMethod ||
-			profile?.involvementLevel ||
-			profile?.representationPreference ||
-			profile?.commissionComfort,
-		),
-	loadConsumerProfile: () =>
-		Promise.resolve({
-			id: 'consumer-1',
-			userId: 'user-1',
-			status: 'draft',
-			intent: 'buying',
-			location: 'Austin, TX',
-			state: 'TX',
-			priceRange: '400kTo750k',
-			propertyTypes: ['singleFamily'],
-			experienceLevel: 'firstTime',
-			preferredContactMethod: 'text',
-			involvementLevel: 'veryInvolved',
-			representationPreference: 'exclusive',
-			commissionComfort: 'explain',
-			matchPriorities: null,
-			matchDetails: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		}),
-	saveConsumerProfile: () => Promise.resolve(),
-	loadAgentProfile: () => Promise.resolve(null),
-	saveAgentProfile: () => Promise.resolve(),
-}))
-
-vi.mock('@/lib/matching/questions', async () => {
+vi.mock('@/lib/matching/profile', async () => {
 	const actual = await vi.importActual<
-		typeof import('@/lib/matching/questions')
-	>('@/lib/matching/questions')
+		typeof import('@/lib/matching/profile.types')
+	>('@/lib/matching/profile.types')
+	return {
+		...actual,
+		loadConsumerProfile: () =>
+			Promise.resolve({
+				id: 'consumer-1',
+				userId: 'user-1',
+				status: 'draft',
+				intent: 'buying',
+				city: 'Austin',
+				state: 'TX',
+				priceRange: '400000-750000',
+				propertyTypes: ['singleFamily'],
+				experienceLevel: 'firstTime',
+				preferredContactMethod: 'text',
+				involvementLevel: 'veryInvolved',
+				representationPreference: 'exclusive',
+				commissionComfort: 'explain',
+				matchPriorities: null,
+				matchDetails: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		upsertConsumerProfile: () => Promise.resolve(),
+		loadAgentProfile: () => Promise.resolve(null),
+		updateAgentProfile: () => Promise.resolve(),
+		createConsumerProfileFromDraft: () => Promise.resolve({ success: true }),
+		completeAgentSignup: () => Promise.resolve({ success: true }),
+		loadAgentMatches: () =>
+			Promise.resolve([
+				{
+					id: 'agent-1',
+					name: 'Sarah Chen',
+					role: 'agent',
+					location: 'Austin, TX',
+					zipCodes: ['78701'],
+					fitScore: 96,
+					status: 'new',
+					date: '2026-04-21',
+					experience: '12 years',
+					agency: 'Horizon Realty Group',
+					specialties: ['First-time buyers', 'Luxury homes'],
+					about: 'Known for patient guidance and transparent communication.',
+					scores: {
+						'Working Style': 4.9,
+						Communication: 4.7,
+						Transparency: 4.8,
+						Fit: 4.9,
+					},
+					isTopMatch: true,
+				},
+			]),
+	}
+})
+
+vi.mock('@/components/signup/questions', async () => {
+	const actual = await vi.importActual<
+		typeof import('@/components/signup/questions')
+	>('@/components/signup/questions')
 	return {
 		...actual,
 		getAnswerSummary: (
@@ -164,7 +132,3 @@ vi.mock('@/lib/matching/questions', async () => {
 		},
 	}
 })
-
-vi.mock('@/components/wavy-background', () => ({
-	WavyBackground: () => null,
-}))

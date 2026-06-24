@@ -1,68 +1,158 @@
-import { createAppConfig } from '@aamini/config/vite'
-import type { TestProjectConfiguration } from 'vite-plus'
-import { mergeConfig } from 'vite-plus'
+import { nitro } from 'nitro/vite'
+import { devtools } from '@tanstack/devtools-vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import babel from '@rolldown/plugin-babel'
+import svgr from 'vite-plugin-svgr'
+import { resolve } from 'node:path'
+import { defineConfig, type UserConfig } from 'vite-plus'
+import { playwright } from 'vite-plus/test/browser-playwright'
 
-type ScreenshotPathData = {
-	arg: string
-	ext: string
-	root: string
-	screenshotDirectory: string
-	testFileDirectory: string
-	testFileName: string
-}
+const fmt = {
+	singleQuote: true,
+	semi: false,
+	useTabs: true,
+	experimentalTailwindcss: {},
+	printWidth: 80,
+	experimentalSortPackageJson: false,
+	proseWrap: 'always',
+	ignorePatterns: [
+		'**/.output',
+		'**/dist/**',
+		'pnpm-lock.yaml',
+		'**/routeTree.gen.ts',
+	],
+	overrides: [
+		{
+			files: ['*.{yaml,yml}'],
+			options: { useTabs: false },
+		},
+	],
+} satisfies UserConfig['fmt']
 
-const CENTRAL_SCREENSHOTS_DIR = 'tests/__screenshots__'
-
-function getScreenshotGroupName(testFileName: string) {
-	return testFileName.replace(/\.[^.]+$/, '')
-}
-
-function resolveCentralScreenshotPath({
-	arg,
-	ext,
-	root,
-	testFileName,
-}: ScreenshotPathData) {
-	return `${root}/${CENTRAL_SCREENSHOTS_DIR}/${getScreenshotGroupName(testFileName)}/${arg}${ext}`
-}
-const browserProjectOverrides = {
-	test: {
-		browser: {
-			expect: {
-				toMatchScreenshot: {
-					resolveScreenshotPath: resolveCentralScreenshotPath,
-				},
+const lint = {
+	plugins: [
+		'eslint',
+		'unicorn',
+		'typescript',
+		'oxc',
+		'react',
+		'react-perf',
+		'import',
+		'jsdoc',
+		'jsx-a11y',
+		'node',
+		'promise',
+	],
+	categories: {},
+	options: {
+		typeAware: true,
+		typeCheck: true,
+	},
+	rules: {
+		'no-empty-pattern': 'off',
+		'no-console': ['error', { allow: ['warn', 'error'] }],
+	},
+	overrides: [
+		{
+			files: ['scripts/**', '**/*.server.ts'],
+			rules: {
+				'no-console': 'off',
 			},
 		},
+	],
+	settings: {
+		'jsx-a11y': { components: {}, attributes: {} },
+		react: { formComponents: [], linkComponents: [] },
+		jsdoc: {
+			ignorePrivate: false,
+			ignoreInternal: false,
+			ignoreReplacesDocs: true,
+			overrideReplacesDocs: true,
+			augmentsExtendsReplacesDocs: false,
+			implementsReplacesDocs: false,
+			exemptDestructuredRootsFromChecks: false,
+			tagNamePreference: {},
+		},
 	},
-} as unknown as TestProjectConfiguration
+	env: { builtin: true },
+	globals: {},
+	ignorePatterns: ['**/dist/**'],
+} satisfies UserConfig['lint']
 
-const appConfig = createAppConfig({
-	root: import.meta.dirname,
-	projectOverrides: {
-		browser: browserProjectOverrides,
-	},
-})
+const root = import.meta.dirname
 
-export default mergeConfig(appConfig, {
+export default defineConfig({
+	root,
 	resolve: {
 		tsconfigPaths: true,
+		dedupe: ['react', 'react-dom'],
+		alias: [
+			{ find: '@', replacement: resolve(root, 'src') },
+			{ find: '@tests', replacement: resolve(root, 'tests') },
+		],
 	},
-	lint: {
-		overrides: [
+	optimizeDeps: {
+		include: [
+			'vite-plus/test',
+			'vite-plus/test/browser',
+			'vitest-browser-react',
+		],
+	},
+	plugins: [
+		tanstackStart({
+			router: { routeFileIgnorePattern: '(__tests__|\\.test\\.tsx$)' },
+		}),
+		...(process.env.VITEST === 'true'
+			? []
+			: [devtools({ injectSource: { enabled: false } }), nitro()]),
+		tailwindcss(),
+		viteReact(),
+		babel({ presets: [reactCompilerPreset()] }),
+		svgr({
+			include: '**/*.svg',
+			svgrOptions: { exportType: 'default' },
+		}),
+	],
+	fmt: fmt,
+	lint: lint,
+	staged: {
+		'*': 'vp check --fix',
+	},
+	test: {
+		passWithNoTests: true,
+		projects: [
 			{
-				files: ['scripts/**'],
-				rules: {
-					'no-console': 'off',
+				extends: true,
+				test: {
+					name: 'unit',
+					include: ['src/**/*.test.unit.ts'],
+				},
+			},
+			{
+				extends: true,
+				test: {
+					name: 'server',
+					include: ['src/**/*.test.ts'],
+					testTimeout: 15_000,
+					fileParallelism: false,
+				},
+			},
+			{
+				extends: true,
+				test: {
+					name: 'browser',
+					include: ['src/**/*.test.tsx', 'tests/**/*.test.tsx'],
+					setupFiles: ['./tests/__mocks__/styles.ts'],
+					browser: {
+						instances: [{ browser: 'chromium' }],
+						provider: playwright(),
+						enabled: true,
+						headless: true,
+					},
 				},
 			},
 		],
 	},
-	nitro: {
-		plugins: ['src/plugins/validate-env.ts'],
-	},
-	staged: {
-		'*': 'vp check --fix',
-	},
-	plugins: [],
 })

@@ -1,7 +1,7 @@
 import '../__mocks__/browser'
 
-import { queryClient as appQueryClient } from '@/lib/query'
-import { expect } from '@config/test/browser'
+import { queryClient as appQueryClient } from '@/lib/utils/query'
+import { expect } from '@tests/__fixtures__/browser'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
 	createMemoryHistory,
@@ -36,7 +36,7 @@ type Viewport = {
 }
 
 const desktopViewport: Viewport = { width: 1440, height: 900 }
-const protectedPaths = new Set<string>(['/matches'])
+const protectedPaths = new Set<string>(['/consumer/dashboard/matches'])
 
 const testSession = {
 	user: {
@@ -166,6 +166,10 @@ export async function expectRouteScreenshot(options: RouteTestOptions) {
 	await expect
 		.element(screenshotTarget)
 		.toMatchScreenshot(`${getScreenshotName(options)}.png`, {
-			screenshotOptions: { animations: 'disabled', scale: 'css' },
+			screenshotOptions: {
+				animations: 'disabled',
+				scale: 'css',
+				caret: 'hide',
+			},
 		})
 }

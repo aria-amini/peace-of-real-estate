@@ -1,7 +1,7 @@
 import { test as base } from '@playwright/test'
 import { eq } from 'drizzle-orm'
 
-import { getDb } from '@/db/connection'
+import { db } from '@/db/connection'
 import { consumerProfiles, user } from '@/db/tables'
 
 export const test = base.extend<{
@@ -12,7 +12,6 @@ export const test = base.extend<{
 			const cleanupUserRef = { email: 'test-consumer-signup@example.com' }
 			await use(cleanupUserRef)
 
-			const db = getDb()
 			const existingUser = await db
 				.select({ id: user.id })
 				.from(user)

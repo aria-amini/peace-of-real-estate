@@ -24,9 +24,6 @@
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"paths": {
-			"@config": ["./config/index.ts"],
-			"@config/*": ["./config/*"],
-			"@test/*": ["./__mocks__/*"],
 			"@tests/*": ["./tests/*"],
 			"@/*": ["./src/*"]
 		}

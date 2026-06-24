@@ -1,130 +1,106 @@
-import { createServerFn } from '@tanstack/react-start'
-import { eq } from 'drizzle-orm'
+import { boolean, text, timestamp } from 'drizzle-orm/pg-core'
 
-import { getDb } from '@/db/connection'
-import { agentProfiles, consumerProfiles } from '@/db/tables'
-import { requireUserId } from '@/lib/auth/functions'
-import type {
-	AgentProfileUpdate,
-	ConsumerProfile,
-	ConsumerProfileUpdate,
-} from '@/lib/matching/profile.types'
+export type ConsumerProfileStatus =
+	| 'draft'
+	| 'essentials_submitted'
+	| 'active'
+	| 'enriched'
 
-const loadConsumerProfileServer = createServerFn({ method: 'GET' }).handler(
-	async () => {
-		const userId = await requireUserId()
-		const db = getDb()
-		const [profile] = await db
-			.select()
-			.from(consumerProfiles)
-			.where(eq(consumerProfiles.userId, userId))
-			.limit(1)
-		return profile ?? null
-	},
-)
+export type RepresentationSide = 'buying' | 'selling' | 'both'
 
-const saveConsumerProfileServer = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as ConsumerProfileUpdate)
-	.handler(async ({ data }) => {
-		const userId = await requireUserId()
-		const db = getDb()
-		const now = new Date()
-
-		const existing = await db
-			.select({ id: consumerProfiles.id })
-			.from(consumerProfiles)
-			.where(eq(consumerProfiles.userId, userId))
-			.limit(1)
-
-		if (existing[0]) {
-			await db
-				.update(consumerProfiles)
-				.set({ ...data, updatedAt: now })
-				.where(eq(consumerProfiles.id, existing[0].id))
-			return
-		}
-
-		await db.insert(consumerProfiles).values({
-			id: crypto.randomUUID(),
-			userId,
-			intent: data.intent ?? 'buying',
-			status: data.status ?? 'draft',
-			...data,
-			createdAt: now,
-			updatedAt: now,
-		})
-	})
-
-const loadAgentProfileServer = createServerFn({ method: 'GET' }).handler(
-	async () => {
-		const userId = await requireUserId()
-		const db = getDb()
-		const [profile] = await db
-			.select()
-			.from(agentProfiles)
-			.where(eq(agentProfiles.userId, userId))
-			.limit(1)
-		return profile ?? null
-	},
-)
-
-const saveAgentProfileServer = createServerFn({ method: 'POST' })
-	.inputValidator((data) => data as AgentProfileUpdate)
-	.handler(async ({ data }) => {
-		const userId = await requireUserId()
-		const db = getDb()
-		const now = new Date()
-
-		const existing = await db
-			.select({ id: agentProfiles.id })
-			.from(agentProfiles)
-			.where(eq(agentProfiles.userId, userId))
-			.limit(1)
-
-		if (existing[0]) {
-			await db
-				.update(agentProfiles)
-				.set({ ...data, updatedAt: now })
-				.where(eq(agentProfiles.id, existing[0].id))
-			return
-		}
-
-		await db.insert(agentProfiles).values({
-			id: crypto.randomUUID(),
-			userId,
-			status: data.status ?? 'draft',
-			usePaxWriter: data.usePaxWriter ?? true,
-			licenseAttested: data.licenseAttested ?? false,
-			peacePactSigned: data.peacePactSigned ?? false,
-			...data,
-			createdAt: now,
-			updatedAt: now,
-		})
-	})
-
-export async function loadConsumerProfile() {
-	return loadConsumerProfileServer()
+export const consumerLifecycleColumns = {
+	status: text().$type<ConsumerProfileStatus>().default('draft').notNull(),
 }
 
-export function hasCompletedConsumerIntake(
-	profile: ConsumerProfile | null | undefined,
-) {
-	return Boolean(
-		profile?.preferredContactMethod ||
-		profile?.involvementLevel ||
-		profile?.representationPreference ||
-		profile?.commissionComfort,
-	)
+export const consumerProfileColumns = {
+	intent: text().$type<RepresentationSide>().notNull(),
+	state: text(),
+	city: text(),
+	zipCodes: text('zip_codes').array().notNull().default([]),
+	timeline: text(),
+	priceRange: text('price_range'),
+	estimatedHomeValue: text('estimated_home_value'),
+	propertyTypes: text('property_types').array(),
+	experienceLevel: text('experience_level'),
+	preferredContactMethod: text('preferred_contact_method'),
+	involvementLevel: text('involvement_level'),
+	representationPreference: text('representation_preference'),
+	commissionComfort: text('commission_comfort'),
+	matchPriorities: text('match_priorities').array(),
+	matchDetails: text('match_details'),
 }
 
-export async function saveConsumerProfile(update: ConsumerProfileUpdate) {
-	await saveConsumerProfileServer({ data: update })
+export const agentCoreProfileColumns = {
+	representationSide: text('representation_side')
+		.$type<RepresentationSide>()
+		.notNull(),
+	city: text().notNull(),
+	state: text().notNull(),
+	typicalPriceRange: text('typical_price_range').notNull(),
+	bestClientTypes: text('best_client_types').array().notNull().default([]),
+	notFitFor: text('not_fit_for'),
 }
 
-export async function loadAgentProfile() {
-	return loadAgentProfileServer()
+export const agentSubjectiveProfileColumns = {
+	communicationCadence: text('communication_cadence'),
+	quickContactStyle: text('quick_contact_style'),
+	updateDeliveryStyle: text('update_delivery_style'),
+	responseTime: text('response_time'),
+	transparencyStyle: text('transparency_style'),
+	clientBoundaryStyle: text('client_boundary_style'),
+	negotiationEthic: text('negotiation_ethic'),
+	dualAgencyStyle: text('dual_agency_style'),
+	energyStyle: text('energy_style'),
+	teachingStyle: text('teaching_style'),
+	dealStressStyle: text('deal_stress_style'),
+	decisionMakingStyle: text('decision_making_style'),
+	serviceDepth: text('service_depth'),
+	involvementLevel: text('involvement_level'),
+	representationPreference: text('representation_preference'),
+	matchPriorities: text('match_priorities').array().notNull().default([]),
 }
 
-export async function saveAgentProfile(update: AgentProfileUpdate) {
-	await saveAgentProfileServer({ data: update })
+export const agentNarrativeProfileColumns = {
+	valueProposition: text('value_proposition'),
+	idealClientDescription: text('ideal_client_description'),
+	whyIStarted: text('why_i_started'),
+	typicalDayInDeal: text('typical_day_in_deal'),
+	hardNo: text('hard_no'),
+	valueBeyondTransaction: text('value_beyond_transaction'),
+	clientFirstTerms: text('client_first_terms'),
+}
+
+export const agentIdentityColumns = {
+	firstName: text('first_name').notNull(),
+	lastName: text('last_name').notNull(),
+	brokerageName: text('brokerage_name').notNull(),
+	email: text(),
+	phone: text(),
+	businessAddress: text('business_address'),
+	billingAddress: text('billing_address'),
+	licenseNumberState: text('license_number_state').notNull(),
+	zipCodes: text('zip_codes').array().notNull().default([]),
+	yearsLicensed: text('years_licensed'),
+	averageTransactions: text('average_transactions'),
+	employmentStatus: text('employment_status'),
+	licenseProof: text('license_proof'),
+}
+
+export const agentComplianceColumns = {
+	usePaxWriter: boolean('use_pax_writer').default(true).notNull(),
+	licenseAttested: boolean('license_attested').default(false).notNull(),
+	eoInsuranceStatus: text('eo_insurance_status').notNull(),
+	peacePactSigned: boolean('peace_pact_signed').default(false).notNull(),
+	peacePactSignature: text('peace_pact_signature').notNull(),
+	peacePactSignedAt: timestamp('peace_pact_signed_at', {
+		withTimezone: true,
+	}),
+}
+
+export const agentProfileColumns = {
+	...agentCoreProfileColumns,
+	...agentSubjectiveProfileColumns,
+	...agentNarrativeProfileColumns,
+	...agentIdentityColumns,
+	...agentComplianceColumns,
 }
