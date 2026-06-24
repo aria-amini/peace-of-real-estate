@@ -1,16 +1,6 @@
-import { useState, type ElementType } from 'react'
+import { useState, type ElementType, type ReactNode } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import {
-	ArrowRightLeft,
-	HelpCircle,
-	Home,
-	LogOut,
-	MessageSquare,
-	Search,
-	ShieldCheck,
-	User,
-	Users,
-} from 'lucide-react'
+import { CheckCircle2, HelpCircle, LogOut, MessageSquare } from 'lucide-react'
 
 import { authClient } from '@/lib/auth/client'
 import { Button } from '@/components/ui/button'
@@ -24,6 +14,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Textarea } from '@/components/ui/textarea'
 import {
 	Sidebar,
@@ -33,13 +24,18 @@ import {
 	SidebarGroupContent,
 	SidebarGroupLabel,
 	SidebarHeader,
+	SidebarInset,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarProvider,
 } from '@/components/ui/sidebar'
-import type { DashboardRole } from './shell'
 
-type SidebarItem = {
+// ============================================================
+// Types
+// ============================================================
+
+export type SidebarItem = {
 	label: string
 	icon: ElementType
 	href?: string
@@ -49,22 +45,49 @@ type SidebarItem = {
 	locked?: boolean
 }
 
-type DashboardSidebarProps = {
-	variant: DashboardRole
+// ============================================================
+// Layout shell
+// ============================================================
+
+export type DashboardShellProps = {
+	sidebar: ReactNode
+	children: ReactNode
 }
 
-export function DashboardSidebar({ variant }: DashboardSidebarProps) {
+export function DashboardShell({ sidebar, children }: DashboardShellProps) {
+	return (
+		<SidebarProvider>
+			{sidebar}
+			<SidebarInset className="overflow-x-hidden">
+				<div className="flex min-h-dvh flex-col">
+					<main className="flex w-full flex-1 flex-col overflow-x-hidden">
+						{children}
+					</main>
+				</div>
+			</SidebarInset>
+		</SidebarProvider>
+	)
+}
+
+export type DashboardSidebarProps = {
+	items: SidebarItem[]
+	profileLabel: string
+	profileHint?: string
+}
+
+export function DashboardSidebar({
+	items,
+	profileLabel,
+	profileHint,
+}: DashboardSidebarProps) {
 	const router = useRouterState()
 	const currentPath = router.location.pathname
 	const { data: session } = authClient.useSession()
 	const isAuthenticated = Boolean(session)
 	const [showSupport, setShowSupport] = useState(false)
-	const profileName = session?.user.name?.trim() || 'Your profile'
+	const profileName = session?.user.name?.trim() || profileLabel
 	const profileEmail =
-		session?.user.email ||
-		(variant === 'agent'
-			? 'Agent dashboard'
-			: 'Create a profile to save matches')
+		session?.user.email || profileHint || 'Create a profile to save matches'
 	const profileImage = session?.user.image
 	const profileInitials = getInitials(session?.user.name, session?.user.email)
 	const profileGradient = getProfileGradient(
@@ -84,37 +107,7 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 		})
 	}
 
-	const agentMainItems: SidebarItem[] = [
-		{ label: 'Dashboard', icon: Home, href: '/agent/dashboard' },
-		{
-			label: 'Introductions',
-			icon: MessageSquare,
-			href: '/agent/dashboard/introductions',
-		},
-	]
-
-	const agentProfileItems: SidebarItem[] = [
-		{ label: 'Profile', icon: User, href: '/agent/dashboard/profile' },
-		{
-			label: 'Compliance',
-			icon: ShieldCheck,
-			href: '/agent/dashboard/compliance',
-		},
-	]
-
-	const consumerAgentItems: SidebarItem[] = [
-		{ label: 'Matches', icon: Users, href: '/consumer/dashboard/matches' },
-		{
-			label: 'Introductions',
-			icon: ArrowRightLeft,
-			href: '/consumer/dashboard/introductions',
-		},
-		{
-			label: 'Search Preferences',
-			icon: Search,
-			href: '/consumer/dashboard/search-preferences',
-		},
-	]
+	const homeHref = isAuthenticated ? '/consumer/dashboard' : '/login'
 
 	const aiItems: SidebarItem[] = [
 		{
@@ -180,8 +173,6 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 		)
 	}
 
-	const homeHref = isAuthenticated ? `/${variant}/dashboard` : '/login'
-
 	return (
 		<>
 			<Sidebar>
@@ -215,27 +206,11 @@ export function DashboardSidebar({ variant }: DashboardSidebarProps) {
 				</SidebarHeader>
 				<SidebarContent>
 					<SidebarGroup>
-						<SidebarGroupLabel>
-							{variant === 'agent' ? 'Business' : 'Agents'}
-						</SidebarGroupLabel>
+						<SidebarGroupLabel>Menu</SidebarGroupLabel>
 						<SidebarGroupContent>
-							<SidebarMenu>
-								{(variant === 'agent'
-									? agentMainItems
-									: consumerAgentItems
-								).map(renderItem)}
-							</SidebarMenu>
+							<SidebarMenu>{items.map(renderItem)}</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>
-
-					{variant === 'agent' ? (
-						<SidebarGroup>
-							<SidebarGroupLabel>Profile</SidebarGroupLabel>
-							<SidebarGroupContent>
-								<SidebarMenu>{agentProfileItems.map(renderItem)}</SidebarMenu>
-							</SidebarGroupContent>
-						</SidebarGroup>
-					) : null}
 
 					<SidebarGroup>
 						<SidebarGroupLabel>
@@ -377,5 +352,98 @@ function SupportDialog({
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
+	)
+}
+
+// ============================================================
+// Page shell
+// ============================================================
+
+export type DashboardPageProps = {
+	children: ReactNode
+	className?: string
+}
+
+export function DashboardPage({ children, className }: DashboardPageProps) {
+	return (
+		<div
+			className={`w-full px-6 py-10 xl:-ml-[calc(var(--sidebar-width)/2)] ${className ?? ''}`}
+		>
+			{children}
+		</div>
+	)
+}
+
+export type DashboardPageMobileNavProps = {
+	label: string
+}
+
+export function DashboardPageMobileNav({ label }: DashboardPageMobileNavProps) {
+	return (
+		<div className="mb-6 flex items-center gap-2 md:hidden">
+			<SidebarTrigger />
+			<span className="text-sm font-medium">{label}</span>
+		</div>
+	)
+}
+
+export type DashboardPageHeaderProps = {
+	icon: ElementType
+	eyebrow: string
+	title: string
+	description?: string
+	actions?: ReactNode
+}
+
+export function DashboardPageHeader({
+	icon: Icon,
+	eyebrow,
+	title,
+	description,
+	actions,
+}: DashboardPageHeaderProps) {
+	return (
+		<div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+			<div className="space-y-3">
+				<div className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-2xl">
+					<Icon className="size-5" />
+				</div>
+				<div>
+					<p className="text-muted-foreground text-sm font-medium">{eyebrow}</p>
+					<h1 className="font-heading text-3xl font-semibold tracking-tight">
+						{title}
+					</h1>
+					{description ? (
+						<p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">
+							{description}
+						</p>
+					) : null}
+				</div>
+			</div>
+			{actions ? (
+				<div className="flex items-center gap-3">{actions}</div>
+			) : null}
+		</div>
+	)
+}
+
+// ============================================================
+// Shared dashboard widgets
+// ============================================================
+
+export type StatusRowProps = {
+	label: string
+	value: string
+}
+
+export function StatusRow({ label, value }: StatusRowProps) {
+	return (
+		<div className="flex items-center justify-between rounded-xl border px-3 py-2.5">
+			<div className="flex items-center gap-2">
+				<CheckCircle2 className="text-muted-foreground size-4" />
+				<span>{label}</span>
+			</div>
+			<span className="font-semibold">{value}</span>
+		</div>
 	)
 }

@@ -1,6 +1,12 @@
-import { DashboardShell } from '@/components/dashboard/shell'
+import { DashboardShell, DashboardSidebar } from '@/components/dashboard'
 import type { ReactNode } from 'react'
 
 export function ConsumerSidebarShell({ children }: { children: ReactNode }) {
-	return <DashboardShell variant="consumer">{children}</DashboardShell>
+	return (
+		<DashboardShell
+			sidebar={<DashboardSidebar items={[]} profileLabel="Your account" />}
+		>
+			{children}
+		</DashboardShell>
+	)
 }

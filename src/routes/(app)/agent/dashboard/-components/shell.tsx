@@ -1,6 +1,12 @@
-import { DashboardShell } from '@/components/dashboard/shell'
+import { DashboardShell, DashboardSidebar } from '@/components/dashboard'
 import type { ReactNode } from 'react'
 
 export function AgentSidebarShell({ children }: { children: ReactNode }) {
-	return <DashboardShell variant="agent">{children}</DashboardShell>
+	return (
+		<DashboardShell
+			sidebar={<DashboardSidebar items={[]} profileLabel="Agent dashboard" />}
+		>
+			{children}
+		</DashboardShell>
+	)
 }

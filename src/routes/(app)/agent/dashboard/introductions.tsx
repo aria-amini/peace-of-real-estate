@@ -7,7 +7,7 @@ import {
 	Users,
 } from 'lucide-react'
 
-import { StatusRow } from '@/components/dashboard/status-row'
+import { StatusRow } from '@/components/dashboard'
 import { Button } from '@/components/ui/button'
 import {
 	Card,

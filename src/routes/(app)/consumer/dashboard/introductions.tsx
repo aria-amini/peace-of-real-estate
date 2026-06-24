@@ -17,7 +17,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { StatusRow } from '@/components/dashboard/status-row'
+import { StatusRow } from '@/components/dashboard'
 import { loadAgentMatches } from '@/lib/matching/profile'
 import { cn } from '@/lib/utils/ui'
 
