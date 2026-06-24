@@ -24,7 +24,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { ConsumerSidebarShell } from '@/routes/(app)/consumer/dashboard/-components/shell'
 import type { MatchDetails } from '@/components/match/card'
 import { authClient } from '@/lib/auth/client'
 import {
@@ -71,11 +70,7 @@ export const Route = createFileRoute('/(app)/consumer/dashboard/matches')({
 })
 
 function MatchesRoute() {
-	return (
-		<ConsumerSidebarShell>
-			<Matches />
-		</ConsumerSidebarShell>
-	)
+	return <Matches />
 }
 
 function Matches() {

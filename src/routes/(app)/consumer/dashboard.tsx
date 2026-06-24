@@ -1,4 +1,5 @@
-import { ConsumerSidebarShell } from './dashboard/-components/shell'
+import { ConsumerSidebar } from './dashboard/-components/sidebar'
+import { DashboardShell } from '@/components/dashboard'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(app)/consumer/dashboard')({
@@ -7,8 +8,8 @@ export const Route = createFileRoute('/(app)/consumer/dashboard')({
 
 function ConsumerDashboardLayout() {
 	return (
-		<ConsumerSidebarShell>
+		<DashboardShell sidebar={<ConsumerSidebar />}>
 			<Outlet />
-		</ConsumerSidebarShell>
+		</DashboardShell>
 	)
 }
