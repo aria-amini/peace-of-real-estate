@@ -21,7 +21,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { DashboardPage, DashboardPageMobileNav } from '@/components/dashboard'
 import { authClient } from '@/lib/auth/client'
 import {
 	createConsumerProfileFromDraft,
@@ -110,13 +110,9 @@ function ConsumerDashboard() {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-4xl px-6 py-10 xl:mx-0 xl:ml-[calc((100vw-56rem)/2-var(--sidebar-width))]">
-			<div className="mb-6 flex items-center gap-2 md:hidden">
-				<SidebarTrigger />
-				<span className="text-sm font-medium">Account menu</span>
-			</div>
-
-			<div className="space-y-6">
+		<DashboardPage>
+			<DashboardPageMobileNav label="Account menu" />
+			<div className="mx-auto w-full max-w-4xl space-y-6">
 				<div className="mb-8 flex items-center gap-4">
 					<div className="bg-primary text-primary-foreground flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-base font-semibold">
 						{session?.user.image ? (
@@ -232,7 +228,7 @@ function ConsumerDashboard() {
 					</Card>
 				</div>
 			</div>
-		</div>
+		</DashboardPage>
 	)
 }
 

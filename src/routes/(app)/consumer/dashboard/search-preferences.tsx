@@ -15,7 +15,7 @@ import {
 import { ChipSelect } from '@/components/ui/chip-select'
 import { Input } from '@/components/ui/input'
 import { PriceInput } from '@/components/signup/price-range'
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { DashboardPage, DashboardPageMobileNav } from '@/components/dashboard'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -189,167 +189,169 @@ function SearchPreferences() {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-4xl px-6 py-10 xl:mx-0 xl:ml-[calc((100vw-56rem)/2-var(--sidebar-width))]">
-			<div className="mb-6 flex items-center gap-2 md:hidden">
-				<SidebarTrigger />
-				<span className="text-sm font-medium">Account menu</span>
-			</div>
-
-			<div className="mb-8 space-y-3">
-				<div className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-2xl">
-					<SlidersHorizontal className="size-5" />
-				</div>
-				<div>
-					<p className="text-muted-foreground text-sm font-medium">
-						Search Preferences
-					</p>
-					<h1 className="font-heading text-3xl font-semibold tracking-tight">
-						Tune how PRE finds agent matches.
-					</h1>
-					<p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">
-						Keep the basics current so matches reflect where you are looking,
-						what you are buying or selling, and what kind of agent relationship
-						fits you best.
-					</p>
-				</div>
-			</div>
-
-			<div className="grid gap-5">
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<MapPin className="size-4" />
-							Market
-						</CardTitle>
-						<CardDescription>
-							Where should we focus your matches?
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="grid gap-5 sm:grid-cols-2">
-						<div className="space-y-2 sm:col-span-2">
-							<label htmlFor="search-city" className="text-sm font-medium">
-								City
-							</label>
-							<Input
-								id="search-city"
-								value={form.city ?? ''}
-								onChange={(event) => updateForm({ city: event.target.value })}
-								placeholder="Austin"
-								className="h-11"
-							/>
-						</div>
-
-						<div className="space-y-2">
-							<label htmlFor="search-state" className="text-sm font-medium">
-								State
-							</label>
-							<Input
-								id="search-state"
-								value={form.state ?? ''}
-								onChange={(event) => updateForm({ state: event.target.value })}
-								placeholder="TX"
-								className="h-11"
-							/>
-						</div>
-
-						<OptionGroup
-							label="Intent"
-							options={intentOptions}
-							value={form.intent}
-							onChange={(intent) =>
-								updateForm({ intent: intent as RepresentationSide })
-							}
-						/>
-
-						<BudgetRangeField
-							value={form.priceRange}
-							onChange={(priceRange) => updateForm({ priceRange })}
-						/>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Home className="size-4" />
-							Property Fit
-						</CardTitle>
-						<CardDescription>
-							Pick every property type that belongs in your search.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-6">
-						<div className="space-y-3">
-							<div className="text-sm font-medium">Property types</div>
-							<ChipSelect
-								options={propertyOptions.map((option) => ({
-									value: option,
-									label: option,
-								}))}
-								selected={form.propertyTypes}
-								onChange={(propertyTypes) => updateForm({ propertyTypes })}
-							/>
-						</div>
-
-						<OptionGroup
-							label="Experience level"
-							options={experienceOptions}
-							value={form.experienceLevel}
-							onChange={(experienceLevel) => updateForm({ experienceLevel })}
-						/>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
-						<CardTitle>Match Priorities</CardTitle>
-						<CardDescription>
-							Tell us what should matter most when ranking agents.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-5">
-						<div className="space-y-3">
-							<div className="text-sm font-medium">Top priorities</div>
-							<ChipSelect
-								options={priorityOptions.map((option) => ({
-									value: option,
-									label: option,
-								}))}
-								selected={form.matchPriorities}
-								onChange={(matchPriorities) => updateForm({ matchPriorities })}
-								maxSelections={3}
-							/>
-							<p className="text-muted-foreground text-xs">
-								Choose up to 3. These guide the first pass of your match list.
-							</p>
-						</div>
-
-						<div className="space-y-2">
-							<label htmlFor="match-details" className="text-sm font-medium">
-								Anything else we should know?
-							</label>
-							<Textarea
-								id="match-details"
-								value={form.matchDetails ?? ''}
-								onChange={(event) =>
-									updateForm({ matchDetails: event.target.value })
-								}
-								placeholder="Timing, neighborhoods, deal-breakers, communication preferences..."
-								className="min-h-28"
-							/>
-						</div>
-					</CardContent>
-					<CardFooter className="justify-between gap-3 border-t">
-						<p className="text-muted-foreground text-xs">
-							Saved preferences feed future match and introduction quality.
+		<DashboardPage>
+			<DashboardPageMobileNav label="Account menu" />
+			<div className="mx-auto w-full max-w-4xl">
+				<div className="mb-8 space-y-3">
+					<div className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-2xl">
+						<SlidersHorizontal className="size-5" />
+					</div>
+					<div>
+						<p className="text-muted-foreground text-sm font-medium">
+							Search Preferences
 						</p>
-						<Button onClick={() => void handleSave()} disabled={isSaving}>
-							{isSaving ? 'Saving...' : 'Save preferences'}
-						</Button>
-					</CardFooter>
-				</Card>
+						<h1 className="font-heading text-3xl font-semibold tracking-tight">
+							Tune how PRE finds agent matches.
+						</h1>
+						<p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">
+							Keep the basics current so matches reflect where you are looking,
+							what you are buying or selling, and what kind of agent
+							relationship fits you best.
+						</p>
+					</div>
+				</div>
+
+				<div className="grid gap-5">
+					<Card>
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<MapPin className="size-4" />
+								Market
+							</CardTitle>
+							<CardDescription>
+								Where should we focus your matches?
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="grid gap-5 sm:grid-cols-2">
+							<div className="space-y-2 sm:col-span-2">
+								<label htmlFor="search-city" className="text-sm font-medium">
+									City
+								</label>
+								<Input
+									id="search-city"
+									value={form.city ?? ''}
+									onChange={(event) => updateForm({ city: event.target.value })}
+									placeholder="Austin"
+									className="h-11"
+								/>
+							</div>
+
+							<div className="space-y-2">
+								<label htmlFor="search-state" className="text-sm font-medium">
+									State
+								</label>
+								<Input
+									id="search-state"
+									value={form.state ?? ''}
+									onChange={(event) =>
+										updateForm({ state: event.target.value })
+									}
+									placeholder="TX"
+									className="h-11"
+								/>
+							</div>
+
+							<OptionGroup
+								label="Intent"
+								options={intentOptions}
+								value={form.intent}
+								onChange={(intent) =>
+									updateForm({ intent: intent as RepresentationSide })
+								}
+							/>
+
+							<BudgetRangeField
+								value={form.priceRange}
+								onChange={(priceRange) => updateForm({ priceRange })}
+							/>
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<Home className="size-4" />
+								Property Fit
+							</CardTitle>
+							<CardDescription>
+								Pick every property type that belongs in your search.
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-6">
+							<div className="space-y-3">
+								<div className="text-sm font-medium">Property types</div>
+								<ChipSelect
+									options={propertyOptions.map((option) => ({
+										value: option,
+										label: option,
+									}))}
+									selected={form.propertyTypes}
+									onChange={(propertyTypes) => updateForm({ propertyTypes })}
+								/>
+							</div>
+
+							<OptionGroup
+								label="Experience level"
+								options={experienceOptions}
+								value={form.experienceLevel}
+								onChange={(experienceLevel) => updateForm({ experienceLevel })}
+							/>
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader>
+							<CardTitle>Match Priorities</CardTitle>
+							<CardDescription>
+								Tell us what should matter most when ranking agents.
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-5">
+							<div className="space-y-3">
+								<div className="text-sm font-medium">Top priorities</div>
+								<ChipSelect
+									options={priorityOptions.map((option) => ({
+										value: option,
+										label: option,
+									}))}
+									selected={form.matchPriorities}
+									onChange={(matchPriorities) =>
+										updateForm({ matchPriorities })
+									}
+									maxSelections={3}
+								/>
+								<p className="text-muted-foreground text-xs">
+									Choose up to 3. These guide the first pass of your match list.
+								</p>
+							</div>
+
+							<div className="space-y-2">
+								<label htmlFor="match-details" className="text-sm font-medium">
+									Anything else we should know?
+								</label>
+								<Textarea
+									id="match-details"
+									value={form.matchDetails ?? ''}
+									onChange={(event) =>
+										updateForm({ matchDetails: event.target.value })
+									}
+									placeholder="Timing, neighborhoods, deal-breakers, communication preferences..."
+									className="min-h-28"
+								/>
+							</div>
+						</CardContent>
+						<CardFooter className="justify-between gap-3 border-t">
+							<p className="text-muted-foreground text-xs">
+								Saved preferences feed future match and introduction quality.
+							</p>
+							<Button onClick={() => void handleSave()} disabled={isSaving}>
+								{isSaving ? 'Saving...' : 'Save preferences'}
+							</Button>
+						</CardFooter>
+					</Card>
+				</div>
 			</div>
-		</div>
+		</DashboardPage>
 	)
 }
 

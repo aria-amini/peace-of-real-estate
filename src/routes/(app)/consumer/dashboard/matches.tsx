@@ -23,7 +23,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { DashboardPage, DashboardPageMobileNav } from '@/components/dashboard'
 import type { MatchDetails } from '@/components/match/card'
 import { authClient } from '@/lib/auth/client'
 import {
@@ -102,14 +102,10 @@ function Matches() {
 	}
 
 	return (
-		<div className="mx-auto w-full max-w-5xl px-6 py-12 xl:mx-0 xl:ml-[calc((100vw-64rem)/2-var(--sidebar-width))]">
-			<div className="mb-6 flex items-center gap-2 md:hidden">
-				<SidebarTrigger />
-				<span className="text-sm font-medium">Menu</span>
-			</div>
-
-			<div className="mx-auto mb-8 max-w-4xl">
-				<div className="flex items-center gap-4">
+		<DashboardPage>
+			<DashboardPageMobileNav label="Menu" />
+			<div className="mx-auto w-full max-w-4xl">
+				<div className="mb-8 flex items-center gap-4">
 					<div className="from-primary to-primary/70 text-primary-foreground shadow-primary/20 ring-primary/20 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br shadow-sm ring-1">
 						<ArrowRightLeft className="h-5 w-5" />
 					</div>
@@ -117,49 +113,51 @@ function Matches() {
 						<h1 className="text-3xl">Matches</h1>
 					</div>
 				</div>
-			</div>
 
-			<div className="mx-auto mb-6 max-w-4xl space-y-3">
-				<PreferencesSummaryCard
-					settings={consumerProfile}
-					name={session?.user?.name}
-					state={stateCode}
-				/>
-			</div>
+				<div className="mb-6 space-y-3">
+					<PreferencesSummaryCard
+						settings={consumerProfile}
+						name={session?.user?.name}
+						state={stateCode}
+					/>
+				</div>
 
-			<div className="mx-auto max-w-4xl">
-				{isLoading ? (
-					<Card className="py-16 text-center">
-						<p className="text-muted-foreground text-sm">Loading matches...</p>
-					</Card>
-				) : matches.length === 0 ? (
-					<Card className="py-16 text-center">
-						<Users className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-						<p className="text-muted-foreground text-sm">
-							No matches available yet.
-						</p>
-					</Card>
-				) : (
-					<Card className="overflow-hidden p-0">
-						<MatchListHeader selectedCount={selectedMatchIds.length} />
-						<div className="divide-y">
-							{matches.map((match) => (
-								<CompactMatchRow
-									key={match.id}
-									match={match}
-									selected={selectedMatchIds.includes(match.id)}
-									selectionDisabled={
-										selectedMatchIds.length >= 3 &&
-										!selectedMatchIds.includes(match.id)
-									}
-									onToggleSelected={() => toggleSelectedMatch(match.id)}
-								/>
-							))}
-						</div>
-					</Card>
-				)}
+				<div>
+					{isLoading ? (
+						<Card className="py-16 text-center">
+							<p className="text-muted-foreground text-sm">
+								Loading matches...
+							</p>
+						</Card>
+					) : matches.length === 0 ? (
+						<Card className="py-16 text-center">
+							<Users className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+							<p className="text-muted-foreground text-sm">
+								No matches available yet.
+							</p>
+						</Card>
+					) : (
+						<Card className="overflow-hidden p-0">
+							<MatchListHeader selectedCount={selectedMatchIds.length} />
+							<div className="divide-y">
+								{matches.map((match) => (
+									<CompactMatchRow
+										key={match.id}
+										match={match}
+										selected={selectedMatchIds.includes(match.id)}
+										selectionDisabled={
+											selectedMatchIds.length >= 3 &&
+											!selectedMatchIds.includes(match.id)
+										}
+										onToggleSelected={() => toggleSelectedMatch(match.id)}
+									/>
+								))}
+							</div>
+						</Card>
+					)}
+				</div>
 			</div>
-		</div>
+		</DashboardPage>
 	)
 }
 
