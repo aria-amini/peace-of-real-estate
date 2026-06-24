@@ -30,7 +30,6 @@ import type { MatchDetails } from '@/components/match/card'
 import { PaywallDialog } from '@/components/auth/paywall-dialog'
 import { authClient } from '@/lib/auth/client'
 import { isUserPremium } from '@/lib/premium'
-import { getCurrentSession } from '@/lib/auth/functions'
 import {
 	loadAgentMatches,
 	loadConsumerProfile,
@@ -65,12 +64,6 @@ function statIcon(label: string) {
 
 export const Route = createFileRoute('/(app)/consumer/dashboard/matches')({
 	beforeLoad: async () => {
-		const session = await getCurrentSession()
-
-		if (!session) {
-			throw redirect({ to: '/consumer/signup', search: { step: 'intro' } })
-		}
-
 		const consumerProfile = await loadConsumerProfile()
 
 		if (!hasCompletedConsumerIntake(consumerProfile)) {

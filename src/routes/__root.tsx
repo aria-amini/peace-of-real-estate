@@ -1,4 +1,5 @@
 import { hasBetaAccess } from '@/lib/auth/beta'
+import { getCurrentSession } from '@/lib/auth/functions'
 import type { QueryClient } from '@tanstack/react-query'
 import {
 	HeadContent,
@@ -36,6 +37,28 @@ export const Route = createRootRouteWithContext<{
 
 		if (isAuthenticated && location.pathname === '/beta') {
 			throw redirect({ to: '/' })
+		}
+
+		const session = await getCurrentSession()
+		const protectedPrefixes = ['/agent/dashboard/', '/consumer/dashboard/']
+
+		if (
+			!session &&
+			protectedPrefixes.some((prefix) => location.pathname.startsWith(prefix))
+		) {
+			if (location.pathname.startsWith('/agent/')) {
+				throw redirect({
+					to: '/login',
+					search: { redirect: location.pathname },
+				})
+			}
+
+			if (location.pathname.startsWith('/consumer/')) {
+				throw redirect({
+					to: '/consumer/signup',
+					search: { step: 'intro' },
+				})
+			}
 		}
 	},
 	component: RootComponent,
