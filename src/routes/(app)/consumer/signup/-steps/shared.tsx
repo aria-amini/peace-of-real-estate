@@ -12,12 +12,8 @@ import {
 	UserIcon,
 } from '@phosphor-icons/react'
 
-import {
-	consumerQuestionFlow,
-	propertyTypeOptions,
-	type QuestionFlow as MatchingQuestionFlow,
-} from '@/lib/matching/questions'
 import type { RepresentationSide } from '@/lib/matching/profile'
+import { propertyTypeOptions } from '@/components/signup/questions'
 
 export type ConsumerFlowStep = 'intro' | 'intent' | 'home' | 'quiz' | 'preview'
 
@@ -57,7 +53,6 @@ export const consumerConfig = {
 	timelineOptions: [...timelineOptions],
 	propertyPrompt: 'What type of home are you looking for?',
 	propertyOptions: Object.keys(propertyTypeOptions),
-	questionFlow: consumerQuestionFlow,
 	accent: 'navy',
 } satisfies {
 	basePath: '/consumer'
@@ -66,7 +61,6 @@ export const consumerConfig = {
 	timelineOptions: { slug: string; label: string }[]
 	propertyPrompt: string
 	propertyOptions: string[]
-	questionFlow: MatchingQuestionFlow
 	accent: 'navy' | 'amber'
 }
 

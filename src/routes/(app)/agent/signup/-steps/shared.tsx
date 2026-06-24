@@ -9,12 +9,8 @@ import {
 	UsersIcon,
 } from '@phosphor-icons/react'
 
-import {
-	agentQuestionFlow,
-	questionOptionSlugs,
-	type QuestionFlow as MatchingQuestionFlow,
-} from '@/lib/matching/questions'
 import type { RepresentationSide } from '@/lib/matching/profile'
+import { bestClientTypeLabels } from '@/components/signup/questions'
 
 export type AgentFlowStep =
 	| 'welcome'
@@ -58,33 +54,17 @@ export const averageTransactionsOptions = [
 	{ slug: '30+', label: '30+ per year' },
 ] as const
 
-export const bestClientTypesQuestion = agentQuestionFlow.questions.find(
-	(q) => q.id === 'bestClientTypes',
-)!
-
 export const agentConfig = {
 	basePath: '/agent',
 	label: 'Agent',
 	intentOptions: ['buying', 'selling', 'both'] as RepresentationSide[],
-	clientOptions: questionOptionSlugs(bestClientTypesQuestion),
-	questionFlow: {
-		...agentQuestionFlow,
-		questions: agentQuestionFlow.questions.filter(
-			(q) =>
-				![
-					'representationSide',
-					'typicalPriceRange',
-					'bestClientTypes',
-				].includes(q.id),
-		),
-	},
+	clientOptions: Object.keys(bestClientTypeLabels),
 	accent: 'amber',
 } satisfies {
 	basePath: '/agent'
 	label: string
 	intentOptions: RepresentationSide[]
 	clientOptions: string[]
-	questionFlow: MatchingQuestionFlow
 	accent: 'amber'
 }
 

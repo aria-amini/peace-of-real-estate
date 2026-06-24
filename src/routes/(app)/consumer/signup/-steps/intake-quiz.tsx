@@ -6,16 +6,38 @@ import {
 	StepProgressHeader,
 } from '@/components/signup/shared'
 import { QuestionFlow } from '@/components/signup/question-flow'
+import {
+	questionOptionLabel,
+	consumerAnswerLabels,
+	type AnswerValue,
+	type Question,
+} from '@/components/signup/questions'
 import { Card, CardContent } from '@/components/ui/card'
 import type { ConsumerDraft } from '@/lib/drafts'
 import { StepHeader } from '@/components/signup/step-header'
-import {
-	consumerQuestionFlow,
-	questionOptionLabel,
-	type AnswerValue,
-	type Question,
-} from '@/lib/matching/questions'
 import type { ConsumerProfileUpdate } from '@/lib/matching/profile'
+
+const consumerQuizFields = [
+	'preferredContactMethod',
+	'involvementLevel',
+	'representationPreference',
+	'commissionComfort',
+	'experienceLevel',
+] as const satisfies readonly (keyof ConsumerDraft)[]
+
+const consumerQuestions = Object.entries(consumerAnswerLabels).map(
+	([id, config]) => ({
+		id,
+		title: config.title,
+		options: config.options,
+	}),
+) satisfies Question[]
+
+const consumerQuestionList: Question[] = [...consumerQuestions]
+
+export function isConsumerQuizComplete(state: ConsumerDraft): boolean {
+	return consumerQuizFields.every((field) => state[field] !== undefined)
+}
 
 export function ConsumerQuiz({
 	state,
@@ -30,7 +52,7 @@ export function ConsumerQuiz({
 }) {
 	const answers = extractAnswers(state)
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() =>
-		getNextUnansweredQuestionIndex(consumerQuestionFlow.questions, answers),
+		getNextUnansweredQuestionIndex(consumerQuestionList, answers),
 	)
 
 	return (
@@ -48,13 +70,13 @@ export function ConsumerQuiz({
 						totalSteps={4}
 						title="Preferences"
 						activeIndex={currentQuestionIndex}
-						items={consumerQuestionFlow.questions.map(
+						items={consumerQuestions.map(
 							(q) => answers[q.id] !== undefined && answers[q.id] !== null,
 						)}
 						showTitle={false}
 					/>
 					<QuestionFlow
-						questions={consumerQuestionFlow.questions}
+						questions={consumerQuestionList}
 						titleVisibility="sr-only"
 						mode="single-question"
 						title="Step 3: Your Match"
@@ -87,7 +109,7 @@ function getNextUnansweredQuestionIndex(
 
 function extractAnswers(draft: ConsumerDraft): Record<string, AnswerValue> {
 	const answers: Record<string, AnswerValue> = {}
-	for (const question of consumerQuestionFlow.questions) {
+	for (const question of consumerQuestionList) {
 		const value = draft[question.id as keyof ConsumerProfileUpdate]
 		if (value !== undefined && value !== null) {
 			answers[question.id] = value as AnswerValue
@@ -100,7 +122,7 @@ function answersToProfileUpdate(
 	answers: Record<string, AnswerValue>,
 ): Partial<ConsumerDraft> {
 	const update: Partial<ConsumerDraft> = {}
-	for (const question of consumerQuestionFlow.questions) {
+	for (const question of consumerQuestionList) {
 		const value = answers[question.id]
 		if (value !== undefined && value !== null) {
 			update[question.id as keyof ConsumerDraft] = value as never

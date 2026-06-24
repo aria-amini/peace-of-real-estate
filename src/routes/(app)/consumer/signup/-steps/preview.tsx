@@ -24,13 +24,9 @@ import {
 	loadConsumerDraft,
 	type ConsumerDraft,
 } from '@/lib/drafts'
-import {
-	consumerQuestionFlow,
-	getAnswerSummary,
-	propertyTypeOptions,
-	type AnswerValue,
-} from '@/lib/matching/questions'
+import { propertyTypeOptions } from '@/components/signup/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile'
+import { consumerAnswerLabels } from '@/components/signup/questions'
 import {
 	formatPriceRange,
 	parsePriceRange,
@@ -271,6 +267,17 @@ const experienceLevelPills: Record<
 	},
 }
 
+function formatAnswer(value: string | string[] | null | undefined): string {
+	if (value === undefined || value === null || value === '__skipped__')
+		return 'Not answered'
+	if (Array.isArray(value)) {
+		return value
+			.map((slug) => consumerAnswerLabels[slug]?.options[slug] ?? slug)
+			.join(', ')
+	}
+	return consumerAnswerLabels[value]?.options[value] ?? value
+}
+
 function getProfileStats(profile: ConsumerProfile) {
 	const stats: { label: string; value: string }[] = []
 
@@ -287,29 +294,24 @@ function getProfileStats(profile: ConsumerProfile) {
 			value: profile.propertyTypes
 				.map(
 					(type) =>
-						(propertyTypeOptions as Record<string, string>)[type] ?? type,
+						propertyTypeOptions[type as keyof typeof propertyTypeOptions] ??
+						type,
 				)
 				.join(', '),
 		})
 	}
 
-	const answerQuestions: { id: string; label: string }[] = [
-		{ id: 'preferredContactMethod', label: 'Communication' },
-		{ id: 'involvementLevel', label: 'Involvement' },
-		{ id: 'representationPreference', label: 'Exclusivity' },
-		{ id: 'commissionComfort', label: 'Negotiation' },
-		{ id: 'experienceLevel', label: 'Experience' },
-	]
-
-	for (const { id, label } of answerQuestions) {
-		const value = profile[id as keyof ConsumerProfile] as AnswerValue
+	for (const [id, config] of Object.entries(consumerAnswerLabels)) {
+		const value = profile[id as keyof ConsumerProfile] as
+			| string
+			| string[]
+			| null
+			| undefined
 		if (value === undefined || value === null || value === '__skipped__')
 			continue
-		const question = consumerQuestionFlow.questions.find((q) => q.id === id)
-		if (!question) continue
 		stats.push({
-			label,
-			value: getAnswerSummary(question, value),
+			label: config.label,
+			value: formatAnswer(value),
 		})
 	}
 

@@ -113,10 +113,10 @@ vi.mock('@/lib/matching/profile', async () => {
 	}
 })
 
-vi.mock('@/lib/matching/questions', async () => {
+vi.mock('@/components/signup/questions', async () => {
 	const actual = await vi.importActual<
-		typeof import('@/lib/matching/questions')
-	>('@/lib/matching/questions')
+		typeof import('@/components/signup/questions')
+	>('@/components/signup/questions')
 	return {
 		...actual,
 		getAnswerSummary: (

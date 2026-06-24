@@ -19,11 +19,7 @@ import { Card } from '@/components/ui/card'
 import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
 import { completeAgentSignup, type AgentProfile } from '@/lib/matching/profile'
 import { loadAgentDraft } from '@/lib/drafts'
-import {
-	agentQuestionFlow,
-	questionOptionLabel,
-	type Question,
-} from '@/lib/matching/questions'
+import { bestClientTypeLabels } from '@/components/signup/questions'
 import {
 	formatPriceRange,
 	parsePriceRange,
@@ -183,12 +179,10 @@ function getProfileStats(profile: AgentProfile) {
 	}
 
 	if (profile.bestClientTypes.length > 0) {
-		const questions: Question[] = agentQuestionFlow.questions
-		const question = questions.find((q) => q.id === 'bestClientTypes')
 		stats.push({
 			label: 'Best clients',
 			value: profile.bestClientTypes
-				.map((slug) => (question ? questionOptionLabel(question, slug) : slug))
+				.map((slug) => bestClientTypeLabels[slug] ?? slug)
 				.join(', '),
 		})
 	}

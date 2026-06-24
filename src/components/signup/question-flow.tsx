@@ -20,7 +20,7 @@ import {
 	questionOptionEntries,
 	type AnswerValue,
 	type Question,
-} from '@/lib/matching/questions'
+} from '@/components/signup/questions'
 import { cn } from '@/lib/utils/ui'
 
 type Answers = Record<string, AnswerValue>

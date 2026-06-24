@@ -33,11 +33,7 @@ import { isUserPremium } from '@/lib/premium'
 import { getCurrentSession } from '@/lib/auth/functions'
 import { loadAgentMatches } from '@/lib/matching/server'
 import { loadConsumerProfile } from '@/lib/matching/profile'
-import {
-	getAnswerSummary,
-	consumerQuestionFlow,
-	type Question,
-} from '@/lib/matching/questions'
+import { consumerAnswerLabels } from '@/components/signup/questions'
 import type { ConsumerProfile } from '@/lib/matching/profile'
 import {
 	formatPriceRange,
@@ -336,17 +332,6 @@ function getPreferenceSummaryItems(
 ) {
 	if (!profile) return []
 
-	const questions = consumerQuestionFlow.questions
-	const questionsById = new Map<string, Question>(
-		questions.map((q) => [q.id, q]),
-	)
-	const labelOverrides: Record<string, string> = {
-		preferredContactMethod: 'Communication',
-		involvementLevel: 'Involvement',
-		representationPreference: 'Exclusivity',
-		commissionComfort: 'Negotiation',
-	}
-
 	const profileItems = [
 		profile.city ? { label: 'City', value: profile.city } : null,
 		profile.state ? { label: 'State', value: profile.state } : null,
@@ -364,23 +349,17 @@ function getPreferenceSummaryItems(
 			: null,
 	]
 
-	const answerItems = [
-		'preferredContactMethod',
-		'involvementLevel',
-		'representationPreference',
-		'commissionComfort',
-	]
-		.map((id) => {
-			const question = questionsById.get(id)
+	const answerItems = Object.entries(consumerAnswerLabels)
+		.map(([id, config]) => {
 			const answer = profile[id as keyof ConsumerProfile] as
 				| string
 				| string[]
 				| undefined
-			if (!question || answer === undefined || answer === '') return null
-			return {
-				label: labelOverrides[id] ?? question.title,
-				value: getAnswerSummary(question, answer),
-			}
+			if (answer === undefined || answer === '') return null
+			const value = Array.isArray(answer)
+				? answer.map((slug) => config.options[slug] ?? slug).join(', ')
+				: (config.options[answer] ?? answer)
+			return { label: config.label, value }
 		})
 		.filter((item): item is { label: string; value: string } => item !== null)
 

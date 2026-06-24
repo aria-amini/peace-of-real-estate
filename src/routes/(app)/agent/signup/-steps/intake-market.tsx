@@ -17,10 +17,6 @@ import type { AgentDraft } from '@/lib/drafts'
 import { parseCityState } from '@/lib/geography/zip'
 import type { RepresentationSide } from '@/lib/matching/profile'
 import {
-	agentQuestionFlow,
-	questionOptionLabel,
-} from '@/lib/matching/questions'
-import {
 	DEFAULT_PRICE_RANGE,
 	formatPriceCompact,
 	formatPriceRange,
@@ -35,10 +31,7 @@ import {
 	getRepresentationIcon,
 	getRepresentationLabel,
 } from './shared'
-
-const bestClientTypesQuestion = agentQuestionFlow.questions.find(
-	(q) => q.id === 'bestClientTypes',
-)!
+import { bestClientTypeLabels } from '@/components/signup/questions'
 
 export function AgentMarket({
 	state,
@@ -263,7 +256,7 @@ export function AgentMarket({
 												<Check className="text-primary h-3 w-3" />
 											) : null}
 										</span>
-										{questionOptionLabel(bestClientTypesQuestion, option)}
+										{bestClientTypeLabels[option]}
 									</button>
 								)
 							})}

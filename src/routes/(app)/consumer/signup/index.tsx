@@ -15,7 +15,6 @@ import {
 	hasCompletedConsumerIntake,
 	loadConsumerProfile,
 } from '@/lib/matching/profile'
-import { consumerQuestionFlow } from '@/lib/matching/questions'
 import {
 	ConsumerHome,
 	ConsumerLocation,
@@ -28,6 +27,7 @@ import {
 	stepOrder,
 	type ConsumerFlowStep,
 } from './-steps/shared'
+import { isConsumerQuizComplete } from './-steps/intake-quiz'
 
 const signupSearchSchema = z.object({
 	step: z
@@ -115,9 +115,7 @@ function ConsumerSignupRoute() {
 						state.propertyTypes.length > 0
 					)
 				case 'quiz':
-					return consumerQuestionFlow.questions.every(
-						(q) => state[q.id as keyof ConsumerDraft] !== undefined,
-					)
+					return isConsumerQuizComplete(state)
 				default:
 					return false
 			}

@@ -10,7 +10,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils/ui'
 import type { ConsumerDraft } from '@/lib/drafts'
-import { propertyTypeOptions } from '@/lib/matching/questions'
 import {
 	DEFAULT_PRICE_RANGE,
 	formatPriceCompact,
@@ -21,6 +20,7 @@ import {
 	PRICE_STEP,
 	serializePriceRange,
 } from '@/components/signup/price-range'
+import { propertyTypeOptions } from '@/components/signup/questions'
 import { consumerConfig, getPropertyIcon } from './shared'
 
 export function ConsumerHome({

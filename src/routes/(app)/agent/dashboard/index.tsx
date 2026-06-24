@@ -29,12 +29,8 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { DASHBOARD_PLACEHOLDER_PIPELINE } from '@/lib/pricing'
 import { authClient } from '@/lib/auth/client'
 import { loadAgentProfile } from '@/lib/matching/profile'
-import {
-	agentQuestionFlow,
-	questionOptionLabel,
-	type Question,
-} from '@/lib/matching/questions'
 import type { AgentProfile } from '@/lib/matching/profile'
+import { bestClientTypeLabels } from '@/components/signup/questions'
 import { isUserPremium } from '@/lib/premium'
 import { cn } from '@/lib/utils/ui'
 
@@ -390,11 +386,9 @@ function getNextStep(
 		}
 	}
 
-	const questions: Question[] = agentQuestionFlow.questions
-	const question = questions.find((q) => q.id === 'bestClientTypes')
 	const bestClients =
 		profile.bestClientTypes
-			.map((slug) => (question ? questionOptionLabel(question, slug) : slug))
+			.map((slug) => bestClientTypeLabels[slug] ?? slug)
 			.join(', ') || 'Not set'
 
 	return {
