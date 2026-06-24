@@ -24,7 +24,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { DashboardPage, DashboardPageMobileNav } from '@/components/dashboard'
 import { DASHBOARD_PLACEHOLDER_PIPELINE } from '@/lib/pricing'
 import { authClient } from '@/lib/auth/client'
 import { loadAgentProfile } from '@/lib/matching/profile'
@@ -77,222 +77,226 @@ function AgentDashboard() {
 	const nextStep = getNextStep(agentProfile, profileStrength)
 
 	return (
-		<div className="mx-auto w-full max-w-6xl px-6 py-10 xl:mx-0 xl:ml-[calc((100vw-72rem)/2-var(--sidebar-width))]">
-			<div className="mb-6 flex items-center gap-2 md:hidden">
-				<SidebarTrigger />
-				<span className="text-sm font-medium">Agent menu</span>
-			</div>
+		<DashboardPage>
+			<DashboardPageMobileNav label="Agent menu" />
 
-			<div className="mb-8 flex items-center gap-4">
-				<div className="bg-primary text-primary-foreground flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-base font-semibold">
-					{session?.user.image ? (
-						<img
-							src={session.user.image}
-							alt=""
-							className="size-full object-cover"
-						/>
-					) : (
-						initials
-					)}
+			<div className="mx-auto w-full max-w-6xl">
+				<div className="mb-8 flex items-center gap-4">
+					<div className="bg-primary text-primary-foreground flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-base font-semibold">
+						{session?.user.image ? (
+							<img
+								src={session.user.image}
+								alt=""
+								className="size-full object-cover"
+							/>
+						) : (
+							initials
+						)}
+					</div>
+					<div className="min-w-0">
+						<p className="text-muted-foreground text-sm font-medium">
+							Agent Dashboard
+						</p>
+						<h1 className="font-heading truncate text-3xl font-semibold tracking-tight">
+							{displayName}
+						</h1>
+						<p className="text-muted-foreground mt-1 truncate text-sm">
+							{agentProfile?.brokerageName
+								? `${agentProfile.brokerageName} · ${agentProfile.zipCodes[0] ?? 'No service area'}`
+								: (session?.user.email ?? 'No email on file')}
+						</p>
+					</div>
 				</div>
-				<div className="min-w-0">
-					<p className="text-muted-foreground text-sm font-medium">
-						Agent Dashboard
-					</p>
-					<h1 className="font-heading truncate text-3xl font-semibold tracking-tight">
-						{displayName}
-					</h1>
-					<p className="text-muted-foreground mt-1 truncate text-sm">
-						{agentProfile?.brokerageName
-							? `${agentProfile.brokerageName} · ${agentProfile.zipCodes[0] ?? 'No service area'}`
-							: (session?.user.email ?? 'No email on file')}
-					</p>
-				</div>
-			</div>
 
-			<div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-				<div className="space-y-5">
-					<Card>
-						<CardHeader className="pb-4">
-							<div className="flex items-start justify-between gap-4">
-								<div>
-									<CardTitle className="flex items-center gap-2">
-										<Edit3 className="size-4" />
-										Profile Strength
-									</CardTitle>
-									<CardDescription>
-										The richer your profile, the better your matches.
-									</CardDescription>
+				<div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+					<div className="space-y-5">
+						<Card>
+							<CardHeader className="pb-4">
+								<div className="flex items-start justify-between gap-4">
+									<div>
+										<CardTitle className="flex items-center gap-2">
+											<Edit3 className="size-4" />
+											Profile Strength
+										</CardTitle>
+										<CardDescription>
+											The richer your profile, the better your matches.
+										</CardDescription>
+									</div>
+									<div className="text-2xl font-semibold">
+										{profileStrength}%
+									</div>
 								</div>
-								<div className="text-2xl font-semibold">{profileStrength}%</div>
-							</div>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="bg-muted h-2 overflow-hidden rounded-full">
-								<div
-									className="bg-primary h-full transition-all"
-									style={{ width: `${profileStrength}%` }}
-								/>
-							</div>
-							<div className="flex items-start gap-3 rounded-xl border p-3">
-								<div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-lg">
-									<ArrowRight className="size-4" />
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="bg-muted h-2 overflow-hidden rounded-full">
+									<div
+										className="bg-primary h-full transition-all"
+										style={{ width: `${profileStrength}%` }}
+									/>
 								</div>
-								<div className="min-w-0 flex-1">
-									<p className="text-sm font-medium">{nextStep.label}</p>
-									<p className="text-muted-foreground text-sm">
-										{nextStep.description}
-									</p>
+								<div className="flex items-start gap-3 rounded-xl border p-3">
+									<div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-lg">
+										<ArrowRight className="size-4" />
+									</div>
+									<div className="min-w-0 flex-1">
+										<p className="text-sm font-medium">{nextStep.label}</p>
+										<p className="text-muted-foreground text-sm">
+											{nextStep.description}
+										</p>
+									</div>
+									<Button asChild variant="outline" size="sm">
+										<Link to={nextStep.href}>
+											{nextStep.action}
+											<ExternalLink className="size-3.5" />
+										</Link>
+									</Button>
 								</div>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<BarChart3 className="size-4" />
+									Pipeline Snapshot
+								</CardTitle>
+								<CardDescription>
+									Where your introductions stand right now.
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="grid gap-3 sm:grid-cols-3">
+								{pipelineSteps.map((step) => (
+									<div key={step.label} className="rounded-2xl border p-4">
+										<div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs font-medium uppercase">
+											<step.icon className="size-3.5" />
+											{step.label}
+										</div>
+										<div className="text-2xl font-semibold">{step.value}</div>
+									</div>
+								))}
+							</CardContent>
+							<CardFooter className="border-t">
 								<Button asChild variant="outline" size="sm">
-									<Link to={nextStep.href}>
-										{nextStep.action}
+									<Link to="/agent/dashboard/compliance">
+										Review compliance
 										<ExternalLink className="size-3.5" />
 									</Link>
 								</Button>
-							</div>
-						</CardContent>
-					</Card>
+							</CardFooter>
+						</Card>
 
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<BarChart3 className="size-4" />
-								Pipeline Snapshot
-							</CardTitle>
-							<CardDescription>
-								Where your introductions stand right now.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="grid gap-3 sm:grid-cols-3">
-							{pipelineSteps.map((step) => (
-								<div key={step.label} className="rounded-2xl border p-4">
-									<div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs font-medium uppercase">
-										<step.icon className="size-3.5" />
-										{step.label}
-									</div>
-									<div className="text-2xl font-semibold">{step.value}</div>
-								</div>
-							))}
-						</CardContent>
-						<CardFooter className="border-t">
-							<Button asChild variant="outline" size="sm">
-								<Link to="/agent/dashboard/compliance">
-									Review compliance
-									<ExternalLink className="size-3.5" />
-								</Link>
-							</Button>
-						</CardFooter>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Clock className="size-4" />
-								Recent Activity
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="rounded-2xl border border-dashed p-6 text-center">
-								<MessageSquare className="text-muted-foreground mx-auto mb-3 size-8" />
-								<h3 className="font-medium">No recent activity</h3>
-								<p className="text-muted-foreground mt-1 text-sm">
-									Introductions and consumer matches will appear here.
-								</p>
-							</div>
-						</CardContent>
-					</Card>
-				</div>
-
-				<div className="space-y-5">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Crown className="size-4" />
-								Plan
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div>
-								<div className="text-2xl font-semibold">Free</div>
-								<p className="text-muted-foreground text-sm">
-									Agent dashboard access is free while PRE is in beta.
-								</p>
-							</div>
-							<Button variant="outline" size="sm" className="w-full">
-								Manage subscription
-							</Button>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<ShieldCheck className="size-4" />
-								Trust & Compliance
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-3">
-							{trustBadges.map((badge) => {
-								const value = agentProfile?.[badge.field as keyof AgentProfile]
-								const isSet = Boolean(value)
-								return (
-									<div
-										key={badge.label}
-										className="flex items-center justify-between rounded-xl border px-3 py-2.5"
-									>
-										<div className="flex items-center gap-2">
-											<badge.icon
-												className={cn(
-													'size-4',
-													isSet ? 'text-emerald-600' : 'text-muted-foreground',
-												)}
-											/>
-											<span className="text-sm">{badge.label}</span>
-										</div>
-										{isSet ? (
-											<CheckCircle2 className="size-4 text-emerald-600" />
-										) : (
-											<XCircle className="text-muted-foreground size-4" />
-										)}
-									</div>
-								)
-							})}
-						</CardContent>
-						<CardFooter className="border-t">
-							<Button asChild variant="outline" size="sm" className="w-full">
-								<Link to="/agent/dashboard/compliance">
-									Review compliance
-									<ExternalLink className="size-3.5" />
-								</Link>
-							</Button>
-						</CardFooter>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Briefcase className="size-4" />
-								Availability
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="flex items-center justify-between">
-								<div className="space-y-0.5">
-									<p className="text-sm font-medium">Accept new matches</p>
-									<p className="text-muted-foreground text-xs">
-										Pause when you are at capacity.
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Clock className="size-4" />
+									Recent Activity
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="rounded-2xl border border-dashed p-6 text-center">
+									<MessageSquare className="text-muted-foreground mx-auto mb-3 size-8" />
+									<h3 className="font-medium">No recent activity</h3>
+									<p className="text-muted-foreground mt-1 text-sm">
+										Introductions and consumer matches will appear here.
 									</p>
 								</div>
-								<Button variant="outline" size="sm">
-									Active
+							</CardContent>
+						</Card>
+					</div>
+
+					<div className="space-y-5">
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Crown className="size-4" />
+									Plan
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div>
+									<div className="text-2xl font-semibold">Free</div>
+									<p className="text-muted-foreground text-sm">
+										Agent dashboard access is free while PRE is in beta.
+									</p>
+								</div>
+								<Button variant="outline" size="sm" className="w-full">
+									Manage subscription
 								</Button>
-							</div>
-						</CardContent>
-					</Card>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<ShieldCheck className="size-4" />
+									Trust & Compliance
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-3">
+								{trustBadges.map((badge) => {
+									const value =
+										agentProfile?.[badge.field as keyof AgentProfile]
+									const isSet = Boolean(value)
+									return (
+										<div
+											key={badge.label}
+											className="flex items-center justify-between rounded-xl border px-3 py-2.5"
+										>
+											<div className="flex items-center gap-2">
+												<badge.icon
+													className={cn(
+														'size-4',
+														isSet
+															? 'text-emerald-600'
+															: 'text-muted-foreground',
+													)}
+												/>
+												<span className="text-sm">{badge.label}</span>
+											</div>
+											{isSet ? (
+												<CheckCircle2 className="size-4 text-emerald-600" />
+											) : (
+												<XCircle className="text-muted-foreground size-4" />
+											)}
+										</div>
+									)
+								})}
+							</CardContent>
+							<CardFooter className="border-t">
+								<Button asChild variant="outline" size="sm" className="w-full">
+									<Link to="/agent/dashboard/compliance">
+										Review compliance
+										<ExternalLink className="size-3.5" />
+									</Link>
+								</Button>
+							</CardFooter>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Briefcase className="size-4" />
+									Availability
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="flex items-center justify-between">
+									<div className="space-y-0.5">
+										<p className="text-sm font-medium">Accept new matches</p>
+										<p className="text-muted-foreground text-xs">
+											Pause when you are at capacity.
+										</p>
+									</div>
+									<Button variant="outline" size="sm">
+										Active
+									</Button>
+								</div>
+							</CardContent>
+						</Card>
+					</div>
 				</div>
 			</div>
-		</div>
+		</DashboardPage>
 	)
 }
 
