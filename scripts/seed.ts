@@ -5,21 +5,11 @@ import { seedAgents } from './seeds/agents'
 // Config
 // =============================================================================
 
-const DEFAULT_AGENT_COUNT = 200
-const MAX_AGENT_COUNT = 1000
+const AGENT_COUNT = 10000
 
 // =============================================================================
 // Entry point
 // =============================================================================
-
-function getAgentCount(): number {
-	const requestedCount = process.argv[2]
-		? parseInt(process.argv[2], 10)
-		: DEFAULT_AGENT_COUNT
-	return Number.isFinite(requestedCount) && requestedCount > 0
-		? Math.min(requestedCount, MAX_AGENT_COUNT)
-		: DEFAULT_AGENT_COUNT
-}
 
 async function main() {
 	try {
@@ -30,8 +20,7 @@ async function main() {
 			process.exit(1)
 		}
 
-		const count = getAgentCount()
-		await seedAgents(count)
+		await seedAgents(AGENT_COUNT)
 	} catch (error) {
 		console.error('Seed failed:', error)
 		process.exit(1)
