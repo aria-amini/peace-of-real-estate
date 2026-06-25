@@ -1,23 +1,21 @@
 import { HouseLineIcon } from '@phosphor-icons/react'
-import { Check } from 'lucide-react'
+import { ArrowRight, Banknote, House } from 'lucide-react'
 import { useState } from 'react'
 
+import { FieldSection } from '@/components/signup/field-section'
 import { AnimatedStepCard } from '@/components/signup/shared'
+import { SelectionCard } from '@/components/signup/selection-card'
 import { StepHeader } from '@/components/signup/step-header'
 import { PriceInput } from '@/components/signup/price-range'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils/ui'
 import type { ConsumerDraft } from '@/lib/matching/profile'
 import {
-	DEFAULT_PRICE_RANGE,
-	formatPriceCompact,
 	formatPriceRange,
 	parsePriceRange,
 	PRICE_MAX,
 	PRICE_MIN,
-	PRICE_STEP,
 	serializePriceRange,
 } from '@/components/signup/price-range'
 import { propertyTypeOptions } from '@/components/signup/questions'
@@ -56,10 +54,19 @@ export function ConsumerHome({
 		onContinue()
 	}
 
+	const priceLabel =
+		state.intent === 'selling' ? 'Estimated value' : 'Target price'
+
+	const selectedCountBadge = propertyComplete ? (
+		<span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap">
+			{propertyTypes.length} selected
+		</span>
+	) : null
+
 	return (
 		<AnimatedStepCard stepKey="home" direction={direction}>
 			<Card size="sm" className="shadow-sm">
-				<CardContent className="space-y-6">
+				<CardContent className="space-y-8">
 					<StepHeader
 						stepNumber={3}
 						totalSteps={4}
@@ -67,17 +74,30 @@ export function ConsumerHome({
 						icon={HouseLineIcon}
 					/>
 
-					<div className="grid gap-6 md:grid-cols-[1fr_1.5fr]">
-						<div className="space-y-3">
-							<p className="text-sm font-semibold">Home type</p>
-							<div className="flex flex-col gap-2">
+					<div className="space-y-8">
+						<FieldSection
+							title="Home type"
+							description="Select all that apply."
+							icon={House}
+							action={selectedCountBadge}
+						>
+							<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
 								{consumerConfig.propertyOptions.map((option) => {
 									const isSelected = propertyTypes.includes(option)
 									const PropertyIcon = getPropertyIcon(option)
 									return (
-										<button
+										<SelectionCard
 											key={option}
-											type="button"
+											icon={PropertyIcon}
+											title={
+												propertyTypeOptions[
+													option as keyof typeof propertyTypeOptions
+												]
+											}
+											selected={isSelected}
+											variant="solid"
+											layout="vertical"
+											indicator="none"
 											onClick={() => {
 												setPropertyTypes((prev) =>
 													prev.includes(option)
@@ -85,126 +105,66 @@ export function ConsumerHome({
 														: [...prev, option],
 												)
 											}}
-											className={cn(
-												'group flex items-center gap-3 rounded-full border px-4 py-3 text-left text-sm font-semibold transition',
-												isSelected
-													? 'border-primary/55 bg-primary/[0.06] text-foreground shadow-sm'
-													: 'border-border/80 bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground hover:shadow-sm',
-											)}
-											aria-pressed={isSelected}
-										>
-											<span
-												className={cn(
-													'flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
-													isSelected
-														? 'border-primary bg-transparent'
-														: 'border-muted-foreground/30 bg-muted/30 group-hover:border-primary/50',
-												)}
-											>
-												{isSelected ? (
-													<Check className="text-primary h-3 w-3" />
-												) : null}
-											</span>
-											<PropertyIcon
-												className="h-5 w-5 shrink-0"
-												weight="duotone"
-											/>
-											{
-												propertyTypeOptions[
-													option as keyof typeof propertyTypeOptions
-												]
-											}
-										</button>
+										/>
 									)
 								})}
 							</div>
-						</div>
+						</FieldSection>
 
-						<div className="space-y-5">
-							<div className="flex items-center justify-between gap-3">
-								<p className="text-sm font-semibold">
-									{state.intent === 'selling'
-										? 'Estimated value'
-										: 'Target price'}
-								</p>
-								<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap">
-									{formatPriceRange(priceRange)}
-								</span>
-							</div>
-
-							<div className="grid grid-cols-2 gap-3">
-								<PriceInput
-									id="price-min"
-									label="Low"
-									value={priceRange.min}
-									onChange={(nextMin) =>
-										setPriceRange((current) => ({
-											...current,
-											min: Math.min(nextMin, current.max),
-										}))
-									}
-								/>
-								<PriceInput
-									id="price-max"
-									label="High"
-									value={priceRange.max}
-									onChange={(nextMax) =>
-										setPriceRange((current) => ({
-											...current,
-											max: Math.max(nextMax, current.min),
-										}))
-									}
-								/>
-							</div>
-
-							<Slider
-								value={[priceRange.min, priceRange.max]}
-								min={PRICE_MIN}
-								max={PRICE_MAX}
-								step={PRICE_STEP}
-								onValueChange={([nextMin, nextMax]) => {
-									setPriceRange({
-										min: nextMin ?? DEFAULT_PRICE_RANGE.min,
-										max: nextMax ?? DEFAULT_PRICE_RANGE.max,
-									})
-								}}
-							/>
-							<div className="relative h-4">
-								{[0, 500_000, 1_000_000, 1_500_000, 2_000_000].map((value) => {
-									const percent = (value / PRICE_MAX) * 100
-									return (
-										<div
-											key={value}
-											className="absolute top-0 flex -translate-x-1/2 flex-col items-center gap-0.5"
-											style={{ left: `${percent}%` }}
-										>
-											<span className="bg-muted-foreground/30 h-1 w-px rounded-full" />
-											<span className="text-muted-foreground text-[10px] font-medium">
-												{formatPriceCompact(value)}
-											</span>
-										</div>
-									)
-								})}
-							</div>
+						<div className="bg-muted/30 border-border/60 rounded-2xl border p-5">
+							<FieldSection
+								title={priceLabel}
+								description="Set your minimum and maximum."
+								icon={Banknote}
+								action={
+									<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap">
+										{formatPriceRange(priceRange)}
+									</span>
+								}
+							>
+								<div className="grid grid-cols-2 gap-3">
+									<PriceInput
+										id="price-min"
+										label="Low"
+										value={priceRange.min}
+										onChange={(nextMin) =>
+											setPriceRange((current) => ({
+												...current,
+												min: Math.min(nextMin, current.max),
+											}))
+										}
+									/>
+									<PriceInput
+										id="price-max"
+										label="High"
+										value={priceRange.max}
+										onChange={(nextMax) =>
+											setPriceRange((current) => ({
+												...current,
+												max: Math.max(nextMax, current.min),
+											}))
+										}
+									/>
+								</div>
+							</FieldSection>
 						</div>
 					</div>
 
-					<div className="border-t pt-4">
-						<div className="flex justify-center">
-							<Button
-								onClick={handleContinue}
-								disabled={!canContinue}
-								size="lg"
-								className={cn(
-									'rounded-xl px-8 transition-all duration-300',
-									canContinue
-										? 'shadow-md hover:shadow-lg'
-										: 'bg-muted text-muted-foreground',
-								)}
-							>
-								Continue
-							</Button>
-						</div>
+					<div>
+						<Button
+							onClick={handleContinue}
+							disabled={!canContinue}
+							size="lg"
+							className={cn(
+								'w-full gap-2 rounded-4xl px-8 py-6 text-base transition-all duration-300',
+								canContinue
+									? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg'
+									: 'bg-muted text-muted-foreground',
+							)}
+						>
+							Continue
+							<ArrowRight className="h-5 w-5" />
+						</Button>
 					</div>
 				</CardContent>
 			</Card>

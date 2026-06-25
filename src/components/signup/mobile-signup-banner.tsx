@@ -19,14 +19,12 @@ type MobileSignupBannerProps<TData> = SignupFormProps<TData> & {
 	title: string
 	subtitle: string
 	ctaLabel?: string
-	googleLabel?: string
 }
 
 export function MobileSignupBanner<TData>({
 	title,
 	subtitle,
 	ctaLabel = 'Create account',
-	googleLabel = 'Google',
 	...signupFormProps
 }: MobileSignupBannerProps<TData>) {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
@@ -94,7 +92,7 @@ export function MobileSignupBanner<TData>({
 							) : (
 								<GoogleIcon className="mr-2 h-5 w-5" />
 							)}
-							{googleLabel}
+							Google
 						</Button>
 					</div>
 				</div>

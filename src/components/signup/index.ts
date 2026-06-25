@@ -19,4 +19,4 @@ export {
 	PRICE_STEP,
 	serializePriceRange,
 } from './price-range'
-export { QuestionFlow } from './question-flow'
+export { ConsumerQuestionFlow } from './question-flow'

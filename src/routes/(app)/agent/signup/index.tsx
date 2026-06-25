@@ -8,7 +8,6 @@ import { LeaveDialog } from '@/components/signup/leave-dialog'
 import { getCurrentSession } from '@/lib/auth/functions'
 import {
 	agentProfileCreateSchema,
-	type AgentProfile,
 	type AgentDraft,
 	loadAgentProfile,
 } from '@/lib/matching/profile'
@@ -130,9 +129,7 @@ function AgentSignupRoute() {
 
 	if (step === 'preview') {
 		const parsed = agentProfileCreateSchema.safeParse(state)
-		const profile = parsed.success
-			? draftToPreviewProfile(parsed.data as AgentProfile)
-			: draftToPreviewProfile(state as AgentProfile)
+		const profile = draftToPreviewProfile(parsed.success ? parsed.data : state)
 		return (
 			<>
 				<AgentPreview profile={profile} />

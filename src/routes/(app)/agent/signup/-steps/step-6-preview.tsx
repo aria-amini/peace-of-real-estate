@@ -11,13 +11,18 @@ import {
 	Zap,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { z } from 'zod'
 
 import { AgentPreviewCard } from '@/components/match/card'
 import { MobileSignupBanner } from '@/components/signup/mobile-signup-banner'
 import { SignupForm } from '@/components/signup/signup-form'
 import { Card } from '@/components/ui/card'
 import { consumerMatches } from '@/routes/(app)/consumer/signup/-steps/mock-matches'
-import { completeAgentSignup } from '@/lib/matching/profile'
+import {
+	agentProfileCreateSchema,
+	completeAgentSignup,
+} from '@/lib/matching/profile'
+import type { AgentDraft } from '@/lib/matching/profile'
 import { createLocalStorage } from '@/lib/utils/localstorage'
 import { bestClientTypeLabels } from '@/components/signup/questions'
 import {
@@ -25,21 +30,21 @@ import {
 	parsePriceRange,
 } from '@/components/signup/price-range'
 import { useIsBelowDesktop } from '@/hooks/use-is-below-desktop'
-import type { AgentProfile, AgentDraft } from '@/lib/matching/profile'
 
 const agentDraftStorage = createLocalStorage<AgentDraft>('pre-agent-draft')
 
-export function draftToPreviewProfile(draft: AgentProfile): AgentProfile {
-	return {
-		...draft,
-		id: 'preview',
-		userId: 'preview',
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	}
+const agentPreviewProfileSchema = agentProfileCreateSchema.partial().extend({
+	zipCodes: z.array(z.string()).default([]),
+	bestClientTypes: z.array(z.string()).default([]),
+})
+
+export type AgentPreviewProfile = z.infer<typeof agentPreviewProfileSchema>
+
+export function draftToPreviewProfile(draft: AgentDraft): AgentPreviewProfile {
+	return agentPreviewProfileSchema.parse(draft)
 }
 
-export function AgentPreview({ profile }: { profile: AgentProfile }) {
+export function AgentPreview({ profile }: { profile: AgentPreviewProfile }) {
 	const showMobileSignup = useIsBelowDesktop()
 
 	return (
@@ -82,10 +87,8 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 							redirect="/agent/dashboard"
 							createProfile={completeAgentSignup}
 							loadDraft={agentDraftStorage.load}
+							clearDraft={agentDraftStorage.clear}
 							submitLabel="Activate profile"
-							namePlaceholder="Jane Doe"
-							emailPlaceholder="jane@example.com"
-							passwordPlaceholder="Create a password"
 							showTerms={false}
 						/>
 					</div>
@@ -120,10 +123,8 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 					redirect="/agent/dashboard"
 					createProfile={completeAgentSignup}
 					loadDraft={agentDraftStorage.load}
+					clearDraft={agentDraftStorage.clear}
 					submitLabel="Activate profile"
-					namePlaceholder="Jane Doe"
-					emailPlaceholder="jane@example.com"
-					passwordPlaceholder="Create a password"
 					showTerms={false}
 				/>
 			) : null}
@@ -152,7 +153,7 @@ function statIcon(label: string) {
 	return Zap
 }
 
-function getProfileStats(profile: AgentProfile) {
+function getProfileStats(profile: AgentPreviewProfile) {
 	const stats: { label: string; value: string }[] = []
 
 	if (profile.typicalPriceRange) {
@@ -226,7 +227,7 @@ function getProfileStats(profile: AgentProfile) {
 	return stats
 }
 
-function AgentProfileCard({ profile }: { profile: AgentProfile }) {
+function AgentProfileCard({ profile }: { profile: AgentPreviewProfile }) {
 	const summaryItems = getProfileStats(profile)
 	const fullName = [profile.firstName, profile.lastName]
 		.filter(Boolean)

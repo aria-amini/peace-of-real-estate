@@ -1,8 +1,10 @@
-import { ClockIcon } from '@phosphor-icons/react'
+import { CalendarBlankIcon, ClockIcon } from '@phosphor-icons/react'
 import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 
 import { AnimatedStepCard } from '@/components/signup/shared'
+import { FieldSection } from '@/components/signup/field-section'
+import { SelectionCard } from '@/components/signup/selection-card'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
@@ -58,7 +60,7 @@ export function ConsumerSituation({
 	return (
 		<AnimatedStepCard stepKey="intro" direction={direction}>
 			<Card size="sm" className="shadow-sm">
-				<CardContent className="space-y-6">
+				<CardContent className="space-y-8">
 					<StepHeader
 						stepNumber={1}
 						totalSteps={4}
@@ -66,80 +68,61 @@ export function ConsumerSituation({
 						icon={ClockIcon}
 					/>
 
-					<div className="space-y-5">
-						<div className="space-y-3">
-							<h3 className="font-heading text-base font-semibold tracking-tight">
-								Your move
-							</h3>
-
-							<div className="grid gap-3 sm:grid-cols-3">
+					<div className="space-y-8">
+						<FieldSection
+							title="Your move"
+							description="Choose how you want to use the property."
+							icon={ClockIcon}
+						>
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
 								{consumerConfig.intentOptions.map((option) => {
 									const isSelected = intent === option
 									const IntentIcon = getIntentIcon(option)
 									const label = getIntentLabel(option)
 
 									return (
-										<button
+										<SelectionCard
 											key={option}
-											type="button"
+											icon={IntentIcon}
+											title={label}
+											selected={isSelected}
+											variant="solid"
+											layout="vertical"
 											onClick={() => setIntent(option)}
-											className={cn(
-												'group flex items-center gap-3 rounded-full border px-5 py-3 text-left text-base font-semibold transition',
-												isSelected
-													? 'border-primary bg-primary text-primary-foreground shadow-sm'
-													: 'border-border bg-card text-foreground hover:border-primary/50 hover:bg-background',
-											)}
-											aria-pressed={isSelected}
-										>
-											<IntentIcon
-												className={cn(
-													'h-5 w-5 shrink-0',
-													isSelected
-														? 'text-primary-foreground'
-														: 'text-muted-foreground',
-												)}
-												weight="duotone"
-											/>
-											<span className="min-w-0 truncate">{label}</span>
-										</button>
+										/>
 									)
 								})}
 							</div>
-						</div>
+						</FieldSection>
 
-						<div className="space-y-4">
-							<h3 className="font-heading text-base font-semibold tracking-tight">
-								Timeline
-							</h3>
-							<div className="flex flex-wrap gap-4">
-								<label className="flex cursor-pointer items-center gap-2">
-									<input
-										type="radio"
-										name="timeline-mode"
-										checked={!hasDeadline}
-										onChange={() => setHasDeadline(false)}
-										className="border-border text-primary focus:ring-ring h-4 w-4"
-									/>
-									<span className="text-sm font-semibold">Just exploring</span>
-								</label>
-								<label className="flex cursor-pointer items-center gap-2">
-									<input
-										type="radio"
-										name="timeline-mode"
-										checked={hasDeadline}
-										onChange={() => setHasDeadline(true)}
-										className="border-border text-primary focus:ring-ring h-4 w-4"
-									/>
-									<span className="text-sm font-semibold">
-										I have a deadline
-									</span>
-								</label>
+						<FieldSection
+							title="Timeline"
+							description="Let agents know how urgent your search is."
+							icon={CalendarBlankIcon}
+						>
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+								<SelectionCard
+									icon={ClockIcon}
+									title="Just exploring"
+									description="No firm timeline yet."
+									selected={!hasDeadline}
+									variant="subtle"
+									onClick={() => setHasDeadline(false)}
+								/>
+								<SelectionCard
+									icon={CalendarBlankIcon}
+									title="I have a deadline"
+									description="Select when you need to move."
+									selected={hasDeadline}
+									variant="subtle"
+									onClick={() => setHasDeadline(true)}
+								/>
 							</div>
 
 							<div
 								className={cn(
-									'space-y-3 transition-opacity',
-									hasDeadline ? 'opacity-100' : 'hidden',
+									'space-y-3 overflow-hidden transition-all duration-300',
+									hasDeadline ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0',
 								)}
 							>
 								<div className="flex items-center justify-between">
@@ -180,7 +163,7 @@ export function ConsumerSituation({
 									</span>
 								</div>
 							</div>
-						</div>
+						</FieldSection>
 					</div>
 
 					<div>
