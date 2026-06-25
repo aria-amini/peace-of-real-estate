@@ -1,3 +1,13 @@
+import { config } from 'dotenv'
+
+const environmentName =
+	process.env.APP_ENV === 'staging' ? 'staging' : 'development'
+
+config({
+	path: [`.env.${environmentName}.local`, `.env.${environmentName}`],
+	override: true,
+})
+
 import { serverEnv as env } from '../src/env.server'
 import { seedAgents } from './seeds/agents'
 
