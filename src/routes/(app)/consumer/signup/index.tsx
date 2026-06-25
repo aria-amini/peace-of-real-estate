@@ -18,13 +18,13 @@ import {
 	ConsumerQuiz,
 	ConsumerSituation,
 } from './-steps'
-import { ConsumerPreview, draftToPreviewProfile } from './-steps/preview'
+import { ConsumerPreview, draftToPreviewProfile } from './-steps/step-5-preview'
 import {
 	consumerFlowSteps,
 	stepOrder,
 	type ConsumerFlowStep,
 } from './-steps/shared'
-import { isConsumerQuizComplete } from './-steps/intake-quiz'
+import { isConsumerQuizComplete } from './-steps/step-4-quiz'
 
 const signupSearchSchema = z.object({
 	step: z

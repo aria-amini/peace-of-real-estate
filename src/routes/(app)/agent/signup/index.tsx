@@ -20,7 +20,7 @@ import {
 	AgentPeacePact,
 	AgentWelcome,
 } from './-steps'
-import { AgentPreview, draftToPreviewProfile } from './-steps/preview'
+import { AgentPreview, draftToPreviewProfile } from './-steps/step-6-preview'
 import { agentFlowSteps, stepOrder, type AgentFlowStep } from './-steps/shared'
 
 const signupSearchSchema = z.object({

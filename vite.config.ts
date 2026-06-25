@@ -102,7 +102,7 @@ export default defineConfig({
 	},
 	plugins: [
 		tanstackStart({
-			router: { routeFileIgnorePattern: '(__tests__|\\.test\\.tsx$)' },
+			router: { routeFileIgnorePattern: '(\\.test\\.tsx$|__screenshots__)' },
 		}),
 		...(process.env.VITEST === 'true'
 			? []
