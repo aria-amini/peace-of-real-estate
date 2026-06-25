@@ -15,11 +15,8 @@ export type SignupFormProps<TData = unknown> = {
 	redirect: string
 	createProfile: (payload: { data: TData }) => Promise<unknown>
 	loadDraft: () => TData | null
-	clearDraft?: () => void
+	clearDraft: () => void
 	submitLabel?: string
-	namePlaceholder?: string
-	emailPlaceholder?: string
-	passwordPlaceholder?: string
 	showTerms?: boolean
 }
 
@@ -30,9 +27,6 @@ export function SignupForm<TData>({
 	loadDraft,
 	clearDraft,
 	submitLabel = 'Create my account',
-	namePlaceholder = 'Jordan Lee',
-	emailPlaceholder = 'you@example.com',
-	passwordPlaceholder = 'Choose a password',
 	showTerms = true,
 }: SignupFormProps<TData>) {
 	const navigate = useNavigate()
@@ -68,7 +62,7 @@ export function SignupForm<TData>({
 			const draft = loadDraft()
 			if (draft) {
 				await createProfile({ data: draft })
-				clearDraft?.()
+				clearDraft()
 			}
 
 			await navigate({ to: redirect })
@@ -98,7 +92,7 @@ export function SignupForm<TData>({
 							<User className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-white/50" />
 							<Input
 								id={nameId}
-								placeholder={namePlaceholder}
+								placeholder="Jordan Lee"
 								value={name}
 								onChange={(event) => setName(event.target.value)}
 								disabled={isSubmitting || isGoogleLoading}
@@ -119,7 +113,7 @@ export function SignupForm<TData>({
 							<Input
 								id={emailId}
 								type="email"
-								placeholder={emailPlaceholder}
+								placeholder="you@example.com"
 								value={email}
 								onChange={(event) => setEmail(event.target.value)}
 								disabled={isSubmitting || isGoogleLoading}
@@ -141,7 +135,7 @@ export function SignupForm<TData>({
 							<Input
 								id={passwordId}
 								type="password"
-								placeholder={passwordPlaceholder}
+								placeholder="Choose a password"
 								value={password}
 								onChange={(event) => setPassword(event.target.value)}
 								disabled={isSubmitting || isGoogleLoading}

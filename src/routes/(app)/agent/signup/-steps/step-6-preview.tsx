@@ -82,10 +82,8 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 							redirect="/agent/dashboard"
 							createProfile={completeAgentSignup}
 							loadDraft={agentDraftStorage.load}
+							clearDraft={agentDraftStorage.clear}
 							submitLabel="Activate profile"
-							namePlaceholder="Jane Doe"
-							emailPlaceholder="jane@example.com"
-							passwordPlaceholder="Create a password"
 							showTerms={false}
 						/>
 					</div>
@@ -120,10 +118,8 @@ export function AgentPreview({ profile }: { profile: AgentProfile }) {
 					redirect="/agent/dashboard"
 					createProfile={completeAgentSignup}
 					loadDraft={agentDraftStorage.load}
+					clearDraft={agentDraftStorage.clear}
 					submitLabel="Activate profile"
-					namePlaceholder="Jane Doe"
-					emailPlaceholder="jane@example.com"
-					passwordPlaceholder="Create a password"
 					showTerms={false}
 				/>
 			) : null}
