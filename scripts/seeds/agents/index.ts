@@ -134,11 +134,12 @@ export async function seedAgents(count: number) {
 
 	await clearFakeData()
 
-	console.log(`Seeding ${count} agents with randomized profiles...`)
+	console.log(`Seeding ${count} agents in Baltimore...`)
+
+	const baltimore = CITIES.find((city) => city.city === 'Baltimore')!
 
 	for (let i = 0; i < count; i++) {
-		const location = pick(CITIES)
-		await insertAgent(location, now)
+		await insertAgent(baltimore, now)
 
 		if ((i + 1) % 50 === 0 || i === count - 1) {
 			console.log(`  ${i + 1}/${count} agents seeded`)

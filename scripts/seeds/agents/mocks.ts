@@ -364,6 +364,11 @@ export const CITIES = [
 		state: 'DC',
 		zips: ['20001', '20002', '20003', '20004', '20005'],
 	},
+	{
+		city: 'Baltimore',
+		state: 'MD',
+		zips: ['21201', '21202', '21205', '21206', '21207'],
+	},
 ] as const
 
 export const STREETS = [
