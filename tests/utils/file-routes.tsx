@@ -36,7 +36,7 @@ type Viewport = {
 }
 
 const desktopViewport: Viewport = { width: 1440, height: 900 }
-const protectedPaths = new Set<string>(['/consumer/dashboard/matches'])
+const protectedPathPrefixes = ['/agent/dashboard', '/consumer/dashboard']
 
 const testSession = {
 	user: {
@@ -61,7 +61,10 @@ function getScreenshotName(options: RouteTestOptions) {
 }
 
 function setRouteSession(path: string) {
-	setMockSession(protectedPaths.has(path) ? testSession : null)
+	const needsSession = protectedPathPrefixes.some((prefix) =>
+		path.startsWith(prefix),
+	)
+	setMockSession(needsSession ? testSession : null)
 }
 
 async function waitForImages() {

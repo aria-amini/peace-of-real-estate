@@ -4,9 +4,9 @@ import { test } from '@tests/__fixtures__/browser'
 
 import { expectRouteScreenshot } from '@tests/utils/file-routes'
 
-test('consumer dashboard account page matches desktop screenshot', async () => {
+test('consumer search preferences page matches desktop screenshot', async () => {
 	await expectRouteScreenshot({
-		path: '/consumer/dashboard/',
-		name: 'consumer-dashboard',
+		path: '/consumer/dashboard/search-preferences',
+		name: 'consumer-search-preferences',
 	})
 })

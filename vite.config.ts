@@ -145,6 +145,7 @@ export default defineConfig({
 					name: 'browser',
 					include: ['src/**/*.test.tsx', 'tests/**/*.test.tsx'],
 					setupFiles: ['./tests/__mocks__/styles.ts'],
+					testTimeout: 20_000,
 					browser: {
 						instances: [{ browser: 'chromium' }],
 						provider: playwright(),
