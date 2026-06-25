@@ -142,7 +142,7 @@ export function CityZipSelector({
 
 	return (
 		<div className="space-y-3">
-			<StepLabel complete={marketComplete}>{label}</StepLabel>
+			{label ? <StepLabel complete={marketComplete}>{label}</StepLabel> : null}
 			<Popover
 				open={locationOpen}
 				onOpenChange={(open) => {

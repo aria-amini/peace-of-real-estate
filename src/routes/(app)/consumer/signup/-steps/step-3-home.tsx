@@ -2,7 +2,9 @@ import { HouseLineIcon } from '@phosphor-icons/react'
 import { ArrowRight, Banknote, House } from 'lucide-react'
 import { useState } from 'react'
 
+import { FieldSection } from '@/components/signup/field-section'
 import { AnimatedStepCard } from '@/components/signup/shared'
+import { SelectionCard } from '@/components/signup/selection-card'
 import { StepHeader } from '@/components/signup/step-header'
 import { PriceInput } from '@/components/signup/price-range'
 import { Button } from '@/components/ui/button'
@@ -55,6 +57,12 @@ export function ConsumerHome({
 	const priceLabel =
 		state.intent === 'selling' ? 'Estimated value' : 'Target price'
 
+	const selectedCountBadge = propertyComplete ? (
+		<span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap">
+			{propertyTypes.length} selected
+		</span>
+	) : null
+
 	return (
 		<AnimatedStepCard stepKey="home" direction={direction}>
 			<Card size="sm" className="shadow-sm">
@@ -67,31 +75,29 @@ export function ConsumerHome({
 					/>
 
 					<div className="space-y-8">
-						<div className="space-y-4">
-							<div className="flex items-start justify-between gap-3">
-								<div>
-									<h3 className="font-heading flex items-center gap-2 text-base font-semibold tracking-tight">
-										<House className="text-muted-foreground h-4 w-4" />
-										Home type
-									</h3>
-									<p className="text-muted-foreground mt-0.5 text-sm">
-										Select all that apply.
-									</p>
-								</div>
-								{propertyComplete ? (
-									<span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap">
-										{propertyTypes.length} selected
-									</span>
-								) : null}
-							</div>
+						<FieldSection
+							title="Home type"
+							description="Select all that apply."
+							icon={House}
+							action={selectedCountBadge}
+						>
 							<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
 								{consumerConfig.propertyOptions.map((option) => {
 									const isSelected = propertyTypes.includes(option)
 									const PropertyIcon = getPropertyIcon(option)
 									return (
-										<button
+										<SelectionCard
 											key={option}
-											type="button"
+											icon={PropertyIcon}
+											title={
+												propertyTypeOptions[
+													option as keyof typeof propertyTypeOptions
+												]
+											}
+											selected={isSelected}
+											variant="solid"
+											layout="vertical"
+											indicator="none"
 											onClick={() => {
 												setPropertyTypes((prev) =>
 													prev.includes(option)
@@ -99,76 +105,48 @@ export function ConsumerHome({
 														: [...prev, option],
 												)
 											}}
-											className={cn(
-												'group flex flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-4 text-center text-sm font-semibold transition',
-												isSelected
-													? 'border-primary bg-primary text-primary-foreground shadow-sm'
-													: 'border-border bg-card text-foreground hover:border-primary/50 hover:bg-background',
-											)}
-											aria-pressed={isSelected}
-										>
-											<PropertyIcon
-												className={cn(
-													'h-6 w-6 shrink-0',
-													isSelected
-														? 'text-primary-foreground'
-														: 'text-muted-foreground',
-												)}
-												weight="duotone"
-											/>
-											<span className="min-w-0">
-												{
-													propertyTypeOptions[
-														option as keyof typeof propertyTypeOptions
-													]
-												}
-											</span>
-										</button>
+										/>
 									)
 								})}
 							</div>
-						</div>
+						</FieldSection>
 
 						<div className="bg-muted/30 border-border/60 rounded-2xl border p-5">
-							<div className="mb-4 flex items-center justify-between gap-3">
-								<div>
-									<h3 className="font-heading flex items-center gap-2 text-base font-semibold tracking-tight">
-										<Banknote className="text-muted-foreground h-4 w-4" />
-										{priceLabel}
-									</h3>
-									<p className="text-muted-foreground mt-0.5 text-sm">
-										Set your minimum and maximum.
-									</p>
+							<FieldSection
+								title={priceLabel}
+								description="Set your minimum and maximum."
+								icon={Banknote}
+								action={
+									<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap">
+										{formatPriceRange(priceRange)}
+									</span>
+								}
+							>
+								<div className="grid grid-cols-2 gap-3">
+									<PriceInput
+										id="price-min"
+										label="Low"
+										value={priceRange.min}
+										onChange={(nextMin) =>
+											setPriceRange((current) => ({
+												...current,
+												min: Math.min(nextMin, current.max),
+											}))
+										}
+									/>
+									<PriceInput
+										id="price-max"
+										label="High"
+										value={priceRange.max}
+										onChange={(nextMax) =>
+											setPriceRange((current) => ({
+												...current,
+												max: Math.max(nextMax, current.min),
+											}))
+										}
+									/>
 								</div>
-								<span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap">
-									{formatPriceRange(priceRange)}
-								</span>
-							</div>
-
-							<div className="grid grid-cols-2 gap-3">
-								<PriceInput
-									id="price-min"
-									label="Low"
-									value={priceRange.min}
-									onChange={(nextMin) =>
-										setPriceRange((current) => ({
-											...current,
-											min: Math.min(nextMin, current.max),
-										}))
-									}
-								/>
-								<PriceInput
-									id="price-max"
-									label="High"
-									value={priceRange.max}
-									onChange={(nextMax) =>
-										setPriceRange((current) => ({
-											...current,
-											max: Math.max(nextMax, current.min),
-										}))
-									}
-								/>
-							</div>
+							</FieldSection>
 						</div>
 					</div>
 

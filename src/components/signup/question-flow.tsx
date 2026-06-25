@@ -14,7 +14,7 @@ import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { FlowPageShell } from '@/components/signup/step-shell'
-import { Button } from '@/components/ui/button'
+import { SelectionCard } from '@/components/signup/selection-card'
 import { Textarea } from '@/components/ui/textarea'
 import {
 	questionOptionEntries,
@@ -332,67 +332,47 @@ export function QuestionFlow({
 								damping: 25,
 							}}
 						>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => toggleOption(q.id, slug)}
+							<SelectionCard
+								title={renderOptionText(label)}
+								icon={OptionIcon ?? undefined}
+								media={
+									involvementLevel ? (
+										<motion.span
+											animate={isPopped ? { scale: 1.2 } : { scale: 1 }}
+											transition={{
+												type: 'spring',
+												stiffness: 600,
+												damping: 12,
+											}}
+											className="flex h-full w-full items-center justify-center"
+										>
+											<span className="flex items-end justify-center gap-0.5 pb-1.5">
+												{[1, 2, 3].map((bar) => (
+													<span
+														key={bar}
+														className={cn(
+															'w-1 rounded-full',
+															bar === 1 && 'h-2',
+															bar === 2 && 'h-3.5',
+															bar === 3 && 'h-5',
+															bar <= involvementLevel
+																? 'bg-current'
+																: 'bg-current/25',
+														)}
+													/>
+												))}
+											</span>
+										</motion.span>
+									) : undefined
+								}
+								selected={isSelected}
+								variant="subtle"
+								layout="horizontal"
+								indicator="none"
 								disabled={atLimit || ui.isTransitioning}
-								className={cn(
-									'group h-auto w-full justify-start gap-4 rounded-xl border p-5 text-left whitespace-normal transition-all duration-150 ease-out',
-									isSelected
-										? 'border-primary/60 bg-primary/[0.06] text-foreground shadow-sm'
-										: 'border-border bg-card hover:border-primary/50 hover:shadow-sm',
-									atLimit && 'opacity-50',
-								)}
-							>
-								<motion.div
-									animate={isPopped ? { scale: 1.2 } : { scale: 1 }}
-									transition={{
-										type: 'spring',
-										stiffness: 600,
-										damping: 12,
-									}}
-									className={cn(
-										'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-150',
-										isSelected
-											? 'border-primary/30 bg-primary/10 text-primary'
-											: 'border-muted-foreground/20 bg-muted/30 text-muted-foreground group-hover:border-primary/40 group-hover:text-primary',
-									)}
-								>
-									{involvementLevel ? (
-										<span className="flex items-end justify-center gap-0.5 pb-1.5">
-											{[1, 2, 3].map((bar) => (
-												<span
-													key={bar}
-													className={cn(
-														'w-1 rounded-full',
-														bar === 1 && 'h-2',
-														bar === 2 && 'h-3.5',
-														bar === 3 && 'h-5',
-														bar <= involvementLevel
-															? 'bg-current'
-															: 'bg-current/25',
-													)}
-												/>
-											))}
-										</span>
-									) : OptionIcon ? (
-										<OptionIcon className="h-5 w-5" />
-									) : (
-										<span
-											className={cn(
-												'h-3 w-3 rounded-full bg-primary transition-all duration-150',
-												isSelected
-													? 'scale-100 opacity-100'
-													: 'scale-0 opacity-0',
-											)}
-										/>
-									)}
-								</motion.div>
-								<span className="text-base leading-snug font-medium">
-									{renderOptionText(label)}
-								</span>
-							</Button>
+								onClick={() => toggleOption(q.id, slug)}
+								className="w-full"
+							/>
 						</motion.div>
 					)
 				})}

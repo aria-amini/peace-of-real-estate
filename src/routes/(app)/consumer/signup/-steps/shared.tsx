@@ -49,7 +49,7 @@ export const timelineOptions = [
 export const consumerConfig = {
 	basePath: '/consumer',
 	label: 'Consumer',
-	intentOptions: ['buying', 'selling', 'both'],
+	intentOptions: ['buying', 'selling'],
 	timelineOptions: [...timelineOptions],
 	propertyPrompt: 'What type of home are you looking for?',
 	propertyOptions: Object.keys(propertyTypeOptions),
