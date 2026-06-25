@@ -112,14 +112,14 @@ async function seedCityData() {
 // =============================================================================
 
 async function main() {
-	console.log('Initializing reference data...')
-	await seedCityData()
-	console.log('Initialization complete.')
-}
-
-main()
-	.then(() => process.exit(0))
-	.catch((error) => {
+	try {
+		console.log('Initializing reference data...')
+		await seedCityData()
+		console.log('Initialization complete.')
+	} catch (error) {
 		console.error('Initialization failed:', error)
 		process.exit(1)
-	})
+	}
+}
+
+void main()

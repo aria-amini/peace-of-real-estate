@@ -22,20 +22,20 @@ function getAgentCount(): number {
 }
 
 async function main() {
-	if (env.APP_ENV === 'production') {
-		console.error(
-			'Refusing to run seed in production. Use --force to override.',
-		)
+	try {
+		if (env.APP_ENV === 'production') {
+			console.error(
+				'Refusing to run seed in production. Use --force to override.',
+			)
+			process.exit(1)
+		}
+
+		const count = getAgentCount()
+		await seedAgents(count)
+	} catch (error) {
+		console.error('Seed failed:', error)
 		process.exit(1)
 	}
-
-	const count = getAgentCount()
-	await seedAgents(count)
 }
 
-main()
-	.then(() => process.exit(0))
-	.catch((err) => {
-		console.error('Seed failed:', err)
-		process.exit(1)
-	})
+void main()

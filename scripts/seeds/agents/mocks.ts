@@ -1,6 +1,4 @@
-// =============================================================================
-// Data pools
-// =============================================================================
+import type { WeightedOption } from './stats'
 
 export const FIRST_NAMES = [
 	'James',
@@ -420,43 +418,73 @@ export const TRANSACTION_LABELS: Record<number, string> = {
 	60: '50+ per year',
 }
 
+export const REPRESENTATION_SIDES: WeightedOption<
+	'buying' | 'selling' | 'both'
+>[] = [
+	{ value: 'both', weight: 50 },
+	{ value: 'buying', weight: 30 },
+	{ value: 'selling', weight: 20 },
+]
+
+export const PRICE_TIERS: WeightedOption<keyof typeof PRICE_BY_TIER>[] = [
+	{ value: 'entry', weight: 15 },
+	{ value: 'mid', weight: 35 },
+	{ value: 'premium', weight: 30 },
+	{ value: 'luxury', weight: 12 },
+	{ value: 'investor', weight: 8 },
+]
+
+export const CLIENT_TYPES = [
+	'First-time Buyers',
+	'Sellers',
+	'Relocation',
+	'Luxury',
+	'Investors',
+	'New Construction',
+	'Property Management',
+	'Seniors',
+	'Staging',
+	'Marketing',
+	'Land',
+	'Commercial',
+	'International',
+	'Military',
+	'Buyers',
+]
+
+export const EMPLOYMENT_STATUSES = [
+	'Salesperson',
+	'Realtor',
+	'Broker Associate',
+	'Associate Broker',
+	'Broker',
+	'Managing Broker',
+]
+
+export const EO_INSURANCE_STATUSES = [
+	'Active',
+	'Pending',
+	'Not required',
+] as const
+
+export const NOT_FIT_FOR = [
+	'I do not work with commercial properties or fix-and-flip investors.',
+	'I am not a good fit for clients seeking entry-level properties.',
+	'I do not handle luxury properties or estate sales.',
+	'I do not work with renters or short-term rentals.',
+	'I do not represent clients outside my licensed metro area.',
+	'I am not a good fit for clients who want daily updates.',
+	'I do not take listings under $200k.',
+	'I do not work with unrepresented buyers in dual-agency situations.',
+	// Leave some agents without a "not fit for" note to match the nullable column
+	null,
+	null,
+]
+
+export const BROKERAGE_POOLS = [
+	...LUXURY_BROKERAGES,
+	...MEGA_BROKERAGES,
+	...INDEPENDENT_BROKERAGES,
+]
+
 export type City = (typeof CITIES)[number]
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-export function pick<T>(arr: readonly T[]): T {
-	return arr[Math.floor(Math.random() * arr.length)]!
-}
-
-export function randInt(min: number, max: number): number {
-	return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-export function approxLabel(
-	map: Record<number, string>,
-	value: number,
-): string {
-	const keys = Object.keys(map)
-		.map(Number)
-		.sort((a, b) => a - b)
-	for (const k of keys) {
-		if (value <= k) return map[k]!
-	}
-	return map[keys[keys.length - 1]!]!
-}
-
-export function buildAddress(location: City): string {
-	const streetNum = randInt(100, 9999)
-	const street = pick(STREETS)
-	const zip = pick(location.zips)
-	return `${streetNum} ${street}, ${location.city}, ${location.state} ${zip}`
-}
-
-export function buildPhone(): string {
-	const area = String(randInt(200, 999))
-	const prefix = String(randInt(200, 999))
-	const line = String(randInt(1000, 9999))
-	return `(${area}) ${prefix}-${line}`
-}

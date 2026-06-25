@@ -1,4 +1,24 @@
-import { db } from '../../src/db/connection'
+import { approxLabel, buildAddress, buildPhone, pick, randInt } from './stats'
+import {
+	BROKERAGE_POOLS,
+	CITIES,
+	CLIENT_TYPES,
+	EMPLOYMENT_STATUSES,
+	EO_INSURANCE_STATUSES,
+	FIRST_NAMES,
+	LAST_NAMES,
+	NOT_FIT_FOR,
+	PRICE_BY_TIER,
+	PRICE_TIERS,
+	REPRESENTATION_SIDES,
+	TRANSACTION_LABELS,
+	YEARS_LABELS,
+	type City,
+} from './mocks'
+
+import { pickWeighted, sample } from './stats'
+
+import { db } from '../../../src/db/connection'
 import {
 	account,
 	agentProfiles,
@@ -6,116 +26,8 @@ import {
 	session,
 	user,
 	userEntitlements,
-} from '../../src/db/tables'
-import { uploadAgentAvatar } from './avatars'
-import {
-	approxLabel,
-	buildAddress,
-	buildPhone,
-	CITIES,
-	FIRST_NAMES,
-	INDEPENDENT_BROKERAGES,
-	LAST_NAMES,
-	LUXURY_BROKERAGES,
-	MEGA_BROKERAGES,
-	pick,
-	PRICE_BY_TIER,
-	randInt,
-	TRANSACTION_LABELS,
-	YEARS_LABELS,
-	type City,
-} from './utils'
-
-// =============================================================================
-// Weighted random helpers
-// =============================================================================
-
-type WeightedOption<T> = { value: T; weight: number }
-
-function pickWeighted<T>(options: readonly WeightedOption<T>[]): T {
-	const total = options.reduce((sum, option) => sum + option.weight, 0)
-	let random = Math.random() * total
-	for (const option of options) {
-		random -= option.weight
-		if (random <= 0) return option.value
-	}
-	return options[options.length - 1]!.value
-}
-
-function sample<T>(arr: readonly T[], count: number): T[] {
-	const shuffled = [...arr].sort(() => Math.random() - 0.5)
-	return shuffled.slice(0, count)
-}
-
-// =============================================================================
-// Randomized field pools
-// =============================================================================
-
-const REPRESENTATION_SIDES: WeightedOption<'buying' | 'selling' | 'both'>[] = [
-	{ value: 'both', weight: 50 },
-	{ value: 'buying', weight: 30 },
-	{ value: 'selling', weight: 20 },
-]
-
-const PRICE_TIERS: WeightedOption<keyof typeof PRICE_BY_TIER>[] = [
-	{ value: 'entry', weight: 15 },
-	{ value: 'mid', weight: 35 },
-	{ value: 'premium', weight: 30 },
-	{ value: 'luxury', weight: 12 },
-	{ value: 'investor', weight: 8 },
-]
-
-const CLIENT_TYPES = [
-	'First-time Buyers',
-	'Sellers',
-	'Relocation',
-	'Luxury',
-	'Investors',
-	'New Construction',
-	'Property Management',
-	'Seniors',
-	'Staging',
-	'Marketing',
-	'Land',
-	'Commercial',
-	'International',
-	'Military',
-	'Buyers',
-]
-
-const EMPLOYMENT_STATUSES = [
-	'Salesperson',
-	'Realtor',
-	'Broker Associate',
-	'Associate Broker',
-	'Broker',
-	'Managing Broker',
-]
-
-const EO_INSURANCE_STATUSES = ['Active', 'Pending', 'Not required'] as const
-
-const NOT_FIT_FOR = [
-	'I do not work with commercial properties or fix-and-flip investors.',
-	'I am not a good fit for clients seeking entry-level properties.',
-	'I do not handle luxury properties or estate sales.',
-	'I do not work with renters or short-term rentals.',
-	'I do not represent clients outside my licensed metro area.',
-	'I am not a good fit for clients who want daily updates.',
-	'I do not take listings under $200k.',
-	'I do not work with unrepresented buyers in dual-agency situations.',
-	null,
-	null,
-]
-
-const BROKERAGE_POOLS = [
-	...LUXURY_BROKERAGES,
-	...MEGA_BROKERAGES,
-	...INDEPENDENT_BROKERAGES,
-]
-
-// =============================================================================
-// Persona generation
-// =============================================================================
+} from '../../../src/db/tables'
+import { uploadAgentAvatar } from '../avatars'
 
 function generatePersona() {
 	const priceTier = pickWeighted(PRICE_TIERS)
@@ -136,10 +48,6 @@ function generatePersona() {
 		usePaxWriter: Math.random() < 0.8,
 	}
 }
-
-// =============================================================================
-// Agent seeding
-// =============================================================================
 
 async function clearFakeData() {
 	console.log('Clearing existing seed data...')
