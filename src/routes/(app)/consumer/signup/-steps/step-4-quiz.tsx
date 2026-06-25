@@ -1,11 +1,8 @@
 import { UserIcon } from '@phosphor-icons/react'
 import { useState } from 'react'
 
-import {
-	AnimatedStepCard,
-	StepProgressHeader,
-} from '@/components/signup/shared'
-import { QuestionFlow } from '@/components/signup/question-flow'
+import { AnimatedStepCard } from '@/components/signup/shared'
+import { ConsumerQuestionFlow } from '@/components/signup/question-flow'
 import {
 	questionOptionLabel,
 	consumerAnswerLabels,
@@ -15,6 +12,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import type { ConsumerDraft } from '@/lib/matching/profile'
 import { StepHeader } from '@/components/signup/step-header'
+import { StepProgressHeader } from '@/components/signup/shared'
 import type { ConsumerProfileUpdate } from '@/lib/matching/profile'
 
 const consumerQuizFields = [
@@ -75,12 +73,8 @@ export function ConsumerQuiz({
 						)}
 						showTitle={false}
 					/>
-					<QuestionFlow
+					<ConsumerQuestionFlow
 						questions={consumerQuestionList}
-						titleVisibility="sr-only"
-						mode="single-question"
-						title="Step 3: Your Match"
-						wrapper="wizard"
 						answers={answers}
 						currentQuestionIndex={currentQuestionIndex}
 						onAnswersChange={(nextAnswers) =>
@@ -88,9 +82,6 @@ export function ConsumerQuiz({
 						}
 						onQuestionIndexChange={setCurrentQuestionIndex}
 						onComplete={onComplete}
-						completeTo="/consumer/signup?step=preview"
-						completeLabel="Continue"
-						navigateOnComplete={false}
 					/>
 				</CardContent>
 			</Card>
