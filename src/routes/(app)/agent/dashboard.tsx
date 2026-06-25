@@ -1,4 +1,4 @@
-import { Home, MessageSquare, ShieldCheck, User } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 
 import {
 	DashboardShell,
@@ -8,17 +8,10 @@ import {
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 const agentItems: SidebarItem[] = [
-	{ label: 'Dashboard', icon: Home, href: '/agent/dashboard' },
 	{
 		label: 'Introductions',
 		icon: MessageSquare,
 		href: '/agent/dashboard/introductions',
-	},
-	{ label: 'Profile', icon: User, href: '/agent/dashboard/profile' },
-	{
-		label: 'Compliance',
-		icon: ShieldCheck,
-		href: '/agent/dashboard/compliance',
 	},
 ]
 
@@ -32,6 +25,7 @@ function AgentDashboardLayout() {
 			sidebar={
 				<DashboardSidebar
 					items={agentItems}
+					aiItems={[]}
 					profileLabel="Agent dashboard"
 					profileHint="Agent dashboard"
 				/>

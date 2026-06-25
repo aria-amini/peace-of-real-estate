@@ -47,7 +47,7 @@ export const Route = createFileRoute('/(app)/consumer/signup/')({
 			const profile = await loadConsumerProfile()
 
 			if (hasCompletedConsumerIntake(profile)) {
-				throw redirect({ to: '/consumer/dashboard' })
+				throw redirect({ to: '/consumer/dashboard/matches' })
 			}
 		}
 	},

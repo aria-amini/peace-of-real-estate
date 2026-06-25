@@ -1,6 +1,6 @@
 import { useState, type ElementType, type ReactNode } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { CheckCircle2, HelpCircle, LogOut, MessageSquare } from 'lucide-react'
+import { HelpCircle, LogOut, MessageSquare } from 'lucide-react'
 
 import { authClient } from '@/lib/auth/client'
 import { cn } from '@/lib/utils/ui'
@@ -74,12 +74,20 @@ export type DashboardSidebarProps = {
 	items: SidebarItem[]
 	profileLabel: string
 	profileHint?: string
+	aiItems?: SidebarItem[]
 }
 
 export function DashboardSidebar({
 	items,
 	profileLabel,
 	profileHint,
+	aiItems = [
+		{
+			label: 'Practice Negotiating',
+			icon: MessageSquare,
+			href: '/consumer/dashboard/practice-negotiating',
+		},
+	],
 }: DashboardSidebarProps) {
 	const router = useRouterState()
 	const currentPath = router.location.pathname
@@ -109,14 +117,6 @@ export function DashboardSidebar({
 	}
 
 	const homeHref = isAuthenticated ? '/consumer/dashboard' : '/login'
-
-	const aiItems: SidebarItem[] = [
-		{
-			label: 'Practice Negotiating',
-			icon: MessageSquare,
-			href: '/consumer/dashboard/practice-negotiating',
-		},
-	]
 
 	const renderItem = (item: SidebarItem) => {
 		const Icon = item.icon
@@ -213,17 +213,19 @@ export function DashboardSidebar({
 						</SidebarGroupContent>
 					</SidebarGroup>
 
-					<SidebarGroup>
-						<SidebarGroupLabel>
-							AI
-							<span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-sky-700 uppercase dark:bg-sky-950 dark:text-sky-300">
-								beta
-							</span>
-						</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>{aiItems.map(renderItem)}</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
+					{aiItems.length > 0 ? (
+						<SidebarGroup>
+							<SidebarGroupLabel>
+								AI
+								<span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-sky-700 uppercase dark:bg-sky-950 dark:text-sky-300">
+									beta
+								</span>
+							</SidebarGroupLabel>
+							<SidebarGroupContent>
+								<SidebarMenu>{aiItems.map(renderItem)}</SidebarMenu>
+							</SidebarGroupContent>
+						</SidebarGroup>
+					) : null}
 				</SidebarContent>
 
 				<SidebarFooter className="gap-3">
@@ -382,63 +384,6 @@ export function DashboardPageMobileNav({ label }: DashboardPageMobileNavProps) {
 	)
 }
 
-export type DashboardPageHeaderProps = {
-	icon: ElementType
-	eyebrow: string
-	title: string
-	description?: string
-	actions?: ReactNode
-}
-
-export function DashboardPageHeader({
-	icon: Icon,
-	eyebrow,
-	title,
-	description,
-	actions,
-}: DashboardPageHeaderProps) {
-	return (
-		<div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-			<div className="space-y-3">
-				<div className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-2xl">
-					<Icon className="size-5" />
-				</div>
-				<div>
-					<p className="text-muted-foreground text-sm font-medium">{eyebrow}</p>
-					<h1 className="font-heading text-3xl font-semibold tracking-tight">
-						{title}
-					</h1>
-					{description ? (
-						<p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">
-							{description}
-						</p>
-					) : null}
-				</div>
-			</div>
-			{actions ? (
-				<div className="flex items-center gap-3">{actions}</div>
-			) : null}
-		</div>
-	)
-}
-
 // ============================================================
 // Shared dashboard widgets
 // ============================================================
-
-export type StatusRowProps = {
-	label: string
-	value: string
-}
-
-export function StatusRow({ label, value }: StatusRowProps) {
-	return (
-		<div className="flex items-center justify-between rounded-xl border px-3 py-2.5">
-			<div className="flex items-center gap-2">
-				<CheckCircle2 className="text-muted-foreground size-4" />
-				<span>{label}</span>
-			</div>
-			<span className="font-semibold">{value}</span>
-		</div>
-	)
-}
