@@ -1,9 +1,9 @@
 [build]
 builder = "RAILPACK"
 buildCommand = "vp build"
-preDeployCommand = "vp run db:push && vp run db:init"
 
 [deploy]
+preDeployCommand = ["vp run db:push", "vp run db:init"]
 runtime = "V2"
 numReplicas = 1
 startCommand = "vp run start"
