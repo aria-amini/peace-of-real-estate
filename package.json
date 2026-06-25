@@ -27,7 +27,8 @@
 		"db:push": "drizzle-kit push",
 		"db:seed": "tsx scripts/seed-reference-data.ts",
 		"prepare": "vp config --hooks-only",
-		"update-pnpm": "corepack prepare pnpm@latest --activate"
+		"update-pnpm": "corepack prepare pnpm@latest --activate",
+		"knip": "knip"
 	},
 	"dependencies": {
 		"@ai-sdk/openai-compatible": "^2.0.51",
@@ -90,6 +91,7 @@
 		"drizzle-orm": "^0.45.2",
 		"drizzle-seed": "^0.3.1",
 		"drizzle-zod": "^0.8.3",
+		"knip": "^6.20.0",
 		"msw": "^2.14.6",
 		"pg": "^8.22.0",
 		"pg-copy-streams": "^7.0.0",
