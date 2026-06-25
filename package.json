@@ -23,9 +23,9 @@
 		"compose:up": "docker compose up -d --wait --remove-orphans postgres minio",
 		"compose:down": "docker compose down",
 		"compose:reset": "docker compose down --volumes --remove-orphans",
-		"db:populate": "tsx scripts/populate-db.ts",
+		"db:init": "tsx scripts/init.ts",
+		"db:seed": "tsx scripts/seed.ts",
 		"db:push": "drizzle-kit push",
-		"db:seed": "tsx scripts/seed-reference-data.ts",
 		"prepare": "vp config --hooks-only",
 		"update-pnpm": "corepack prepare pnpm@latest --activate",
 		"knip": "knip"

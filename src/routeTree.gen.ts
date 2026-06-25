@@ -27,9 +27,7 @@ import { Route as appConsumerDashboardSearchPreferencesRouteImport } from './rou
 import { Route as appConsumerDashboardPracticeNegotiatingRouteImport } from './routes/(app)/consumer/dashboard/practice-negotiating'
 import { Route as appConsumerDashboardMatchesRouteImport } from './routes/(app)/consumer/dashboard/matches'
 import { Route as appConsumerDashboardIntroductionsRouteImport } from './routes/(app)/consumer/dashboard/introductions'
-import { Route as appAgentDashboardValuePropositionRouteImport } from './routes/(app)/agent/dashboard/value-proposition'
 import { Route as appAgentDashboardSubscribeRouteImport } from './routes/(app)/agent/dashboard/subscribe'
-import { Route as appAgentDashboardProfileRouteImport } from './routes/(app)/agent/dashboard/profile'
 import { Route as appAgentDashboardPeacePactRouteImport } from './routes/(app)/agent/dashboard/peace-pact'
 import { Route as appAgentDashboardIntroductionsRouteImport } from './routes/(app)/agent/dashboard/introductions'
 import { Route as appAgentDashboardComplianceRouteImport } from './routes/(app)/agent/dashboard/compliance'
@@ -129,22 +127,10 @@ const appConsumerDashboardIntroductionsRoute =
     path: '/introductions',
     getParentRoute: () => appConsumerDashboardRoute,
   } as any)
-const appAgentDashboardValuePropositionRoute =
-  appAgentDashboardValuePropositionRouteImport.update({
-    id: '/value-proposition',
-    path: '/value-proposition',
-    getParentRoute: () => appAgentDashboardRoute,
-  } as any)
 const appAgentDashboardSubscribeRoute =
   appAgentDashboardSubscribeRouteImport.update({
     id: '/subscribe',
     path: '/subscribe',
-    getParentRoute: () => appAgentDashboardRoute,
-  } as any)
-const appAgentDashboardProfileRoute =
-  appAgentDashboardProfileRouteImport.update({
-    id: '/profile',
-    path: '/profile',
     getParentRoute: () => appAgentDashboardRoute,
   } as any)
 const appAgentDashboardPeacePactRoute =
@@ -179,9 +165,7 @@ export interface FileRoutesByFullPath {
   '/agent/dashboard/compliance': typeof appAgentDashboardComplianceRoute
   '/agent/dashboard/introductions': typeof appAgentDashboardIntroductionsRoute
   '/agent/dashboard/peace-pact': typeof appAgentDashboardPeacePactRoute
-  '/agent/dashboard/profile': typeof appAgentDashboardProfileRoute
   '/agent/dashboard/subscribe': typeof appAgentDashboardSubscribeRoute
-  '/agent/dashboard/value-proposition': typeof appAgentDashboardValuePropositionRoute
   '/consumer/dashboard/introductions': typeof appConsumerDashboardIntroductionsRoute
   '/consumer/dashboard/matches': typeof appConsumerDashboardMatchesRoute
   '/consumer/dashboard/practice-negotiating': typeof appConsumerDashboardPracticeNegotiatingRoute
@@ -203,9 +187,7 @@ export interface FileRoutesByTo {
   '/agent/dashboard/compliance': typeof appAgentDashboardComplianceRoute
   '/agent/dashboard/introductions': typeof appAgentDashboardIntroductionsRoute
   '/agent/dashboard/peace-pact': typeof appAgentDashboardPeacePactRoute
-  '/agent/dashboard/profile': typeof appAgentDashboardProfileRoute
   '/agent/dashboard/subscribe': typeof appAgentDashboardSubscribeRoute
-  '/agent/dashboard/value-proposition': typeof appAgentDashboardValuePropositionRoute
   '/consumer/dashboard/introductions': typeof appConsumerDashboardIntroductionsRoute
   '/consumer/dashboard/matches': typeof appConsumerDashboardMatchesRoute
   '/consumer/dashboard/practice-negotiating': typeof appConsumerDashboardPracticeNegotiatingRoute
@@ -230,9 +212,7 @@ export interface FileRoutesById {
   '/(app)/agent/dashboard/compliance': typeof appAgentDashboardComplianceRoute
   '/(app)/agent/dashboard/introductions': typeof appAgentDashboardIntroductionsRoute
   '/(app)/agent/dashboard/peace-pact': typeof appAgentDashboardPeacePactRoute
-  '/(app)/agent/dashboard/profile': typeof appAgentDashboardProfileRoute
   '/(app)/agent/dashboard/subscribe': typeof appAgentDashboardSubscribeRoute
-  '/(app)/agent/dashboard/value-proposition': typeof appAgentDashboardValuePropositionRoute
   '/(app)/consumer/dashboard/introductions': typeof appConsumerDashboardIntroductionsRoute
   '/(app)/consumer/dashboard/matches': typeof appConsumerDashboardMatchesRoute
   '/(app)/consumer/dashboard/practice-negotiating': typeof appConsumerDashboardPracticeNegotiatingRoute
@@ -258,9 +238,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/compliance'
     | '/agent/dashboard/introductions'
     | '/agent/dashboard/peace-pact'
-    | '/agent/dashboard/profile'
     | '/agent/dashboard/subscribe'
-    | '/agent/dashboard/value-proposition'
     | '/consumer/dashboard/introductions'
     | '/consumer/dashboard/matches'
     | '/consumer/dashboard/practice-negotiating'
@@ -282,9 +260,7 @@ export interface FileRouteTypes {
     | '/agent/dashboard/compliance'
     | '/agent/dashboard/introductions'
     | '/agent/dashboard/peace-pact'
-    | '/agent/dashboard/profile'
     | '/agent/dashboard/subscribe'
-    | '/agent/dashboard/value-proposition'
     | '/consumer/dashboard/introductions'
     | '/consumer/dashboard/matches'
     | '/consumer/dashboard/practice-negotiating'
@@ -308,9 +284,7 @@ export interface FileRouteTypes {
     | '/(app)/agent/dashboard/compliance'
     | '/(app)/agent/dashboard/introductions'
     | '/(app)/agent/dashboard/peace-pact'
-    | '/(app)/agent/dashboard/profile'
     | '/(app)/agent/dashboard/subscribe'
-    | '/(app)/agent/dashboard/value-proposition'
     | '/(app)/consumer/dashboard/introductions'
     | '/(app)/consumer/dashboard/matches'
     | '/(app)/consumer/dashboard/practice-negotiating'
@@ -465,25 +439,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appConsumerDashboardIntroductionsRouteImport
       parentRoute: typeof appConsumerDashboardRoute
     }
-    '/(app)/agent/dashboard/value-proposition': {
-      id: '/(app)/agent/dashboard/value-proposition'
-      path: '/value-proposition'
-      fullPath: '/agent/dashboard/value-proposition'
-      preLoaderRoute: typeof appAgentDashboardValuePropositionRouteImport
-      parentRoute: typeof appAgentDashboardRoute
-    }
     '/(app)/agent/dashboard/subscribe': {
       id: '/(app)/agent/dashboard/subscribe'
       path: '/subscribe'
       fullPath: '/agent/dashboard/subscribe'
       preLoaderRoute: typeof appAgentDashboardSubscribeRouteImport
-      parentRoute: typeof appAgentDashboardRoute
-    }
-    '/(app)/agent/dashboard/profile': {
-      id: '/(app)/agent/dashboard/profile'
-      path: '/profile'
-      fullPath: '/agent/dashboard/profile'
-      preLoaderRoute: typeof appAgentDashboardProfileRouteImport
       parentRoute: typeof appAgentDashboardRoute
     }
     '/(app)/agent/dashboard/peace-pact': {
@@ -514,9 +474,7 @@ interface appAgentDashboardRouteChildren {
   appAgentDashboardComplianceRoute: typeof appAgentDashboardComplianceRoute
   appAgentDashboardIntroductionsRoute: typeof appAgentDashboardIntroductionsRoute
   appAgentDashboardPeacePactRoute: typeof appAgentDashboardPeacePactRoute
-  appAgentDashboardProfileRoute: typeof appAgentDashboardProfileRoute
   appAgentDashboardSubscribeRoute: typeof appAgentDashboardSubscribeRoute
-  appAgentDashboardValuePropositionRoute: typeof appAgentDashboardValuePropositionRoute
   appAgentDashboardIndexRoute: typeof appAgentDashboardIndexRoute
 }
 
@@ -524,10 +482,7 @@ const appAgentDashboardRouteChildren: appAgentDashboardRouteChildren = {
   appAgentDashboardComplianceRoute: appAgentDashboardComplianceRoute,
   appAgentDashboardIntroductionsRoute: appAgentDashboardIntroductionsRoute,
   appAgentDashboardPeacePactRoute: appAgentDashboardPeacePactRoute,
-  appAgentDashboardProfileRoute: appAgentDashboardProfileRoute,
   appAgentDashboardSubscribeRoute: appAgentDashboardSubscribeRoute,
-  appAgentDashboardValuePropositionRoute:
-    appAgentDashboardValuePropositionRoute,
   appAgentDashboardIndexRoute: appAgentDashboardIndexRoute,
 }
 

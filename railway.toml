@@ -1,7 +1,7 @@
 [build]
 builder = "RAILPACK"
 buildCommand = "vp build"
-preDeployCommand = "vp run db:push && vp run db:seed"
+preDeployCommand = "vp run db:push && vp run db:init"
 
 [deploy]
 runtime = "V2"

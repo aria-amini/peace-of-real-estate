@@ -87,7 +87,7 @@ function AgentPeacePact() {
 			<div className="mt-10 flex justify-end">
 				{canSign ? (
 					<Button asChild>
-						<Link to="/agent/dashboard/value-proposition">
+						<Link to="/agent/dashboard/subscribe">
 							Sign & Activate
 							<ArrowRight className="h-4 w-4" />
 						</Link>

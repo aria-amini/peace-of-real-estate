@@ -2,7 +2,10 @@ import { db } from '../src/db/connection'
 import { cities, cityZips } from '../src/db/tables'
 import * as zipcodes from 'zipcodes'
 
-export async function seedCityData() {
+const BATCH_SIZE_CITIES = 1000
+const BATCH_SIZE_ZIPS = 2000
+
+async function seedCityData() {
 	const now = new Date()
 
 	console.log('Seeding cities and city_zips...')
@@ -75,29 +78,27 @@ export async function seedCityData() {
 		}
 	}
 
-	const CITY_BATCH = 1000
-	for (let i = 0; i < cityRows.length; i += CITY_BATCH) {
+	for (let i = 0; i < cityRows.length; i += BATCH_SIZE_CITIES) {
 		await db
 			.insert(cities)
-			.values(cityRows.slice(i, i + CITY_BATCH))
+			.values(cityRows.slice(i, i + BATCH_SIZE_CITIES))
 			.onConflictDoNothing({
 				target: [cities.city, cities.state],
 			})
 		console.log(
-			`  cities ${Math.min(i + CITY_BATCH, cityRows.length)}/${cityRows.length}`,
+			`  cities ${Math.min(i + BATCH_SIZE_CITIES, cityRows.length)}/${cityRows.length}`,
 		)
 	}
 
-	const ZIP_BATCH = 2000
-	for (let i = 0; i < zipRows.length; i += ZIP_BATCH) {
+	for (let i = 0; i < zipRows.length; i += BATCH_SIZE_ZIPS) {
 		await db
 			.insert(cityZips)
-			.values(zipRows.slice(i, i + ZIP_BATCH))
+			.values(zipRows.slice(i, i + BATCH_SIZE_ZIPS))
 			.onConflictDoNothing({
 				target: [cityZips.city, cityZips.state, cityZips.zip],
 			})
 		console.log(
-			`  city_zips ${Math.min(i + ZIP_BATCH, zipRows.length)}/${zipRows.length}`,
+			`  city_zips ${Math.min(i + BATCH_SIZE_ZIPS, zipRows.length)}/${zipRows.length}`,
 		)
 	}
 
@@ -106,11 +107,19 @@ export async function seedCityData() {
 	)
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-	seedCityData()
-		.then(() => process.exit(0))
-		.catch((error) => {
-			console.error('City seed failed:', error)
-			process.exit(1)
-		})
+// =============================================================================
+// Main
+// =============================================================================
+
+async function main() {
+	try {
+		console.log('Initializing reference data...')
+		await seedCityData()
+		console.log('Initialization complete.')
+	} catch (error) {
+		console.error('Initialization failed:', error)
+		process.exit(1)
+	}
 }
+
+void main()
