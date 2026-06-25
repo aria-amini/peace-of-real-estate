@@ -83,56 +83,6 @@ const CLIENT_TYPES = [
 	'Buyers',
 ]
 
-const DEAL_STRESS_STYLES = [
-	'Calm under pressure',
-	'Strategic negotiator',
-	'Transparent communicator',
-	'Detail-oriented analyst',
-	'Proactive problem solver',
-]
-
-const COMMUNICATION_CADENCES = ['Daily', 'Weekly', 'Bi-weekly', 'As needed']
-
-const QUICK_CONTACT_STYLES = ['Text message', 'Phone call', 'Email', 'Any']
-
-const UPDATE_DELIVERY_STYLES = [
-	'Email summary',
-	'In-person meetings',
-	'Dashboard access',
-	'Phone calls',
-	'Text updates',
-]
-
-const RESPONSE_TIMES = [
-	'Immediately',
-	'Within 1 hour',
-	'Within 2-4 hours',
-	'Same business day',
-	'Within 24 hours',
-]
-
-const DUAL_AGENCY_STYLES = [
-	'Full disclosure only',
-	'Avoid when possible',
-	'Permitted with consent',
-	'Case by case',
-	'Policy against it',
-]
-
-const ENERGY_STYLES = ['calm', 'energetic', 'balanced'] as const
-const TEACHING_STYLES = ['onRequest', 'proactive', 'minimal'] as const
-const DECISION_MAKING_STYLES = ['data', 'gut', 'collaborative'] as const
-const TRANSPARENCY_STYLES = ['upfront', 'diplomatic', 'asNeeded'] as const
-const CLIENT_BOUNDARY_STYLES = ['gentle', 'firm', 'adaptive'] as const
-const NEGOTIATION_ETHICS = ['winWin', 'aggressive', 'protective'] as const
-const SERVICE_DEPTHS = ['standard', 'premium', 'concierge'] as const
-const INVOLVEMENT_LEVELS = [
-	'keyDetails',
-	'deepInvolvement',
-	'handsOff',
-] as const
-const REPRESENTATION_PREFERENCES = ['exclusive', 'flexible', 'limited'] as const
-
 const EMPLOYMENT_STATUSES = [
 	'Salesperson',
 	'Realtor',
@@ -143,70 +93,6 @@ const EMPLOYMENT_STATUSES = [
 ]
 
 const EO_INSURANCE_STATUSES = ['Active', 'Pending', 'Not required'] as const
-
-const VALUE_PROPOSITIONS: Record<string, string> = {
-	entry:
-		'I specialize in helping first-time buyers and budget-conscious clients navigate the market with confidence and clarity.',
-	mid: 'I deliver reliable, full-service representation for everyday buyers and sellers in the heart of the market.',
-	premium:
-		'I provide elevated service and strategic guidance for clients buying or selling higher-end homes.',
-	luxury:
-		'White-glove service for discerning clients. I bring deep luxury market expertise, discretion, and a global network.',
-	investor:
-		'I help investors build wealth through data-driven real estate decisions, from analysis to portfolio strategy.',
-}
-
-const IDEAL_CLIENT_DESCRIPTIONS: Record<string, string> = {
-	entry:
-		'First-time buyers and young families who want patient guidance through every step.',
-	mid: 'Move-up buyers and sellers who value clear communication and dependable results.',
-	premium:
-		'Clients seeking a higher level of service for homes in top-tier neighborhoods.',
-	luxury:
-		'Discerning buyers and sellers who expect discretion, expertise, and white-glove attention.',
-	investor:
-		'Serious investors who want market data, ROI analysis, and portfolio strategy.',
-}
-
-const WHY_I_STARTED = [
-	'I became an agent after buying my first home and realizing how confusing the process can be.',
-	'I wanted to combine my love of real estate with helping people make confident decisions.',
-	'After years in sales, I found that real estate lets me build lasting relationships with clients.',
-	'I started in property management and realized I wanted to help clients buy and sell directly.',
-	'Helping friends and family buy homes showed me I had a knack for negotiation and advocacy.',
-]
-
-const TYPICAL_DAY_IN_DEAL = [
-	'I start with market updates, follow up with lenders and inspectors, and end with client calls.',
-	'My days blend showings, contract reviews, and coordination with title and escrow teams.',
-	'I spend mornings analyzing comps, afternoons touring homes, and evenings negotiating offers.',
-	'Most of my day is client communication: updates, answers, and keeping deals on track.',
-	'I focus on pipeline management, marketing listings, and preparing buyers for competitive offers.',
-]
-
-const HARD_NOS = [
-	'I do not represent buyers without pre-approval in competitive markets.',
-	'I will not take overpriced listings that ignore market data.',
-	'I do not work with clients who refuse to communicate openly.',
-	'I will not dual-represent without full written consent.',
-	'I do not guarantee outcomes I cannot control.',
-]
-
-const VALUE_BEYOND_TRANSACTIONS = [
-	'I connect clients with trusted lenders, inspectors, and contractors long after closing.',
-	'I provide market insights and neighborhood context that help clients plan their next move.',
-	'My clients get a lifelong real estate advisor, not just someone who closes a deal.',
-	'I help clients understand tax implications, school zones, and resale potential.',
-	'I stay in touch with annual home value updates and market trend reports.',
-]
-
-const CLIENT_FIRST_TERMS = [
-	'I answer every question honestly, even when the answer is not what the client wants to hear.',
-	"I put my clients' interests ahead of any commission or deal pressure.",
-	'I communicate proactively so clients never feel left in the dark.',
-	"I treat every client's money and timeline with the same care I would my own.",
-	'I negotiate fiercely but fairly, always aiming for a win-win outcome.',
-]
 
 const NOT_FIT_FOR = [
 	'I do not work with commercial properties or fix-and-flip investors.',
@@ -242,41 +128,10 @@ function generatePersona() {
 		typicalPriceRange: pick(PRICE_BY_TIER[priceTier]!),
 		bestClientTypes: sample(CLIENT_TYPES, clientTypeCount),
 		notFitFor: pick(NOT_FIT_FOR),
-		dealStressStyle: pick(DEAL_STRESS_STYLES),
-		communicationCadence: pick(COMMUNICATION_CADENCES),
-		quickContactStyle: pick(QUICK_CONTACT_STYLES),
-		updateDeliveryStyle: pick(UPDATE_DELIVERY_STYLES),
-		responseTime: pick(RESPONSE_TIMES),
-		dualAgencyStyle: pick(DUAL_AGENCY_STYLES),
-		energyStyle: pick(ENERGY_STYLES),
-		teachingStyle: pick(TEACHING_STYLES),
-		decisionMakingStyle: pick(DECISION_MAKING_STYLES),
-		transparencyStyle: pick(TRANSPARENCY_STYLES),
-		clientBoundaryStyle: pick(CLIENT_BOUNDARY_STYLES),
-		negotiationEthic: pick(NEGOTIATION_ETHICS),
-		serviceDepth: pick(SERVICE_DEPTHS),
-		involvementLevel: pick(INVOLVEMENT_LEVELS),
-		representationPreference: pick(REPRESENTATION_PREFERENCES),
-		matchPriorities: sample(
-			[
-				'communicationCadence',
-				'responseTime',
-				'transparencyStyle',
-				'experience',
-			],
-			randInt(1, 3),
-		),
 		yearsLicensed: approxLabel(YEARS_LABELS, years),
 		averageTransactions: approxLabel(TRANSACTION_LABELS, avgTrans),
 		employmentStatus: pick(EMPLOYMENT_STATUSES),
 		eoInsuranceStatus: pick(EO_INSURANCE_STATUSES),
-		valueProposition: VALUE_PROPOSITIONS[priceTier]!,
-		idealClientDescription: IDEAL_CLIENT_DESCRIPTIONS[priceTier]!,
-		whyIStarted: pick(WHY_I_STARTED),
-		typicalDayInDeal: pick(TYPICAL_DAY_IN_DEAL),
-		hardNo: pick(HARD_NOS),
-		valueBeyondTransaction: pick(VALUE_BEYOND_TRANSACTIONS),
-		clientFirstTerms: pick(CLIENT_FIRST_TERMS),
 		peacePactSigned: Math.random() < 0.75,
 		usePaxWriter: Math.random() < 0.8,
 	}
@@ -341,29 +196,6 @@ async function insertAgent(location: City, now: Date) {
 		typicalPriceRange: persona.typicalPriceRange,
 		bestClientTypes: persona.bestClientTypes,
 		notFitFor: persona.notFitFor,
-		dealStressStyle: persona.dealStressStyle,
-		communicationCadence: persona.communicationCadence,
-		quickContactStyle: persona.quickContactStyle,
-		updateDeliveryStyle: persona.updateDeliveryStyle,
-		responseTime: persona.responseTime,
-		dualAgencyStyle: persona.dualAgencyStyle,
-		energyStyle: persona.energyStyle,
-		teachingStyle: persona.teachingStyle,
-		decisionMakingStyle: persona.decisionMakingStyle,
-		transparencyStyle: persona.transparencyStyle,
-		clientBoundaryStyle: persona.clientBoundaryStyle,
-		negotiationEthic: persona.negotiationEthic,
-		serviceDepth: persona.serviceDepth,
-		involvementLevel: persona.involvementLevel,
-		representationPreference: persona.representationPreference,
-		matchPriorities: persona.matchPriorities,
-		valueProposition: persona.valueProposition,
-		idealClientDescription: persona.idealClientDescription,
-		whyIStarted: persona.whyIStarted,
-		typicalDayInDeal: persona.typicalDayInDeal,
-		hardNo: persona.hardNo,
-		valueBeyondTransaction: persona.valueBeyondTransaction,
-		clientFirstTerms: persona.clientFirstTerms,
 		firstName,
 		lastName,
 		brokerageName: pick(BROKERAGE_POOLS),

@@ -1,12 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { eq } from 'drizzle-orm'
-
 import { db } from '@/db/connection'
 import { agentProfiles, consumerProfiles, user } from '@/db/tables'
 import { requireUserId } from '@/lib/auth/functions'
 import { calculateFitScore, type AgentMatchData } from '@/lib/matching/scoring'
 import { getAvatarUrl } from '@/lib/s3'
-
 import {
 	agentProfileCreateSchema,
 	consumerProfileCreateSchema,
@@ -21,7 +19,6 @@ export type {
 
 export {
 	agentProfileColumns,
-	consumerLifecycleColumns,
 	consumerProfileColumns,
 } from '@/lib/matching/profile.db'
 
@@ -209,7 +206,6 @@ export const loadAgentMatches = createServerFn({ method: 'GET' }).handler(
 					agency: row.agent.brokerageName ?? '',
 					specialties: row.agent.bestClientTypes,
 					about:
-						row.agent.valueProposition ??
 						'Experienced real estate professional serving the local community.',
 					scores: score.scores,
 					contact: {

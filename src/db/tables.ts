@@ -13,7 +13,6 @@ import { sql } from 'drizzle-orm'
 
 import {
 	agentProfileColumns,
-	consumerLifecycleColumns,
 	consumerProfileColumns,
 } from '@/lib/matching/profile.db'
 
@@ -144,7 +143,6 @@ export const consumerProfiles = pgTable(
 	{
 		id: text().primaryKey().notNull(),
 		userId: text('user_id').notNull(),
-		...consumerLifecycleColumns,
 		...consumerProfileColumns,
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),

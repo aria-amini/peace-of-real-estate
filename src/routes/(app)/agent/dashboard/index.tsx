@@ -326,31 +326,8 @@ function computeProfileStrength(profile: AgentProfile | null) {
 		profile.bestClientTypes.length > 0,
 	]
 
-	const subjectiveFields = [
-		profile.communicationCadence,
-		profile.responseTime,
-		profile.transparencyStyle,
-		profile.negotiationEthic,
-		profile.energyStyle,
-		profile.teachingStyle,
-		profile.serviceDepth,
-		profile.involvementLevel,
-		profile.representationPreference,
-	]
-
-	const narrativeFields = [
-		profile.valueProposition,
-		profile.idealClientDescription,
-		profile.whyIStarted,
-	]
-
-	const completed =
-		essentialFields.filter(Boolean).length +
-		subjectiveFields.filter(Boolean).length +
-		narrativeFields.filter(Boolean).length
-
-	const total =
-		essentialFields.length + subjectiveFields.length + narrativeFields.length
+	const completed = essentialFields.filter(Boolean).length
+	const total = essentialFields.length
 	return Math.round((completed / total) * 100)
 }
 

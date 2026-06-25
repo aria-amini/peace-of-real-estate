@@ -8,11 +8,11 @@ export type ConsumerProfileStatus =
 
 export type RepresentationSide = 'buying' | 'selling' | 'both'
 
-export const consumerLifecycleColumns = {
-	status: text().$type<ConsumerProfileStatus>().default('draft').notNull(),
-}
-
 export const consumerProfileColumns = {
+	// Lifecycle
+	status: text().$type<ConsumerProfileStatus>().default('draft').notNull(),
+
+	// Profile
 	intent: text().$type<RepresentationSide>().notNull(),
 	state: text(),
 	city: text(),
@@ -30,7 +30,8 @@ export const consumerProfileColumns = {
 	matchDetails: text('match_details'),
 }
 
-export const agentCoreProfileColumns = {
+export const agentProfileColumns = {
+	// Core
 	representationSide: text('representation_side')
 		.$type<RepresentationSide>()
 		.notNull(),
@@ -39,38 +40,8 @@ export const agentCoreProfileColumns = {
 	typicalPriceRange: text('typical_price_range').notNull(),
 	bestClientTypes: text('best_client_types').array().notNull().default([]),
 	notFitFor: text('not_fit_for'),
-}
 
-export const agentSubjectiveProfileColumns = {
-	communicationCadence: text('communication_cadence'),
-	quickContactStyle: text('quick_contact_style'),
-	updateDeliveryStyle: text('update_delivery_style'),
-	responseTime: text('response_time'),
-	transparencyStyle: text('transparency_style'),
-	clientBoundaryStyle: text('client_boundary_style'),
-	negotiationEthic: text('negotiation_ethic'),
-	dualAgencyStyle: text('dual_agency_style'),
-	energyStyle: text('energy_style'),
-	teachingStyle: text('teaching_style'),
-	dealStressStyle: text('deal_stress_style'),
-	decisionMakingStyle: text('decision_making_style'),
-	serviceDepth: text('service_depth'),
-	involvementLevel: text('involvement_level'),
-	representationPreference: text('representation_preference'),
-	matchPriorities: text('match_priorities').array().notNull().default([]),
-}
-
-export const agentNarrativeProfileColumns = {
-	valueProposition: text('value_proposition'),
-	idealClientDescription: text('ideal_client_description'),
-	whyIStarted: text('why_i_started'),
-	typicalDayInDeal: text('typical_day_in_deal'),
-	hardNo: text('hard_no'),
-	valueBeyondTransaction: text('value_beyond_transaction'),
-	clientFirstTerms: text('client_first_terms'),
-}
-
-export const agentIdentityColumns = {
+	// Identity
 	firstName: text('first_name').notNull(),
 	lastName: text('last_name').notNull(),
 	brokerageName: text('brokerage_name').notNull(),
@@ -84,9 +55,8 @@ export const agentIdentityColumns = {
 	averageTransactions: text('average_transactions'),
 	employmentStatus: text('employment_status'),
 	licenseProof: text('license_proof'),
-}
 
-export const agentComplianceColumns = {
+	// Compliance
 	usePaxWriter: boolean('use_pax_writer').default(true).notNull(),
 	licenseAttested: boolean('license_attested').default(false).notNull(),
 	eoInsuranceStatus: text('eo_insurance_status').notNull(),
@@ -95,12 +65,4 @@ export const agentComplianceColumns = {
 	peacePactSignedAt: timestamp('peace_pact_signed_at', {
 		withTimezone: true,
 	}),
-}
-
-export const agentProfileColumns = {
-	...agentCoreProfileColumns,
-	...agentSubjectiveProfileColumns,
-	...agentNarrativeProfileColumns,
-	...agentIdentityColumns,
-	...agentComplianceColumns,
 }

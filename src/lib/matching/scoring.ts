@@ -43,27 +43,10 @@ const DEFAULT_BUCKET_SCORES: Record<ScoreBucket, number> = {
 	Fit: 3.8,
 }
 
-const involvementCompatibility: Record<string, string[]> = {
-	veryInvolved: ['scheduled', 'milestone'],
-	keyDetails: ['milestone', 'clientPaced'],
-	handsOff: ['clientPaced'],
-}
-
-const representationCompatibility: Record<string, string[]> = {
-	access: ['sameBrokerage', 'sellerOnly'],
-	exclusive: ['separateBrokerage'],
-}
-
 const experienceCompatibility: Record<string, string[]> = {
 	firstTime: ['firstTime'],
 	experienced: ['moveUp', 'relocation', 'investor', 'condoTownhome'],
 	veryExperienced: ['luxury', 'investor', 'landMultiFamily'],
-}
-
-const contactCompatibility: Record<string, string[]> = {
-	text: ['text', 'adaptable'],
-	call: ['call', 'adaptable'],
-	email: ['callThenEmail', 'email'],
 }
 
 const propertyTypeToClientType: Record<string, string[]> = {
@@ -84,16 +67,6 @@ function categoryWeight(
 ): number {
 	if (!priorities || priorities.length === 0) return 1
 	return priorities.some((id) => questionIds.includes(id)) ? 1.5 : 1
-}
-
-function isCompatible(
-	consumerValue: string | null | undefined,
-	compatibility: Record<string, string[]>,
-	agentValue: string | null | undefined,
-): boolean {
-	if (!consumerValue || !agentValue) return false
-	const compatible = compatibility[consumerValue]
-	return compatible ? compatible.includes(agentValue) : false
 }
 
 function hasAnyCompatible(
@@ -153,50 +126,6 @@ export function calculateFitScore(
 		buckets[bucket].points += points
 		buckets[bucket].max += max
 	}
-
-	add(
-		'Communication',
-		isCompatible(
-			consumer.preferredContactMethod,
-			contactCompatibility,
-			agent.quickContactStyle,
-		) ||
-			isCompatible(
-				consumer.preferredContactMethod,
-				contactCompatibility,
-				agent.updateDeliveryStyle,
-			)
-			? 2
-			: 0,
-		2,
-		['preferredContactMethod'],
-	)
-
-	add(
-		'Working Style',
-		isCompatible(
-			consumer.involvementLevel,
-			involvementCompatibility,
-			agent.communicationCadence,
-		)
-			? 2
-			: 0,
-		2,
-		['involvementLevel'],
-	)
-
-	add(
-		'Transparency',
-		isCompatible(
-			consumer.representationPreference,
-			representationCompatibility,
-			agent.dualAgencyStyle,
-		)
-			? 2
-			: 0,
-		2,
-		['representationPreference'],
-	)
 
 	const consumerPropertyTypes = consumer.propertyTypes ?? []
 	const agentClientTypes = agent.bestClientTypes
@@ -283,34 +212,9 @@ function calculateFallbackScore(agent: AgentProfile): {
 		agent.bestClientTypes.length ? 'client-types' : null,
 		agent.peacePactSigned ? 'peace-pact' : null,
 	].filter((value): value is string => typeof value === 'string').length
-	const workingStyle = [
-		agent.energyStyle,
-		agent.teachingStyle,
-		agent.dealStressStyle,
-		agent.decisionMakingStyle,
-	].filter(Boolean).length
-	const communication = [
-		agent.communicationCadence,
-		agent.quickContactStyle,
-		agent.updateDeliveryStyle,
-		agent.responseTime,
-	].filter(Boolean).length
-	const transparency = [
-		agent.transparencyStyle,
-		agent.clientBoundaryStyle,
-		agent.negotiationEthic,
-		agent.dualAgencyStyle,
-	].filter(Boolean).length
-	const max = 16
-	const points = fit + workingStyle + communication + transparency
 
 	return {
-		fitScore: Math.round((points / max) * 100),
-		scores: {
-			'Working Style': toStars(workingStyle, 4),
-			Communication: toStars(communication, 4),
-			Transparency: toStars(transparency, 4),
-			Fit: toStars(fit, 4),
-		},
+		fitScore: Math.round((fit / 4) * 100),
+		scores: DEFAULT_BUCKET_SCORES,
 	}
 }
