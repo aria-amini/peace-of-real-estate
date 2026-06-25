@@ -25,6 +25,7 @@
 		"compose:reset": "docker compose down --volumes --remove-orphans",
 		"db:init": "tsx scripts/init.ts",
 		"db:seed": "tsx scripts/seed.ts",
+		"db:push": "drizzle-kit push",
 		"prepare": "vp config --hooks-only",
 		"update-pnpm": "corepack prepare pnpm@latest --activate",
 		"knip": "knip"
