@@ -27,6 +27,7 @@ export const user = pgTable(
 		name: text().notNull(),
 		email: text().notNull(),
 		emailVerified: boolean('email_verified').default(false).notNull(),
+		isAnonymous: boolean('is_anonymous').default(false).notNull(),
 		image: text(),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
