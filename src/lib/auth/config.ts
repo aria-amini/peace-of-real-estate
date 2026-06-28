@@ -1,12 +1,44 @@
 import { db } from '@/db/connection'
-import { account, session, user, verification } from '@/db/tables'
+import {
+	account,
+	consumerProfiles,
+	session,
+	user,
+	verification,
+} from '@/db/tables'
 import { serverEnv as env } from '@/env.server'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { betterAuth } from 'better-auth'
-import { oAuthProxy } from 'better-auth/plugins'
+import { anonymous, oAuthProxy } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { eq } from 'drizzle-orm'
 
 const appOrigin = new URL(env.BETTER_AUTH_URL).origin
+
+async function transferConsumerProfile(
+	anonymousUserId: string,
+	newUserId: string,
+) {
+	const now = new Date()
+
+	const existingProfile = await db
+		.select({ id: consumerProfiles.id })
+		.from(consumerProfiles)
+		.where(eq(consumerProfiles.userId, newUserId))
+		.limit(1)
+
+	if (existingProfile[0]) {
+		await db
+			.delete(consumerProfiles)
+			.where(eq(consumerProfiles.userId, anonymousUserId))
+		return
+	}
+
+	await db
+		.update(consumerProfiles)
+		.set({ userId: newUserId, status: 'active', updatedAt: now })
+		.where(eq(consumerProfiles.userId, anonymousUserId))
+}
 
 export function getAuth() {
 	return betterAuth({
@@ -38,6 +70,13 @@ export function getAuth() {
 			},
 		},
 		plugins: [
+			anonymous({
+				emailDomainName: 'anonymous.peaceofrealestate.com',
+				generateName: () => 'Anonymous User',
+				onLinkAccount: async ({ anonymousUser, newUser }) => {
+					await transferConsumerProfile(anonymousUser.user.id, newUser.user.id)
+				},
+			}),
 			oAuthProxy({
 				productionURL: appOrigin,
 				secret: env.BETTER_AUTH_SECRET,

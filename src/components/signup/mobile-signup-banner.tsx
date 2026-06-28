@@ -13,29 +13,34 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from '@/components/ui/sheet'
-import { SignupForm, type SignupFormProps } from './signup-form'
+import { SignupForm } from './signup-form'
 
-type MobileSignupBannerProps<TData> = SignupFormProps<TData> & {
+type MobileSignupBannerProps = {
 	title: string
 	subtitle: string
 	ctaLabel?: string
+	redirect: string
+	disabled?: boolean
+	onSuccess?: () => void | Promise<void>
+	submitLabel?: string | undefined
+	showTerms?: boolean | undefined
 }
 
-export function MobileSignupBanner<TData>({
+export function MobileSignupBanner({
 	title,
 	subtitle,
 	ctaLabel = 'Create account',
-	...signupFormProps
-}: MobileSignupBannerProps<TData>) {
+	redirect,
+	disabled = false,
+	onSuccess,
+	submitLabel,
+	showTerms,
+}: MobileSignupBannerProps) {
 	const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-	const redirect = signupFormProps.redirect
-	const callbackURL =
-		typeof window !== 'undefined'
-			? new URL(redirect, window.location.origin).toString()
-			: redirect
 
 	const handleGoogleSignIn = async () => {
 		setIsGoogleLoading(true)
+		const callbackURL = new URL(redirect, window.location.origin).toString()
 		try {
 			const { data, error } = await authClient.signIn.social({
 				provider: 'google',
@@ -110,7 +115,14 @@ export function MobileSignupBanner<TData>({
 						Save your profile and start matching.
 					</SheetDescription>
 				</SheetHeader>
-				<SignupForm {...signupFormProps} idPrefix="mobile-signup" />
+				<SignupForm
+					redirect={redirect}
+					idPrefix="mobile-signup"
+					disabled={disabled}
+					onSuccess={onSuccess}
+					submitLabel={submitLabel}
+					showTerms={showTerms}
+				/>
 			</SheetContent>
 		</Sheet>
 	)

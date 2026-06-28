@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
 	Banknote,
 	Briefcase,
@@ -11,6 +11,9 @@ import {
 	Zap,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { useServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { AgentPreviewCard } from '@/components/match/card'
@@ -46,6 +49,41 @@ export function draftToPreviewProfile(draft: AgentDraft): AgentPreviewProfile {
 
 export function AgentPreview({ profile }: { profile: AgentPreviewProfile }) {
 	const showMobileSignup = useIsBelowDesktop()
+	const navigate = useNavigate()
+	const activateProfile = useServerFn(completeAgentSignup)
+	const [isActivating, setIsActivating] = useState(false)
+
+	const handleAuthSuccess = async () => {
+		if (isActivating) return
+		setIsActivating(true)
+
+		try {
+			const draft = agentDraftStorage.load()
+			if (!draft) {
+				await navigate({ to: '/agent/dashboard/introductions' })
+				return
+			}
+
+			const parsed = agentProfileCreateSchema.safeParse(draft)
+			if (!parsed.success) {
+				toast.error('Profile is incomplete. Please review your answers.')
+				setIsActivating(false)
+				return
+			}
+
+			await activateProfile({ data: parsed.data })
+			agentDraftStorage.clear()
+			await navigate({ to: '/agent/dashboard/introductions' })
+		} catch (error) {
+			const message =
+				error && typeof error === 'object' && 'message' in error
+					? String(error.message)
+					: 'Unable to activate profile. Try again.'
+			toast.error(message)
+			console.error('Agent profile activation failed', error)
+			setIsActivating(false)
+		}
+	}
 
 	return (
 		<div className="min-h-dvh w-full bg-slate-50">
@@ -85,11 +123,10 @@ export function AgentPreview({ profile }: { profile: AgentPreviewProfile }) {
 						<SignupForm
 							idPrefix="desktop-signup"
 							redirect="/agent/dashboard/introductions"
-							createProfile={completeAgentSignup}
-							loadDraft={agentDraftStorage.load}
-							clearDraft={agentDraftStorage.clear}
 							submitLabel="Activate profile"
 							showTerms={false}
+							onSuccess={handleAuthSuccess}
+							disabled={isActivating}
 						/>
 					</div>
 				</div>
@@ -121,9 +158,8 @@ export function AgentPreview({ profile }: { profile: AgentPreviewProfile }) {
 					subtitle="Create your account to start matching with consumers."
 					ctaLabel="Create account"
 					redirect="/agent/dashboard/introductions"
-					createProfile={completeAgentSignup}
-					loadDraft={agentDraftStorage.load}
-					clearDraft={agentDraftStorage.clear}
+					onSuccess={handleAuthSuccess}
+					disabled={isActivating}
 					submitLabel="Activate profile"
 					showTerms={false}
 				/>

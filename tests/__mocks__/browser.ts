@@ -13,9 +13,13 @@ export function setMockSession(session: MockSession) {
 vi.mock('@/lib/auth/client', () => ({
 	authClient: {
 		useSession: () => ({ data: authState.session, isPending: false }),
+		getSession: () => Promise.resolve({ data: authState.session, error: null }),
 		signIn: {
 			email: vi.fn(),
 			social: vi.fn(),
+			anonymous: vi.fn(() =>
+				Promise.resolve({ data: { user: { id: 'anon-user' } }, error: null }),
+			),
 		},
 		signUp: {
 			email: vi.fn(),

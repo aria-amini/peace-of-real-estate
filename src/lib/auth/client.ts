@@ -1,4 +1,5 @@
 import { createAuthClient } from 'better-auth/react'
+import { anonymousClient } from 'better-auth/client/plugins'
 import { createIsomorphicFn } from '@tanstack/react-start'
 
 const getAuthBaseURL = createIsomorphicFn()
@@ -7,4 +8,5 @@ const getAuthBaseURL = createIsomorphicFn()
 
 export const authClient = createAuthClient({
 	baseURL: getAuthBaseURL(),
+	plugins: [anonymousClient()],
 })
