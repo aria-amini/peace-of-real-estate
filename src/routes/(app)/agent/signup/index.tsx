@@ -24,23 +24,16 @@ import { agentFlowSteps, stepOrder, type AgentFlowStep } from './-steps/shared'
 
 const signupSearchSchema = z.object({
 	step: z
-		.enum([
-			'welcome',
-			'identity',
-			'market',
-			'compliance',
-			'peacePact',
-			'preview',
-		])
-		.default('welcome')
-		.catch('welcome'),
+		.enum(['intro', 'identity', 'market', 'compliance', 'peacePact', 'preview'])
+		.default('intro')
+		.catch('intro'),
 })
 
 export const Route = createFileRoute('/(app)/agent/signup/')({
 	validateSearch: signupSearchSchema,
 	beforeLoad: async ({ search }) => {
 		const validSteps = [
-			'welcome',
+			'intro',
 			'identity',
 			'market',
 			'compliance',
@@ -48,7 +41,7 @@ export const Route = createFileRoute('/(app)/agent/signup/')({
 			'preview',
 		] as const
 		if (!validSteps.includes(search.step)) {
-			throw redirect({ to: '/agent/signup', search: { step: 'welcome' } })
+			throw redirect({ to: '/agent/signup', search: { step: 'intro' } })
 		}
 
 		const session = await getCurrentSession()
@@ -157,7 +150,7 @@ function AgentSignupRoute() {
 				onStepClick={(nextStep) => goToStep(nextStep as AgentFlowStep)}
 				completedStepIds={completedStepIds}
 			>
-				{step === 'welcome' ? (
+				{step === 'intro' ? (
 					<AgentWelcome onContinue={() => goToStep('identity')} />
 				) : step === 'identity' ? (
 					<AgentIdentity

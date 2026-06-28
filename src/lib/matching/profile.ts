@@ -124,7 +124,23 @@ export const updateAgentProfile = createServerFn({ method: 'POST' })
 export const createConsumerProfileFromDraft = createServerFn({ method: 'POST' })
 	.validator((data: ConsumerProfileUpdate) => data)
 	.handler(async ({ data }) => {
-		await requireUserId()
+		const userId = await requireUserId()
+		const now = new Date()
+
+		const existing = await db
+			.select({ id: consumerProfiles.id })
+			.from(consumerProfiles)
+			.where(eq(consumerProfiles.userId, userId))
+			.limit(1)
+
+		if (existing[0]) {
+			await db
+				.update(consumerProfiles)
+				.set({ status: 'active', updatedAt: now })
+				.where(eq(consumerProfiles.id, existing[0].id))
+			return { success: true }
+		}
+
 		const createInput = consumerProfileCreateSchema.parse({
 			...data,
 			status: 'active',
