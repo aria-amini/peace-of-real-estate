@@ -38,18 +38,26 @@ export const Route = createRootRouteWithContext<{
 		}
 
 		const session = await getCurrentSession()
-		const [role] = location.pathname.split('/').filter(Boolean)
-		if (role !== 'agent' && role !== 'consumer') {
+		const path = location.pathname.split('/').filter(Boolean)
+		const role = path[0]
+		const isDashboard = path[1] === 'dashboard'
+
+		if (!isDashboard || (role !== 'agent' && role !== 'consumer')) {
 			return
 		}
-		if (!session || session.user?.isAnonymous) {
+
+		if (!session) {
 			throw redirect({
-				to: `/${role}/signup`,
+				to: role === 'agent' ? '/agent/signup' : '/consumer/signup',
 				search: { step: 'intro' },
 			})
 		}
-		if (session.user.isAnonymous) {
-			throw redirect({ to: `/${role}/signup`, search: { step: 'preview' } })
+
+		if (session.user?.isAnonymous) {
+			throw redirect({
+				to: role === 'agent' ? '/agent/signup' : '/consumer/signup',
+				search: { step: 'preview' },
+			})
 		}
 	},
 	component: RootComponent,
