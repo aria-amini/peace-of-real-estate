@@ -27,8 +27,6 @@ export const Route = createRootRouteWithContext<{
 		],
 	}),
 	beforeLoad: async ({ location }) => {
-		if (import.meta.env.DEV) return
-
 		const isAuthenticated = hasBetaAccess()
 
 		if (!isAuthenticated && location.pathname !== '/beta') {
@@ -40,25 +38,18 @@ export const Route = createRootRouteWithContext<{
 		}
 
 		const session = await getCurrentSession()
-		const protectedPrefixes = ['/agent/dashboard/', '/consumer/dashboard/']
-
-		if (
-			!session &&
-			protectedPrefixes.some((prefix) => location.pathname.startsWith(prefix))
-		) {
-			if (location.pathname.startsWith('/agent/')) {
-				throw redirect({
-					to: '/login',
-					search: { redirect: location.pathname },
-				})
-			}
-
-			if (location.pathname.startsWith('/consumer/')) {
-				throw redirect({
-					to: '/consumer/signup',
-					search: { step: 'intro' },
-				})
-			}
+		const [role] = location.pathname.split('/').filter(Boolean)
+		if (role !== 'agent' && role !== 'consumer') {
+			return
+		}
+		if (!session || session.user?.isAnonymous) {
+			throw redirect({
+				to: `/${role}/signup`,
+				search: { step: 'intro' },
+			})
+		}
+		if (session.user.isAnonymous) {
+			throw redirect({ to: `/${role}/signup`, search: { step: 'preview' } })
 		}
 	},
 	component: RootComponent,
