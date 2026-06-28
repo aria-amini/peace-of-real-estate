@@ -10,25 +10,23 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 
-export type SignupFormProps<TData = unknown> = {
+export type SignupFormProps = {
 	idPrefix?: string
 	redirect: string
-	createProfile: (payload: { data: TData }) => Promise<unknown>
-	loadDraft: () => TData | null
-	clearDraft: () => void
-	submitLabel?: string
-	showTerms?: boolean
+	submitLabel?: string | undefined
+	showTerms?: boolean | undefined
+	disabled?: boolean
+	onSuccess?: (() => void | Promise<void>) | undefined
 }
 
-export function SignupForm<TData>({
+export function SignupForm({
 	idPrefix = 'signup',
 	redirect,
-	createProfile,
-	loadDraft,
-	clearDraft,
 	submitLabel = 'Create my account',
 	showTerms = true,
-}: SignupFormProps<TData>) {
+	disabled = false,
+	onSuccess,
+}: SignupFormProps) {
 	const navigate = useNavigate()
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
@@ -48,7 +46,7 @@ export function SignupForm<TData>({
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
-		if (isSubmitting) return
+		if (isSubmitting || disabled) return
 		setIsSubmitting(true)
 
 		try {
@@ -59,13 +57,11 @@ export function SignupForm<TData>({
 			})
 			if (error) throw error
 
-			const draft = loadDraft()
-			if (draft) {
-				await createProfile({ data: draft })
-				clearDraft()
+			if (onSuccess) {
+				await onSuccess()
+			} else {
+				await navigate({ to: redirect })
 			}
-
-			await navigate({ to: redirect })
 		} catch (error) {
 			const message =
 				error && typeof error === 'object' && 'message' in error
@@ -95,7 +91,7 @@ export function SignupForm<TData>({
 								placeholder="Jordan Lee"
 								value={name}
 								onChange={(event) => setName(event.target.value)}
-								disabled={isSubmitting || isGoogleLoading}
+								disabled={isSubmitting || isGoogleLoading || disabled}
 								required
 								className="h-9 rounded-xl border-white/20 bg-white/10 pl-10 text-sm text-white placeholder:text-white/40 lg:h-11 lg:text-base"
 							/>
@@ -116,7 +112,7 @@ export function SignupForm<TData>({
 								placeholder="you@example.com"
 								value={email}
 								onChange={(event) => setEmail(event.target.value)}
-								disabled={isSubmitting || isGoogleLoading}
+								disabled={isSubmitting || isGoogleLoading || disabled}
 								autoComplete="email"
 								required
 								className="h-9 rounded-xl border-white/20 bg-white/10 pl-10 text-sm text-white placeholder:text-white/40 lg:h-11 lg:text-base"
@@ -138,7 +134,7 @@ export function SignupForm<TData>({
 								placeholder="Choose a password"
 								value={password}
 								onChange={(event) => setPassword(event.target.value)}
-								disabled={isSubmitting || isGoogleLoading}
+								disabled={isSubmitting || isGoogleLoading || disabled}
 								autoComplete="new-password"
 								required
 								className="h-9 rounded-xl border-white/20 bg-white/10 pl-10 text-sm text-white placeholder:text-white/40 lg:h-11 lg:text-base"
@@ -147,7 +143,7 @@ export function SignupForm<TData>({
 					</Field>
 					<Button
 						type="submit"
-						disabled={isSubmitting || isGoogleLoading}
+						disabled={isSubmitting || isGoogleLoading || disabled}
 						className="bg-accent text-accent-foreground hover:bg-accent/90 h-9 w-full rounded-xl text-sm font-semibold lg:h-11 lg:text-base"
 					>
 						{isSubmitting ? (
@@ -168,7 +164,7 @@ export function SignupForm<TData>({
 					<Button
 						type="button"
 						onClick={handleGoogleSignIn}
-						disabled={isGoogleLoading || isSubmitting}
+						disabled={isGoogleLoading || isSubmitting || disabled}
 						variant="outline"
 						className="h-9 w-full rounded-xl border-white bg-white text-sm font-medium text-slate-950 hover:bg-slate-100 hover:text-slate-950 lg:h-11 lg:text-base"
 					>

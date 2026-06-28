@@ -1,12 +1,23 @@
 import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getRequestHeaders } from '@tanstack/react-start/server'
+import {
+	getRequestHeaders,
+	setResponseHeaders,
+} from '@tanstack/react-start/server'
 import { getAuth } from './config'
 
-export const getCurrentSession = createServerFn({ method: 'GET' }).handler(() =>
-	getAuth().api.getSession({
-		headers: getRequestHeaders(),
-	}),
+export const getCurrentSession = createServerFn({ method: 'GET' }).handler(
+	() => {
+		setResponseHeaders(
+			new Headers({
+				'Cache-Control': 'private, no-store',
+				Vary: 'Cookie',
+			}),
+		)
+		return getAuth().api.getSession({
+			headers: getRequestHeaders(),
+		})
+	},
 )
 
 export async function requireUserId(): Promise<string> {
